@@ -49,13 +49,15 @@ fun LanguageHost(content: @Composable () -> Unit) {
     val veil = remember { Animatable(0f) }
 
     LaunchedEffect(target) {
-        if (target == shown) return@LaunchedEffect
-        veil.animateTo(1f, tween(260, easing = Motion.Accelerate))
-        shown = target
-        PrayerAlarms.ensureChannel(ctx)
-        withFrameNanos { }
-        withFrameNanos { }
-        veil.animateTo(0f, tween(520, easing = Motion.Decelerate))
+        if (target != shown) {
+            veil.animateTo(1f, tween(260, easing = Motion.Accelerate))
+            shown = target
+            PrayerAlarms.ensureChannel(ctx)
+            withFrameNanos { }
+            withFrameNanos { }
+        }
+        // يُرفع الستار دائماً، حتى لو عاد المستخدم إلى اللغة السابقة قبل اكتمال الحركة
+        if (veil.value > 0f) veil.animateTo(0f, tween(520, easing = Motion.Decelerate))
     }
 
     Box(Modifier.fillMaxSize()) {
