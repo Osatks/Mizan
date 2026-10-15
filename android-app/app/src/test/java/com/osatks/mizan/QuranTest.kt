@@ -137,4 +137,35 @@ class QuranTest {
         val week = (0L..6L).map { com.osatks.mizan.widget.AyahWidget.ayahOfDay(text, d.plusDays(it)) }.toSet()
         assertEquals(7, week.size)
     }
+
+    @Test
+    fun mushafPagesFillTheFrameAndEndFlush() {
+        val text = runBlocking { QuranData.uthmani() }
+        // قياس تقريبي ثابت: يكفي لاختبار التوزيع (القياس الحقيقي من خط المصحف على الجهاز)
+        val m = com.osatks.mizan.ui.quran.Measure { t, size -> t.length * size * 0.42f }
+        val w = 1000f; val h = 1700f
+        for (page in listOf(1, 2, 3, 50, 82, 151, 293, 450, 590, 604)) {
+            val blocks = com.osatks.mizan.ui.quran.pageBlocks(page, text)
+            val l = com.osatks.mizan.ui.quran.layoutPage(blocks, w, h, 13f, 30f, 0.5f, m)
+            assertTrue("page $page fits", l.fits)
+            val rows = l.rows.filterIsInstance<com.osatks.mizan.ui.quran.TextRow>()
+            // كل آيات الصفحة بترتيبها، وكل آية تنتهي بعلامتها مرة واحدة
+            val ends = rows.flatMap { r -> r.words.filter { it.word.marker != null }.map { it.word.index } }
+            assertEquals("page $page ayahs", QuranMeta.pageRange(page).toList(), ends)
+            for (r in rows) for (pl in r.words) assertTrue("page $page inside", pl.left >= -1f && pl.right <= w + 1f)
+            if (!l.capped) {
+                // تبدأ الصفحة في أعلاها وتنتهي في أسفلها، والسطر الأخير مضبوط حتى طرفه
+                assertEquals(0f, l.rows.first().top, 0.5f)
+                val last = l.rows.last()
+                assertEquals("page $page bottom", h, last.top + last.height, 0.5f)
+                val lr = rows.last()
+                assertEquals("page $page flush", 0f, lr.words.last().left, 1f)
+                assertEquals(w, lr.words.first().right, 1f)
+            }
+            // اللمس في وسط كلمة يعيد آيتها
+            val pl = rows[rows.size / 2].words.first()
+            val row = rows[rows.size / 2]
+            assertEquals(pl.word.index, l.hit((pl.left + pl.right) / 2, row.top + row.height / 2))
+        }
+    }
 }

@@ -11,6 +11,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -125,7 +126,15 @@ fun PageHeader(
                 Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.headlineSmall, color = Color.White)
+                // العنوان يتبدل بانزلاق لطيف (مثل اسم السورة عند تقليب صفحات المصحف)
+                androidx.compose.animation.AnimatedContent(
+                    title,
+                    transitionSpec = {
+                        (fadeIn(tween(Motion.MEDIUM)) + androidx.compose.animation.slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it / 2 }) togetherWith
+                            fadeOut(tween(Motion.SHORT)) using androidx.compose.animation.SizeTransform(clip = false)
+                    },
+                    label = "title"
+                ) { t -> Text(t, style = MaterialTheme.typography.headlineSmall, color = Color.White) }
                 if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = .85f))
             }
             actions()
@@ -148,7 +157,7 @@ class PageScope internal constructor(private val list: LazyListScope, private va
 @Composable
 fun ToolPage(
     title: String, subtitle: String? = null, onBack: (() -> Unit)? = null,
-    sharedKey: String? = null, icon: ImageVector? = null,
+    sharedKey: String? = null, icon: ImageVector? = null, spacing: Dp = 14.dp,
     content: PageScope.() -> Unit
 ) {
     val reveal = remember { RevealState() }
@@ -158,7 +167,7 @@ fun ToolPage(
         androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalDark.current) { LazyColumn(
             modifier = Modifier.fillMaxSize().imePadding(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + nav + LocalBottomInset.current),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(spacing),
         ) { PageScope(this, reveal).content() } }
     }
 }

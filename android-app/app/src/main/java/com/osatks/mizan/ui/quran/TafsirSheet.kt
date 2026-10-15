@@ -52,6 +52,10 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.AnnotatedString
+import com.osatks.mizan.quran.arabicDigits
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -76,7 +80,7 @@ import com.osatks.mizan.ui.theme.Gold
 @Composable
 fun TafsirSheet(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onDismiss: () -> Unit) {
     val sheet = rememberModalBottomSheetState()
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surface) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = mushafPalette().paper) {
         TafsirContent(surah, ayah, text, onAyah)
     }
 }
@@ -145,9 +149,14 @@ fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> U
                 },
                 label = "ayahText"
             ) { a ->
+                val mp = mushafPalette()
                 Text(
-                    QuranData.withoutBismillah(text, QuranMeta.index(surah, a)), Modifier.fillMaxWidth(),
-                    style = quranStyle(24), color = MaterialTheme.colorScheme.primary
+                    buildAnnotatedString {
+                        append(QuranData.withoutBismillah(text, QuranMeta.index(surah, a)))
+                        append('\u00A0')
+                        withStyle(SpanStyle(color = mp.marker)) { append("\u06DD" + arabicDigits(a)) }
+                    },
+                    Modifier.fillMaxWidth(), style = quranStyle(24), color = mp.ink
                 )
             }
 

@@ -549,7 +549,7 @@ object Fr : Strings {
     override fun planDays(days: Int) = if (days == 0) "Sans délai" else "$days jours"
     override fun pagesRead(read: Int, total: Int) = "$read / $total pages"
     override val todayPortion = "Portion du jour"
-    override fun streakDays(n: Int) = "Série : $n jours"
+    override fun streakDays(n: Int) = "Série : $n " + (if (n <= 1) "jour" else "jours")
     override fun daysLeftLabel(n: Int) = "Jours restants : $n"
     override val portionDone = "Portion du jour terminée ✓"
     override val khatmaDone = "Khatma terminée ✓ Qu'Allah l'accepte"

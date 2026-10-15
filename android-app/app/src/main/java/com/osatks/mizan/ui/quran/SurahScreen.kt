@@ -2,9 +2,9 @@ package com.osatks.mizan.ui.quran
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,13 +16,12 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -34,8 +33,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -49,7 +46,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -64,18 +60,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
@@ -85,13 +75,25 @@ import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.quran.Sources
 import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.PageHeader
-import com.osatks.mizan.ui.pressScale
 import com.osatks.mizan.ui.theme.Gold
 import kotlinx.coroutines.launch
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlin.math.absoluteValue
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineHeightStyle
 
 /**
  * صفحة السورة. عرض المصحف: صفحات مصحف المدينة (604) تُقلَّب يميناً ويساراً، في رأسها السورة والجزء والحزب
- * وفي أسفلها رقم الصفحة، وكل آية تنتهي بعلامة ۝ برقمها. عرض آية آية: بطاقة لكل آية مع ترجمة المعاني.
+ * وفي أسفلها رقم الصفحة، وكل آية تنتهي بعلامة \u06DD برقمها. عرض آية آية: بطاقة لكل آية مع ترجمة المعاني.
  * الضغط على أي آية يفتح تفسيرها. الصفحة التي يبقى عليها القارئ ثلاث ثوانٍ تُحسب مقروءة في الختمة.
  */
 @Composable
@@ -174,32 +176,54 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             }
             return@Column
         }
-        if (mode == "mushaf") {
-            // صفحات المصحف تُقلَّب كالكتاب العربي: التالية على اليسار
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { it }) { p ->
-                    MushafPage(p + 1, t, selIdx, bottom) { open(it) }
-                }
-            }
-        } else {
-            LazyColumn(
-                state = list, modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 24.dp + bottom),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                item(key = "banner") {
-                    Column(Modifier.padding(bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        SurahBanner(QuranMeta.NAMES_AR[listSurah - 1], if (QuranData.hasBismillahHeader(listSurah)) t[0] else null)
-                        Spacer(Modifier.size(6.dp))
-                        Text(s.quranSubtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        // التبديل بين المصحف وعرض آية آية بتلاشٍ وتكبير خفيف
+        AnimatedContent(
+            mode,
+            transitionSpec = {
+                (fadeIn(tween(Motion.MEDIUM, 60)) + scaleIn(tween(Motion.MEDIUM, easing = Motion.Decelerate), 0.96f)) togetherWith
+                    fadeOut(tween(Motion.SHORT))
+            },
+            label = "mode"
+        ) { m ->
+            if (m == "mushaf") {
+                // صفحات المصحف تُقلَّب كالكتاب العربي: التالية على اليسار، والصفحة المغادرة تنحسر قليلاً
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { it }) { p ->
+                        Box(
+                            Modifier.fillMaxSize().graphicsLayer {
+                                val o = ((pager.currentPage - p) + pager.currentPageOffsetFraction).absoluteValue.coerceAtMost(1f)
+                                val sc = 1f - 0.06f * o
+                                scaleX = sc; scaleY = sc
+                                alpha = 1f - 0.4f * o
+                            }
+                        ) { MushafPage(p + 1, t, selIdx, bottom) { open(it) } }
                     }
                 }
-                items(count, key = { "a${listSurah}_${it + 1}" }) { i ->
-                    val a = i + 1
-                    val idx = QuranMeta.index(listSurah, a)
-                    AyahCard(listSurah, a, t, trText, translation?.lang?.rtl ?: false, selIdx == idx, size) { open(idx) }
+            } else {
+                val paper = mushafPalette()
+                LazyColumn(
+                    state = list, modifier = Modifier.fillMaxSize().drawBehind { drawPaper(paper) },
+                    contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 24.dp + bottom),
+                ) {
+                    item(key = "banner") {
+                        Column(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            SurahCartouche(QuranMeta.NAMES_AR[listSurah - 1])
+                            if (QuranData.hasBismillahHeader(listSurah)) {
+                                Text(
+                                    t[0], Modifier.fillMaxWidth().padding(top = 10.dp), textAlign = TextAlign.Center,
+                                    style = quranStyle(26, TextAlign.Center), color = paper.ink
+                                )
+                            }
+                            Text(s.quranSubtitle, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodySmall, color = paper.muted)
+                        }
+                    }
+                    items(count, key = { "a${listSurah}_${it + 1}" }) { i ->
+                        val a = i + 1
+                        val idx = QuranMeta.index(listSurah, a)
+                        AyahItem(listSurah, a, t, trText, translation?.lang?.rtl ?: false, selIdx == idx, size, last = a == count) { open(idx) }
+                    }
+                    item(key = "nav") { SurahNav(listSurah) { n -> listSurah = n; scope.launch { list.scrollToItem(0) } } }
                 }
-                item(key = "nav") { SurahNav(listSurah) { n -> listSurah = n; scope.launch { list.scrollToItem(0) } } }
             }
         }
     }
@@ -225,71 +249,84 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
 }
 
 /**
- * صفحة واحدة من مصحف المدينة: إطار ذهبي، ورأس فيه اسم السورة والجزء والحزب، وترويسة لكل سورة تبدأ فيها،
- * والآيات متصلة تنتهي كل منها بعلامة ۝ ورقمها، وفي الأسفل رقم الصفحة.
+ * صفحة واحدة من مصحف المدينة على ورق دافئ بإطار مذهّب: في رأسها اسم السورة والجزء والحزب،
+ * وتحتها نص الصفحة مضبوطاً من الطرفين، وفي أسفلها رقم الصفحة في ميدالية تجلس على الإطار.
  */
 @Composable
 private fun MushafPage(page: Int, text: Array<String>, selected: Int, bottomInset: androidx.compose.ui.unit.Dp, onTap: (Int) -> Unit) {
-    val s = LocalStrings.current
-    val range = QuranMeta.pageRange(page)
-    val first = range.first
+    val p = mushafPalette()
+    val first = QuranMeta.pageRange(page).first
     val (firstSurah, _) = QuranMeta.locate(first)
-    val marker = MaterialTheme.colorScheme.primary
-    Column(Modifier.fillMaxSize().padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 8.dp + bottomInset)) {
-        Surface(
-            shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.5.dp, Gold.copy(alpha = .55f)), modifier = Modifier.fillMaxSize()
-        ) {
-            Column(Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 8.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("سُورَةُ ${QuranMeta.NAMES_AR[firstSurah - 1]}", style = quranStyle(16), color = marker, modifier = Modifier.weight(1f))
-                    Text(
-                        "${s.juzName(QuranMeta.juzOf(first))} · ${s.hizbName(QuranMeta.hizbOf(first))}",
-                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(Modifier.size(6.dp))
-                MushafText(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth())
-                Text(
-                    "$page", Modifier.fillMaxWidth().padding(top = 4.dp), textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+    val read = remember(QuranProgress.readCount, page) { QuranProgress.isRead(page) }
+    val range = QuranMeta.pageRange(page)
+    val marked = QuranPrefs.bookmarks.any { it in range }
+    val ribbon by animateFloatAsState(if (marked) 1f else 0f, spring(dampingRatio = 0.6f, stiffness = 300f), label = "ribbon")
+    val shape = RoundedCornerShape(18.dp)
+    val head = TextStyle(
+        fontFamily = QuranFont, fontSize = 15.sp, lineHeight = 22.sp, textDirection = TextDirection.Rtl,
+        lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
+    )
+    Column(
+        Modifier.fillMaxSize()
+            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 8.dp + bottomInset)
+            .shadow(10.dp, shape, ambientColor = Color(0xFF5C4300), spotColor = Color(0xFF5C4300))
+            .clip(shape)
+            .drawBehind { drawPaper(p); drawPageFrame(p); if (ribbon > 0f) drawRibbon(p, ribbon) }
+            .padding(start = 20.dp, end = 20.dp, top = 17.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("سُورَةُ ${QuranMeta.NAMES_AR[firstSurah - 1]}", Modifier.weight(1f), style = head, color = p.goldDeep, maxLines = 1)
+            Text(
+                "الجزء ${JUZ_ORDINALS[QuranMeta.juzOf(first) - 1]} · الحزب ${arabicDigits(QuranMeta.hizbOf(first))}",
+                style = head.copy(fontSize = 13.sp), color = p.muted, maxLines = 1
+            )
         }
+        Spacer(Modifier.fillMaxWidth().height(10.dp).drawBehind { drawRule(size.height / 2, 0f, size.width, p) })
+        MushafCanvas(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth().padding(top = 8.dp, bottom = 2.dp))
+        PageMedallion(page, read, Modifier.align(Alignment.CenterHorizontally))
     }
 }
 
-/** بطاقة آية في عرض آية آية، وتحتها ترجمة المعاني */
+/**
+ * آية في عرض آية آية: النص بخط المصحف تنتهي بعلامة \u06DD ورقمها، وتحته ترجمة معانيها،
+ * على ورق المصحف بلا صناديق؛ تفصل بين الآيات زخرفة رفيعة، والمختارة تُظلَّل.
+ */
 @Composable
-private fun AyahCard(
+private fun AyahItem(
     surah: Int, ayah: Int, text: Array<String>, translation: Array<String>?, trRtl: Boolean,
-    selected: Boolean, size: Int, onTap: () -> Unit,
+    selected: Boolean, size: Int, last: Boolean, onTap: () -> Unit,
 ) {
+    val p = mushafPalette()
     val index = QuranMeta.index(surah, ayah)
-    val bg by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface, tween(Motion.MEDIUM), label = "ayah"
-    )
-    val src = remember { MutableInteractionSource() }
-    Surface(
-        onClick = onTap, shape = RoundedCornerShape(18.dp), color = bg,
-        border = BorderStroke(1.dp, if (selected) Gold.copy(alpha = .6f) else MaterialTheme.colorScheme.outlineVariant),
-        interactionSource = src, modifier = Modifier.fillMaxWidth().pressScale(src, 0.985f)
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                AyahMarker(ayah, Modifier.size(34.dp), 12.sp)
-                Spacer(Modifier.weight(1f))
-                if (QuranPrefs.isBookmarked(index)) Icon(Icons.Filled.Bookmark, null, tint = Gold, modifier = Modifier.size(20.dp))
+    val bg by animateColorAsState(if (selected) p.select else Color.Transparent, tween(Motion.MEDIUM), label = "ayah")
+    val body = remember(index, text, p) {
+        buildAnnotatedString {
+            append(QuranData.withoutBismillah(text, index))
+            append('\u00A0')
+            withStyle(SpanStyle(color = p.marker)) { append("\u06DD" + arabicDigits(ayah)) }
+        }
+    }
+    Column {
+        Column(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(bg).clickable(onClick = onTap)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (QuranPrefs.isBookmarked(index)) {
+                Icon(Icons.Filled.Bookmark, null, tint = p.goldDeep, modifier = Modifier.size(18.dp).align(Alignment.End))
             }
-            Text(QuranData.withoutBismillah(text, index), Modifier.fillMaxWidth(), style = quranStyle(size), color = MaterialTheme.colorScheme.onSurface)
+            Text(body, Modifier.fillMaxWidth(), style = quranStyle(size), color = p.ink)
             if (translation != null) {
                 Text(
                     translation[index], Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodyMedium.copy(textDirection = if (trRtl) TextDirection.Rtl else TextDirection.Ltr),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        textDirection = if (trRtl) TextDirection.Rtl else TextDirection.Ltr, lineHeight = 22.sp
+                    ),
+                    color = p.muted
                 )
             }
         }
+        if (!last) OrnamentDivider(Modifier.padding(vertical = 2.dp))
     }
 }
 

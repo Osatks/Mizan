@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -68,15 +69,36 @@ fun AyahMarker(n: Int, modifier: Modifier = Modifier.size(30.dp), numberSize: Te
     }
 }
 
-/** رقم السورة داخل نجمة (في الفهارس) */
+/**
+ * رقم السورة داخل نجمة (في الفهارس). progress نسبة ما قُرئ من صفحاتها في الختمة:
+ * تُرسم حلقة ذهبية حول النجمة، وتمتلئ النجمة بالذهب حين تكتمل السورة.
+ */
 @Composable
-fun NumberStar(n: Int, size: Dp = 40.dp) {
+fun NumberStar(n: Int, size: Dp = 40.dp, progress: Float = 0f) {
     val color = MaterialTheme.colorScheme.primary
+    val track = MaterialTheme.colorScheme.outlineVariant
+    val done = progress >= 1f
     Box(Modifier.size(size), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
-            drawStar8(Offset(this.size.width / 2, this.size.height / 2), this.size.minDimension / 2 - 2f, color.copy(alpha = .55f), 3f, rings = false)
+            val c = Offset(this.size.width / 2, this.size.height / 2)
+            val r = this.size.minDimension / 2
+            if (progress > 0f) {
+                val stroke = 2.5.dp.toPx()
+                drawCircle(track, r - stroke / 2, c, style = Stroke(stroke))
+                drawArc(
+                    Gold, -90f, 360f * progress.coerceAtMost(1f), false,
+                    Offset(stroke / 2, stroke / 2), androidx.compose.ui.geometry.Size(this.size.width - stroke, this.size.height - stroke),
+                    style = Stroke(stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                )
+            }
+            val starR = if (progress > 0f) r * 0.72f else r - 2f
+            if (done) drawCircle(Gold.copy(alpha = .18f), starR * 0.8f, c)
+            drawStar8(c, starR, if (done) GoldDeep else color.copy(alpha = .55f), if (progress > 0f) 2.2f else 3f, rings = false)
         }
-        Text("$n", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = color)
+        Text(
+            "$n", style = if (n >= 100 && progress > 0f) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold, color = if (done) GoldDeep else color
+        )
     }
 }
 

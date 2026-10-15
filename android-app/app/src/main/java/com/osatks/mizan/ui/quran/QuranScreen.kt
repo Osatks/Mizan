@@ -51,6 +51,7 @@ import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.QuranPrefs
+import com.osatks.mizan.quran.QuranProgress
 import com.osatks.mizan.quran.QuranSearch
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.Segmented
@@ -103,7 +104,7 @@ fun QuranScreen(open: (String) -> Unit) {
     }
     val ref = remember(q) { QuranSearch.parseRef(q) }
 
-    ToolPage(s.quranTitle, s.quranSubtitle, sharedKey = "quran", icon = Icons.AutoMirrored.Filled.MenuBook) {
+    ToolPage(s.quranTitle, s.quranSubtitle, sharedKey = "quran", icon = Icons.AutoMirrored.Filled.MenuBook, spacing = 10.dp) {
         if (QuranPrefs.last >= 0 && q.isBlank()) item(key = "continue") { ContinueCard(QuranPrefs.last, open) }
         if (q.isBlank()) item(key = "khatma") { KhatmaCard(open) }
         item(key = "search") {
@@ -175,21 +176,33 @@ fun ContinueCard(index: Int, open: (String) -> Unit, modifier: Modifier = Modifi
     }
 }
 
+/** نسبة ما قُرئ من صفحات السورة في الختمة الحالية */
+private fun surahProgress(n: Int): Float {
+    val first = QuranMeta.pageOf(QuranMeta.STARTS[n - 1])
+    val last = QuranMeta.pageOf(QuranMeta.STARTS[n - 1] + QuranMeta.COUNTS[n - 1] - 1)
+    return (first..last).count { QuranProgress.isRead(it) } / (last - first + 1).toFloat()
+}
+
+/**
+ * صف السورة: رقمها في نجمة تحيط بها حلقة ذهبية بقدر ما قُرئ منها، واسمها، ونوعها وعدد آياتها،
+ * واسمها بخط المصحف (أو صفحة بدايتها في الواجهة العربية).
+ */
 @Composable
 fun SurahRow(n: Int, lang: Lang, open: (String) -> Unit) {
     val s = LocalStrings.current
     val src = remember { MutableInteractionSource() }
+    val progress = remember(n, QuranProgress.readCount) { surahProgress(n) }
     Surface(
-        onClick = { open(surahRoute(n)) }, shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        onClick = { open(surahRoute(n)) }, shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f)),
         interactionSource = src,
-        modifier = Modifier.fillMaxWidth().sharedCard("row-$n", RoundedCornerShape(16.dp)).pressScale(src, 0.98f)
+        modifier = Modifier.fillMaxWidth().sharedCard("row-$n", RoundedCornerShape(18.dp)).pressScale(src, 0.98f)
     ) {
-        Row(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            NumberStar(n)
+        Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            NumberStar(n, 42.dp, progress)
             HSpace(12.dp)
             Column(Modifier.weight(1f)) {
-                if (lang == Lang.AR) Text(QuranMeta.NAMES_AR[n - 1], style = quranStyle(22), color = MaterialTheme.colorScheme.onSurface)
+                if (lang == Lang.AR) Text(QuranMeta.NAMES_AR[n - 1], style = quranStyle(21).copy(lineHeight = 34.sp), color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
                 else Text(s.surahName(n), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
                     "${if (QuranMeta.isMedinan(n)) s.medinan else s.meccan} · ${s.ayahCount(QuranMeta.COUNTS[n - 1])}",
@@ -197,6 +210,10 @@ fun SurahRow(n: Int, lang: Lang, open: (String) -> Unit) {
                 )
             }
             if (lang != Lang.AR) Text(QuranMeta.NAMES_AR[n - 1], style = quranStyle(22), color = MaterialTheme.colorScheme.primary)
+            else Text(
+                s.pageName(QuranMeta.pageOf(QuranMeta.STARTS[n - 1])), style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold
+            )
         }
     }
 }

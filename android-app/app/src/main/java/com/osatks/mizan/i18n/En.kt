@@ -530,7 +530,7 @@ object En : Strings {
     override fun planDays(days: Int) = if (days == 0) "No deadline" else "$days days"
     override fun pagesRead(read: Int, total: Int) = "$read / $total pages"
     override val todayPortion = "Today's portion"
-    override fun streakDays(n: Int) = "Streak: $n days"
+    override fun streakDays(n: Int) = "Streak: " + en(n.toLong(), "day", "days")
     override fun daysLeftLabel(n: Int) = "Days left: $n"
     override val portionDone = "Today's portion done ✓"
     override val khatmaDone = "Khatma complete ✓ May Allah accept it"
