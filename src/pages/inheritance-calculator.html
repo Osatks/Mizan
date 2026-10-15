@@ -1,0 +1,61 @@
+<!--META
+{"title": "حاسبة المواريث الشرعية: تقسيم التركة وفق علم الفرائض", "h1": "حاسبة المواريث", "description": "حاسبة مواريث شرعية دقيقة: أدخل الورثة وقيمة التركة لتعرف نصيب كل وارث بالكسر والنسبة والمبلغ مع بيان الحجب وأصل المسألة والعول والرد.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "حاسبة المواريث", "lead": "اختر جنس المتوفى، وأدخل قيمة التركة والورثة الأحياء، وستحصل على تقسيم مفصّل وفق قواعد علم الفرائض.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>المتوفى والتركة</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">بدء مسألة جديدة</button>
+      </div>
+      <div class="field">
+        <span class="label">جنس المتوفى</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">ذكر</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">أنثى</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">إجمالي التركة</label><input id="inh-estate" inputmode="decimal" placeholder="مثال: 600000"></div>
+        <div class="field"><label for="inh-funeral">تكاليف التجهيز والدفن</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">الديون على المتوفى</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">الوصية (لغير وارث)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">لا تزيد على ثلث الباقي بعد الديون إلا بإجازة الورثة.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>صافي التركة القابل للقسمة</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">ملخص المسألة</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">أضف الورثة</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>اختر الورثة من القائمة لعرض التقسيم.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>الورثة الأحياء عند الوفاة</h2><span class="muted" style="font-size:.9rem">اضغط + لإضافة وارث</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>تفصيل القسمة</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">مشاركة</button>
+        <button type="button" class="btn ghost sm" onclick="print()">طباعة</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>الوارث</th><th>العدد</th><th>نوع الإرث</th><th>النصيب</th><th>السهام</th><th>النسبة</th><th>المبلغ</th><th>للفرد</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>هذه النتيجة إرشادية مبنية على مذهب الجمهور، ولا تغني عن مراجعة المحكمة الشرعية أو عالم متخصص في الفرائض، خاصة في المسائل التي فيها خلاف أو وصايا أو ورثة من ذوي الأرحام.</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

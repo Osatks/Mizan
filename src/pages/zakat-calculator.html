@@ -1,0 +1,115 @@
+<!--META
+{"title": "حاسبة الزكاة 2026: احسب زكاة المال والذهب والأسهم بدقة", "h1": "حاسبة الزكاة", "description": "حاسبة زكاة مجانية ودقيقة: احسب زكاة النقود والحسابات البنكية والذهب والفضة والأسهم وعروض التجارة مع حساب النصاب وطرح الديون فوراً.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "حاسبة الزكاة", "lead": "أدخل أموالك وسعر الذهب الحالي، وستعرف فوراً هل بلغت النصاب وكم زكاتك المستحقة.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">بيانات أموالك</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">مسح البيانات</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">العملة</label>
+        <select id="zk-currency">
+          <option value="ر.س">ريال سعودي</option><option value="د.إ">درهم إماراتي</option><option value="د.ك">دينار كويتي</option>
+          <option value="ر.ق">ريال قطري</option><option value="د.ب">دينار بحريني</option><option value="ر.ع">ريال عماني</option>
+          <option value="ج.م">جنيه مصري</option><option value="د.أ">دينار أردني</option><option value="د.ع">دينار عراقي</option>
+          <option value="د.م">درهم مغربي</option><option value="د.ج">دينار جزائري</option><option value="د.ت">دينار تونسي</option>
+          <option value="ل.ل">ليرة لبنانية</option><option value="ل.س">ليرة سورية</option><option value="ر.ي">ريال يمني</option>
+          <option value="ج.س">جنيه سوداني</option><option value="د.ل">دينار ليبي</option><option value="$">دولار أمريكي</option><option value="€">يورو</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">النصاب المعتمد للنقود</label>
+        <select id="zk-basis">
+          <option value="gold">نصاب الذهب (85 غرام)</option>
+          <option value="silver">نصاب الفضة (595 غرام)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> أسعار اليوم</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">سعر غرام الذهب عيار 24</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="مثال: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">من محل ذهب أو موقع أسعار موثوق في بلدك.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">سعر غرام الفضة (اختياري)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="مثال: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">مطلوب إن اخترت نصاب الفضة أو لديك فضة.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> النقود والأرصدة</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">النقد في اليد</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">أرصدة البنوك والمحافظ</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">ديون لك مرجوّة السداد</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">أموال أخرى (جمعيات، أرباح…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> الذهب والفضة (بالغرام)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">ذهب عيار 24</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">غرام</span></div></div>
+        <div class="field"><label for="zk-g22">ذهب عيار 22</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">غرام</span></div></div>
+        <div class="field"><label for="zk-g21">ذهب عيار 21</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">غرام</span></div></div>
+        <div class="field"><label for="zk-g18">ذهب عيار 18</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">غرام</span></div></div>
+        <div class="field"><label for="zk-silver">فضة خالصة</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">غرام</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> إدخال حُليّ الزينة المستعملة في الحساب (قول الحنفية، والأحوط)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">منها حُليّ زينة مستعملة (غرام، أي عيار مكافئ 21)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">غرام</span></div>
+        <span class="hint">سيُستبعد هذا الوزن من الحساب على قول الجمهور بعدم زكاة الحلي المعدّ للاستعمال.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> الاستثمار والتجارة</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">أسهم للمتاجرة (القيمة السوقية)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">أسهم للاستثمار طويل الأجل (الوعاء الزكوي)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">حصتك من الأصول الزكوية للشركة إن عرفتها.</span></div>
+        <div class="field"><label for="zk-goods">عروض التجارة (قيمة البضاعة)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> ما يُطرح</p>
+      <div class="field"><label for="zk-debts">ديون عليك حالّة (مستحقة هذا العام)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">الأقساط المستحقة خلال الحول فقط، لا كامل القرض طويل الأجل.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">الزكاة المستحقة</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">أدخل سعر الذهب وأموالك</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>إجمالي الأموال الزكوية</span><span id="zk-total">0</span></li>
+      <li><span>الديون المطروحة</span><span id="zk-debts-out">0</span></li>
+      <li><span>صافي الوعاء الزكوي</span><span id="zk-net">0</span></li>
+      <li><span>قيمة النصاب</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">نسبة الوعاء من النصاب</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">مشاركة النتيجة</button>
+      <button type="button" class="btn ghost" onclick="print()">طباعة</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">تُحفظ بياناتك على جهازك فقط. مقدار الزكاة 2.5% من صافي الوعاء إذا بلغ النصاب وحال عليه الحول الهجري.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

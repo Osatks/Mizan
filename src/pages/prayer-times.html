@@ -1,0 +1,54 @@
+<!--META
+{"title": "مواقيت الصلاة اليوم بدقة لمدينتك مع العد التنازلي", "h1": "مواقيت الصلاة", "description": "مواقيت الصلاة اليوم بدقة لأي مدينة في العالم: الفجر والشروق والظهر والعصر والمغرب والعشاء، مع عد تنازلي للصلاة القادمة وجدول شهري وطرق حساب متعددة.", "path": "/prayer-times/", "type": "tool", "nav": "prayer", "breadcrumb": "مواقيت الصلاة", "lead": "اختر مدينتك أو استخدم موقعك الحالي لعرض مواقيت الصلاة الدقيقة والوقت المتبقي للصلاة القادمة.", "date": "2026-10-15", "scripts": ["praytimes.js", "prayer.js"]}
+-->
+<div class="tool-layout" id="prayer-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2 id="pt-city-title">مواقيت الصلاة</h2>
+      <button type="button" class="btn sm" id="pt-gps">📍 استخدم موقعي</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="pt-city">المدينة</label><select id="pt-city"></select></div>
+      <div class="field"><label for="pt-method">طريقة الحساب</label><select id="pt-method"></select></div>
+      <div class="field"><label for="pt-asr">مذهب حساب العصر</label><select id="pt-asr"><option value="std">الجمهور (ظل الشيء مثله)</option><option value="hanafi">الحنفي (ظل الشيء مثلاه)</option></select></div>
+      <div class="field"><label for="pt-fmt">صيغة الوقت</label><select id="pt-fmt"><option value="12">12 ساعة</option><option value="24">24 ساعة</option></select></div>
+    </div>
+    <p class="loc-line" id="pt-loc" style="margin:14px 0 0"></p>
+
+    <div class="cal-nav" style="margin-top:22px">
+      <button type="button" class="icon-btn" id="pt-prev" aria-label="اليوم السابق">→</button>
+      <h3 id="pt-date" style="font-size:1.1rem;text-align:center"></h3>
+      <button type="button" class="icon-btn" id="pt-next" aria-label="اليوم التالي">←</button>
+    </div>
+    <ul class="prayer-list" id="pt-list"></ul>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="pt-today">اليوم</button>
+      <button type="button" class="btn ghost sm" id="pt-month-btn">عرض جدول الشهر</button>
+    </div>
+  </section>
+
+  <aside class="result-card">
+    <div class="prayer-next pattern-bg" aria-live="polite">
+      <div class="label">الصلاة القادمة</div>
+      <div class="name" id="pt-next-name">—</div>
+      <div class="countdown" id="pt-countdown">--:--:--</div>
+      <div id="pt-next-time" style="opacity:.85"></div>
+    </div>
+    <div class="card">
+      <ul class="stat-list">
+        <li><span>التاريخ الهجري</span><span data-today-hijri></span></li>
+        <li><span>منتصف الليل الشرعي</span><span id="pt-midnight">—</span></li>
+        <li><span>الثلث الأخير من الليل</span><span id="pt-lastthird">—</span></li>
+        <li><span>اتجاه القبلة</span><span id="pt-qibla">—</span></li>
+      </ul>
+      <p class="muted" style="font-size:.85rem;margin:12px 0 0">قد تختلف المواقيت دقيقة أو دقيقتين عن التقويم الرسمي في بلدك بسبب الاحتياط المعتمد محلياً.</p>
+    </div>
+  </aside>
+</div>
+
+<section class="card" id="pt-month" hidden>
+  <div class="tool-head"><h2 id="pt-month-title">جدول الشهر</h2><button type="button" class="btn ghost sm" onclick="print()">طباعة الجدول</button></div>
+  <div class="table-wrap"><table><thead><tr><th>اليوم</th><th>التاريخ</th><th>الهجري</th><th>الفجر</th><th>الشروق</th><th>الظهر</th><th>العصر</th><th>المغرب</th><th>العشاء</th></tr></thead><tbody id="pt-month-body"></tbody></table></div>
+</section>
+
+<!--INCLUDE content/prayer.html-->

@@ -1,0 +1,74 @@
+<!--META
+{"title": "حاسبة زكاة الفطر: كم مقدارها عن كل فرد بالكيلو والقيمة", "h1": "حاسبة زكاة الفطر", "description": "احسب زكاة الفطر عن جميع أفراد أسرتك بالكيلوغرام من الأرز أو القمح أو التمر، أو بالقيمة النقدية، مع شرح أحكامها ووقت إخراجها ومستحقيها.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "زكاة الفطر", "lead": "حدد عدد أفراد أسرتك ونوع الطعام أو القيمة، وتعرّف فوراً على مقدار زكاة الفطر الواجبة.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>بيانات الأسرة</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">عدد من تُخرج عنهم (مع نفسك)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="إنقاص">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="زيادة">+</button>
+        </div>
+        <span class="hint">تشمل نفسك وزوجتك وأولادك ومن تجب عليك نفقتهم.</span>
+      </div>
+      <div class="field">
+        <span class="label">طريقة الإخراج</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">طعام (الصاع)</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">قيمة نقدية</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">نوع الطعام ومقدار الصاع</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">نوع الطعام</label>
+          <select id="fr-type">
+            <option value="2.5">أرز — 2.5 كغ تقريباً</option>
+            <option value="3">أرز (الأحوط) — 3 كغ</option>
+            <option value="2.04">قمح — 2.04 كغ تقريباً</option>
+            <option value="2.5">تمر — 2.5 كغ تقريباً</option>
+            <option value="2.2">شعير — 2.2 كغ تقريباً</option>
+            <option value="custom">مقدار آخر…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">وزن الصاع بالكيلوغرام</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">كغ</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">سعر الكيلوغرام (اختياري)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">للكيلو</span></div>
+          <span class="hint">لتعرف التكلفة التقريبية للشراء.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">القيمة النقدية</p>
+      <div class="field">
+        <label for="fr-value">قيمة زكاة الفطر عن الفرد</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="مثال: 35"><span class="unit">للفرد</span></div>
+        <span class="hint">تعلنها دار الإفتاء أو الجهة الرسمية في بلدك كل عام. إخراج القيمة قول الحنفية، والجمهور على إخراج الطعام.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">مقدار زكاة الفطر</div>
+      <div class="big-number" id="fr-total">2.5 <small>كغ</small></div>
+      <span class="badge ok" id="fr-sub">عن فرد واحد</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>وقت الإخراج:</strong> قبل صلاة العيد، ويجوز تقديمها بيوم أو يومين، ولا يجوز تأخيرها عن صلاة العيد بغير عذر.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">مشاركة</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

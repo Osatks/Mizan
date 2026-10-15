@@ -1,0 +1,67 @@
+<!--META
+{"title": "حاسبة فدية الصيام وكفارة اليمين وكفارة الإفطار في رمضان", "h1": "حاسبة الفدية والكفارة", "description": "احسب فدية الصيام للمريض وكبير السن، وكفارة اليمين بإطعام عشرة مساكين، وكفارة الجماع في نهار رمضان، بالكيلوغرام أو بالقيمة مع تاريخ انتهاء صيام الشهرين.", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "الفدية والكفارة", "lead": "اختر نوع الفدية أو الكفارة وأدخل البيانات، لتعرف مقدار الإطعام بالكيلوغرام وقيمته التقريبية.", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">فدية الصيام</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">كفارة اليمين</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">كفارة الجماع في رمضان</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">لمن عجز عن الصيام عجزاً دائماً كالكبير والمريض الذي لا يُرجى برؤه: إطعام مسكين عن كل يوم.</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">عدد الأيام</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="إنقاص">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="زيادة">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 يوماً</button><button type="button" class="chip" data-days="30">30 يوماً</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">لمن حنث في يمينه: إطعام عشرة مساكين أو كسوتهم أو تحرير رقبة، فإن لم يجد فصيام ثلاثة أيام.</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">عدد الكفارات (الأيمان المختلفة)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="إنقاص">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="زيادة">+</button></div>
+        <span class="hint">إذا تكررت اليمين على شيء واحد قبل التكفير فعليه كفارة واحدة عند الجمهور.</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">على الترتيب: عتق رقبة، فإن لم يجد فصيام شهرين متتابعين، فإن لم يستطع فإطعام ستين مسكيناً.</p>
+      <div class="field">
+        <label for="fd-start">تاريخ بدء صيام الشهرين (لحساب تاريخ الانتهاء)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">مقدار الإطعام عن كل مسكين</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">المقدار</label>
+          <select id="fd-measure">
+            <option value="0.75">مُدّ — نحو 0.75 كغ (المالكية والشافعية)</option>
+            <option value="1.5">نصف صاع — نحو 1.5 كغ (فتاوى معاصرة)</option>
+            <option value="custom">مقدار آخر…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">المقدار بالكيلوغرام</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">كغ</span></div></div>
+        <div class="field"><label for="fd-price">سعر الكيلوغرام أو قيمة الوجبة (اختياري)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">نوع السعر</label><select id="fd-price-type"><option value="kg">سعر الكيلوغرام</option><option value="meal">قيمة وجبة كاملة</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">الواجب إخراجه</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

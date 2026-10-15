@@ -1,0 +1,51 @@
+<!--META
+{"title": "محوّل التاريخ الهجري والميلادي وفق تقويم أم القرى", "h1": "محوّل التاريخ الهجري", "description": "حوّل التاريخ من الهجري إلى الميلادي ومن الميلادي إلى الهجري فوراً وفق تقويم أم القرى، مع تقويم شهري مزدوج يعرض التاريخين معاً واليوم الحالي.", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "التاريخ الهجري", "lead": "تحويل فوري ودقيق بين التاريخين، مع تقويم شهري يعرض الهجري والميلادي جنباً إلى جنب.", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>تحويل التاريخ</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">ميلادي ← هجري</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">هجري ← ميلادي</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">اليوم</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">الشهر</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">السنة</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">اليوم</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">الشهر</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">السنة</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">تاريخ اليوم</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">نسخ النتيجة</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">التاريخ الهجري الموافق</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="الشهر السابق">→</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="الشهر التالي">←</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">الرقم الكبير هو اليوم الهجري، والصغير هو اليوم الميلادي. اضغط على أي يوم لتحويله.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

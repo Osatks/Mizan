@@ -1,0 +1,40 @@
+<!--META
+{"title": "اتجاه القبلة من موقعك الآن: بوصلة القبلة الإلكترونية", "h1": "اتجاه القبلة", "description": "حدد اتجاه القبلة بدقة من أي مكان في العالم عبر بوصلة القبلة التفاعلية على الجوال، مع زاوية القبلة من الشمال والمسافة إلى الكعبة المشرفة.", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "اتجاه القبلة", "lead": "استخدم موقعك أو اختر مدينتك لمعرفة زاوية القبلة، وعلى الجوال وجّه هاتفك حتى يضيء السهم الذهبي.", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">ش</span><span class="cardinal e">ق</span><span class="cardinal s">ج</span><span class="cardinal w">غ</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="الكعبة"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">اضغط «تفعيل البوصلة» على الجوال لتدوير البوصلة مع اتجاه هاتفك</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 تفعيل البوصلة</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 استخدم موقعي</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">زاوية القبلة من الشمال الجغرافي</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">أو اختر مدينة</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>موقعك</span><span id="qb-loc">—</span></li>
+      <li><span>المسافة إلى الكعبة</span><span id="qb-dist">—</span></li>
+      <li><span>اتجاه الهاتف الحالي</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>أبعد هاتفك عن الأجهزة والمعادن، وإن بدت القراءة غير مستقرة فحرّك الهاتف على شكل الرقم 8 لمعايرة البوصلة.</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->
