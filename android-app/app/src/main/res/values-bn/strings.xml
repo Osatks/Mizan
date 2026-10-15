@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">মিজান</string>
+    <string name="widget_next_prayer">পরবর্তী নামাজ</string>
+    <string name="widget_prayer_times">নামাজের সময়</string>
+    <string name="widget_hijri">হিজরি তারিখ</string>
+    <string name="widget_khatma">আমার খতম</string>
+    <string name="widget_ayah">আজকের আয়াত</string>
 </resources>

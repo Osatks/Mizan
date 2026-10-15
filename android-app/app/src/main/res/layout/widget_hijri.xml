@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_bg" android:orientation="vertical" android:gravity="center" android:padding="12dp">
+    <TextView android:id="@+id/day" android:text="1" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textColor="#E0B54A" android:textSize="40sp" android:textStyle="bold" android:maxLines="1" />
+    <TextView android:id="@+id/hijri" android:text="@string/widget_hijri" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:maxLines="1" />
+    <TextView android:id="@+id/greg" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textColor="#CCFFFFFF" android:textSize="12sp" android:maxLines="1" />
+</LinearLayout>

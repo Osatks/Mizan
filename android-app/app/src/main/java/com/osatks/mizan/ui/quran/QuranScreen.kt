@@ -105,6 +105,7 @@ fun QuranScreen(open: (String) -> Unit) {
 
     ToolPage(s.quranTitle, s.quranSubtitle, sharedKey = "quran", icon = Icons.AutoMirrored.Filled.MenuBook) {
         if (QuranPrefs.last >= 0 && q.isBlank()) item(key = "continue") { ContinueCard(QuranPrefs.last, open) }
+        if (q.isBlank()) item(key = "khatma") { KhatmaCard(open) }
         item(key = "search") {
             OutlinedTextField(
                 value = q, onValueChange = { q = it }, singleLine = true,

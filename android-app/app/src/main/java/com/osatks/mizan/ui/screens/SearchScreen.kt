@@ -241,7 +241,7 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
                     Text(if (blank) s.searchEmpty else s.searchNoResults(q), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
-                LazyColumn(
+                androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalDark.current) { LazyColumn(
                     Modifier.fillMaxSize().imePadding(),
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp + bottom)
                 ) {
@@ -263,7 +263,7 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
                             HitRow(h, q, Modifier.animateItem()) { keyboard?.hide(); h.action() }
                         }
                     }
-                }
+                } }
             }
         }
     }

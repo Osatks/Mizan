@@ -100,4 +100,41 @@ class QuranTest {
         assertEquals("id.jalalayn", Sources.defaultFor(Lang.ID).id)
         assertEquals("en.sahih", Sources.defaultFor(Lang.EN).id)
     }
+
+    @Test
+    fun pagesAndHizbsCoverTheMushaf() {
+        var next = 0
+        for (p in 1..604) {
+            val r = QuranMeta.pageRange(p)
+            assertEquals(next, r.first); assertTrue(!r.isEmpty())
+            next = r.last + 1
+        }
+        assertEquals(6236, next)
+        assertEquals(1, QuranMeta.hizbOf(0))
+        assertEquals(60, QuranMeta.hizbOf(6235))
+    }
+
+    @Test
+    fun mushafLinesAreBalancedAndJustifiable() {
+        val widths = FloatArray(40) { 20f + (it * 37 % 23) }
+        val lines = com.osatks.mizan.ui.quran.balancedLines(widths, 5f, 200f)
+        // نفس عدد أسطر الملء الجشع، وكل الكلمات بترتيبها، ولا سطر يتجاوز العرض
+        assertEquals(com.osatks.mizan.ui.quran.greedyLines(widths, 5f, 200f), lines.size)
+        assertEquals((0 until 40).toList(), lines.flatMap { it.toList() })
+        val used = lines.map { r -> r.sumOf { widths[it].toDouble() } + 5.0 * (r.count() - 1) }
+        assertTrue(used.all { it <= 200.0 })
+        // السطر الأخير ممتلئ كغيره (لا يبقى قصيراً)
+        assertTrue(used.last() > 200.0 * 0.6)
+    }
+
+    @Test
+    fun ayahOfDayIsStableAndShort() {
+        val text = runBlocking { QuranData.uthmani() }
+        val d = java.time.LocalDate.of(2026, 10, 15)
+        val a = com.osatks.mizan.widget.AyahWidget.ayahOfDay(text, d)
+        assertEquals(a, com.osatks.mizan.widget.AyahWidget.ayahOfDay(text, d))
+        assertTrue(QuranData.withoutBismillah(text, a).length in 40..160)
+        val week = (0L..6L).map { com.osatks.mizan.widget.AyahWidget.ayahOfDay(text, d.plusDays(it)) }.toSet()
+        assertEquals(7, week.size)
+    }
 }

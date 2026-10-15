@@ -111,7 +111,7 @@ fun HomeScreen(open: (String) -> Unit) {
     val reveal = remember { RevealState() }
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    LazyColumn(contentPadding = PaddingValues(bottom = 20.dp + bottom + LocalBottomInset.current)) {
+    androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalDark.current) { LazyColumn(contentPadding = PaddingValues(bottom = 20.dp + bottom + LocalBottomInset.current)) {
         item {
             Box(
                 Modifier.fillMaxWidth()
@@ -188,6 +188,7 @@ fun HomeScreen(open: (String) -> Unit) {
         }
     }
 
+}
     if (showLang) LanguageSheet { showLang = false }
 }
 

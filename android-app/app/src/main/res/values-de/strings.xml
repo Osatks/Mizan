@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Mizan</string>
+    <string name="widget_next_prayer">Nächstes Gebet</string>
+    <string name="widget_prayer_times">Gebetszeiten</string>
+    <string name="widget_hijri">Hidschra-Datum</string>
+    <string name="widget_khatma">Meine Khatma</string>
+    <string name="widget_ayah">Vers des Tages</string>
 </resources>

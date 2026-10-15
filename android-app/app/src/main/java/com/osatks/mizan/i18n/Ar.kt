@@ -507,6 +507,20 @@ object Ar : Strings {
     override val nextSurah = "السورة التالية"
     override val noBookmarks = "لا توجد آيات محفوظة بعد. افتح تفسير أي آية واضغط علامة الحفظ."
     override val quranLoading = "جارٍ فتح المصحف…"
+    override fun hizbName(n: Int) = "الحزب $n"
+    override val khatmaTitle = "ختمتي"
+    override val khatmaPlanLabel = "المدة"
+    override fun planDays(days: Int) = if (days == 0) "بلا مدة" else "$days يوماً".let { if (days <= 10) "$days أيام" else it }
+    override fun pagesRead(read: Int, total: Int) = "$read من $total صفحة"
+    override val todayPortion = "ورد اليوم"
+    override fun streakDays(n: Int) = "أيام متتالية: $n"
+    override fun daysLeftLabel(n: Int) = "الأيام الباقية: $n"
+    override val portionDone = "أتممت ورد اليوم ✓"
+    override val khatmaDone = "ختمت القرآن ✓ تقبّل الله منك"
+    override val newKhatma = "ابدأ ختمة جديدة"
+    override fun khatmasCompleted(n: Int) = "الختمات المكتملة: $n"
+    override val continuePortion = "تابع وردي"
+    override val ayahOfDay = "آية اليوم"
     override val quranSources = "نص القرآن الكريم بالرسم العثماني من مشروع تنزيل (tanzil.net)، والتفسير الميسر (مجمع الملك فهد) وتفسير الجلالين وترجمات المعاني من tanzil.net/trans. خط المصحف: Amiri Quran برخصة SIL OFL."
 
     // ---------- الإعدادات ----------

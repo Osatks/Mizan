@@ -155,11 +155,11 @@ fun ToolPage(
     val nav = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         PageHeader(title, subtitle, onBack, sharedKey, icon)
-        LazyColumn(
+        androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalDark.current) { LazyColumn(
             modifier = Modifier.fillMaxSize().imePadding(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + nav + LocalBottomInset.current),
             verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) { PageScope(this, reveal).content() }
+        ) { PageScope(this, reveal).content() } }
     }
 }
 

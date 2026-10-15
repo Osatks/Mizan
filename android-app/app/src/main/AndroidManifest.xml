@@ -44,5 +44,70 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <!-- أدوات الشاشة الرئيسية -->
+        <receiver
+            android:name=".widget.NextPrayerWidget"
+            android:label="@string/widget_next_prayer"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_next_prayer_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.PrayerTimesWidget"
+            android:label="@string/widget_prayer_times"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_prayer_times_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.HijriWidget"
+            android:label="@string/widget_hijri"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_hijri_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.KhatmaWidget"
+            android:label="@string/widget_khatma"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_khatma_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AyahWidget"
+            android:label="@string/widget_ayah"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_ayah_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WidgetTickReceiver"
+            android:exported="false" />
     </application>
 </manifest>

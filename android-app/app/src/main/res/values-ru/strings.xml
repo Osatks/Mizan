@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Мизан</string>
+    <string name="widget_next_prayer">Следующий намаз</string>
+    <string name="widget_prayer_times">Время намаза</string>
+    <string name="widget_hijri">Дата по хиджре</string>
+    <string name="widget_khatma">Мой хатм</string>
+    <string name="widget_ayah">Аят дня</string>
 </resources>

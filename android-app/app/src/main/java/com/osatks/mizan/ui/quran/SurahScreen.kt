@@ -19,6 +19,19 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.text.font.FontWeight
+import com.osatks.mizan.quran.QuranProgress
+import com.osatks.mizan.quran.arabicDigits
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
@@ -76,16 +89,15 @@ import com.osatks.mizan.ui.pressScale
 import com.osatks.mizan.ui.theme.Gold
 import kotlinx.coroutines.launch
 
-/** عدد الآيات في كل فقرة من عرض المصحف */
-private const val CHUNK = 6
-
 /**
- * صفحة السورة. عرض المصحف: نص متصل مضبوط الحواف، كل آية فيه قابلة للضغط وتنتهي بنجمة رقمها.
- * عرض آية آية: بطاقة لكل آية وتحتها ترجمة المعاني بلغة الواجهة. الضغط على آية يفتح تفسيرها.
+ * صفحة السورة. عرض المصحف: صفحات مصحف المدينة (604) تُقلَّب يميناً ويساراً، في رأسها السورة والجزء والحزب
+ * وفي أسفلها رقم الصفحة، وكل آية تنتهي بعلامة ۝ برقمها. عرض آية آية: بطاقة لكل آية مع ترجمة المعاني.
+ * الضغط على أي آية يفتح تفسيرها. الصفحة التي يبقى عليها القارئ ثلاث ثوانٍ تُحسب مقروءة في الختمة.
  */
 @Composable
 fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, openSurah: (Int) -> Unit) {
     QuranPrefs.ensure()
+    QuranProgress.ensure()
     val s = LocalStrings.current
     val lang = LocalLang.current
     val text by produceState(QuranData.cached(QuranData.UTHMANI)) { value = QuranData.uthmani() }
@@ -93,55 +105,59 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val trText by produceState(translation?.let { QuranData.cached("tafsir/${it.id}.txt") }, translation) {
         value = translation?.let { QuranData.source(it.id) }
     }
-    val count = QuranMeta.COUNTS[surah - 1]
     val mode = QuranPrefs.modeFor(lang)
     val size = QuranPrefs.textSize
-    var selected by remember { mutableIntStateOf(startAyah) }
-    var sheet by remember { mutableStateOf<Int?>(null) }
+    val startIndex = QuranMeta.index(surah, startAyah.coerceAtLeast(1))
+    var selIdx by remember { mutableIntStateOf(if (startAyah > 0) startIndex else -1) }
+    var sheetIdx by remember { mutableStateOf<Int?>(null) }
+    var listSurah by remember { mutableIntStateOf(surah) }
     val list = rememberLazyListState()
+    val pager = rememberPagerState(initialPage = QuranMeta.pageOf(startIndex) - 1) { QuranMeta.PAGES.size }
     val scope = rememberCoroutineScope()
+    val count = QuranMeta.COUNTS[listSurah - 1]
 
-    fun itemOf(m: String, ayah: Int) = 1 + if (m == "mushaf") (ayah - 1) / CHUNK else ayah - 1
-    fun ayahAt(m: String, item: Int) = when {
-        item <= 0 -> 1
-        m == "mushaf" -> ((item - 1) * CHUNK + 1).coerceAtMost(count)
-        else -> item.coerceAtMost(count)
-    }
-    fun open(a: Int) {
-        selected = a; sheet = a
-        QuranPrefs.updateLast(QuranMeta.index(surah, a))
-    }
+    fun open(i: Int) { selIdx = i; sheetIdx = i; QuranPrefs.updateLast(i) }
+    fun listItemOf(ayah: Int) = ayah // العنصر 0 هو الترويسة
+    fun firstListIndex() = QuranMeta.index(listSurah, list.firstVisibleItemIndex.coerceIn(1, count))
+    fun currentIndex() = if (mode == "mushaf") QuranMeta.pageRange(pager.currentPage + 1).first else firstListIndex()
 
-    // الانتقال إلى الآية المطلوبة بعد تحميل النص (مرة واحدة)
+    // الانتقال إلى الآية المطلوبة في عرض آية آية
     var jumped by remember { mutableStateOf(false) }
     LaunchedEffect(text != null) {
-        if (text != null && !jumped) {
-            jumped = true
-            if (startAyah > 1) list.scrollToItem(itemOf(mode, startAyah))
-        }
+        if (text != null && !jumped) { jumped = true; if (mode == "list" && startAyah > 1) list.scrollToItem(listItemOf(startAyah)) }
     }
-    // حفظ موضع القراءة عند مغادرة الصفحة
-    DisposableEffect(surah) {
-        onDispose {
-            if (sheet == null) QuranPrefs.updateLast(QuranMeta.index(surah, ayahAt(QuranPrefs.modeFor(lang), list.firstVisibleItemIndex)))
-        }
+    // الصفحة المعروضة ثلاث ثوانٍ تُحسب مقروءة
+    LaunchedEffect(mode) {
+        if (mode == "mushaf") snapshotFlow { pager.currentPage }.collectLatest { p -> delay(3000); QuranProgress.markRead(p + 1) }
+        else snapshotFlow { firstListIndex() }.collectLatest { i -> delay(3000); QuranProgress.markRead(QuranMeta.pageOf(i)) }
     }
+    DisposableEffect(Unit) { onDispose { if (sheetIdx == null) QuranPrefs.updateLast(currentIndex()) } }
 
-    val juz = QuranMeta.juzOf(QuranMeta.STARTS[surah - 1])
+    val headSurah = if (mode == "mushaf") QuranMeta.locate(QuranMeta.pageRange(pager.currentPage + 1).first).first else listSurah
+    val headIndex = if (mode == "mushaf") QuranMeta.pageRange(pager.currentPage + 1).first else QuranMeta.STARTS[listSurah - 1]
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLow)) {
         PageHeader(
-            s.surahName(surah),
-            "${if (QuranMeta.isMedinan(surah)) s.medinan else s.meccan} · ${s.ayahCount(count)} · ${s.juzName(juz)}",
+            s.surahName(headSurah),
+            "${if (QuranMeta.isMedinan(headSurah)) s.medinan else s.meccan} · ${s.ayahCount(QuranMeta.COUNTS[headSurah - 1])} · ${s.juzName(QuranMeta.juzOf(headIndex))}",
             onBack, cardKey = "$from-$surah"
         ) {
-            IconButton(onClick = { QuranPrefs.updateSize(size - 2) }, enabled = size > 18) { Icon(Icons.Filled.TextDecrease, s.textSmaller, tint = Color.White) }
-            IconButton(onClick = { QuranPrefs.updateSize(size + 2) }, enabled = size < 40) { Icon(Icons.Filled.TextIncrease, s.textLarger, tint = Color.White) }
+            // صفحة المصحف تختار مقاسها لتملأ الصفحة؛ التكبير والتصغير لعرض آية آية
+            if (mode != "mushaf") {
+                IconButton(onClick = { QuranPrefs.updateSize(size - 2) }, enabled = size > 18) { Icon(Icons.Filled.TextDecrease, s.textSmaller, tint = Color.White) }
+                IconButton(onClick = { QuranPrefs.updateSize(size + 2) }, enabled = size < 40) { Icon(Icons.Filled.TextIncrease, s.textLarger, tint = Color.White) }
+            }
             IconButton(onClick = {
-                val a = ayahAt(mode, list.firstVisibleItemIndex)
-                val next = if (mode == "mushaf") "list" else "mushaf"
-                QuranPrefs.updateMode(next)
-                scope.launch { list.scrollToItem(itemOf(next, a)) }
+                val i = currentIndex()
+                if (mode == "mushaf") {
+                    val (sn, an) = QuranMeta.locate(i)
+                    listSurah = sn
+                    QuranPrefs.updateMode("list")
+                    scope.launch { list.scrollToItem(listItemOf(an)) }
+                } else {
+                    QuranPrefs.updateMode("mushaf")
+                    scope.launch { pager.scrollToPage(QuranMeta.pageOf(i) - 1) }
+                }
             }) {
                 Icon(if (mode == "mushaf") Icons.Filled.ViewAgenda else Icons.AutoMirrored.Filled.MenuBook,
                     if (mode == "mushaf") s.ayahView else s.mushafView, tint = Color.White)
@@ -158,79 +174,89 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             }
             return@Column
         }
-        LazyColumn(
-            state = list, modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 24.dp + bottom),
-            verticalArrangement = Arrangement.spacedBy(if (mode == "mushaf") 0.dp else 10.dp)
-        ) {
-            item(key = "banner") {
-                Column(Modifier.padding(bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    SurahBanner(QuranMeta.NAMES_AR[surah - 1], if (QuranData.hasBismillahHeader(surah)) t[0] else null)
-                    Spacer(Modifier.size(6.dp))
-                    Text(s.quranSubtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (mode == "mushaf") {
+            // صفحات المصحف تُقلَّب كالكتاب العربي: التالية على اليسار
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { it }) { p ->
+                    MushafPage(p + 1, t, selIdx, bottom) { open(it) }
                 }
             }
-            if (mode == "mushaf") {
-                val chunks = (count + CHUNK - 1) / CHUNK
-                items(chunks, key = { "c$it" }) { c ->
-                    val from = c * CHUNK + 1
-                    MushafChunk(surah, from, minOf(count, from + CHUNK - 1), t, selected, size) { open(it) }
+        } else {
+            LazyColumn(
+                state = list, modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 24.dp + bottom),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                item(key = "banner") {
+                    Column(Modifier.padding(bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        SurahBanner(QuranMeta.NAMES_AR[listSurah - 1], if (QuranData.hasBismillahHeader(listSurah)) t[0] else null)
+                        Spacer(Modifier.size(6.dp))
+                        Text(s.quranSubtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
-            } else {
-                items(count, key = { "a${it + 1}" }) { i ->
+                items(count, key = { "a${listSurah}_${it + 1}" }) { i ->
                     val a = i + 1
-                    AyahCard(surah, a, t, trText, translation?.lang?.rtl ?: false, selected == a, size) { open(a) }
+                    val idx = QuranMeta.index(listSurah, a)
+                    AyahCard(listSurah, a, t, trText, translation?.lang?.rtl ?: false, selIdx == idx, size) { open(idx) }
                 }
+                item(key = "nav") { SurahNav(listSurah) { n -> listSurah = n; scope.launch { list.scrollToItem(0) } } }
             }
-            item(key = "nav") { SurahNav(surah, openSurah) }
         }
     }
 
-    val current = sheet
+    val current = sheetIdx
     val t = text
     if (current != null && t != null) {
+        val (sn, an) = QuranMeta.locate(current)
         TafsirSheet(
-            surah, current, t,
+            sn, an, t,
             onAyah = { a ->
-                sheet = a; selected = a
-                QuranPrefs.updateLast(QuranMeta.index(surah, a))
-                scope.launch { list.animateScrollToItem(itemOf(mode, a)) }
+                val i = QuranMeta.index(sn, a)
+                sheetIdx = i; selIdx = i
+                QuranPrefs.updateLast(i)
+                scope.launch {
+                    if (mode == "mushaf") pager.animateScrollToPage(QuranMeta.pageOf(i) - 1)
+                    else if (sn == listSurah) list.animateScrollToItem(listItemOf(a))
+                }
             },
-            onDismiss = { sheet = null }
+            onDismiss = { sheetIdx = null }
         )
     }
 }
 
-/** فقرة من عرض المصحف: الآيات متصلة، وكل آية رابط يفتح تفسيرها، والمختارة مظللة بالذهبي */
+/**
+ * صفحة واحدة من مصحف المدينة: إطار ذهبي، ورأس فيه اسم السورة والجزء والحزب، وترويسة لكل سورة تبدأ فيها،
+ * والآيات متصلة تنتهي كل منها بعلامة ۝ ورقمها، وفي الأسفل رقم الصفحة.
+ */
 @Composable
-private fun MushafChunk(surah: Int, from: Int, to: Int, text: Array<String>, selected: Int, size: Int, onTap: (Int) -> Unit) {
-    val ink = MaterialTheme.colorScheme.onSurface
-    val annotated = remember(surah, from, to, selected, text) {
-        buildAnnotatedString {
-            for (a in from..to) {
-                val body = QuranData.withoutBismillah(text, QuranMeta.index(surah, a))
-                val link = LinkAnnotation.Clickable(
-                    "a$a", TextLinkStyles(pressedStyle = SpanStyle(background = Gold.copy(alpha = .22f)))
-                ) { onTap(a) }
-                if (a == selected) withStyle(SpanStyle(background = Gold.copy(alpha = .26f))) { withLink(link) { append(body) } }
-                else withLink(link) { append(body) }
-                append(' ')
-                appendInlineContent("m$a", "﴿$a﴾")
-                append(' ')
+private fun MushafPage(page: Int, text: Array<String>, selected: Int, bottomInset: androidx.compose.ui.unit.Dp, onTap: (Int) -> Unit) {
+    val s = LocalStrings.current
+    val range = QuranMeta.pageRange(page)
+    val first = range.first
+    val (firstSurah, _) = QuranMeta.locate(first)
+    val marker = MaterialTheme.colorScheme.primary
+    Column(Modifier.fillMaxSize().padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 8.dp + bottomInset)) {
+        Surface(
+            shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.5.dp, Gold.copy(alpha = .55f)), modifier = Modifier.fillMaxSize()
+        ) {
+            Column(Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("سُورَةُ ${QuranMeta.NAMES_AR[firstSurah - 1]}", style = quranStyle(16), color = marker, modifier = Modifier.weight(1f))
+                    Text(
+                        "${s.juzName(QuranMeta.juzOf(first))} · ${s.hizbName(QuranMeta.hizbOf(first))}",
+                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(Modifier.size(6.dp))
+                MushafText(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth())
+                Text(
+                    "$page", Modifier.fillMaxWidth().padding(top = 4.dp), textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
-    val inline = remember(from, to, size) {
-        (from..to).associate { a ->
-            "m$a" to InlineTextContent(Placeholder(1.5.em, 1.5.em, PlaceholderVerticalAlign.TextCenter)) {
-                AyahMarker(a, Modifier.fillMaxSize(), (size * 0.5f).sp)
-            }
-        }
-    }
-    Text(
-        annotated, Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-        style = quranStyle(size, TextAlign.Justify), color = ink, inlineContent = inline
-    )
 }
 
 /** بطاقة آية في عرض آية آية، وتحتها ترجمة المعاني */

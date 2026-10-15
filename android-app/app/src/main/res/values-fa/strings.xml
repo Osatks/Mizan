@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">میزان</string>
+    <string name="widget_next_prayer">نماز بعدی</string>
+    <string name="widget_prayer_times">اوقات شرعی</string>
+    <string name="widget_hijri">تاریخ قمری</string>
+    <string name="widget_khatma">ختم من</string>
+    <string name="widget_ayah">آیهٔ روز</string>
 </resources>

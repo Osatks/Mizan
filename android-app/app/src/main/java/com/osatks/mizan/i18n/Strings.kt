@@ -395,6 +395,21 @@ interface Strings {
     val nextSurah: String               // "Next surah"
     val noBookmarks: String             // "No saved ayahs yet. Open an ayah and tap the bookmark to save it."
     val quranLoading: String            // "Opening the Mushaf…"
+    /** "Hizb 9" */
+    fun hizbName(n: Int): String
+    val khatmaTitle: String             // "My khatma"
+    val khatmaPlanLabel: String         // "Finish in"
+    fun planDays(days: Int): String     // chip: "30 days"; 0 = no deadline
+    fun pagesRead(read: Int, total: Int): String   // "120 / 604 pages"
+    val todayPortion: String            // "Today's portion"
+    fun streakDays(n: Int): String      // "Streak: 5 days"
+    fun daysLeftLabel(n: Int): String   // "Days left: 12"
+    val portionDone: String             // "Today's portion done ✓"
+    val khatmaDone: String              // "Khatma complete ✓ May Allah accept it"
+    val newKhatma: String               // "Start a new khatma"
+    fun khatmasCompleted(n: Int): String // "Completed khatmas: 2"
+    val continuePortion: String         // "Continue my portion"
+    val ayahOfDay: String               // "Ayah of the day" (home-screen widget)
     /** About: where the Quran text, tafsir, translations and font come from. Keep the two URLs exactly. */
     val quranSources: String
 

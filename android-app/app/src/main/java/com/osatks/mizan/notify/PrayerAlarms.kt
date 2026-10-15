@@ -114,5 +114,7 @@ class PrayerReceiver : BroadcastReceiver() {
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         PrayerAlarms.scheduleNext(context)
+        // تغيّر الوقت أو المنطقة الزمنية: تُعاد كتابة الأدوات ومنبّه تحديثها
+        com.osatks.mizan.widget.Widgets.updateAll(context)
     }
 }

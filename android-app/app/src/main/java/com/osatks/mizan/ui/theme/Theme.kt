@@ -72,27 +72,13 @@ fun isDark(): Boolean = when (AppSettings.theme) {
     else -> isSystemInDarkTheme()
 }
 
-/** يلوّن الانتقال بين الوضع الفاتح والداكن بدل القفز المفاجئ */
-@Composable
-private fun animated(target: ColorScheme): ColorScheme {
-    val spec = tween<Color>(550)
-    @Composable fun a(c: Color) = animateColorAsState(c, spec, label = "scheme").value
-    return target.copy(
-        primary = a(target.primary), onPrimary = a(target.onPrimary),
-        primaryContainer = a(target.primaryContainer), onPrimaryContainer = a(target.onPrimaryContainer),
-        secondary = a(target.secondary), onSecondary = a(target.onSecondary),
-        secondaryContainer = a(target.secondaryContainer), onSecondaryContainer = a(target.onSecondaryContainer),
-        background = a(target.background), onBackground = a(target.onBackground),
-        surface = a(target.surface), onSurface = a(target.onSurface),
-        surfaceVariant = a(target.surfaceVariant), onSurfaceVariant = a(target.onSurfaceVariant),
-        surfaceContainer = a(target.surfaceContainer), surfaceContainerHigh = a(target.surfaceContainerHigh),
-        surfaceContainerLow = a(target.surfaceContainerLow),
-        outline = a(target.outline), outlineVariant = a(target.outlineVariant),
-        error = a(target.error), errorContainer = a(target.errorContainer), onErrorContainer = a(target.onErrorContainer),
-    )
-}
+/** الوضع الداكن الحالي؛ القوائم تُبنى من جديد عند تغيّره حتى تأخذ كل البطاقات ألوانها الجديدة فوراً */
+val LocalDark = androidx.compose.runtime.staticCompositionLocalOf { false }
 
 @Composable
 fun MizanTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = animated(if (isDark()) DarkColors else LightColors), typography = AppTypography, content = content)
+    val dark = isDark()
+    MaterialTheme(colorScheme = if (dark) DarkColors else LightColors, typography = AppTypography) {
+        androidx.compose.runtime.CompositionLocalProvider(LocalDark provides dark, content = content)
+    }
 }

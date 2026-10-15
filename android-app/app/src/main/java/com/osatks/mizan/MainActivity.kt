@@ -93,6 +93,12 @@ class MainActivity : ComponentActivity() {
         setContent { LanguageHost { MizanTheme { MizanApp(startRoute) } } }
     }
 
+    // تُحدَّث أدوات الشاشة الرئيسية بما تغير (الختمة، المدينة، اللغة) عند مغادرة التطبيق
+    override fun onStop() {
+        super.onStop()
+        com.osatks.mizan.widget.Widgets.updateAll(this)
+    }
+
     // اللغة تتغير دون إعادة إنشاء النشاط (configChanges) لتبقى حركة التبديل سلسة
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
