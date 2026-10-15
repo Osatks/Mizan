@@ -7,12 +7,15 @@
       <h2 id="pt-city-title">مواقيت الصلاة</h2>
       <button type="button" class="btn sm" id="pt-gps">📍 استخدم موقعي</button>
     </div>
-    <div class="form-grid">
-      <div class="field"><label for="pt-city">المدينة</label><select id="pt-city"></select></div>
-      <div class="field"><label for="pt-method">طريقة الحساب</label><select id="pt-method"></select></div>
-      <div class="field"><label for="pt-asr">مذهب حساب العصر</label><select id="pt-asr"><option value="std">الجمهور (ظل الشيء مثله)</option><option value="hanafi">الحنفي (ظل الشيء مثلاه)</option></select></div>
-      <div class="field"><label for="pt-fmt">صيغة الوقت</label><select id="pt-fmt"><option value="12">12 ساعة</option><option value="24">24 ساعة</option></select></div>
-    </div>
+    <div class="field"><label for="pt-city">المدينة</label><select id="pt-city"></select></div>
+    <details class="settings-panel">
+      <summary>⚙️ إعدادات الحساب</summary>
+      <div class="form-grid">
+        <div class="field"><label for="pt-method">طريقة الحساب</label><select id="pt-method"></select></div>
+        <div class="field"><label for="pt-asr">مذهب حساب العصر</label><select id="pt-asr"><option value="std">الجمهور (ظل الشيء مثله)</option><option value="hanafi">الحنفي (ظل الشيء مثلاه)</option></select></div>
+        <div class="field"><label for="pt-fmt">صيغة الوقت</label><select id="pt-fmt"><option value="12">12 ساعة</option><option value="24">24 ساعة</option></select></div>
+      </div>
+    </details>
     <p class="loc-line" id="pt-loc" style="margin:14px 0 0"></p>
 
     <div class="cal-nav" style="margin-top:22px">

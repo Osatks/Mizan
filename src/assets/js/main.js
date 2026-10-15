@@ -164,6 +164,27 @@
     status.style.color = "var(--primary)";
   });
 
+  // تطبيق الويب: عامل الخدمة للعمل دون إنترنت + زر التثبيت
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  }
+  let deferredPrompt = null;
+  const installBtn = document.querySelector(".install-btn");
+  addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.hidden = false;
+  });
+  installBtn?.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") { installBtn.hidden = true; toast("تم تثبيت التطبيق ✓"); }
+    deferredPrompt = null;
+  });
+  addEventListener("appinstalled", () => { if (installBtn) installBtn.hidden = true; });
+  addEventListener("offline", () => toast("أنت غير متصل — التطبيق يعمل من النسخة المحفوظة"));
+
   // أزرار + / − في حقول العدد
   document.addEventListener("click", (e) => {
     const b = e.target.closest(".stepper [data-step]");

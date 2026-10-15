@@ -174,6 +174,28 @@ def nav_html(active):
     return "".join(out)
 
 
+TABS = [
+    ("home", "/", "الرئيسية", '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'),
+    ("prayer", "/prayer-times/", "الصلاة", ICONS["mosque"]),
+    ("qibla", "/qibla-direction/", "القبلة", ICONS["compass"]),
+    ("tasbih", "/tasbih/", "المسبحة", ICONS["beads"]),
+    ("tools", "/#tools", "الأدوات", '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
+]
+
+
+def tabbar(active):
+    """شريط التنقل السفلي (يظهر عند تشغيل الموقع كتطبيق مثبت)."""
+    tool_keys = {t["key"] for t in TOOLS} - {"prayer", "qibla", "tasbih"}
+    out = []
+    for key, href, label, svg in TABS:
+        on = key == active or (key == "tools" and active in tool_keys | {"articles"})
+        cur = ' aria-current="page"' if on else ""
+        out.append(f'<a href="{href}"{cur}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+                   f'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{svg}</svg>'
+                   f'<span>{label}</span></a>')
+    return '<nav class="app-tabbar" aria-label="تنقل التطبيق">' + "".join(out) + "</nav>"
+
+
 def breadcrumb(meta):
     if meta["path"] == "/":
         return "", None
@@ -302,6 +324,7 @@ def build():
             "{{site_name}}": esc(CONFIG["site_name"]),
             "{{site_tagline}}": esc(CONFIG["site_tagline"]),
             "{{nav}}": nav_html(meta.get("nav", "")),
+            "{{tabbar}}": tabbar(meta.get("nav", "")),
             "{{hero}}": hero,
             "{{body_class}}": esc(meta.get("body_class", meta.get("type", "page"))),
             "{{head_extra}}": head_extra,
@@ -336,6 +359,37 @@ def build():
     if CONFIG.get("adsense_client"):
         pub = CONFIG["adsense_client"].replace("ca-", "")
         (DIST / "ads.txt").write_text(f"google.com, {pub}, DIRECT, f08c47fec0942fa0\n", encoding="utf-8")
+
+    # ملفات الجذر (عامل الخدمة، .well-known لتطبيق Android)
+    root_src = SRC / "root"
+    if root_src.exists():
+        for f in root_src.rglob("*"):
+            if f.is_file():
+                dest = DIST / f.relative_to(root_src)
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(f, dest)
+
+    # عامل الخدمة: يخزّن كل الصفحات والملفات ليعمل التطبيق دون إنترنت
+    sw_tpl = SRC / "templates" / "sw.js"
+    if sw_tpl.exists():
+        import hashlib
+        precache = ["/"]
+        for _, meta, _ in pages:
+            if meta.get("noindex") and meta["path"] != "/404.html":
+                continue
+            if meta["path"] not in precache:
+                precache.append(meta["path"])
+        for f in sorted((DIST / "assets").rglob("*")):
+            if f.is_file() and f.name != "og-image.png":
+                precache.append("/" + f.relative_to(DIST).as_posix())
+        h = hashlib.sha1()
+        for f in sorted(DIST.rglob("*")):
+            if f.is_file():
+                h.update(f.read_bytes())
+        sw = (sw_tpl.read_text(encoding="utf-8")
+              .replace("__VERSION__", "mizan-" + h.hexdigest()[:10])
+              .replace("__PRECACHE__", json.dumps(precache, ensure_ascii=False)))
+        (DIST / "sw.js").write_text(sw, encoding="utf-8")
 
     # ملفات إعدادات الاستضافة (Netlify / Cloudflare Pages)
     (DIST / "_headers").write_text(
