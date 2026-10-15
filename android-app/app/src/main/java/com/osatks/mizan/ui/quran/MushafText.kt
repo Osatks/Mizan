@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +28,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -45,7 +48,7 @@ private class Token(val text: AnnotatedString, val index: Int)
 private class Block(val surah: Int, val banner: Boolean, val bismillah: Boolean, val tokens: List<Token>)
 
 private const val REF = 40f          // مقاس القياس المرجعي؛ عرض الكلمة يتناسب مع المقاس
-private const val LINE = 1.8f        // ارتفاع السطر نسبةً إلى مقاس الخط
+private const val LINE = 1.9f        // ارتفاع السطر نسبةً إلى مقاس الخط
 private const val MIN_SIZE = 13f
 private const val MAX_SIZE = 30f
 
@@ -128,7 +131,11 @@ fun MushafText(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> Un
     val density = LocalDensity.current
     val measurer = rememberTextMeasurer(cacheSize = 8)
     val blocks = remember(page, text, marker) { blocksOf(page, text, marker) }
-    fun style(size: Float) = TextStyle(fontFamily = QuranFont, fontSize = size.sp, lineHeight = (size * LINE).sp, textDirection = TextDirection.Rtl)
+    // خط المصحف أطول من السطر (التشكيل فوق الحروف وتحتها): يُوسَّط في السطر ولا يُقص ما يتجاوزه
+    fun style(size: Float) = TextStyle(
+        fontFamily = QuranFont, fontSize = size.sp, lineHeight = (size * LINE).sp, textDirection = TextDirection.Rtl,
+        lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None),
+    )
     fun widthOf(t: AnnotatedString, size: Float) =
         measurer.measure(t, style(size), softWrap = false, maxLines = 1).size.width.toFloat()
 
@@ -176,7 +183,7 @@ fun MushafText(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> Un
                 if (block.bismillah) {
                     Text(
                         text[0], Modifier.fillMaxWidth().height(lineH), style = textStyle.copy(textAlign = TextAlign.Center),
-                        color = marker, maxLines = 1, softWrap = false
+                        color = marker, maxLines = 1, softWrap = false, overflow = TextOverflow.Visible
                     )
                 }
                 layout[b].forEach { (range, used) ->
@@ -193,7 +200,8 @@ fun MushafText(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> Un
                             Text(
                                 token.text,
                                 Modifier.clickable(interactionSource = null, indication = null) { onTap(token.index) },
-                                style = textStyle, color = if (token.index == selected) selInk else ink, maxLines = 1, softWrap = false
+                                style = textStyle, color = if (token.index == selected) selInk else ink, maxLines = 1, softWrap = false,
+                                overflow = TextOverflow.Visible
                             )
                         }
                     }
@@ -214,8 +222,11 @@ private fun MushafBanner(name: String, size: Float, lineH: androidx.compose.ui.u
         ) {}
         // النص خارج الإطار حتى لا يُقص أعلى الحروف وأسفلها
         Text(
-            "سُورَةُ $name", textAlign = TextAlign.Center, maxLines = 1, softWrap = false,
-            style = TextStyle(fontFamily = QuranFont, fontSize = (size * 0.9f).sp, textDirection = TextDirection.Rtl),
+            "سُورَةُ $name", Modifier.offset(y = -(lineH * 0.2f)), textAlign = TextAlign.Center, maxLines = 1, softWrap = false, overflow = TextOverflow.Visible,
+            style = TextStyle(
+                fontFamily = QuranFont, fontSize = (size * 0.9f).sp, lineHeight = (size * 1.4f).sp, textDirection = TextDirection.Rtl,
+                lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
+            ),
             color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
