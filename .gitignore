@@ -8,3 +8,9 @@ Thumbs.db
 *.keystore
 *.jks
 signing-key-info.txt
+
+# Android build outputs
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties
