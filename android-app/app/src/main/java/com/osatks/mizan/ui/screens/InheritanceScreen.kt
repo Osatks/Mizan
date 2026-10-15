@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Inheritance
 import com.osatks.mizan.ui.MiniStepper
@@ -50,8 +51,8 @@ private val BAR_COLORS = listOf(
 fun InheritanceScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current
     var gender by remember { mutableStateOf('m') }
-    val counts = remember { mutableStateMapOf<String, Int>() }
-    var estate by remember { mutableStateOf("") }
+    val counts = remember { mutableStateMapOf<String, Int>().apply { if (Demo.enabled) putAll(Demo.heirs) } }
+    var estate by remember { mutableStateOf(if (Demo.enabled) Demo.ESTATE else "") }
     var funeral by remember { mutableStateOf("") }
     var debts by remember { mutableStateOf("") }
     var will by remember { mutableStateOf("") }

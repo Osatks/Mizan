@@ -20,6 +20,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,9 +54,14 @@ class MainActivity : ComponentActivity() {
         PrayerAlarms.ensureChannel(this)
         PrayerAlarms.scheduleNext(this)
         enableEdgeToEdge()
-        setContent { MizanTheme { MizanApp() } }
+        // فتح شاشة محددة عند التشغيل (للاختصارات ولقطات الشاشة): --es route prayer
+        val startRoute = intent?.getStringExtra("route")
+        com.osatks.mizan.core.Demo.enabled = intent?.getBooleanExtra("demo", false) == true
+        setContent { MizanTheme { MizanApp(startRoute) } }
     }
 }
+
+private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya")
 
 private data class Tab(val route: String, val label: String, val icon: ImageVector)
 
@@ -68,8 +74,11 @@ private val TABS = listOf(
 )
 
 @Composable
-fun MizanApp() {
+fun MizanApp(startRoute: String? = null) {
     val nav = rememberNavController()
+    LaunchedEffect(startRoute) {
+        if (startRoute != null && startRoute != "home" && startRoute in ROUTES) nav.navigate(startRoute)
+    }
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route
     Scaffold(

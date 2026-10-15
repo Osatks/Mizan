@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
@@ -44,7 +45,7 @@ private val FIELDS = listOf("gold_price", "silver_price", "cash", "bank", "recei
 @Composable
 fun ZakatScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current
-    val v = remember { mutableStateMapOf<String, String>().apply { FIELDS.forEach { put(it, AppSettings.getString("zk_$it")) } } }
+    val v = remember { mutableStateMapOf<String, String>().apply { FIELDS.forEach { put(it, if (Demo.enabled) Demo.zakat[it] ?: "" else AppSettings.getString("zk_$it")) } } }
     var cur by remember { mutableStateOf(AppSettings.getString("zk_cur", "ر.س")) }
     var basis by remember { mutableStateOf(AppSettings.getString("zk_basis", "gold")) }
     var includeJewelry by remember { mutableStateOf(AppSettings.getBool("zk_jewelry", true)) }
