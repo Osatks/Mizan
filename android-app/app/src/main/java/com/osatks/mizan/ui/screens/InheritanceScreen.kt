@@ -1,5 +1,9 @@
 package com.osatks.mizan.ui.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,11 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Inheritance
+import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.MiniStepper
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
@@ -49,6 +57,7 @@ private val BAR_COLORS = listOf(
 
 @Composable
 fun InheritanceScreen(onBack: () -> Unit) {
+    val s = LocalStrings.current
     val ctx = LocalContext.current
     var gender by remember { mutableStateOf('m') }
     val counts = remember { mutableStateMapOf<String, Int>().apply { if (Demo.enabled) putAll(Demo.heirs) } }
@@ -65,46 +74,53 @@ fun InheritanceScreen(onBack: () -> Unit) {
         .associate { it.key to (counts[it.key] ?: 0) }
     val result = Inheritance.solve(active, gender)
 
-    ToolPage("حاسبة المواريث", "تقسيم التركة وفق علم الفرائض", onBack) {
+    val arrow = if (LocalLayoutDirection.current == LayoutDirection.Rtl) "←" else "→"
+    ToolPage(s.inhTitle, s.inhSubtitle, onBack, sharedKey = "inheritance", icon = TOOL_ICONS["inheritance"]) {
         if (result != null) {
             item {
                 ResultCard(
-                    "أصل المسألة",
-                    if (result.awl != null) "${result.asl} ← ${result.awl}" else "${result.asl}",
-                    when { result.awl != null -> "مسألة عائلة"; result.radd -> "مسألة فيها ردّ"; else -> "مسألة عادلة" },
+                    s.aslLabel,
+                    if (result.awl != null) "${result.asl} $arrow ${result.awl}" else "${result.asl}",
+                    when { result.awl != null -> s.awlCase; result.radd -> s.raddCase; else -> s.adilCase },
                     result.awl == null
                 ) {
-                    if (result.tashih != result.asl) Text("تصح من ${result.tashih} سهماً", color = Color.White.copy(alpha = .85f))
+                    if (result.tashih != result.asl) Text(s.tashihFrom(result.tashih), color = Color.White.copy(alpha = .85f))
                 }
             }
             item {
-                SectionCard("نصيب كل وارث") {
+                SectionCard(s.sharesTitle) {
                     var ci = 0
                     Inheritance.HEIRS.forEach { h ->
                         val c = active[h.key] ?: return@forEach
-                        val s = result.res[h.key]
-                        val share = s?.share
-                        if (s == null || s.blocked != null || share == null) {
+                        val sh = result.res[h.key]
+                        val share = sh?.share
+                        val name = s.heirs[h.key] ?: h.key
+                        if (sh == null || sh.blocked != null || share == null) {
                             Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .5f)) {
                                 Row(Modifier.fillMaxWidth().padding(12.dp)) {
-                                    Text("${h.name}${if (c > 1) " ×$c" else ""}", Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text("محجوب بـ${s?.blocked ?: "—"}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                                    Text("$name${if (c > 1) " ×$c" else ""}", Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(s.blockedBy(sh?.blocked?.let { s.nameOf(it) } ?: "—"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                                 }
                             }
                         } else {
                             val pct = share.value * 100
                             val amount = net * share.value
                             val color = BAR_COLORS[ci++ % BAR_COLORS.size]
+                            // الشريط يمتد من الصفر إلى النصيب عند الظهور ويتحرك عند كل تغيير
+                            var shown by remember { mutableStateOf(if (Motion.reduced) share.value.toFloat().coerceIn(0f, 1f) else 0f) }
+                            androidx.compose.runtime.LaunchedEffect(share.value) { shown = share.value.toFloat().coerceIn(0f, 1f) }
+                            val width by animateFloatAsState(shown, spring(dampingRatio = 0.8f, stiffness = 140f), label = "bar")
+                            val barColor by animateColorAsState(color, tween(Motion.MEDIUM), label = "barColor")
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("${h.name}${if (c > 1) " ×$c" else ""}", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+                                    Text("$name${if (c > 1) " ×$c" else ""}", Modifier.weight(1f), fontWeight = FontWeight.Bold)
                                     Text("$share  ·  ${Fmt.num(pct, 1)}%", fontWeight = FontWeight.Bold)
                                 }
                                 Box(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                                    Box(Modifier.fillMaxWidth((share.value).toFloat().coerceIn(0f, 1f)).fillMaxHeight().clip(RoundedCornerShape(10.dp)).background(color))
+                                    if (width > 0f) Box(Modifier.fillMaxWidth(width).fillMaxHeight().clip(RoundedCornerShape(10.dp)).background(barColor))
                                 }
                                 Text(
-                                    s.type + if (net > 0) "  ·  ${Fmt.num(amount)}" + (if (c > 1) " (للفرد ${Fmt.num(amount / c)})" else "") else "",
+                                    s.shareType(sh.type, sh.radd) + if (net > 0) "  ·  ${Fmt.num(amount)}" + (if (c > 1) " (${s.perPerson(Fmt.num(amount / c))})" else "") else "",
                                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -112,36 +128,38 @@ fun InheritanceScreen(onBack: () -> Unit) {
                     }
                     Button(onClick = {
                         val text = Inheritance.HEIRS.filter { active.containsKey(it.key) && result.res[it.key]?.share != null }
-                            .joinToString("، ") { "${it.name}: ${result.res[it.key]!!.share} (${Fmt.num(result.res[it.key]!!.share!!.value * 100, 1)}%)" }
-                        shareText(ctx, "تقسيم التركة: $text")
-                    }, modifier = Modifier.fillMaxWidth()) { Text("مشاركة القسمة") }
+                            .joinToString(s.listSeparator) { "${s.heirs[it.key]}: ${result.res[it.key]!!.share} (${Fmt.num(result.res[it.key]!!.share!!.value * 100, 1)}%)" }
+                        shareText(ctx, s, s.divisionShareText(text))
+                    }, modifier = Modifier.fillMaxWidth()) { Text(s.shareDivision) }
                 }
             }
-            result.notes.forEach { n -> item { Note(n) } }
-        } else item { ResultCard("أصل المسألة", "—", "أضف الورثة من القائمة أدناه") }
+            result.notes.forEach { n -> item { Note(s.inhNote(n)) } }
+        } else item { ResultCard(s.aslLabel, "—", s.addHeirs) }
 
         item {
-            SectionCard("المتوفى والتركة") {
-                Segmented(listOf("m" to "المتوفى ذكر", "f" to "المتوفاة أنثى"), gender.toString()) { gender = it[0] }
-                NumField("إجمالي التركة", estate, { estate = it })
-                NumField("تكاليف التجهيز والدفن", funeral, { funeral = it })
-                NumField("الديون على المتوفى", debts, { debts = it })
-                NumField("الوصية (لغير وارث)", will, { will = it }, null, "لا تزيد على ثلث الباقي بعد الديون إلا بإجازة الورثة")
-                if (Fmt.parse(estate) > 0) StatRow("صافي التركة القابل للقسمة", Fmt.num(net) + if (willCapped) " (قُصرت الوصية على الثلث)" else "", strong = true)
+            SectionCard(s.deceasedAndEstate) {
+                Segmented(listOf("m" to s.deceasedMale, "f" to s.deceasedFemale), gender.toString()) { gender = it[0] }
+                NumField(s.estateTotal, estate, { estate = it })
+                NumField(s.funeralCosts, funeral, { funeral = it })
+                NumField(s.deceasedDebts, debts, { debts = it })
+                NumField(s.bequest, will, { will = it }, null, s.bequestHint)
+                if (Fmt.parse(estate) > 0) StatRow(s.netEstate, Fmt.num(net) + if (willCapped) " " + s.bequestCapped else "", strong = true)
             }
         }
         Inheritance.HEIRS.filter { it.only == null || it.only == gender }.groupBy { it.group }.forEach { (group, heirs) ->
             item {
-                SectionCard(group) {
+                SectionCard(s.heirGroups[group] ?: group) {
                     heirs.forEach { h ->
                         val v = counts[h.key] ?: 0
+                        val bg by animateColorAsState(if (v > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, tween(Motion.MEDIUM), label = "heir")
+                        val border by animateColorAsState(if (v > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, tween(Motion.MEDIUM), label = "heirB")
                         Surface(
                             shape = RoundedCornerShape(14.dp),
-                            color = if (v > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                            border = BorderStroke(1.dp, if (v > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
+                            color = bg,
+                            border = BorderStroke(1.dp, border)
                         ) {
                             Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(h.name, Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+                                Text(s.heirs[h.key] ?: h.key, Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
                                 MiniStepper(v, { counts[h.key] = it }, 0, h.max)
                             }
                         }
@@ -151,9 +169,9 @@ fun InheritanceScreen(onBack: () -> Unit) {
         }
         item {
             OutlinedButton(onClick = { counts.clear(); estate = ""; funeral = ""; debts = ""; will = "" }, modifier = Modifier.fillMaxWidth()) {
-                Text("بدء مسألة جديدة")
+                Text(s.newCase)
             }
         }
-        item { Note("النتيجة إرشادية مبنية على مذهب الجمهور، ولا تغني عن مراجعة المحكمة الشرعية أو عالم متخصص في الفرائض.", warn = true) }
+        item { Note(s.inhDisclaimer, warn = true) }
     }
 }

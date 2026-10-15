@@ -1,16 +1,23 @@
 package com.osatks.mizan.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Hijri
+import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.i18n.Strings
+import com.osatks.mizan.i18n.greg
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
 import com.osatks.mizan.ui.Picker
+import com.osatks.mizan.ui.Reveal
 import com.osatks.mizan.ui.ResultCard
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
@@ -19,21 +26,28 @@ import com.osatks.mizan.ui.Stepper
 import com.osatks.mizan.ui.ToolPage
 import java.time.LocalDate
 
-private data class Food(val name: String, val kg: Double)
+/** نوع الطعام: الوزن بالكيلوغرام (‎-1 = يُدخله المستخدم)، و approx إن كان الوزن تقريبياً */
+private data class Food(val key: String, val kg: Double, val approx: Boolean = true)
 
 private val FOODS = listOf(
-    Food("أرز — 2.5 كغ تقريباً", 2.5), Food("أرز (الأحوط) — 3 كغ", 3.0), Food("قمح — 2.04 كغ تقريباً", 2.04),
-    Food("تمر — 2.5 كغ تقريباً", 2.5), Food("شعير — 2.2 كغ تقريباً", 2.2), Food("مقدار آخر…", -1.0),
+    Food("rice", 2.5), Food("riceSafe", 3.0, approx = false), Food("wheat", 2.04),
+    Food("dates", 2.5), Food("barley", 2.2), Food("other", -1.0),
 )
 
-private fun peopleLabel(n: Int) = when (n) { 1 -> "عن فرد واحد"; 2 -> "عن فردين"; in 3..10 -> "عن $n أفراد"; else -> "عن $n فرداً" }
+private fun Strings.foodLabel(f: Food): String {
+    val name = foods[f.key] ?: f.key
+    if (f.kg < 0) return name
+    val kg = Fmt.num(f.kg)
+    return "$name — " + if (f.approx) approxKg(kg) else "$kg $unitKg"
+}
 
 @Composable
 fun FitrScreen(onBack: () -> Unit) {
+    val s = LocalStrings.current
     var people by remember { mutableIntStateOf(1) }
     var mode by remember { mutableStateOf("food") }
     var food by remember { mutableStateOf(FOODS[0]) }
-    var custom by remember { mutableStateOf("2.5") }
+    var custom by remember { mutableStateOf(Fmt.num(2.5)) }
     var kgPrice by remember { mutableStateOf("") }
     var value by remember { mutableStateOf("") }
 
@@ -41,33 +55,39 @@ fun FitrScreen(onBack: () -> Unit) {
     val kg = sa * people
     val perValue = Fmt.parse(value)
 
-    ToolPage("زكاة الفطر", "تُخرج قبل صلاة العيد", onBack) {
+    ToolPage(s.fitrTitle, s.fitrSubtitle, onBack, sharedKey = "fitr", icon = TOOL_ICONS["fitr"]) {
         item {
-            if (mode == "food") ResultCard("مقدار الطعام الواجب إخراجه", "${Fmt.num(kg)} كغ", peopleLabel(people), true)
-            else ResultCard("القيمة النقدية الإجمالية", if (perValue > 0) Fmt.num(perValue * people) else "—", peopleLabel(people), true)
+            if (mode == "food") ResultCard(s.foodAmountDue, Fmt.num(kg), s.forPeople(people), true, unit = s.unitKg)
+            else ResultCard(s.totalCashValue, if (perValue > 0) Fmt.num(perValue * people) else "—", s.forPeople(people), true)
         }
         item {
             SectionCard {
-                Stepper("عدد من تُخرج عنهم (مع نفسك)", people, { people = it }, 1, 99)
-                Segmented(listOf("food" to "طعام (الصاع)", "money" to "قيمة نقدية"), mode) { mode = it }
-                if (mode == "food") {
-                    Picker("نوع الطعام", FOODS, food, text = { it.name }, onSelect = { food = it })
-                    if (food.kg < 0) NumField("وزن الصاع بالكيلوغرام", custom, { custom = it }, "كغ")
-                    NumField("سعر الكيلوغرام (اختياري)", kgPrice, { kgPrice = it }, null, "لتعرف التكلفة التقريبية للشراء")
-                    StatRow("مقدار الصاع للفرد", "${Fmt.num(sa)} كغ")
-                    if (Fmt.parse(kgPrice) > 0) StatRow("التكلفة التقريبية", Fmt.num(kg * Fmt.parse(kgPrice)))
-                } else {
-                    NumField("قيمة زكاة الفطر عن الفرد", value, { value = it }, null, "تعلنها الجهة الرسمية في بلدك كل عام")
-                    Note("إخراج القيمة قول الحنفية، والجمهور على إخراج الطعام.")
+                Stepper(s.peopleCount, people, { people = it }, 1, 99)
+                Segmented(listOf("food" to s.modeFood, "money" to s.modeMoney), mode) { mode = it }
+                Reveal(mode == "food") {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Picker(s.foodType, FOODS, food, text = { s.foodLabel(it) }, onSelect = { food = it })
+                        Reveal(food.kg < 0) { NumField(s.saWeight, custom, { custom = it }, s.unitKg) }
+                        NumField(s.kgPrice, kgPrice, { kgPrice = it }, null, s.kgPriceHint)
+                        StatRow(s.saPerPerson, "${Fmt.num(sa)} ${s.unitKg}")
+                        Reveal(Fmt.parse(kgPrice) > 0) { StatRow(s.approxCost, Fmt.num(kg * Fmt.parse(kgPrice))) }
+                    }
+                }
+                Reveal(mode == "money") {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        NumField(s.valuePerPerson, value, { value = it }, null, s.valuePerPersonHint)
+                        Note(s.valueNote)
+                    }
                 }
             }
         }
-        item { Note("وقت الإخراج: قبل صلاة العيد، ويجوز تقديمها بيوم أو يومين، ولا يجوز تأخيرها عن الصلاة بغير عذر. وتُعطى للفقراء والمساكين.") }
+        item { Note(s.fitrTimingNote) }
     }
 }
 
 @Composable
 fun FidyaScreen(onBack: () -> Unit) {
+    val s = LocalStrings.current
     var tab by remember { mutableStateOf("fidya") }
     var days by remember { mutableIntStateOf(30) }
     var oaths by remember { mutableIntStateOf(1) }
@@ -81,16 +101,16 @@ fun FidyaScreen(onBack: () -> Unit) {
     val extra = mutableListOf<Pair<String, String>>()
     when (tab) {
         "fidya" -> {
-            poor = days; title = "فدية الصيام"; sub = "عن $days يوماً — مسكين عن كل يوم"
-            note = "لمن عجز عن الصيام عجزاً دائماً كالكبير والمريض الذي لا يُرجى برؤه. يجوز إطعام مسكين واحد عن كل الأيام أو مساكين متعددين."
+            poor = days; title = s.fidyaResult; sub = s.fidyaSub(days)
+            note = s.fidyaNote
         }
         "yamin" -> {
-            poor = 10 * oaths; title = "كفارة اليمين"; sub = if (oaths > 1) "$oaths كفارات × 10 مساكين" else "إطعام 10 مساكين"
-            extra += "البديل عند العجز" to "صيام ${3 * oaths} أيام"
-            note = "يُخيّر بين إطعام عشرة مساكين أو كسوتهم أو تحرير رقبة، فإن لم يجد فصيام ثلاثة أيام (سورة المائدة: 89)."
+            poor = 10 * oaths; title = s.oathResult; sub = s.oathSub(oaths)
+            extra += s.oathAlternative to s.fastDays(3 * oaths)
+            note = s.oathNote
         }
         else -> {
-            poor = 60; title = "كفارة الجماع في نهار رمضان"; sub = "إطعام 60 مسكيناً عند العجز عن الصيام"
+            poor = 60; title = s.intercourseResult; sub = s.intercourseSub
             val start = LocalDate.now()
             val h = Hijri.toHijri(start)
             if (h != null) {
@@ -98,30 +118,30 @@ fun FidyaScreen(onBack: () -> Unit) {
                 if (m > 12) { m -= 12; y++ }
                 val end = Hijri.toGregorian(y, m, minOf(h.d, Hijri.monthLength(y, m)))?.minusDays(1)
                 if (end != null) {
-                    extra += "لو بدأت الصيام اليوم ينتهي في" to Hijri.gregStr(end)
-                    extra += "مدة الشهرين الهجريين" to "${java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1} يوماً"
+                    extra += s.ifStartToday to s.greg(end)
+                    extra += s.twoMonthsDuration to s.daysCount(java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1)
                 }
             }
-            note = "الواجب على الترتيب: عتق رقبة، فإن لم يجد فصيام شهرين متتابعين، فإن لم يستطع فإطعام ستين مسكيناً، مع قضاء اليوم والتوبة."
+            note = s.intercourseNote
         }
     }
     val kg = measure * poor
     val p = Fmt.parse(price)
 
-    ToolPage("الفدية والكفارة", "مقدار الإطعام بالكيلوغرام والقيمة", onBack) {
-        item { ResultCard(title, "${Fmt.num(kg)} كغ", sub, true) }
+    ToolPage(s.fidyaTitle, s.fidyaSubtitle, onBack, sharedKey = "fidya", icon = TOOL_ICONS["fidya"]) {
+        item { ResultCard(title, Fmt.num(kg), sub, true, unit = s.unitKg) }
         item {
             SectionCard {
-                Segmented(listOf("fidya" to "فدية الصيام", "yamin" to "اليمين", "jima" to "الجماع"), tab) { tab = it }
-                if (tab == "fidya") Stepper("عدد الأيام", days, { days = it }, 1, 360)
-                if (tab == "yamin") Stepper("عدد الكفارات", oaths, { oaths = it }, 1, 100)
-                Picker("مقدار الإطعام لكل مسكين", listOf(0.75, 1.5), measure,
-                    text = { if (it == 0.75) "مُدّ — نحو 0.75 كغ (المالكية والشافعية)" else "نصف صاع — نحو 1.5 كغ (فتاوى معاصرة)" },
+                Segmented(listOf("fidya" to s.tabFidya, "yamin" to s.tabOath, "jima" to s.tabIntercourse), tab) { tab = it }
+                Reveal(tab == "fidya") { Stepper(s.daysField, days, { days = it }, 1, 360) }
+                Reveal(tab == "yamin") { Stepper(s.oathsField, oaths, { oaths = it }, 1, 100) }
+                Picker(s.feedMeasure, listOf(0.75, 1.5), measure,
+                    text = { if (it == 0.75) s.muddOption else s.halfSaOption },
                     onSelect = { measure = it })
-                NumField("سعر الكيلوغرام (اختياري)", price, { price = it })
-                StatRow("عدد المساكين / الوجبات", "$poor")
+                NumField(s.kgPrice, price, { price = it })
+                StatRow(s.poorCount, "$poor")
                 extra.forEach { (a, b) -> StatRow(a, b) }
-                if (p > 0) StatRow("القيمة التقريبية", Fmt.num(p * kg), strong = true)
+                Reveal(p > 0) { StatRow(s.approxValue, Fmt.num(p * kg), strong = true) }
             }
         }
         item { Note(note) }

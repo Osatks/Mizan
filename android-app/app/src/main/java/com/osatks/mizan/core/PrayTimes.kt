@@ -15,7 +15,8 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
 
-data class Method(val key: String, val name: String, val fajr: Double, val ishaAngle: Double?, val ishaMinutes: Int?)
+/** طريقة حساب؛ maghribAngle للطرق التي تؤخر المغرب بزاوية بعد الغروب (طهران) */
+data class Method(val key: String, val fajr: Double, val ishaAngle: Double?, val ishaMinutes: Int?, val maghribAngle: Double? = null)
 
 data class PrayerTimes(
     val fajr: Double, val sunrise: Double, val dhuhr: Double,
@@ -27,27 +28,33 @@ data class PrayerTimes(
     }
 }
 
-data class City(val name: String, val country: String, val lat: Double, val lng: Double, val tz: String, val method: String)
+/** مدينة معروفة: key لاسمها في ملفات اللغة، و cc رمز الدولة (ISO 3166) */
+data class City(val key: String, val cc: String, val lat: Double, val lng: Double, val tz: String, val method: String)
 
 /** حساب مواقيت الصلاة فلكياً من موضع الشمس */
 object PrayTimes {
-    val PRAYERS = listOf("fajr" to "الفجر", "sunrise" to "الشروق", "dhuhr" to "الظهر", "asr" to "العصر", "maghrib" to "المغرب", "isha" to "العشاء")
+    val PRAYERS = listOf("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha")
 
     val METHODS = listOf(
-        Method("makkah", "أم القرى (السعودية)", 18.5, null, 90),
-        Method("mwl", "رابطة العالم الإسلامي", 18.0, 17.0, null),
-        Method("egypt", "الهيئة المصرية العامة للمساحة", 19.5, 17.5, null),
-        Method("dubai", "الإمارات (دبي)", 18.2, 18.2, null),
-        Method("kuwait", "الكويت", 18.0, 17.5, null),
-        Method("qatar", "قطر", 18.0, null, 90),
-        Method("jordan", "الأردن وفلسطين", 18.0, 18.0, null),
-        Method("morocco", "المغرب", 19.0, 17.0, null),
-        Method("algeria", "الجزائر", 18.0, 17.0, null),
-        Method("tunisia", "تونس", 18.0, 18.0, null),
-        Method("karachi", "جامعة العلوم الإسلامية بكراتشي", 18.0, 18.0, null),
-        Method("turkey", "رئاسة الشؤون الدينية التركية", 18.0, 17.0, null),
-        Method("isna", "أمريكا الشمالية (ISNA)", 15.0, 15.0, null),
-        Method("france", "اتحاد المنظمات الإسلامية بفرنسا", 12.0, 12.0, null),
+        Method("makkah", 18.5, null, 90),
+        Method("mwl", 18.0, 17.0, null),
+        Method("egypt", 19.5, 17.5, null),
+        Method("dubai", 18.2, 18.2, null),
+        Method("kuwait", 18.0, 17.5, null),
+        Method("qatar", 18.0, null, 90),
+        Method("jordan", 18.0, 18.0, null),
+        Method("morocco", 19.0, 17.0, null),
+        Method("algeria", 18.0, 17.0, null),
+        Method("tunisia", 18.0, 18.0, null),
+        Method("karachi", 18.0, 18.0, null),
+        Method("turkey", 18.0, 17.0, null),
+        Method("tehran", 17.7, 14.0, null, 4.5),
+        Method("indonesia", 20.0, 18.0, null),
+        Method("malaysia", 20.0, 18.0, null),
+        Method("singapore", 20.0, 18.0, null),
+        Method("russia", 16.0, 15.0, null),
+        Method("isna", 15.0, 15.0, null),
+        Method("france", 12.0, 12.0, null),
     )
 
     fun method(key: String): Method = METHODS.firstOrNull { it.key == key } ?: METHODS[1]
@@ -107,7 +114,7 @@ object PrayTimes {
             return sunAngleTime(angle, t)
         }
 
-        var fajr = 5.0; var sunrise = 6.0; var dhuhr = 12.0; var asr = 13.0; var sunset = 18.0; var isha = 18.0
+        var fajr = 5.0; var sunrise = 6.0; var dhuhr = 12.0; var asr = 13.0; var sunset = 18.0; var maghrib = 18.0; var isha = 18.0
         repeat(2) {
             fun p(v: Double) = (if (v.isNaN()) 12.0 else v) / 24.0
             val nf = sunAngleTime(m.fajr, p(fajr), true)
@@ -115,12 +122,13 @@ object PrayTimes {
             val nd = midDay(p(dhuhr))
             val na = asrTime(if (hanafi) 2.0 else 1.0, p(asr))
             val nss = sunAngleTime(0.833, p(sunset))
+            val nm = if (m.maghribAngle != null) sunAngleTime(m.maghribAngle, p(maghrib)) else nss
             val ni = if (m.ishaAngle != null) sunAngleTime(m.ishaAngle, p(isha)) else Double.NaN
-            fajr = nf; sunrise = ns; dhuhr = nd; asr = na; sunset = nss; isha = ni
+            fajr = nf; sunrise = ns; dhuhr = nd; asr = na; sunset = nss; maghrib = nm; isha = ni
         }
         val adj = offset - lng / 15.0
-        fajr += adj; sunrise += adj; dhuhr += adj; asr += adj; sunset += adj; isha += adj
-        val maghrib = sunset
+        fajr += adj; sunrise += adj; dhuhr += adj; asr += adj; sunset += adj; maghrib += adj; isha += adj
+        if (maghrib.isNaN()) maghrib = sunset
         if (m.ishaMinutes != null) {
             val ramadan = Hijri.toHijri(date)?.m == 9 && m.key == "makkah"
             isha = maghrib + (if (ramadan) 120 else m.ishaMinutes) / 60.0
@@ -138,14 +146,14 @@ object PrayTimes {
         return PrayerTimes(fajr, sunrise, dhuhr, asr, maghrib, isha)
     }
 
-    fun format(hours: Double, h24: Boolean): String {
+    fun format(hours: Double, h24: Boolean, am: String = "AM", pm: String = "PM"): String {
         if (hours.isNaN()) return "—"
         val mins = (fixHour(hours) * 60).roundToInt()
         var h = (mins / 60) % 24
         val m = mins % 60
         val mm = m.toString().padStart(2, '0')
         if (h24) return "${h.toString().padStart(2, '0')}:$mm"
-        val suf = if (h < 12) "ص" else "م"
+        val suf = if (h < 12) am else pm
         h %= 12; if (h == 0) h = 12
         return "$h:$mm $suf"
     }
@@ -168,57 +176,99 @@ object PrayTimes {
     }
 
     val CITIES = listOf(
-        City("مكة المكرمة", "السعودية", 21.4225, 39.8262, "Asia/Riyadh", "makkah"),
-        City("المدينة المنورة", "السعودية", 24.4672, 39.6111, "Asia/Riyadh", "makkah"),
-        City("الرياض", "السعودية", 24.7136, 46.6753, "Asia/Riyadh", "makkah"),
-        City("جدة", "السعودية", 21.5433, 39.1728, "Asia/Riyadh", "makkah"),
-        City("الدمام", "السعودية", 26.4207, 50.0888, "Asia/Riyadh", "makkah"),
-        City("أبها", "السعودية", 18.2164, 42.5053, "Asia/Riyadh", "makkah"),
-        City("دبي", "الإمارات", 25.2048, 55.2708, "Asia/Dubai", "dubai"),
-        City("أبوظبي", "الإمارات", 24.4539, 54.3773, "Asia/Dubai", "dubai"),
-        City("الشارقة", "الإمارات", 25.3463, 55.4209, "Asia/Dubai", "dubai"),
-        City("الكويت", "الكويت", 29.3759, 47.9774, "Asia/Kuwait", "kuwait"),
-        City("الدوحة", "قطر", 25.2854, 51.531, "Asia/Qatar", "qatar"),
-        City("المنامة", "البحرين", 26.2285, 50.586, "Asia/Bahrain", "makkah"),
-        City("مسقط", "عُمان", 23.588, 58.3829, "Asia/Muscat", "mwl"),
-        City("القاهرة", "مصر", 30.0444, 31.2357, "Africa/Cairo", "egypt"),
-        City("الإسكندرية", "مصر", 31.2001, 29.9187, "Africa/Cairo", "egypt"),
-        City("أسوان", "مصر", 24.0889, 32.8998, "Africa/Cairo", "egypt"),
-        City("عمّان", "الأردن", 31.9454, 35.9284, "Asia/Amman", "jordan"),
-        City("القدس", "فلسطين", 31.7683, 35.2137, "Asia/Jerusalem", "jordan"),
-        City("غزة", "فلسطين", 31.5017, 34.4668, "Asia/Gaza", "jordan"),
-        City("بيروت", "لبنان", 33.8938, 35.5018, "Asia/Beirut", "mwl"),
-        City("دمشق", "سوريا", 33.5138, 36.2765, "Asia/Damascus", "mwl"),
-        City("حلب", "سوريا", 36.2021, 37.1343, "Asia/Damascus", "mwl"),
-        City("بغداد", "العراق", 33.3152, 44.3661, "Asia/Baghdad", "mwl"),
-        City("البصرة", "العراق", 30.5085, 47.7804, "Asia/Baghdad", "mwl"),
-        City("أربيل", "العراق", 36.1912, 44.0092, "Asia/Baghdad", "mwl"),
-        City("صنعاء", "اليمن", 15.3694, 44.191, "Asia/Aden", "mwl"),
-        City("عدن", "اليمن", 12.7855, 45.0187, "Asia/Aden", "mwl"),
-        City("الخرطوم", "السودان", 15.5007, 32.5599, "Africa/Khartoum", "egypt"),
-        City("طرابلس", "ليبيا", 32.8872, 13.1913, "Africa/Tripoli", "egypt"),
-        City("بنغازي", "ليبيا", 32.1167, 20.0667, "Africa/Tripoli", "egypt"),
-        City("تونس", "تونس", 36.8065, 10.1815, "Africa/Tunis", "tunisia"),
-        City("الجزائر", "الجزائر", 36.7538, 3.0588, "Africa/Algiers", "algeria"),
-        City("وهران", "الجزائر", 35.6971, -0.6308, "Africa/Algiers", "algeria"),
-        City("الرباط", "المغرب", 34.0209, -6.8416, "Africa/Casablanca", "morocco"),
-        City("الدار البيضاء", "المغرب", 33.5731, -7.5898, "Africa/Casablanca", "morocco"),
-        City("مراكش", "المغرب", 31.6295, -7.9811, "Africa/Casablanca", "morocco"),
-        City("نواكشوط", "موريتانيا", 18.0735, -15.9582, "Africa/Nouakchott", "mwl"),
-        City("مقديشو", "الصومال", 2.0469, 45.3182, "Africa/Mogadishu", "mwl"),
-        City("جيبوتي", "جيبوتي", 11.5721, 43.1456, "Africa/Djibouti", "mwl"),
-        City("إسطنبول", "تركيا", 41.0082, 28.9784, "Europe/Istanbul", "turkey"),
-        City("كراتشي", "باكستان", 24.8607, 67.0011, "Asia/Karachi", "karachi"),
-        City("كوالالمبور", "ماليزيا", 3.139, 101.6869, "Asia/Kuala_Lumpur", "mwl"),
-        City("جاكرتا", "إندونيسيا", -6.2088, 106.8456, "Asia/Jakarta", "mwl"),
-        City("لندن", "بريطانيا", 51.5074, -0.1278, "Europe/London", "mwl"),
-        City("باريس", "فرنسا", 48.8566, 2.3522, "Europe/Paris", "france"),
-        City("برلين", "ألمانيا", 52.52, 13.405, "Europe/Berlin", "mwl"),
-        City("ستوكهولم", "السويد", 59.3293, 18.0686, "Europe/Stockholm", "mwl"),
-        City("نيويورك", "الولايات المتحدة", 40.7128, -74.006, "America/New_York", "isna"),
-        City("تورونتو", "كندا", 43.6532, -79.3832, "America/Toronto", "isna"),
-        City("سيدني", "أستراليا", -33.8688, 151.2093, "Australia/Sydney", "mwl"),
+        City("makkah", "SA", 21.4225, 39.8262, "Asia/Riyadh", "makkah"),
+        City("madinah", "SA", 24.4672, 39.6111, "Asia/Riyadh", "makkah"),
+        City("riyadh", "SA", 24.7136, 46.6753, "Asia/Riyadh", "makkah"),
+        City("jeddah", "SA", 21.5433, 39.1728, "Asia/Riyadh", "makkah"),
+        City("dammam", "SA", 26.4207, 50.0888, "Asia/Riyadh", "makkah"),
+        City("abha", "SA", 18.2164, 42.5053, "Asia/Riyadh", "makkah"),
+        City("dubai", "AE", 25.2048, 55.2708, "Asia/Dubai", "dubai"),
+        City("abudhabi", "AE", 24.4539, 54.3773, "Asia/Dubai", "dubai"),
+        City("sharjah", "AE", 25.3463, 55.4209, "Asia/Dubai", "dubai"),
+        City("kuwait", "KW", 29.3759, 47.9774, "Asia/Kuwait", "kuwait"),
+        City("doha", "QA", 25.2854, 51.531, "Asia/Qatar", "qatar"),
+        City("manama", "BH", 26.2285, 50.586, "Asia/Bahrain", "makkah"),
+        City("muscat", "OM", 23.588, 58.3829, "Asia/Muscat", "mwl"),
+        City("cairo", "EG", 30.0444, 31.2357, "Africa/Cairo", "egypt"),
+        City("alexandria", "EG", 31.2001, 29.9187, "Africa/Cairo", "egypt"),
+        City("aswan", "EG", 24.0889, 32.8998, "Africa/Cairo", "egypt"),
+        City("amman", "JO", 31.9454, 35.9284, "Asia/Amman", "jordan"),
+        City("jerusalem", "PS", 31.7683, 35.2137, "Asia/Jerusalem", "jordan"),
+        City("gaza", "PS", 31.5017, 34.4668, "Asia/Gaza", "jordan"),
+        City("beirut", "LB", 33.8938, 35.5018, "Asia/Beirut", "mwl"),
+        City("damascus", "SY", 33.5138, 36.2765, "Asia/Damascus", "mwl"),
+        City("aleppo", "SY", 36.2021, 37.1343, "Asia/Damascus", "mwl"),
+        City("baghdad", "IQ", 33.3152, 44.3661, "Asia/Baghdad", "mwl"),
+        City("basra", "IQ", 30.5085, 47.7804, "Asia/Baghdad", "mwl"),
+        City("erbil", "IQ", 36.1912, 44.0092, "Asia/Baghdad", "mwl"),
+        City("sanaa", "YE", 15.3694, 44.191, "Asia/Aden", "mwl"),
+        City("aden", "YE", 12.7855, 45.0187, "Asia/Aden", "mwl"),
+        City("khartoum", "SD", 15.5007, 32.5599, "Africa/Khartoum", "egypt"),
+        City("tripoli", "LY", 32.8872, 13.1913, "Africa/Tripoli", "egypt"),
+        City("benghazi", "LY", 32.1167, 20.0667, "Africa/Tripoli", "egypt"),
+        City("tunis", "TN", 36.8065, 10.1815, "Africa/Tunis", "tunisia"),
+        City("algiers", "DZ", 36.7538, 3.0588, "Africa/Algiers", "algeria"),
+        City("oran", "DZ", 35.6971, -0.6308, "Africa/Algiers", "algeria"),
+        City("rabat", "MA", 34.0209, -6.8416, "Africa/Casablanca", "morocco"),
+        City("casablanca", "MA", 33.5731, -7.5898, "Africa/Casablanca", "morocco"),
+        City("marrakesh", "MA", 31.6295, -7.9811, "Africa/Casablanca", "morocco"),
+        City("nouakchott", "MR", 18.0735, -15.9582, "Africa/Nouakchott", "mwl"),
+        City("mogadishu", "SO", 2.0469, 45.3182, "Africa/Mogadishu", "mwl"),
+        City("djibouti", "DJ", 11.5721, 43.1456, "Africa/Djibouti", "mwl"),
+        City("istanbul", "TR", 41.0082, 28.9784, "Europe/Istanbul", "turkey"),
+        City("ankara", "TR", 39.9334, 32.8597, "Europe/Istanbul", "turkey"),
+        City("karachi", "PK", 24.8607, 67.0011, "Asia/Karachi", "karachi"),
+        City("lahore", "PK", 31.5204, 74.3587, "Asia/Karachi", "karachi"),
+        City("islamabad", "PK", 33.6844, 73.0479, "Asia/Karachi", "karachi"),
+        City("delhi", "IN", 28.6139, 77.209, "Asia/Kolkata", "karachi"),
+        City("mumbai", "IN", 19.076, 72.8777, "Asia/Kolkata", "karachi"),
+        City("hyderabad", "IN", 17.385, 78.4867, "Asia/Kolkata", "karachi"),
+        City("dhaka", "BD", 23.8103, 90.4125, "Asia/Dhaka", "karachi"),
+        City("chittagong", "BD", 22.3569, 91.7832, "Asia/Dhaka", "karachi"),
+        City("kabul", "AF", 34.5553, 69.2075, "Asia/Kabul", "karachi"),
+        City("tehran", "IR", 35.6892, 51.389, "Asia/Tehran", "tehran"),
+        City("mashhad", "IR", 36.2605, 59.6168, "Asia/Tehran", "tehran"),
+        City("tashkent", "UZ", 41.2995, 69.2401, "Asia/Tashkent", "mwl"),
+        City("baku", "AZ", 40.4093, 49.8671, "Asia/Baku", "mwl"),
+        City("almaty", "KZ", 43.222, 76.8512, "Asia/Almaty", "mwl"),
+        City("moscow", "RU", 55.7558, 37.6173, "Europe/Moscow", "russia"),
+        City("kazan", "RU", 55.7963, 49.1088, "Europe/Moscow", "russia"),
+        City("grozny", "RU", 43.3178, 45.6949, "Europe/Moscow", "russia"),
+        City("kualalumpur", "MY", 3.139, 101.6869, "Asia/Kuala_Lumpur", "malaysia"),
+        City("penang", "MY", 5.4141, 100.3288, "Asia/Kuala_Lumpur", "malaysia"),
+        City("singapore", "SG", 1.3521, 103.8198, "Asia/Singapore", "singapore"),
+        City("brunei", "BN", 4.9031, 114.9398, "Asia/Brunei", "singapore"),
+        City("jakarta", "ID", -6.2088, 106.8456, "Asia/Jakarta", "indonesia"),
+        City("surabaya", "ID", -7.2575, 112.7521, "Asia/Jakarta", "indonesia"),
+        City("bandung", "ID", -6.9175, 107.6191, "Asia/Jakarta", "indonesia"),
+        City("medan", "ID", 3.5952, 98.6722, "Asia/Jakarta", "indonesia"),
+        City("makassar", "ID", -5.1477, 119.4327, "Asia/Makassar", "indonesia"),
+        City("lagos", "NG", 6.5244, 3.3792, "Africa/Lagos", "mwl"),
+        City("kano", "NG", 12.0022, 8.592, "Africa/Lagos", "mwl"),
+        City("dakar", "SN", 14.7167, -17.4677, "Africa/Dakar", "mwl"),
+        City("sarajevo", "BA", 43.8563, 18.4131, "Europe/Sarajevo", "mwl"),
+        City("london", "GB", 51.5074, -0.1278, "Europe/London", "mwl"),
+        City("birmingham", "GB", 52.4862, -1.8904, "Europe/London", "mwl"),
+        City("paris", "FR", 48.8566, 2.3522, "Europe/Paris", "france"),
+        City("marseille", "FR", 43.2965, 5.3698, "Europe/Paris", "france"),
+        City("lyon", "FR", 45.764, 4.8357, "Europe/Paris", "france"),
+        City("brussels", "BE", 50.8503, 4.3517, "Europe/Brussels", "mwl"),
+        City("amsterdam", "NL", 52.3676, 4.9041, "Europe/Amsterdam", "mwl"),
+        City("berlin", "DE", 52.52, 13.405, "Europe/Berlin", "mwl"),
+        City("hamburg", "DE", 53.5511, 9.9937, "Europe/Berlin", "mwl"),
+        City("cologne", "DE", 50.9375, 6.9603, "Europe/Berlin", "mwl"),
+        City("munich", "DE", 48.1351, 11.582, "Europe/Berlin", "mwl"),
+        City("vienna", "AT", 48.2082, 16.3738, "Europe/Vienna", "mwl"),
+        City("stockholm", "SE", 59.3293, 18.0686, "Europe/Stockholm", "mwl"),
+        City("newyork", "US", 40.7128, -74.006, "America/New_York", "isna"),
+        City("chicago", "US", 41.8781, -87.6298, "America/Chicago", "isna"),
+        City("losangeles", "US", 34.0522, -118.2437, "America/Los_Angeles", "isna"),
+        City("toronto", "CA", 43.6532, -79.3832, "America/Toronto", "isna"),
+        City("montreal", "CA", 45.5017, -73.5673, "America/Toronto", "isna"),
+        City("sydney", "AU", -33.8688, 151.2093, "Australia/Sydney", "mwl"),
     )
+
+    fun city(key: String?): City? = CITIES.firstOrNull { it.key == key }
 
     /** أقرب مدينة معروفة لاقتراح طريقة الحساب */
     fun nearestCity(lat: Double, lng: Double): Pair<City, Double> =

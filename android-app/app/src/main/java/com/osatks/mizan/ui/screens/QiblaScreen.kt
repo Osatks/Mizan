@@ -7,6 +7,13 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -39,6 +46,9 @@ import androidx.compose.ui.unit.dp
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.PrayTimes
+import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.i18n.placeName
+import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.ResultCard
 import com.osatks.mizan.ui.SectionCard
@@ -48,10 +58,9 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
-private val DIRS = listOf("الشمال", "الشمال الشرقي", "الشرق", "الجنوب الشرقي", "الجنوب", "الجنوب الغربي", "الغرب", "الشمال الغربي")
-
 @Composable
 fun QiblaScreen() {
+    val s = LocalStrings.current
     val ctx = LocalContext.current
     val view = LocalView.current
     val place = AppSettings.place
@@ -61,9 +70,9 @@ fun QiblaScreen() {
     var accuracyLow by remember { mutableStateOf(false) }
 
     DisposableEffect(place) {
-        val sm = ctx.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val sensor = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-        if (sensor == null) { hasSensor = false; return@DisposableEffect onDispose { } }
+        val sm = ctx.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        val sensor = sm?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        if (sm == null || sensor == null) { hasSensor = false; return@DisposableEffect onDispose { } }
         val declination = GeomagneticField(place.lat.toFloat(), place.lng.toFloat(), 0f, System.currentTimeMillis()).declination
         val rot = FloatArray(9); val orient = FloatArray(3)
         var smooth = Float.NaN
@@ -90,37 +99,40 @@ fun QiblaScreen() {
     val aligned = hasSensor && abs(diff) < 4
     LaunchedEffect(aligned) { if (aligned) view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }
 
-    ToolPage("اتجاه القبلة", place.name) {
+    ToolPage(s.qiblaTitle, s.placeName(place), sharedKey = "qibla", icon = TOOL_ICONS["qibla"]) {
         item {
             SectionCard {
                 Box(Modifier.fillMaxWidth().aspectRatio(1f).padding(8.dp), contentAlignment = Alignment.Center) {
                     Compass(heading = if (hasSensor) heading else 0f, qibla = qibla.toFloat(), aligned = aligned)
                 }
+                val hintColor by animateColorAsState(
+                    if (aligned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, tween(Motion.MEDIUM), label = "hint"
+                )
                 Text(
                     when {
-                        !hasSensor -> "لا يحتوي جهازك على بوصلة. وجّه الجهاز يدوياً حسب الزاوية أدناه."
-                        aligned -> "✓ أنت متجه نحو القبلة"
-                        else -> "أدِر هاتفك ${if (diff > 0) "يميناً" else "يساراً"} بمقدار ${abs(diff).toInt()}°"
+                        !hasSensor -> s.noCompass
+                        aligned -> s.facingQibla
+                        diff > 0 -> s.turnRight(abs(diff).toInt())
+                        else -> s.turnLeft(abs(diff).toInt())
                     },
                     Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Bold,
-                    color = if (aligned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    color = hintColor
                 )
             }
         }
         item {
-            ResultCard("زاوية القبلة من الشمال الجغرافي", "${Fmt.num(qibla, 1)}°", "باتجاه " + DIRS[(Math.round(qibla / 45.0).toInt()) % 8])
+            ResultCard(s.qiblaAngle, "${Fmt.num(qibla, 1)}°", s.towards(s.directions[(Math.round(qibla / 45.0).toInt()) % 8]))
         }
         item {
             SectionCard {
-                StatRow("الموقع", place.name)
-                StatRow("المسافة إلى الكعبة", Fmt.num(PrayTimes.distanceKm(place.lat, place.lng), 0) + " كم")
-                if (hasSensor) StatRow("اتجاه الهاتف", "${heading.toInt()}°")
+                StatRow(s.location, s.placeName(place))
+                StatRow(s.distanceToKaaba, Fmt.num(PrayTimes.distanceKm(place.lat, place.lng), 0) + " " + s.unitKm)
+                if (hasSensor) StatRow(s.phoneHeading, "${heading.toInt()}°")
             }
         }
         item {
             Note(
-                if (accuracyLow) "دقة البوصلة منخفضة: حرّك الهاتف على شكل الرقم 8 لمعايرتها، وأبعده عن المعادن والأجهزة."
-                else "لتغيير الموقع استخدم صفحة مواقيت الصلاة. أمسك الهاتف أفقياً وبعيداً عن المعادن للحصول على قراءة دقيقة.",
+                if (accuracyLow) s.compassLowAccuracy else s.qiblaTip,
                 warn = accuracyLow
             )
         }
@@ -129,7 +141,11 @@ fun QiblaScreen() {
 
 @Composable
 private fun Compass(heading: Float, qibla: Float, aligned: Boolean) {
-    val ring = MaterialTheme.colorScheme.primaryContainer
+    // عند الاتجاه الصحيح: الحلقة تتذهّب وتنبض هالة حولها
+    val ring by animateColorAsState(if (aligned) Color(0xFFE0B54A) else MaterialTheme.colorScheme.primaryContainer, tween(Motion.MEDIUM), label = "ring")
+    val glowOn by animateFloatAsState(if (aligned) 1f else 0f, tween(Motion.LONG), label = "glow")
+    val pulse = rememberInfiniteTransition(label = "qpulse")
+    val wave by pulse.animateFloat(0f, 1f, infiniteRepeatable(tween(1600), RepeatMode.Restart), label = "wave")
     val tick = MaterialTheme.colorScheme.onSurfaceVariant
     val north = MaterialTheme.colorScheme.error
     val gold = Color(0xFFE0B54A)
@@ -138,8 +154,10 @@ private fun Compass(heading: Float, qibla: Float, aligned: Boolean) {
     Canvas(Modifier.fillMaxWidth().aspectRatio(1f)) {
         val r = size.minDimension / 2f
         val c = Offset(size.width / 2f, size.height / 2f)
-        drawCircle(if (aligned) gold else ring, r, c)
+        drawCircle(ring, r, c)
         drawCircle(face, r * 0.9f, c)
+        // موجة ذهبية تنطلق من المركز ما دام الهاتف متجهاً للقبلة
+        if (glowOn > 0f) drawCircle(gold.copy(alpha = 0.28f * glowOn * (1f - wave)), r * 0.9f * wave, c)
         // علامة أعلى الهاتف
         val mark = Path().apply { moveTo(c.x, c.y - r - 2); lineTo(c.x - 12, c.y - r + 16); lineTo(c.x + 12, c.y - r + 16); close() }
         drawPath(mark, primary)

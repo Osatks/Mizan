@@ -1,7 +1,11 @@
 package com.osatks.mizan.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LinearProgressIndicator
@@ -15,42 +19,81 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.height
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
+import com.osatks.mizan.i18n.Lang
+import com.osatks.mizan.i18n.LocalLang
+import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
 import com.osatks.mizan.ui.Picker
+import com.osatks.mizan.ui.Reveal
 import com.osatks.mizan.ui.ResultCard
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
 import com.osatks.mizan.ui.StatRow
 import com.osatks.mizan.ui.ToolPage
 import com.osatks.mizan.ui.shareText
+import com.osatks.mizan.ui.theme.Gold
+import java.util.Currency
+
+/** عملة: رمز ISO، ورمزها المختصر واسمها بالعربية (بقية اللغات تأخذ الاسم من النظام) */
+private data class Cur(val iso: String, val arSymbol: String, val arName: String)
 
 private val CURRENCIES = listOf(
-    "ر.س" to "ريال سعودي", "د.إ" to "درهم إماراتي", "د.ك" to "دينار كويتي", "ر.ق" to "ريال قطري",
-    "د.ب" to "دينار بحريني", "ر.ع" to "ريال عماني", "ج.م" to "جنيه مصري", "د.أ" to "دينار أردني",
-    "د.ع" to "دينار عراقي", "د.م" to "درهم مغربي", "د.ج" to "دينار جزائري", "د.ت" to "دينار تونسي",
-    "ل.ل" to "ليرة لبنانية", "ل.س" to "ليرة سورية", "ر.ي" to "ريال يمني", "ج.س" to "جنيه سوداني",
-    "د.ل" to "دينار ليبي", "$" to "دولار أمريكي", "€" to "يورو",
+    Cur("SAR", "ر.س", "ريال سعودي"), Cur("AED", "د.إ", "درهم إماراتي"), Cur("KWD", "د.ك", "دينار كويتي"),
+    Cur("QAR", "ر.ق", "ريال قطري"), Cur("BHD", "د.ب", "دينار بحريني"), Cur("OMR", "ر.ع", "ريال عماني"),
+    Cur("EGP", "ج.م", "جنيه مصري"), Cur("JOD", "د.أ", "دينار أردني"), Cur("IQD", "د.ع", "دينار عراقي"),
+    Cur("MAD", "د.م", "درهم مغربي"), Cur("DZD", "د.ج", "دينار جزائري"), Cur("TND", "د.ت", "دينار تونسي"),
+    Cur("LBP", "ل.ل", "ليرة لبنانية"), Cur("SYP", "ل.س", "ليرة سورية"), Cur("YER", "ر.ي", "ريال يمني"),
+    Cur("SDG", "ج.س", "جنيه سوداني"), Cur("LYD", "د.ل", "دينار ليبي"), Cur("TRY", "TRY", "ليرة تركية"),
+    Cur("PKR", "PKR", "روبية باكستانية"), Cur("INR", "INR", "روبية هندية"), Cur("BDT", "BDT", "تاكا بنغلاديشي"),
+    Cur("IDR", "IDR", "روبية إندونيسية"), Cur("MYR", "MYR", "رينغيت ماليزي"), Cur("IRR", "IRR", "ريال إيراني"),
+    Cur("RUB", "₽", "روبل روسي"), Cur("GBP", "£", "جنيه إسترليني"), Cur("USD", "$", "دولار أمريكي"), Cur("EUR", "€", "يورو"),
+    Cur("CAD", "C$", "دولار كندي"), Cur("AUD", "A$", "دولار أسترالي"),
 )
+
+/** العملة الافتراضية حسب لغة الواجهة عند أول استخدام */
+private fun defaultCurrency(lang: Lang) = when (lang) {
+    Lang.AR -> "SAR"; Lang.TR -> "TRY"; Lang.UR -> "PKR"; Lang.ID -> "IDR"; Lang.MS -> "MYR"
+    Lang.FA -> "IRR"; Lang.BN -> "BDT"; Lang.RU -> "RUB"; Lang.FR, Lang.DE -> "EUR"; Lang.EN -> "USD"
+}
+
+/** الإصدارات السابقة حفظت الرمز العربي ("ر.س")؛ يُحوَّل إلى رمز ISO */
+private fun savedCurrency(lang: Lang): String {
+    val raw = AppSettings.getString("zk_cur")
+    return CURRENCIES.firstOrNull { it.iso == raw || it.arSymbol == raw }?.iso ?: defaultCurrency(lang)
+}
+
+private fun Cur.symbol(lang: Lang) = when {
+    lang == Lang.AR -> arSymbol
+    iso == "USD" || iso == "EUR" || iso == "GBP" -> arSymbol
+    else -> iso
+}
+
+private fun Cur.name(lang: Lang) = if (lang == Lang.AR) arName else
+    runCatching { Currency.getInstance(iso).getDisplayName(lang.locale).replaceFirstChar { it.titlecase(lang.locale) } }.getOrDefault(iso)
+
 private val FIELDS = listOf("gold_price", "silver_price", "cash", "bank", "receivable", "other", "g24", "g22", "g21", "g18", "silver", "jewel", "stocks_trade", "stocks_long", "goods", "debts")
 
 @Composable
 fun ZakatScreen(onBack: () -> Unit) {
+    val s = LocalStrings.current
+    val lang = LocalLang.current
     val ctx = LocalContext.current
     val v = remember { mutableStateMapOf<String, String>().apply { FIELDS.forEach { put(it, if (Demo.enabled) Demo.zakat[it] ?: "" else AppSettings.getString("zk_$it")) } } }
-    var cur by remember { mutableStateOf(AppSettings.getString("zk_cur", "ر.س")) }
+    var curIso by remember { mutableStateOf(savedCurrency(lang)) }
     var basis by remember { mutableStateOf(AppSettings.getString("zk_basis", "gold")) }
     var includeJewelry by remember { mutableStateOf(AppSettings.getBool("zk_jewelry", true)) }
+    val curObj = CURRENCIES.first { it.iso == curIso }
+    val cur = curObj.symbol(lang)
 
-    fun set(k: String, s: String) { v[k] = s; AppSettings.putString("zk_$k", s) }
+    fun set(k: String, value: String) { v[k] = value; AppSettings.putString("zk_$k", value) }
     fun n(k: String) = Fmt.parse(v[k] ?: "")
 
     val gp = n("gold_price"); val sp = n("silver_price")
@@ -58,12 +101,12 @@ fun ZakatScreen(onBack: () -> Unit) {
     val excluded = if (includeJewelry) 0.0 else minOf(pure24, n("jewel") * 21 / 24)
     val gold = (pure24 - excluded) * gp
     val parts = listOf(
-        "النقود والأرصدة" to n("cash") + n("bank") + n("other"),
-        "الديون المرجوّة" to n("receivable"),
-        "الذهب" to gold,
-        "الفضة" to n("silver") * sp,
-        "الأسهم" to n("stocks_trade") + n("stocks_long"),
-        "عروض التجارة" to n("goods"),
+        s.partCash to n("cash") + n("bank") + n("other"),
+        s.partReceivables to n("receivable"),
+        s.partGold to gold,
+        s.partSilver to n("silver") * sp,
+        s.partStocks to n("stocks_trade") + n("stocks_long"),
+        s.partTrade to n("goods"),
     )
     val total = parts.sumOf { it.second }
     val debts = minOf(n("debts"), total)
@@ -72,88 +115,95 @@ fun ZakatScreen(onBack: () -> Unit) {
     val due = nisab > 0 && net >= nisab && net > 0
     val zakat = if (due) net * 0.025 else 0.0
     val badge = when {
-        nisab <= 0 -> "أدخل سعر ${if (basis == "silver") "الفضة" else "الذهب"} لحساب النصاب"
-        due -> "✓ بلغ مالك النصاب — تجب الزكاة"
-        net > 0 -> "لم يبلغ النصاب — لا زكاة عليك"
-        else -> "أدخل أموالك"
+        nisab <= 0 -> if (basis == "silver") s.enterSilverPrice else s.enterGoldPrice
+        due -> s.nisabReached
+        net > 0 -> s.belowNisab
+        else -> s.enterAssets
     }
+    val toNisab by animateFloatAsState(if (nisab > 0) (net / nisab).toFloat().coerceIn(0f, 1f) else 0f, spring(dampingRatio = 0.85f, stiffness = 120f), label = "nisab")
 
-    ToolPage("حاسبة الزكاة", "2.5% من المال إذا بلغ النصاب وحال عليه الحول", onBack) {
+    ToolPage(s.zakatTitle, s.zakatSubtitle, onBack, sharedKey = "zakat", icon = TOOL_ICONS["zakat"]) {
         item {
-            ResultCard("الزكاة المستحقة", "${Fmt.num(zakat)} $cur", badge, if (nisab <= 0 || net <= 0) null else due) {
+            ResultCard(s.zakatDue, Fmt.num(zakat), badge, if (nisab <= 0 || net <= 0) null else due, unit = cur) {
                 if (nisab > 0) {
                     LinearProgressIndicator(
-                        progress = { (net / nisab).toFloat().coerceIn(0f, 1f) },
+                        progress = { toNisab },
                         modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(8.dp)),
-                        color = androidx.compose.ui.graphics.Color(0xFFE0B54A),
-                        trackColor = androidx.compose.ui.graphics.Color.White.copy(alpha = .2f)
+                        color = Gold,
+                        trackColor = Color.White.copy(alpha = .2f),
+                        drawStopIndicator = {}
                     )
                 }
             }
         }
         item {
             SectionCard {
-                StatRow("إجمالي الأموال الزكوية", "${Fmt.num(total)} $cur")
-                StatRow("الديون المطروحة", "${Fmt.num(debts)} $cur")
-                StatRow("صافي الوعاء الزكوي", "${Fmt.num(net)} $cur", strong = true)
-                StatRow("قيمة النصاب", if (nisab > 0) "${Fmt.num(nisab)} $cur" else "—")
-                if (zakat > 0 && gp > 0) StatRow("تعادل تقريباً", "${Fmt.num(zakat / gp)} غرام ذهب عيار 24")
-                if (zakat > 0) Button(onClick = {
-                    shareText(ctx, "زكاتي المستحقة: ${Fmt.num(zakat)} $cur (الوعاء الزكوي ${Fmt.num(net)} $cur)")
-                }, modifier = Modifier.fillMaxWidth()) { Text("مشاركة النتيجة") }
+                StatRow(s.totalAssets, "${Fmt.num(total)} $cur")
+                StatRow(s.deductedDebts, "${Fmt.num(debts)} $cur")
+                StatRow(s.netBase, "${Fmt.num(net)} $cur", strong = true)
+                StatRow(s.nisabValue, if (nisab > 0) "${Fmt.num(nisab)} $cur" else "—")
+                Reveal(zakat > 0 && gp > 0) { StatRow(s.approxEquals, s.goldGrams24(Fmt.num(if (gp > 0) zakat / gp else 0.0))) }
+                Reveal(zakat > 0) {
+                    Button(onClick = {
+                        shareText(ctx, s, s.zakatShareText("${Fmt.num(zakat)} $cur", "${Fmt.num(net)} $cur"))
+                    }, modifier = Modifier.fillMaxWidth()) { Text(s.shareResult) }
+                }
             }
         }
         item {
-            SectionCard("الإعدادات والأسعار") {
-                Picker("العملة", CURRENCIES.map { it.first }, cur, text = { c -> CURRENCIES.first { it.first == c }.second },
-                    onSelect = { cur = it; AppSettings.putString("zk_cur", it) })
-                Text("النصاب المعتمد للنقود", style = MaterialTheme.typography.labelLarge)
-                Segmented(listOf("gold" to "الذهب (85 غ)", "silver" to "الفضة (595 غ)"), basis) { basis = it; AppSettings.putString("zk_basis", it) }
-                NumField("سعر غرام الذهب عيار 24", v["gold_price"] ?: "", { set("gold_price", it) }, cur, "من محل ذهب أو موقع أسعار موثوق في بلدك")
-                NumField("سعر غرام الفضة (اختياري)", v["silver_price"] ?: "", { set("silver_price", it) }, cur)
+            SectionCard(s.settingsAndPrices) {
+                Picker(s.currency, CURRENCIES, curObj, text = { c -> "${c.name(lang)} (${c.symbol(lang)})" },
+                    onSelect = { curIso = it.iso; AppSettings.putString("zk_cur", it.iso) })
+                Text(s.nisabBasis, style = MaterialTheme.typography.labelLarge)
+                Segmented(listOf("gold" to s.nisabGold, "silver" to s.nisabSilver), basis) { basis = it; AppSettings.putString("zk_basis", it) }
+                NumField(s.goldPrice24, v["gold_price"] ?: "", { set("gold_price", it) }, cur, s.goldPriceHint)
+                NumField(s.silverPrice, v["silver_price"] ?: "", { set("silver_price", it) }, cur)
             }
         }
         item {
-            SectionCard("النقود والأرصدة") {
-                NumField("النقد في اليد", v["cash"] ?: "", { set("cash", it) }, cur)
-                NumField("أرصدة البنوك والمحافظ", v["bank"] ?: "", { set("bank", it) }, cur)
-                NumField("ديون لك مرجوّة السداد", v["receivable"] ?: "", { set("receivable", it) }, cur)
-                NumField("أموال أخرى", v["other"] ?: "", { set("other", it) }, cur)
+            SectionCard(s.cashSection) {
+                NumField(s.cashInHand, v["cash"] ?: "", { set("cash", it) }, cur)
+                NumField(s.bankBalances, v["bank"] ?: "", { set("bank", it) }, cur)
+                NumField(s.receivablesField, v["receivable"] ?: "", { set("receivable", it) }, cur)
+                NumField(s.otherMoney, v["other"] ?: "", { set("other", it) }, cur)
             }
         }
         item {
-            SectionCard("الذهب والفضة (بالغرام)") {
-                NumField("ذهب عيار 24", v["g24"] ?: "", { set("g24", it) }, "غ")
-                NumField("ذهب عيار 22", v["g22"] ?: "", { set("g22", it) }, "غ")
-                NumField("ذهب عيار 21", v["g21"] ?: "", { set("g21", it) }, "غ")
-                NumField("ذهب عيار 18", v["g18"] ?: "", { set("g18", it) }, "غ")
-                NumField("فضة خالصة", v["silver"] ?: "", { set("silver", it) }, "غ")
+            SectionCard(s.goldSilverSection) {
+                NumField(s.goldKarat(24), v["g24"] ?: "", { set("g24", it) }, s.unitGram)
+                NumField(s.goldKarat(22), v["g22"] ?: "", { set("g22", it) }, s.unitGram)
+                NumField(s.goldKarat(21), v["g21"] ?: "", { set("g21", it) }, s.unitGram)
+                NumField(s.goldKarat(18), v["g18"] ?: "", { set("g18", it) }, s.unitGram)
+                NumField(s.pureSilver, v["silver"] ?: "", { set("silver", it) }, s.unitGram)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = includeJewelry, onCheckedChange = { includeJewelry = it; AppSettings.putBool("zk_jewelry", it) })
-                    Text("إدخال حُليّ الزينة المستعملة في الحساب (قول الحنفية، والأحوط)", style = MaterialTheme.typography.bodyMedium)
+                    Text(s.includeJewelry, style = MaterialTheme.typography.bodyMedium)
                 }
-                if (!includeJewelry) NumField("منها حُليّ زينة مستعملة (مكافئ عيار 21)", v["jewel"] ?: "", { set("jewel", it) }, "غ",
-                    "يُستبعد على قول الجمهور بعدم زكاة الحلي المعدّ للاستعمال")
+                Reveal(!includeJewelry) {
+                    NumField(s.jewelryField, v["jewel"] ?: "", { set("jewel", it) }, s.unitGram, s.jewelryHint)
+                }
             }
         }
         item {
-            SectionCard("الاستثمار والتجارة") {
-                NumField("أسهم للمتاجرة (القيمة السوقية)", v["stocks_trade"] ?: "", { set("stocks_trade", it) }, cur)
-                NumField("أسهم للاستثمار طويل الأجل (الوعاء الزكوي)", v["stocks_long"] ?: "", { set("stocks_long", it) }, cur)
-                NumField("عروض التجارة (قيمة البضاعة)", v["goods"] ?: "", { set("goods", it) }, cur)
+            SectionCard(s.investSection) {
+                NumField(s.stocksTrade, v["stocks_trade"] ?: "", { set("stocks_trade", it) }, cur)
+                NumField(s.stocksLong, v["stocks_long"] ?: "", { set("stocks_long", it) }, cur)
+                NumField(s.tradeGoods, v["goods"] ?: "", { set("goods", it) }, cur)
             }
         }
         item {
-            SectionCard("ما يُطرح") {
-                NumField("ديون عليك حالّة هذا العام", v["debts"] ?: "", { set("debts", it) }, cur, "الأقساط المستحقة خلال الحول فقط")
+            SectionCard(s.deductSection) {
+                NumField(s.debtsField, v["debts"] ?: "", { set("debts", it) }, cur, s.debtsHint)
             }
         }
-        if (zakat > 0 && parts.count { it.second > 0 } > 1) item {
-            SectionCard("توزيع الزكاة حسب نوع المال") {
-                val ratio = net / total
-                parts.filter { it.second > 0 }.forEach { (name, value) -> StatRow(name, "${Fmt.num(value * ratio * 0.025)} $cur") }
+        item {
+            Reveal(zakat > 0 && parts.count { it.second > 0 } > 1) {
+                SectionCard(s.breakdownTitle) {
+                    val ratio = if (total > 0) net / total else 0.0
+                    parts.filter { it.second > 0 }.forEach { (name, value) -> StatRow(name, "${Fmt.num(value * ratio * 0.025)} $cur") }
+                }
             }
         }
-        item { Note("تُحفظ بياناتك على جهازك فقط. مصارف الزكاة ثمانية ذكرها الله في سورة التوبة (الآية 60).") }
+        item { Note(s.zakatNote) }
     }
 }

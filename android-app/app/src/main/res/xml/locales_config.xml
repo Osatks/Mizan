@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- لغات التطبيق كما تظهر في إعدادات Android 13+ (لغات التطبيقات) -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="ar" />
+    <locale android:name="en" />
+    <locale android:name="fr" />
+    <locale android:name="tr" />
+    <locale android:name="ur" />
+    <locale android:name="id" />
+    <locale android:name="ms" />
+    <locale android:name="fa" />
+    <locale android:name="bn" />
+    <locale android:name="ru" />
+    <locale android:name="de" />
+</locale-config>

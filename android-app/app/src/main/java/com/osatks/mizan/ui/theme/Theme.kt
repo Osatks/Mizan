@@ -1,25 +1,27 @@
 package com.osatks.mizan.ui.theme
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import com.osatks.mizan.core.AppSettings
 
 val Gold = Color(0xFFE0B54A)
 val GoldDeep = Color(0xFFB88A1E)
-val HeroBrush = Brush.linearGradient(listOf(Color(0xFF0F6A55), Color(0xFF08463A)))
+val BrandGreen = Color(0xFF0F6A55)
+val BrandGreenDeep = Color(0xFF08463A)
+val HeroBrush = Brush.linearGradient(listOf(BrandGreen, BrandGreenDeep))
 
 private val LightColors = lightColorScheme(
     primary = Color(0xFF0D5C4B), onPrimary = Color.White,
@@ -31,6 +33,9 @@ private val LightColors = lightColorScheme(
     surfaceVariant = Color(0xFFF1ECE0), onSurfaceVariant = Color(0xFF4F5E59),
     outline = Color(0xFFD9D2C0), outlineVariant = Color(0xFFE5DFD0),
     error = Color(0xFFB4412F), errorContainer = Color(0xFFFBE9E5), onErrorContainer = Color(0xFF6E2418),
+    tertiary = GoldDeep, onTertiary = Color.White,
+    surfaceContainerLowest = Color.White, surfaceContainerLow = Color(0xFFFBF9F4), surfaceContainer = Color(0xFFF6F2EA),
+    surfaceContainerHigh = Color(0xFFF1ECE0), surfaceContainerHighest = Color(0xFFECE6D8),
 )
 
 private val DarkColors = darkColorScheme(
@@ -43,6 +48,9 @@ private val DarkColors = darkColorScheme(
     surfaceVariant = Color(0xFF1F302B), onSurfaceVariant = Color(0xFFB5C3BE),
     outline = Color(0xFF35504A), outlineVariant = Color(0xFF263A34),
     error = Color(0xFFEF8A76), errorContainer = Color(0xFF3D221D), onErrorContainer = Color(0xFFFFDAD3),
+    tertiary = Gold, onTertiary = Color(0xFF2A1F00),
+    surfaceContainerLowest = Color(0xFF0B1311), surfaceContainerLow = Color(0xFF131F1C), surfaceContainer = Color(0xFF182622),
+    surfaceContainerHigh = Color(0xFF1F302B), surfaceContainerHighest = Color(0xFF263A34),
 )
 
 private val base = Typography()
@@ -64,11 +72,27 @@ fun isDark(): Boolean = when (AppSettings.theme) {
     else -> isSystemInDarkTheme()
 }
 
+/** يلوّن الانتقال بين الوضع الفاتح والداكن بدل القفز المفاجئ */
+@Composable
+private fun animated(target: ColorScheme): ColorScheme {
+    val spec = tween<Color>(550)
+    @Composable fun a(c: Color) = animateColorAsState(c, spec, label = "scheme").value
+    return target.copy(
+        primary = a(target.primary), onPrimary = a(target.onPrimary),
+        primaryContainer = a(target.primaryContainer), onPrimaryContainer = a(target.onPrimaryContainer),
+        secondary = a(target.secondary), onSecondary = a(target.onSecondary),
+        secondaryContainer = a(target.secondaryContainer), onSecondaryContainer = a(target.onSecondaryContainer),
+        background = a(target.background), onBackground = a(target.onBackground),
+        surface = a(target.surface), onSurface = a(target.onSurface),
+        surfaceVariant = a(target.surfaceVariant), onSurfaceVariant = a(target.onSurfaceVariant),
+        surfaceContainer = a(target.surfaceContainer), surfaceContainerHigh = a(target.surfaceContainerHigh),
+        surfaceContainerLow = a(target.surfaceContainerLow),
+        outline = a(target.outline), outlineVariant = a(target.outlineVariant),
+        error = a(target.error), errorContainer = a(target.errorContainer), onErrorContainer = a(target.onErrorContainer),
+    )
+}
+
 @Composable
 fun MizanTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = if (isDark()) DarkColors else LightColors, typography = AppTypography) {
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            content()
-        }
-    }
+    MaterialTheme(colorScheme = animated(if (isDark()) DarkColors else LightColors), typography = AppTypography, content = content)
 }

@@ -1,0 +1,375 @@
+package com.osatks.mizan.i18n
+
+import com.osatks.mizan.core.InhNote
+import com.osatks.mizan.core.ShareType
+
+/** اسم ووصف قصير (أداة، مناسبة، ...) */
+data class Named(val name: String, val desc: String)
+
+/**
+ * كل نصوص التطبيق. لكل لغة كائن يطبّق هذه الواجهة، فإذا نقص نص في أي لغة فشل البناء.
+ *
+ * Every user-visible text. Each language is one object implementing this interface, so a missing
+ * text is a compile error. Maps are checked by StringsTest (every key of the Arabic map must exist).
+ * Numbers passed in are already formatted; functions that take Int/Long must handle plurals.
+ */
+interface Strings {
+    // ---------- General ----------
+    val appName: String                 // ميزان / Mizan
+    val appTagline: String              // أدوات المسلم / Muslim tools
+    val tabHome: String
+    val tabPrayer: String
+    val tabQibla: String
+    val tabTasbih: String
+    val tabSettings: String
+    val back: String
+    val share: String                   // chooser title
+    val shareSignature: String          // appended to shared text: "— تطبيق ميزان"
+    val today: String                   // "today" (as a button / relative day)
+    val tomorrow: String
+    /** relative future day for n >= 2: "in 5 days" */
+    fun inDays(n: Long): String
+    /** a plain count of days: "30 days" */
+    fun daysCount(n: Long): String
+    val decrease: String
+    val increase: String
+    val noLimit: String                 // unlimited target
+    val noResults: String
+    val unitGram: String                // g
+    val unitKg: String                  // kg
+    val unitKm: String                  // km
+    val am: String
+    val pm: String
+
+    // ---------- Calendar ----------
+    /** 12 Hijri month names (Muharram … Dhu al-Hijjah), standalone form for pickers */
+    val hijriMonths: List<String>
+    /** 12 Gregorian month names, standalone form for pickers */
+    val gregMonths: List<String>
+    /** 7 weekday names, Monday first */
+    val weekdays: List<String>
+    /** 7 very short weekday names for a calendar header, Monday first */
+    val weekdaysShort: List<String>
+    /** full Hijri date, month 1..12: "3 Rabi' al-Thani 1448 AH" */
+    fun hijriDate(d: Int, m: Int, y: Int): String
+    /** full Gregorian date, month 1..12: "15 October 2026" */
+    fun gregDate(d: Int, m: Int, y: Int): String
+    /** Hijri month title: "Rabi' al-Thani 1448 AH" */
+    fun hijriMonthTitle(m: Int, y: Int): String
+    val hijriYearSuffix: String         // AH
+    val gregYearSuffix: String          // CE
+    val dayLabel: String                // field label "Day"
+    val monthLabel: String
+    val yearLabel: String
+
+    // ---------- Home ----------
+    /** keys: zakat inheritance prayer qibla hijri events tasbih fitr age fidya */
+    val tools: Map<String, Named>
+    /** extra search words per tool (same keys as [tools]), space separated */
+    val toolKeywords: Map<String, String>
+    val toolsTitle: String
+    fun nextPrayerIn(city: String): String  // "Next prayer · Riyadh"
+    val searchHint: String
+
+    // ---------- Search ----------
+    val searchTitle: String
+    val searchToolsGroup: String
+    val searchCitiesGroup: String
+    val searchPrayersGroup: String
+    val searchEventsGroup: String
+    val searchDhikrGroup: String
+    val searchSettingsGroup: String
+    val searchEmpty: String             // hint under empty field: what you can search for
+    val setAsMyCity: String             // subtitle on a city result
+    fun searchNoResults(q: String): String
+
+    // ---------- Prayer ----------
+    /** keys: fajr sunrise dhuhr asr maghrib isha */
+    val prayers: Map<String, String>
+    val prayerTitle: String
+    fun nextPrayerLabel(name: String): String   // "Next prayer: Asr"
+    fun atTime(time: String): String            // "at 3:15 PM"
+    val prevDay: String
+    val nextDay: String
+    val monthTable: String
+    val hideMonthTable: String
+    fun monthTableTitle(m: Int, y: Int): String // "October 2026 timetable"
+    val colDay: String                          // column header "Day"
+    val locationAndMethod: String
+    val useMyLocation: String
+    val locating: String
+    val orPickCity: String
+    val pickCity: String
+    val searchCity: String
+    val myLocation: String                      // a GPS place not near a known city
+    val calcMethod: String
+    /** keys: makkah mwl egypt dubai kuwait qatar jordan morocco algeria tunisia karachi turkey tehran indonesia malaysia singapore russia isna france */
+    val methods: Map<String, String>
+    val asrMethod: String
+    val asrStandard: String                     // majority (Shafi'i, Maliki, Hanbali)
+    val asrHanafi: String
+    val latLng: String
+    val adhanAlert: String
+    val adhanAlertDesc: String
+    val timesMayDiffer: String
+    val locationFound: String
+    val locationFailed: String
+    val locationDenied: String
+    /** city names by key (see PrayTimes.CITIES) */
+    val cities: Map<String, String>
+    val palestine: String                       // country name used for PS
+
+    // ---------- Notifications ----------
+    val channelName: String
+    val channelDesc: String
+    fun prayerNowTitle(prayer: String): String  // "It's time for Asr"
+    fun prayerNowText(city: String): String     // "Riyadh — come to prayer"
+
+    // ---------- Qibla ----------
+    val qiblaTitle: String
+    val noCompass: String
+    val facingQibla: String
+    fun turnRight(deg: Int): String
+    fun turnLeft(deg: Int): String
+    val qiblaAngle: String
+    fun towards(dir: String): String
+    /** 8 compass directions starting at North, clockwise */
+    val directions: List<String>
+    val location: String
+    val distanceToKaaba: String
+    val phoneHeading: String
+    val compassLowAccuracy: String
+    val qiblaTip: String
+
+    // ---------- Tasbih ----------
+    val tasbihTitle: String
+    val tasbihSubtitle: String
+    val modeFree: String
+    val modeAfterPrayer: String
+    fun ofGoal(n: Int): String                  // "of 33"
+    val nextDhikr: String
+    val completedHundred: String
+    fun completedN(n: Int): String
+    val reset: String
+    val undo: String
+    val chooseDhikr: String
+    val targetCount: String
+    val yourStats: String
+    val roundsDone: String
+    val todayCount: String
+    val totalCount: String
+    /** 9 short labels for the adhkar (same order as the Arabic texts): Subhan Allah … salawat */
+    val dhikrLabels: List<String>
+    /** 9 meanings shown under the Arabic text; Arabic leaves them empty */
+    val dhikrMeanings: List<String>
+    /** meaning of "La ilaha illa Allah wahdahu la sharika lah ..."; empty in Arabic */
+    val tamamMeaning: String
+    val tapToCount: String
+
+    // ---------- Zakat ----------
+    val zakatTitle: String
+    val zakatSubtitle: String
+    val partCash: String
+    val partReceivables: String
+    val partGold: String
+    val partSilver: String
+    val partStocks: String
+    val partTrade: String
+    val enterGoldPrice: String
+    val enterSilverPrice: String
+    val nisabReached: String
+    val belowNisab: String
+    val enterAssets: String
+    val zakatDue: String
+    val totalAssets: String
+    val deductedDebts: String
+    val netBase: String
+    val nisabValue: String
+    val approxEquals: String
+    fun goldGrams24(g: String): String
+    val shareResult: String
+    fun zakatShareText(zakat: String, base: String): String
+    val settingsAndPrices: String
+    val currency: String
+    val nisabBasis: String
+    val nisabGold: String
+    val nisabSilver: String
+    val goldPrice24: String
+    val goldPriceHint: String
+    val silverPrice: String
+    val cashSection: String
+    val cashInHand: String
+    val bankBalances: String
+    val receivablesField: String
+    val otherMoney: String
+    val goldSilverSection: String
+    fun goldKarat(k: Int): String
+    val pureSilver: String
+    val includeJewelry: String
+    val jewelryField: String
+    val jewelryHint: String
+    val investSection: String
+    val stocksTrade: String
+    val stocksLong: String
+    val tradeGoods: String
+    val deductSection: String
+    val debtsField: String
+    val debtsHint: String
+    val breakdownTitle: String
+    val zakatNote: String
+
+    // ---------- Zakat al-Fitr ----------
+    val fitrTitle: String
+    val fitrSubtitle: String
+    val foodAmountDue: String
+    val totalCashValue: String
+    fun forPeople(n: Int): String               // "for 3 people"
+    val peopleCount: String
+    val modeFood: String
+    val modeMoney: String
+    val foodType: String
+    /** keys: rice riceSafe wheat dates barley other */
+    val foods: Map<String, String>
+    fun approxKg(kg: String): String            // "about 2.5 kg"
+    val saWeight: String
+    val kgPrice: String
+    val kgPriceHint: String
+    val saPerPerson: String
+    val approxCost: String
+    val valuePerPerson: String
+    val valuePerPersonHint: String
+    val valueNote: String
+    val fitrTimingNote: String
+
+    // ---------- Fidya & Kaffarah ----------
+    val fidyaTitle: String
+    val fidyaSubtitle: String
+    val tabFidya: String
+    val tabOath: String
+    val tabIntercourse: String
+    val fidyaResult: String
+    fun fidyaSub(days: Int): String
+    val fidyaNote: String
+    val oathResult: String
+    fun oathSub(oaths: Int): String
+    val oathAlternative: String
+    fun fastDays(n: Int): String
+    val oathNote: String
+    val intercourseResult: String
+    val intercourseSub: String
+    val ifStartToday: String
+    val twoMonthsDuration: String
+    val intercourseNote: String
+    val daysField: String
+    val oathsField: String
+    val feedMeasure: String
+    val muddOption: String
+    val halfSaOption: String
+    val poorCount: String
+    val approxValue: String
+
+    // ---------- Hijri converter ----------
+    val hijriTitle: String
+    val hijriSubtitle: String
+    val correspondingHijri: String
+    val correspondingGreg: String
+    val enterGregYear: String
+    val enterHijriYear: String
+    val gregToHijri: String
+    val hijriToGreg: String
+    val todayDate: String
+    val prevMonth: String
+    val nextMonth: String
+    val calendarHint: String
+    val moonNote: String
+
+    // ---------- Age ----------
+    val ageTitle: String
+    val ageSubtitle: String
+    val ageGregorian: String
+    fun ymd(y: Int, m: Int, d: Int): String     // "30 years 2 months 5 days"
+    fun inHijri(age: String): String            // "Hijri: …"
+    val birthGreg: String
+    val birthHijri: String
+    val birthWeekday: String
+    val nextBirthday: String
+    val birthdayToday: String
+    val tileDays: String                        // label under a big number: "days"
+    val tileWeeks: String
+    val tileHours: String
+    val yourAge: String
+    val birthAfterToday: String
+    val enterBirth: String
+    val birthDate: String
+    val gregorian: String
+    val hijri: String
+
+    // ---------- Islamic events ----------
+    val eventsTitle: String
+    val eventsSubtitle: String
+    /** keys: ramadan lastTen eidFitr shawwal dhulHijjah arafah eidAdha newYear ashura */
+    val events: Map<String, Named>
+    val unitDays: String                        // countdown tile labels
+    val unitHours: String
+    val unitMinutes: String
+    val unitSeconds: String
+    val eventsNote: String
+
+    // ---------- Inheritance ----------
+    val inhTitle: String
+    val inhSubtitle: String
+    val aslLabel: String
+    val awlCase: String
+    val raddCase: String
+    val adilCase: String
+    fun tashihFrom(n: Long): String
+    val sharesTitle: String
+    fun blockedBy(by: String): String
+    fun perPerson(v: String): String
+    val shareDivision: String
+    fun divisionShareText(list: String): String
+    val listSeparator: String                   // "، " / ", "
+    val addHeirs: String
+    val deceasedAndEstate: String
+    val deceasedMale: String
+    val deceasedFemale: String
+    val estateTotal: String
+    val funeralCosts: String
+    val deceasedDebts: String
+    val bequest: String
+    val bequestHint: String
+    val netEstate: String
+    val bequestCapped: String
+    val newCase: String
+    val inhDisclaimer: String
+    /** heir names by Inheritance.HEIRS key */
+    val heirs: Map<String, String>
+    /** keys: spouses ascendants descendants siblings distant */
+    val heirGroups: Map<String, String>
+    /** names for Inheritance.BLOCKERS keys (other blockers are heir keys) */
+    val blockers: Map<String, String>
+    fun shareType(t: ShareType, radd: Boolean): String
+    fun inhNote(n: InhNote): String
+    /** display name of a blocker / winning heir key */
+    fun nameOf(key: String): String = blockers[key] ?: heirs[key] ?: key
+
+    // ---------- Settings ----------
+    val settingsTitle: String
+    val appearance: String
+    val themeAuto: String
+    val themeLight: String
+    val themeDark: String
+    val language: String
+    val deviceLanguage: String
+    val use24h: String
+    val use24hDesc: String
+    val exactAlarm: String
+    val exactAlarmDesc: String
+    val about: String
+    val aboutName: String
+    fun version(v: String): String
+    val aboutText: String
+    val privacy: String
+    val privacyText: String
+    val disclaimer: String
+}

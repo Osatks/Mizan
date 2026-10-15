@@ -39,6 +39,10 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
           echo "MIZAN_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
 
+      # اختبارات اللغات (كل نص في كل لغة) ومحرك المواريث والأرقام والبحث
+      - name: Unit tests
+        run: gradle testDebugUnitTest --no-daemon
+
       - name: Build APK and AAB
         env:
           MIZAN_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}

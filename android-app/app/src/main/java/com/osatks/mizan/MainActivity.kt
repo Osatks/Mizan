@@ -1,30 +1,40 @@
 package com.osatks.mizan
 
+import android.animation.ValueAnimator
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,7 +42,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.Demo
+import com.osatks.mizan.i18n.Lang
+import com.osatks.mizan.i18n.LocaleSync
 import com.osatks.mizan.notify.PrayerAlarms
+import com.osatks.mizan.ui.FloatingTabBar
+import com.osatks.mizan.ui.LanguageHost
+import com.osatks.mizan.ui.LocalBottomInset
+import com.osatks.mizan.ui.LocalNavScope
+import com.osatks.mizan.ui.LocalSharedScope
+import com.osatks.mizan.ui.Motion
+import com.osatks.mizan.ui.TABS
 import com.osatks.mizan.ui.screens.AgeScreen
 import com.osatks.mizan.ui.screens.EventsScreen
 import com.osatks.mizan.ui.screens.FidyaScreen
@@ -42,6 +62,7 @@ import com.osatks.mizan.ui.screens.HomeScreen
 import com.osatks.mizan.ui.screens.InheritanceScreen
 import com.osatks.mizan.ui.screens.PrayerScreen
 import com.osatks.mizan.ui.screens.QiblaScreen
+import com.osatks.mizan.ui.screens.SearchScreen
 import com.osatks.mizan.ui.screens.SettingsScreen
 import com.osatks.mizan.ui.screens.TasbihScreen
 import com.osatks.mizan.ui.screens.ZakatScreen
@@ -51,28 +72,30 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppSettings.init(this)
+        Motion.reduced = !ValueAnimator.areAnimatorsEnabled()
+        // للقطات الشاشة والاختبار: --es lang en
+        intent?.getStringExtra("lang")?.let { if (it == Lang.SYSTEM || Lang.of(it) != null) LocaleSync.choose(this, it) }
+        LocaleSync.pull(this)
         PrayerAlarms.ensureChannel(this)
         PrayerAlarms.scheduleNext(this)
         enableEdgeToEdge()
         // فتح شاشة محددة عند التشغيل (للاختصارات ولقطات الشاشة): --es route prayer
         val startRoute = intent?.getStringExtra("route")
-        com.osatks.mizan.core.Demo.enabled = intent?.getBooleanExtra("demo", false) == true
-        setContent { MizanTheme { MizanApp(startRoute) } }
+        Demo.enabled = intent?.getBooleanExtra("demo", false) == true
+        setContent { LanguageHost { MizanTheme { MizanApp(startRoute) } } }
+    }
+
+    // اللغة تتغير دون إعادة إنشاء النشاط (configChanges) لتبقى حركة التبديل سلسة
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        LocaleSync.pull(this)
     }
 }
 
-private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya")
+private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search")
+private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
-private data class Tab(val route: String, val label: String, val icon: ImageVector)
-
-private val TABS = listOf(
-    Tab("home", "الرئيسية", Icons.Filled.Home),
-    Tab("prayer", "الصلاة", Icons.Filled.Schedule),
-    Tab("qibla", "القبلة", Icons.Filled.Explore),
-    Tab("tasbih", "المسبحة", Icons.Filled.TouchApp),
-    Tab("settings", "الإعدادات", Icons.Filled.Settings),
-)
-
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MizanApp(startRoute: String? = null) {
     val nav = rememberNavController()
@@ -81,43 +104,79 @@ fun MizanApp(startRoute: String? = null) {
     }
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                TABS.forEach { tab ->
-                    NavigationBarItem(
-                        selected = current == tab.route,
-                        onClick = { nav.goTab(tab.route) },
-                        icon = { Icon(tab.icon, contentDescription = tab.label) },
-                        label = { Text(tab.label, fontWeight = FontWeight.Bold) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    )
+    val onTab = current == null || current in TAB_ROUTES
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val back: () -> Unit = { nav.popBackStack() }
+
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        SharedTransitionLayout {
+            CompositionLocalProvider(LocalSharedScope provides this, LocalBottomInset provides if (onTab) 92.dp else 0.dp) {
+                NavHost(
+                    nav, startDestination = "home", modifier = Modifier.fillMaxSize(),
+                    enterTransition = { enter(rtl) },
+                    exitTransition = { exit() },
+                    popEnterTransition = { popEnter() },
+                    popExitTransition = { popExit(rtl) },
+                ) {
+                    fun screen(route: String, content: @Composable () -> Unit) = composable(route) {
+                        CompositionLocalProvider(LocalNavScope provides this) { content() }
+                    }
+                    screen("home") { HomeScreen(open = { nav.navigate(it) }) }
+                    screen("prayer") { PrayerScreen() }
+                    screen("qibla") { QiblaScreen() }
+                    screen("tasbih") { TasbihScreen() }
+                    screen("settings") { SettingsScreen() }
+                    screen("zakat") { ZakatScreen(back) }
+                    screen("fitr") { FitrScreen(back) }
+                    screen("inheritance") { InheritanceScreen(back) }
+                    screen("hijri") { HijriScreen(back) }
+                    screen("age") { AgeScreen(back) }
+                    screen("events") { EventsScreen(back) }
+                    screen("fidya") { FidyaScreen(back) }
+                    screen("search") {
+                        SearchScreen(back) { route ->
+                            nav.navigate(route) { popUpTo("search") { inclusive = true } }
+                        }
+                    }
                 }
             }
         }
-    ) { padding ->
-        val back: () -> Unit = { nav.popBackStack() }
-        NavHost(nav, startDestination = "home", modifier = Modifier.fillMaxSize().padding(bottom = padding.calculateBottomPadding())) {
-            composable("home") { HomeScreen(open = { nav.navigate(it) }) }
-            composable("prayer") { PrayerScreen() }
-            composable("qibla") { QiblaScreen() }
-            composable("tasbih") { TasbihScreen() }
-            composable("settings") { SettingsScreen() }
-            composable("zakat") { ZakatScreen(back) }
-            composable("fitr") { FitrScreen(back) }
-            composable("inheritance") { InheritanceScreen(back) }
-            composable("hijri") { HijriScreen(back) }
-            composable("age") { AgeScreen(back) }
-            composable("events") { EventsScreen(back) }
-            composable("fidya") { FidyaScreen(back) }
+
+        AnimatedVisibility(
+            visible = onTab,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it } + fadeIn(),
+            exit = slideOutVertically(tween(Motion.SHORT, easing = Motion.Accelerate)) { it } + fadeOut(),
+        ) {
+            FloatingTabBar(current) { nav.goTab(it) }
         }
     }
 }
+
+// ---------- الانتقالات ----------
+// بين التبويبات: "تلاشٍ عابر" (يخبو القديم بسرعة ويكبر الجديد بلطف).
+// إلى أداة: تدخل الصفحة من جهة القراءة (اليمين في العربية) بينما تنكمش السابقة للخلف قليلاً.
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.isTabSwitch() =
+    initialState.destination.route in TAB_ROUTES && targetState.destination.route in TAB_ROUTES
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.enter(rtl: Boolean): EnterTransition =
+    if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
+    else slideInHorizontally(tween(Motion.LONG, easing = Motion.Emphasized)) { w -> (if (rtl) -w else w) / 4 } +
+        fadeIn(tween(Motion.MEDIUM, delayMillis = 40))
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(): ExitTransition =
+    if (isTabSwitch()) fadeOut(tween(90))
+    else scaleOut(tween(Motion.LONG, easing = Motion.Emphasized), targetScale = 0.94f) + fadeOut(tween(Motion.MEDIUM))
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(): EnterTransition =
+    if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
+    else scaleIn(tween(Motion.LONG, easing = Motion.Emphasized), initialScale = 0.94f) + fadeIn(tween(Motion.MEDIUM))
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(rtl: Boolean): ExitTransition =
+    if (isTabSwitch()) fadeOut(tween(90))
+    else slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { w -> (if (rtl) -w else w) / 4 } +
+        fadeOut(tween(Motion.SHORT, delayMillis = 60))
 
 private fun NavHostController.goTab(route: String) {
     navigate(route) {

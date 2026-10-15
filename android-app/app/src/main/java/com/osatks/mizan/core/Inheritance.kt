@@ -31,13 +31,40 @@ class Fr private constructor(val n: Long, val d: Long) : Comparable<Fr> {
     override fun toString() = if (d == 1L) "$n" else "$n/$d"
 }
 
-data class Heir(val key: String, val name: String, val max: Int, val only: Char? = null, val group: String)
+data class Heir(val key: String, val max: Int, val only: Char? = null, val group: String)
 
-class Share(var share: Fr? = null, var type: String = "", var blocked: String? = null)
+/** نوع استحقاق الوارث؛ يُترجم إلى نص في طبقة اللغات */
+enum class ShareType {
+    FARD, FARD_TASIB, FARD_TAKMILA, TASIB, TASIB_BIL_GHAYR, TASIB_MAA_GHAYR, TASIB_MAA_JADD,
+    FARD_THEN_MUQASAMA, JADD_MUQASAMA, JADD_THIRD_ESTATE, JADD_THIRD_REST, JADD_SIXTH
+}
+
+/**
+ * سبب الحجب: مفتاح وارث (مثل "son") أو أحد المفاتيح الخاصة في [Inheritance.BLOCKERS].
+ * النص المعروض يأتي من ملف اللغة.
+ */
+class Share(var share: Fr? = null, var type: ShareType = ShareType.FARD, var blocked: String? = null, var radd: Boolean = false)
+
+/** ملاحظات المسألة؛ تُترجم في طبقة اللغات */
+sealed interface InhNote {
+    data object MatSiblingsShare : InhNote
+    data object Umariyya : InhNote
+    data object GrandmothersShare : InhNote
+    data object FullSistersGhayr : InhNote
+    data object Akdariyya : InhNote
+    data class JaddRule(val otherFard: Boolean) : InhNote
+    data object Muadda : InhNote
+    data class NothingLeft(val winner: String) : InhNote
+    data object Mushtaraka : InhNote
+    data class Awl(val asl: Long, val awl: Long) : InhNote
+    data object Radd : InhNote
+    data object SpouseOnlyRadd : InhNote
+    data object NoHeirs : InhNote
+}
 
 data class InheritanceResult(
     val res: Map<String, Share>,
-    val notes: List<String>,
+    val notes: List<InhNote>,
     val asl: Long,
     val awl: Long?,
     val tashih: Long,
@@ -47,31 +74,34 @@ data class InheritanceResult(
 /** محرك علم الفرائض على مذهب الجمهور */
 object Inheritance {
     val HEIRS = listOf(
-        Heir("husband", "الزوج", 1, 'f', "الزوجان"),
-        Heir("wife", "الزوجة", 4, 'm', "الزوجان"),
-        Heir("father", "الأب", 1, null, "الأصول"),
-        Heir("mother", "الأم", 1, null, "الأصول"),
-        Heir("gf", "الجد (أبو الأب)", 1, null, "الأصول"),
-        Heir("gmm", "الجدة (أم الأم)", 1, null, "الأصول"),
-        Heir("gmf", "الجدة (أم الأب)", 1, null, "الأصول"),
-        Heir("son", "الابن", 30, null, "الفروع"),
-        Heir("daughter", "البنت", 30, null, "الفروع"),
-        Heir("gson", "ابن الابن", 30, null, "الفروع"),
-        Heir("gdau", "بنت الابن", 30, null, "الفروع"),
-        Heir("fb", "الأخ الشقيق", 30, null, "الإخوة والأخوات"),
-        Heir("fs", "الأخت الشقيقة", 30, null, "الإخوة والأخوات"),
-        Heir("pb", "الأخ لأب", 30, null, "الإخوة والأخوات"),
-        Heir("ps", "الأخت لأب", 30, null, "الإخوة والأخوات"),
-        Heir("mb", "الأخ لأم", 30, null, "الإخوة والأخوات"),
-        Heir("ms", "الأخت لأم", 30, null, "الإخوة والأخوات"),
-        Heir("fnep", "ابن الأخ الشقيق", 30, null, "العصبات البعيدة"),
-        Heir("pnep", "ابن الأخ لأب", 30, null, "العصبات البعيدة"),
-        Heir("fun", "العم الشقيق", 30, null, "العصبات البعيدة"),
-        Heir("pun", "العم لأب", 30, null, "العصبات البعيدة"),
-        Heir("fcous", "ابن العم الشقيق", 30, null, "العصبات البعيدة"),
-        Heir("pcous", "ابن العم لأب", 30, null, "العصبات البعيدة"),
+        Heir("husband", 1, 'f', "spouses"),
+        Heir("wife", 4, 'm', "spouses"),
+        Heir("father", 1, null, "ascendants"),
+        Heir("mother", 1, null, "ascendants"),
+        Heir("gf", 1, null, "ascendants"),
+        Heir("gmm", 1, null, "ascendants"),
+        Heir("gmf", 1, null, "ascendants"),
+        Heir("son", 30, null, "descendants"),
+        Heir("daughter", 30, null, "descendants"),
+        Heir("gson", 30, null, "descendants"),
+        Heir("gdau", 30, null, "descendants"),
+        Heir("fb", 30, null, "siblings"),
+        Heir("fs", 30, null, "siblings"),
+        Heir("pb", 30, null, "siblings"),
+        Heir("ps", 30, null, "siblings"),
+        Heir("mb", 30, null, "siblings"),
+        Heir("ms", 30, null, "siblings"),
+        Heir("fnep", 30, null, "distant"),
+        Heir("pnep", 30, null, "distant"),
+        Heir("fun", 30, null, "distant"),
+        Heir("pun", 30, null, "distant"),
+        Heir("fcous", 30, null, "distant"),
+        Heir("pcous", 30, null, "distant"),
     )
-    val NAME = HEIRS.associate { it.key to it.name }
+    val GROUPS = listOf("spouses", "ascendants", "descendants", "siblings", "distant")
+
+    /** أسباب حجب ليست اسم وارث بعينه ("gf" هنا: الجد باسمه المختصر) */
+    val BLOCKERS = listOf("gf", "twoDaughters", "descendant", "fbAfterMuadda", "fsTookRest", "gfAndSiblings", "twoFullSisters", "fsGhayr")
 
     private fun f(n: Long, d: Long = 1) = Fr.of(n, d)
 
@@ -80,9 +110,9 @@ object Inheritance {
         if (gender == 'm') c["husband"] = 0 else c["wife"] = 0
         fun cnt(k: String) = c[k] ?: 0
         val res = mutableMapOf<String, Share>()
-        val notes = mutableListOf<String>()
+        val notes = mutableListOf<InhNote>()
         val fard = linkedMapOf<String, Fr>()
-        val label = mutableMapOf<String, String>()
+        val label = mutableMapOf<String, ShareType>()
         fun block(k: String, by: String) { if (cnt(k) > 0) res[k] = Share(blocked = by) }
 
         val present = c.filter { it.value > 0 }.keys.toList()
@@ -91,8 +121,8 @@ object Inheritance {
         // الفروع
         val son = cnt("son"); val dau = cnt("daughter")
         var gson = cnt("gson"); var gdau = cnt("gdau")
-        if (son > 0) { block("gson", "الابن"); block("gdau", "الابن"); gson = 0; gdau = 0 }
-        if (son == 0 && dau >= 2 && gdau > 0 && gson == 0) { block("gdau", "البنتين (استكمال الثلثين)"); gdau = 0 }
+        if (son > 0) { block("gson", "son"); block("gdau", "son"); gson = 0; gdau = 0 }
+        if (son == 0 && dau >= 2 && gdau > 0 && gson == 0) { block("gdau", "twoDaughters"); gdau = 0 }
         val maleDesc = son > 0 || gson > 0
         val femDesc = dau > 0 || gdau > 0
         val desc = maleDesc || femDesc
@@ -100,10 +130,10 @@ object Inheritance {
         // الأصول
         val father = cnt("father"); val mother = cnt("mother")
         var gf = cnt("gf")
-        if (father > 0 && gf > 0) { block("gf", "الأب"); gf = 0 }
+        if (father > 0 && gf > 0) { block("gf", "father"); gf = 0 }
         var gmm = cnt("gmm"); var gmf = cnt("gmf")
-        if (mother > 0) { block("gmm", "الأم"); block("gmf", "الأم"); gmm = 0; gmf = 0 }
-        if (father > 0 && gmf > 0) { block("gmf", "الأب"); gmf = 0 }
+        if (mother > 0) { block("gmm", "mother"); block("gmf", "mother"); gmm = 0; gmf = 0 }
+        if (father > 0 && gmf > 0) { block("gmf", "father"); gmf = 0 }
 
         val sibAll = cnt("fb") + cnt("fs") + cnt("pb") + cnt("ps") + cnt("mb") + cnt("ms")
         val spouseK = if (gender == 'm') "wife" else "husband"
@@ -111,32 +141,32 @@ object Inheritance {
 
         if (spouse > 0) {
             fard[spouseK] = if (gender == 'f') (if (desc) f(1, 4) else f(1, 2)) else (if (desc) f(1, 8) else f(1, 4))
-            label[spouseK] = "فرض"
+            label[spouseK] = ShareType.FARD
         }
 
         // الإخوة لأم
         val matN = cnt("mb") + cnt("ms")
         if (matN > 0) {
-            val by = when { desc -> "الفرع الوارث"; father > 0 -> "الأب"; gf > 0 -> "الجد"; else -> null }
+            val by = when { desc -> "descendant"; father > 0 -> "father"; gf > 0 -> "gf"; else -> null }
             if (by != null) { block("mb", by); block("ms", by) } else {
                 val total = if (matN == 1) f(1, 6) else f(1, 3)
-                if (cnt("mb") > 0) { fard["mb"] = total * cnt("mb") / matN; label["mb"] = "فرض" }
-                if (cnt("ms") > 0) { fard["ms"] = total * cnt("ms") / matN; label["ms"] = "فرض" }
-                if (matN > 1) notes += "الإخوة لأم يشتركون في الثلث بالتساوي بين الذكر والأنثى."
+                if (cnt("mb") > 0) { fard["mb"] = total * cnt("mb") / matN; label["mb"] = ShareType.FARD }
+                if (cnt("ms") > 0) { fard["ms"] = total * cnt("ms") / matN; label["ms"] = ShareType.FARD }
+                if (matN > 1) notes += InhNote.MatSiblingsShare
             }
         }
 
         // الإخوة الأشقاء ولأب
         var fb = cnt("fb"); var fs = cnt("fs"); var pb = cnt("pb"); var ps = cnt("ps")
-        val sibBlocker = when { son > 0 -> "الابن"; gson > 0 -> "ابن الابن"; father > 0 -> "الأب"; else -> null }
+        val sibBlocker = when { son > 0 -> "son"; gson > 0 -> "gson"; father > 0 -> "father"; else -> null }
         if (sibBlocker != null) { listOf("fb", "fs", "pb", "ps").forEach { block(it, sibBlocker) }; fb = 0; fs = 0; pb = 0; ps = 0 }
         val jaddMode = gf > 0 && (fb + fs + pb + ps) > 0
 
         // البنات وبنات الابن
-        if (dau > 0 && son == 0) { fard["daughter"] = if (dau == 1) f(1, 2) else f(2, 3); label["daughter"] = "فرض" }
+        if (dau > 0 && son == 0) { fard["daughter"] = if (dau == 1) f(1, 2) else f(2, 3); label["daughter"] = ShareType.FARD }
         if (gdau > 0 && gson == 0) {
-            if (dau == 0) { fard["gdau"] = if (gdau == 1) f(1, 2) else f(2, 3); label["gdau"] = "فرض" }
-            else if (dau == 1) { fard["gdau"] = f(1, 6); label["gdau"] = "فرض (تكملة الثلثين)" }
+            if (dau == 0) { fard["gdau"] = if (gdau == 1) f(1, 2) else f(2, 3); label["gdau"] = ShareType.FARD }
+            else if (dau == 1) { fard["gdau"] = f(1, 6); label["gdau"] = ShareType.FARD_TAKMILA }
         }
 
         // الأم والجدات
@@ -144,41 +174,41 @@ object Inheritance {
             if (desc || sibAll >= 2) fard["mother"] = f(1, 6)
             else if (spouse > 0 && father > 0 && present.all { it in listOf("husband", "wife", "father", "mother") || res[it]?.blocked != null }) {
                 fard["mother"] = (Fr.ONE - fard.getValue(spouseK)) / 3
-                notes += "هذه إحدى المسألتين العُمَريّتين (الغرّاوين): للأم ثلث الباقي بعد نصيب الزوج أو الزوجة."
+                notes += InhNote.Umariyya
             } else fard["mother"] = f(1, 3)
-            label["mother"] = "فرض"
+            label["mother"] = ShareType.FARD
         }
         if (gmm + gmf > 0) {
             val n = gmm + gmf
-            if (gmm > 0) { fard["gmm"] = f(1, 6) / n; label["gmm"] = "فرض" }
-            if (gmf > 0) { fard["gmf"] = f(1, 6) / n; label["gmf"] = "فرض" }
-            if (n > 1) notes += "الجدتان تشتركان في السدس."
+            if (gmm > 0) { fard["gmm"] = f(1, 6) / n; label["gmm"] = ShareType.FARD }
+            if (gmf > 0) { fard["gmf"] = f(1, 6) / n; label["gmf"] = ShareType.FARD }
+            if (n > 1) notes += InhNote.GrandmothersShare
         }
 
         // الأب والجد
         if (father > 0) {
-            if (maleDesc) { fard["father"] = f(1, 6); label["father"] = "فرض" }
-            else if (femDesc) { fard["father"] = f(1, 6); label["father"] = "فرض وتعصيب" }
+            if (maleDesc) { fard["father"] = f(1, 6); label["father"] = ShareType.FARD }
+            else if (femDesc) { fard["father"] = f(1, 6); label["father"] = ShareType.FARD_TASIB }
         }
         if (gf > 0 && !jaddMode) {
-            if (maleDesc) { fard["gf"] = f(1, 6); label["gf"] = "فرض" }
-            else if (femDesc) { fard["gf"] = f(1, 6); label["gf"] = "فرض وتعصيب" }
+            if (maleDesc) { fard["gf"] = f(1, 6); label["gf"] = ShareType.FARD }
+            else if (femDesc) { fard["gf"] = f(1, 6); label["gf"] = ShareType.FARD_TASIB }
         }
 
         // الأخوات (خارج باب الجد)
         var fsGhayr = false; var psGhayr = false
         if (!jaddMode) {
             if (fs > 0 && fb == 0) {
-                if (femDesc) { fsGhayr = true; notes += "الأخوات الشقيقات مع البنات عصبة مع الغير." }
-                else { fard["fs"] = if (fs == 1) f(1, 2) else f(2, 3); label["fs"] = "فرض" }
+                if (femDesc) { fsGhayr = true; notes += InhNote.FullSistersGhayr }
+                else { fard["fs"] = if (fs == 1) f(1, 2) else f(2, 3); label["fs"] = ShareType.FARD }
             }
-            if (fb > 0) { block("pb", "الأخ الشقيق"); block("ps", "الأخ الشقيق"); pb = 0; ps = 0 }
-            else if (fsGhayr) { block("pb", "الأخت الشقيقة (عصبة مع الغير)"); block("ps", "الأخت الشقيقة (عصبة مع الغير)"); pb = 0; ps = 0 }
+            if (fb > 0) { block("pb", "fb"); block("ps", "fb"); pb = 0; ps = 0 }
+            else if (fsGhayr) { block("pb", "fsGhayr"); block("ps", "fsGhayr"); pb = 0; ps = 0 }
             if (ps > 0 && pb == 0) {
                 if (femDesc && fs == 0) psGhayr = true
-                else if (fs == 0) { fard["ps"] = if (ps == 1) f(1, 2) else f(2, 3); label["ps"] = "فرض" }
-                else if (fs == 1) { fard["ps"] = f(1, 6); label["ps"] = "فرض (تكملة الثلثين)" }
-                else { block("ps", "الأختين الشقيقتين"); ps = 0 }
+                else if (fs == 0) { fard["ps"] = if (ps == 1) f(1, 2) else f(2, 3); label["ps"] = ShareType.FARD }
+                else if (fs == 1) { fard["ps"] = f(1, 6); label["ps"] = ShareType.FARD_TAKMILA }
+                else { block("ps", "twoFullSisters"); ps = 0 }
             }
         }
 
@@ -190,9 +220,9 @@ object Inheritance {
             onlyKeys(listOf("husband", "mother", "gf", "fs", "ps"))
         ) {
             val sk = if (fs > 0) "fs" else "ps"
-            res["husband"] = Share(f(9, 27), "فرض"); res["mother"] = Share(f(6, 27), "فرض")
-            res["gf"] = Share(f(8, 27), "فرض ثم مقاسمة"); res[sk] = Share(f(4, 27), "فرض ثم مقاسمة")
-            notes += "هذه المسألة الأكدرية: يُفرض للأخت النصف وللجد السدس فتعول إلى 9، ثم يُجمع نصيبهما ويُقسم للذكر مثل حظ الأنثيين فتصح من 27."
+            res["husband"] = Share(f(9, 27), ShareType.FARD); res["mother"] = Share(f(6, 27), ShareType.FARD)
+            res["gf"] = Share(f(8, 27), ShareType.FARD_THEN_MUQASAMA); res[sk] = Share(f(4, 27), ShareType.FARD_THEN_MUQASAMA)
+            notes += InhNote.Akdariyya
             return InheritanceResult(res, notes, 6, 9, 27, false)
         }
 
@@ -202,27 +232,26 @@ object Inheritance {
             val units = 2 + fb * 2 + fs + pb * 2 + ps
             val muq = if (rem > Fr.ZERO) rem * 2 / units else Fr.ZERO
             val otherFard = fardSum > Fr.ZERO
-            val gfShare: Fr; val how: String
+            val gfShare: Fr; val how: ShareType
             if (!otherFard) {
                 val third = f(1, 3)
-                if (muq >= third) { gfShare = muq; how = "المقاسمة" } else { gfShare = third; how = "ثلث المال" }
+                if (muq >= third) { gfShare = muq; how = ShareType.JADD_MUQASAMA } else { gfShare = third; how = ShareType.JADD_THIRD_ESTATE }
             } else {
                 val sixth = f(1, 6)
                 val thirdRem = if (rem > Fr.ZERO) rem / 3 else Fr.ZERO
-                var best = sixth; var bestHow = "سدس المال"
-                if (thirdRem > best) { best = thirdRem; bestHow = "ثلث الباقي" }
-                if (muq > best) { best = muq; bestHow = "المقاسمة" }
+                var best = sixth; var bestHow = ShareType.JADD_SIXTH
+                if (thirdRem > best) { best = thirdRem; bestHow = ShareType.JADD_THIRD_REST }
+                if (muq > best) { best = muq; bestHow = ShareType.JADD_MUQASAMA }
                 gfShare = best; how = bestHow
             }
-            res["gf"] = Share(gfShare, "مع الإخوة: $how")
+            res["gf"] = Share(gfShare, how)
             fardSum += gfShare
             var sibRem = Fr.ONE - fardSum
             if (sibRem < Fr.ZERO) sibRem = Fr.ZERO
-            notes += "الجد مع الإخوة يأخذ الأحظّ له من: المقاسمة، أو " + (if (otherFard) "ثلث الباقي، أو سدس المال" else "ثلث المال") +
-                " — وهو قول الجمهور (المالكية والشافعية والحنابلة)، أما أبو حنيفة فيرى أن الجد يحجب الإخوة كالأب."
-            if (fb + fs > 0 && pb + ps > 0) notes += "الإخوة لأب عُدّوا على الجد في المقاسمة (المعادّة) ثم يُرد نصيبهم للأشقاء عند الحاجة."
+            notes += InhNote.JaddRule(otherFard)
+            if (fb + fs > 0 && pb + ps > 0) notes += InhNote.Muadda
 
-            fun give(bk: String, sk: String, b: Int, s: Int, amount: Fr, type: String) {
+            fun give(bk: String, sk: String, b: Int, s: Int, amount: Fr, type: ShareType) {
                 val u = b * 2 + s
                 if (u == 0) return
                 if (b > 0) res[bk] = Share(amount * (b * 2) / u, type)
@@ -230,24 +259,24 @@ object Inheritance {
             }
             when {
                 fb > 0 -> {
-                    give("fb", "fs", fb, fs, sibRem, "تعصيب")
-                    if (pb > 0) res["pb"] = Share(blocked = "الأخ الشقيق (بعد المعادّة)")
-                    if (ps > 0) res["ps"] = Share(blocked = "الأخ الشقيق (بعد المعادّة)")
+                    give("fb", "fs", fb, fs, sibRem, ShareType.TASIB)
+                    if (pb > 0) res["pb"] = Share(blocked = "fbAfterMuadda")
+                    if (ps > 0) res["ps"] = Share(blocked = "fbAfterMuadda")
                 }
                 fs > 0 -> if (pb + ps > 0) {
                     val cap = if (fs == 1) f(1, 2) else f(2, 3)
                     val fsGet = if (sibRem > cap) cap else sibRem
-                    res["fs"] = Share(fsGet, "تعصيب مع الجد")
+                    res["fs"] = Share(fsGet, ShareType.TASIB_MAA_JADD)
                     val left = sibRem - fsGet
-                    if (left > Fr.ZERO) give("pb", "ps", pb, ps, left, "تعصيب")
+                    if (left > Fr.ZERO) give("pb", "ps", pb, ps, left, ShareType.TASIB)
                     else {
-                        if (pb > 0) res["pb"] = Share(blocked = "استغراق الأخت الشقيقة للباقي")
-                        if (ps > 0) res["ps"] = Share(blocked = "استغراق الأخت الشقيقة للباقي")
+                        if (pb > 0) res["pb"] = Share(blocked = "fsTookRest")
+                        if (ps > 0) res["ps"] = Share(blocked = "fsTookRest")
                     }
-                } else give("fb", "fs", 0, fs, sibRem, "تعصيب مع الجد")
-                else -> give("pb", "ps", pb, ps, sibRem, "تعصيب مع الجد")
+                } else give("fb", "fs", 0, fs, sibRem, ShareType.TASIB_MAA_JADD)
+                else -> give("pb", "ps", pb, ps, sibRem, ShareType.TASIB_MAA_JADD)
             }
-            listOf("fnep", "pnep", "fun", "pun", "fcous", "pcous").forEach { block(it, "الجد والإخوة") }
+            listOf("fnep", "pnep", "fun", "pun", "fcous", "pcous").forEach { block(it, "gfAndSiblings") }
         }
 
         val fardDen = fard.values.fold(1L) { a, x -> Fr.lcm(a, x.d) }
@@ -256,15 +285,16 @@ object Inheritance {
         // العصبات
         var asabaTaken = jaddMode
         if (!jaddMode) {
+            // nm: مفتاح العاصب كما يظهر في سبب الحجب
             data class Rank(val m: String?, val f: String?, val nm: String, val ghayr: Boolean = false)
             val order = listOf(
-                Rank("son", "daughter", "الابن"), Rank("gson", "gdau", "ابن الابن"),
-                Rank("father", null, "الأب"), Rank("gf", null, "الجد"),
-                Rank("fb", "fs", "الأخ الشقيق"), Rank(null, "fs", "الأخت الشقيقة", true),
-                Rank("pb", "ps", "الأخ لأب"), Rank(null, "ps", "الأخت لأب", true),
-                Rank("fnep", null, "ابن الأخ الشقيق"), Rank("pnep", null, "ابن الأخ لأب"),
-                Rank("fun", null, "العم الشقيق"), Rank("pun", null, "العم لأب"),
-                Rank("fcous", null, "ابن العم الشقيق"), Rank("pcous", null, "ابن العم لأب"),
+                Rank("son", "daughter", "son"), Rank("gson", "gdau", "gson"),
+                Rank("father", null, "father"), Rank("gf", null, "gf"),
+                Rank("fb", "fs", "fb"), Rank(null, "fs", "fs", true),
+                Rank("pb", "ps", "pb"), Rank(null, "ps", "ps", true),
+                Rank("fnep", null, "fnep"), Rank("pnep", null, "pnep"),
+                Rank("fun", null, "fun"), Rank("pun", null, "pun"),
+                Rank("fcous", null, "fcous"), Rank("pcous", null, "pcous"),
             )
             val counts = mapOf("son" to son, "daughter" to dau, "gson" to gson, "gdau" to gdau, "father" to father,
                 "gf" to gf, "fb" to fb, "fs" to fs, "pb" to pb, "ps" to ps)
@@ -291,23 +321,23 @@ object Inheritance {
                 val mC = if (winner.m != null) eff(winner.m) else 0
                 val fC = if (winner.f != null && !fard.containsKey(winner.f)) eff(winner.f) else 0
                 val u = mC * 2 + fC
-                val tLabel = if (winner.m != null) "تعصيب" else "تعصيب مع الغير"
+                val tLabel = if (winner.m != null) ShareType.TASIB else ShareType.TASIB_MAA_GHAYR
                 if (winner.m != null) {
                     val s = residue * (mC * 2) / u
                     val own = fard[winner.m]
                     res[winner.m] = Share((own ?: Fr.ZERO) + s,
-                        if (own != null) label[winner.m] ?: "فرض وتعصيب" else if (fC > 0) "تعصيب بالغير" else tLabel)
+                        if (own != null) label[winner.m] ?: ShareType.FARD_TASIB else if (fC > 0) ShareType.TASIB_BIL_GHAYR else tLabel)
                     fard.remove(winner.m)
                 }
-                if (fC > 0 && winner.f != null) res[winner.f] = Share(residue * fC / u, if (winner.m != null) "تعصيب بالغير" else tLabel)
-                if (residue.isZero() && (mC > 0 || fC > 0)) notes += "لم يبقَ شيء بعد أصحاب الفروض، فلا شيء للعاصب (${winner.nm})."
+                if (fC > 0 && winner.f != null) res[winner.f] = Share(residue * fC / u, if (winner.m != null) ShareType.TASIB_BIL_GHAYR else tLabel)
+                if (residue.isZero() && (mC > 0 || fC > 0)) notes += InhNote.NothingLeft(winner.nm)
                 if (residue.isZero() && winner.m == "fb" && matN >= 2 && spouse > 0 && (mother > 0 || gmm > 0 || gmf > 0) && !desc && father == 0 && gf == 0) {
-                    notes += "هذه المسألة المُشتَرَكة (الحِماريّة): ذهب المالكية والشافعية إلى تشريك الأشقاء مع الإخوة لأم في الثلث، والنتيجة هنا على قول الحنفية والحنابلة."
+                    notes += InhNote.Mushtaraka
                 }
             }
         }
 
-        for ((k, v) in fard) if (res[k] == null) res[k] = Share(v, label[k] ?: "فرض")
+        for ((k, v) in fard) if (res[k] == null) res[k] = Share(v, label[k] ?: ShareType.FARD)
 
         var asl = 1L
         if (jaddMode || !hasFard) {
@@ -320,7 +350,7 @@ object Inheritance {
         if (total > Fr.ONE) {
             awl = (total.value * asl).roundToLong()
             for (s in res.values) s.share = s.share?.let { it / total }
-            notes += "زادت الفروض على أصل المسألة فعالت من $asl إلى $awl، ونقص نصيب كل وارث بنسبة العول."
+            notes += InhNote.Awl(asl, awl)
         } else if (total < Fr.ONE && !asabaTaken) {
             val nonSpouse = res.filter { it.value.share != null && it.key != "husband" && it.key != "wife" }.keys
             val remain = Fr.ONE - total
@@ -329,19 +359,19 @@ object Inheritance {
                 for (k in nonSpouse) {
                     val s = res.getValue(k)
                     s.share = s.share!! + remain * s.share!! / base
-                    s.type += " وردّ"
+                    s.radd = true
                 }
                 radd = true
-                notes += "لا يوجد عاصب، فرُدّ الباقي على أصحاب الفروض بنسبة فروضهم عدا الزوجين."
+                notes += InhNote.Radd
             } else if (res[spouseK]?.share != null) {
                 res.getValue(spouseK).share = Fr.ONE
-                res.getValue(spouseK).type += " وردّ"
+                res.getValue(spouseK).radd = true
                 radd = true
-                notes += "لم يوجد وارث غير الزوج/الزوجة: الباقي يُرد عليه عند كثير من المعاصرين وفي عدد من قوانين الأحوال الشخصية، والأصل عند المتقدمين أنه لذوي الأرحام ثم لبيت المال."
+                notes += InhNote.SpouseOnlyRadd
             }
         }
         if (res.values.none { it.share != null && !it.share!!.isZero() }) {
-            notes += "لا يوجد وارث من أصحاب الفروض أو العصبات؛ تنتقل التركة إلى ذوي الأرحام ثم بيت المال، ويُرجع في ذلك للمحكمة المختصة."
+            notes += InhNote.NoHeirs
         }
 
         var tashih = 1L

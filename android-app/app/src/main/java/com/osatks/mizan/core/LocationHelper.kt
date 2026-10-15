@@ -60,8 +60,7 @@ object LocationHelper {
         val (city, dist) = PrayTimes.nearestCity(lat, lng)
         val near = dist < 1.5
         return Place(
-            name = if (near) city.name else "موقعي الحالي",
-            country = if (near) city.country else "",
+            key = if (near) city.key else null,
             lat = lat, lng = lng, tz = TimeZone.getDefault().id, method = city.method, gps = true
         )
     }

@@ -1,0 +1,492 @@
+package com.osatks.mizan.i18n
+
+import com.osatks.mizan.core.InhNote
+import com.osatks.mizan.core.ShareType
+
+/** বাংলায় সংখ্যার পরে বিশেষ্য বহুবচনে বদলায় না: "1 দিন", "5 দিন" */
+private fun bn(n: Long, unit: String) = "$n $unit"
+
+object Bn : Strings {
+    // ---------- General ----------
+    override val appName = "মিজান"
+    override val appTagline = "মুসলিমের টুলস"
+    override val tabHome = "হোম"
+    override val tabPrayer = "নামাজ"
+    override val tabQibla = "কিবলা"
+    override val tabTasbih = "তাসবিহ"
+    override val tabSettings = "সেটিংস"
+    override val back = "ফিরে যান"
+    override val share = "শেয়ার করুন"
+    override val shareSignature = "— মিজান অ্যাপ"
+    override val today = "আজ"
+    override val tomorrow = "আগামীকাল"
+    override fun inDays(n: Long) = bn(n, "দিন") + " পর"
+    override fun daysCount(n: Long) = bn(n, "দিন")
+    override val decrease = "কমান"
+    override val increase = "বাড়ান"
+    override val noLimit = "সীমাহীন"
+    override val noResults = "কোনো ফলাফল নেই"
+    override val unitGram = "গ্রাম"
+    override val unitKg = "কেজি"
+    override val unitKm = "কিমি"
+    override val am = "AM"
+    override val pm = "PM"
+
+    // ---------- Calendar ----------
+    override val hijriMonths = listOf(
+        "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি",
+        "রজব", "শাবান", "রমজান", "শাওয়াল", "জিলকদ", "জিলহজ"
+    )
+    override val gregMonths = listOf(
+        "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+        "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
+    )
+    override val weekdays = listOf("সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার", "রবিবার")
+    override val weekdaysShort = listOf("সোম", "মঙ্গল", "বুধ", "বৃহঃ", "শুক্র", "শনি", "রবি")
+    override fun hijriDate(d: Int, m: Int, y: Int) = "$d ${hijriMonths[m - 1]} $y হিজরি"
+    override fun gregDate(d: Int, m: Int, y: Int) = "$d ${gregMonths[m - 1]} $y"
+    override fun hijriMonthTitle(m: Int, y: Int) = "${hijriMonths[m - 1]} $y হিজরি"
+    override val hijriYearSuffix = "হিজরি"
+    override val gregYearSuffix = "খ্রি."
+    override val dayLabel = "দিন"
+    override val monthLabel = "মাস"
+    override val yearLabel = "বছর"
+
+    // ---------- Home ----------
+    override val tools = mapOf(
+        "zakat" to Named("যাকাত ক্যালকুলেটর", "অর্থ, স্বর্ণ ও শেয়ার, নিসাবসহ"),
+        "inheritance" to Named("উত্তরাধিকার ক্যালকুলেটর", "ফারায়েজের নিয়মে সম্পত্তি বণ্টন"),
+        "prayer" to Named("নামাজের সময়সূচি", "আজানের অ্যালার্ট ও লাইভ কাউন্টডাউন"),
+        "qibla" to Named("কিবলার দিক", "ফোনের সেন্সরচালিত কম্পাস"),
+        "hijri" to Named("হিজরি তারিখ", "তারিখ রূপান্তর, উম্মুল কুরা ক্যালেন্ডার"),
+        "events" to Named("ইসলামি দিবস", "রমজান, দুই ঈদ ও আরাফা"),
+        "tasbih" to Named("তাসবিহ", "জিকির গণনা, প্রস্তুত আজকারসহ"),
+        "fitr" to Named("সদকাতুল ফিতর", "সা' অথবা মূল্য হিসেবে"),
+        "age" to Named("বয়স ক্যালকুলেটর", "হিজরি ও খ্রিস্টীয় বছরে"),
+        "fidya" to Named("ফিদিয়া ও কাফফারা", "ছুটে যাওয়া রোজা ও ভাঙা কসম"),
+    )
+    override val toolKeywords = mapOf(
+        "zakat" to "যাকাত জাকাত যাকাহ সদকা দান সম্পদ স্বর্ণ সোনা রুপা রৌপ্য নিসাব নেসাব টাকা সঞ্চয় শেয়ার zakat jakat",
+        "inheritance" to "উত্তরাধিকার মিরাস মীরাস ফারায়েজ ফরায়েজ সম্পত্তি বণ্টন ওয়ারিশ ওয়ারিস অসিয়ত ওসিয়ত faraiz",
+        "prayer" to "নামাজ নামায সালাত আজান আযান ওয়াক্ত ফজর যোহর জোহর আসর মাগরিব এশা ইশা সময় namaz",
+        "qibla" to "কিবলা কেবলা কাবা কা'বা মক্কা কম্পাস দিক qibla kibla",
+        "hijri" to "হিজরি ক্যালেন্ডার পঞ্জিকা তারিখ রূপান্তর আরবি চাঁদ উম্মুল কুরা",
+        "events" to "রমজান রমাদান ঈদ আরাফা আরাফাহ আশুরা শবে কদর লাইলাতুল দিবস ছুটি",
+        "tasbih" to "তাসবিহ তাসবীহ তসবি জিকির যিকির জিকর আজকার দোয়া কাউন্টার গণনা",
+        "fitr" to "ফিতরা ফেতরা ফিতর সদকাতুল সদকা যাকাতুল সা ঈদ",
+        "age" to "বয়স জন্মদিন জন্ম জন্মতারিখ বছর",
+        "fidya" to "ফিদিয়া ফিদইয়া ফিদয়া কাফফারা কাফ্ফারা কসম শপথ রোজা সিয়াম খাওয়ানো",
+    )
+    override val toolsTitle = "টুলস"
+    override fun nextPrayerIn(city: String) = "পরবর্তী নামাজ · $city"
+    override val searchHint = "টুল, শহর, জিকির খুঁজুন…"
+
+    // ---------- Search ----------
+    override val searchTitle = "অনুসন্ধান"
+    override val searchToolsGroup = "টুলস"
+    override val searchCitiesGroup = "শহর"
+    override val searchPrayersGroup = "আজকের নামাজের সময়"
+    override val searchEventsGroup = "দিবস"
+    override val searchDhikrGroup = "জিকির"
+    override val searchSettingsGroup = "সেটিংস"
+    override val searchEmpty = "টুল, শহর, জিকির, দিবস ও সেটিংস খুঁজুন"
+    override val setAsMyCity = "নামাজের সময়ের জন্য ব্যবহার করুন"
+    override fun searchNoResults(q: String) = "“$q”-এর জন্য কোনো ফলাফল নেই"
+
+    // ---------- Prayer ----------
+    override val prayers = mapOf(
+        "fajr" to "ফজর", "sunrise" to "সূর্যোদয়", "dhuhr" to "যোহর",
+        "asr" to "আসর", "maghrib" to "মাগরিব", "isha" to "এশা"
+    )
+    override val prayerTitle = "নামাজের সময়সূচি"
+    override fun nextPrayerLabel(name: String) = "পরবর্তী নামাজ: $name"
+    override fun atTime(time: String) = "$time-এ"
+    override val prevDay = "আগের দিন"
+    override val nextDay = "পরের দিন"
+    override val monthTable = "মাসিক সময়সূচি"
+    override val hideMonthTable = "সময়সূচি লুকান"
+    override fun monthTableTitle(m: Int, y: Int) = "${gregMonths[m - 1]} $y-এর সময়সূচি"
+    override val colDay = "দিন"
+    override val locationAndMethod = "অবস্থান ও হিসাব পদ্ধতি"
+    override val useMyLocation = "আমার বর্তমান অবস্থান ব্যবহার করুন"
+    override val locating = "আপনার অবস্থান খোঁজা হচ্ছে…"
+    override val orPickCity = "অথবা একটি শহর বেছে নিন"
+    override val pickCity = "শহর বেছে নিন"
+    override val searchCity = "শহর খুঁজুন"
+    override val myLocation = "আমার অবস্থান"
+    override val calcMethod = "হিসাব পদ্ধতি"
+    override val methods = mapOf(
+        "makkah" to "উম্মুল কুরা (সৌদি আরব)",
+        "mwl" to "মুসলিম ওয়ার্ল্ড লীগ",
+        "egypt" to "মিশরের সাধারণ জরিপ কর্তৃপক্ষ",
+        "dubai" to "আরব আমিরাত (দুবাই)",
+        "kuwait" to "কুয়েত",
+        "qatar" to "কাতার",
+        "jordan" to "জর্ডান ও ফিলিস্তিন",
+        "morocco" to "মরক্কো",
+        "algeria" to "আলজেরিয়া",
+        "tunisia" to "তিউনিসিয়া",
+        "karachi" to "ইসলামি বিজ্ঞান বিশ্ববিদ্যালয়, করাচি",
+        "turkey" to "দিয়ানেত (তুরস্ক)",
+        "tehran" to "ভূপদার্থবিদ্যা ইনস্টিটিউট, তেহরান বিশ্ববিদ্যালয়",
+        "indonesia" to "ধর্মবিষয়ক মন্ত্রণালয় (ইন্দোনেশিয়া)",
+        "malaysia" to "JAKIM (মালয়েশিয়া)",
+        "singapore" to "MUIS (সিঙ্গাপুর)",
+        "russia" to "রাশিয়ার মুসলিমদের ধর্মীয় প্রশাসন",
+        "isna" to "উত্তর আমেরিকা (ISNA)",
+        "france" to "ফ্রান্সের ইসলামি সংগঠনসমূহের ইউনিয়ন",
+    )
+    override val asrMethod = "আসরের হিসাব"
+    override val asrStandard = "জমহুর (শাফেয়ি, মালেকি, হাম্বলি)"
+    override val asrHanafi = "হানাফি"
+    override val latLng = "অক্ষাংশ / দ্রাঘিমাংশ"
+    override val adhanAlert = "আজানের অ্যালার্ট"
+    override val adhanAlertDesc = "প্রতি ওয়াক্ত শুরু হলে একটি নোটিফিকেশন"
+    override val timesMayDiffer = "আপনার দেশের সরকারি ক্যালেন্ডারের সাথে সময়ে এক-দুই মিনিট পার্থক্য হতে পারে।"
+    override val locationFound = "অবস্থান পাওয়া গেছে ✓"
+    override val locationFailed = "আপনার অবস্থান পাওয়া যায়নি। লোকেশন সার্ভিস চালু আছে কি না দেখে নিন।"
+    override val locationDenied = "লোকেশনের অনুমতি দেওয়া হয়নি। তালিকা থেকে আপনার শহর বেছে নিন।"
+    override val cities = mapOf(
+        "makkah" to "মক্কা", "madinah" to "মদিনা", "riyadh" to "রিয়াদ", "jeddah" to "জেদ্দা",
+        "dammam" to "দাম্মাম", "abha" to "আবহা", "dubai" to "দুবাই", "abudhabi" to "আবুধাবি", "sharjah" to "শারজাহ",
+        "kuwait" to "কুয়েত সিটি", "doha" to "দোহা", "manama" to "মানামা", "muscat" to "মাস্কাট",
+        "cairo" to "কায়রো", "alexandria" to "আলেকজান্দ্রিয়া", "aswan" to "আসওয়ান", "amman" to "আম্মান",
+        "jerusalem" to "জেরুজালেম (আল-কুদস)", "gaza" to "গাজা", "beirut" to "বৈরুত", "damascus" to "দামেস্ক", "aleppo" to "আলেপ্পো",
+        "baghdad" to "বাগদাদ", "basra" to "বসরা", "erbil" to "এরবিল", "sanaa" to "সানা", "aden" to "এডেন",
+        "khartoum" to "খার্তুম", "tripoli" to "ত্রিপোলি", "benghazi" to "বেনগাজি", "tunis" to "তিউনিস",
+        "algiers" to "আলজিয়ার্স", "oran" to "ওরান", "rabat" to "রাবাত", "casablanca" to "কাসাব্লাঙ্কা",
+        "marrakesh" to "মারাকেশ", "nouakchott" to "নুয়াকশোট", "mogadishu" to "মোগাদিশু", "djibouti" to "জিবুতি",
+        "istanbul" to "ইস্তাম্বুল", "ankara" to "আঙ্কারা", "karachi" to "করাচি", "lahore" to "লাহোর",
+        "islamabad" to "ইসলামাবাদ", "delhi" to "দিল্লি", "mumbai" to "মুম্বাই", "hyderabad" to "হায়দরাবাদ",
+        "dhaka" to "ঢাকা", "chittagong" to "চট্টগ্রাম", "kabul" to "কাবুল", "tehran" to "তেহরান", "mashhad" to "মাশহাদ",
+        "tashkent" to "তাশখন্দ", "baku" to "বাকু", "almaty" to "আলমাতি", "moscow" to "মস্কো", "kazan" to "কাজান",
+        "grozny" to "গ্রোজনি", "kualalumpur" to "কুয়ালালামপুর", "penang" to "পেনাং", "singapore" to "সিঙ্গাপুর",
+        "brunei" to "বন্দর সেরি বেগাওয়ান", "jakarta" to "জাকার্তা", "surabaya" to "সুরাবায়া", "bandung" to "বান্দুং",
+        "medan" to "মেদান", "makassar" to "মাকাসার", "lagos" to "লাগোস", "kano" to "কানো", "dakar" to "ডাকার",
+        "sarajevo" to "সারায়েভো", "london" to "লন্ডন", "birmingham" to "বার্মিংহাম", "paris" to "প্যারিস",
+        "marseille" to "মার্সেই", "lyon" to "লিওঁ", "brussels" to "ব্রাসেলস", "amsterdam" to "আমস্টারডাম",
+        "berlin" to "বার্লিন", "hamburg" to "হামবুর্গ", "cologne" to "কোলন", "munich" to "মিউনিখ",
+        "vienna" to "ভিয়েনা", "stockholm" to "স্টকহোম", "newyork" to "নিউ ইয়র্ক", "chicago" to "শিকাগো",
+        "losangeles" to "লস অ্যাঞ্জেলেস", "toronto" to "টরন্টো", "montreal" to "মন্ট্রিয়ল", "sydney" to "সিডনি",
+    )
+    override val palestine = "ফিলিস্তিন"
+
+    // ---------- Notifications ----------
+    override val channelName = "নামাজের সময়"
+    override val channelDesc = "প্রতি ওয়াক্ত শুরু হলে একটি অ্যালার্ট"
+    override fun prayerNowTitle(prayer: String) = "$prayer নামাজের সময় হয়েছে"
+    override fun prayerNowText(city: String) = "$city — নামাজের দিকে আসুন"
+
+    // ---------- Qibla ----------
+    override val qiblaTitle = "কিবলার দিক"
+    override val noCompass = "আপনার ডিভাইসে কম্পাস নেই। নিচের কোণ অনুযায়ী হাতে দিক ঠিক করুন।"
+    override val facingQibla = "✓ আপনি কিবলামুখী আছেন"
+    override fun turnRight(deg: Int) = "ফোনটি $deg° ডানে ঘোরান"
+    override fun turnLeft(deg: Int) = "ফোনটি $deg° বাঁয়ে ঘোরান"
+    override val qiblaAngle = "প্রকৃত উত্তর থেকে কিবলার কোণ"
+    override fun towards(dir: String) = "$dir দিকে"
+    override val directions = listOf("উত্তর", "উত্তর-পূর্ব", "পূর্ব", "দক্ষিণ-পূর্ব", "দক্ষিণ", "দক্ষিণ-পশ্চিম", "পশ্চিম", "উত্তর-পশ্চিম")
+    override val location = "অবস্থান"
+    override val distanceToKaaba = "কাবা পর্যন্ত দূরত্ব"
+    override val phoneHeading = "ফোনের দিক"
+    override val compassLowAccuracy = "কম্পাসের নির্ভুলতা কম: ক্যালিব্রেট করতে ফোনটি 8-এর আকারে ঘোরান, ধাতু ও ইলেকট্রনিক যন্ত্র থেকে দূরে রাখুন।"
+    override val qiblaTip = "অবস্থান বদলাতে নামাজের সময়সূচি পাতাটি ব্যবহার করুন। সঠিক রিডিং পেতে ফোনটি সমতলে ও ধাতু থেকে দূরে ধরে রাখুন।"
+
+    // ---------- Tasbih ----------
+    override val tasbihTitle = "ডিজিটাল তাসবিহ"
+    override val tasbihSubtitle = "গুনতে বৃত্তে চাপ দিন"
+    override val modeFree = "মুক্ত জিকির"
+    override val modeAfterPrayer = "নামাজের পর"
+    override fun ofGoal(n: Int) = "$n-এর মধ্যে"
+    override val nextDhikr = "পরের জিকিরে যান"
+    override val completedHundred = "আল্লাহ কবুল করুন ✓ আপনি একশো বার পূর্ণ করেছেন"
+    override fun completedN(n: Int) = "$n বার সম্পন্ন ✓"
+    override val reset = "রিসেট"
+    override val undo = "আনডু"
+    override val chooseDhikr = "জিকির বেছে নিন"
+    override val targetCount = "লক্ষ্য সংখ্যা"
+    override val yourStats = "আপনার পরিসংখ্যান"
+    override val roundsDone = "চক্র সম্পন্ন"
+    override val todayCount = "আজ"
+    override val totalCount = "সর্বমোট"
+    override val dhikrLabels = listOf(
+        "সুবহানাল্লাহ", "আলহামদুলিল্লাহ", "আল্লাহু আকবার", "লা ইলাহা ইল্লাল্লাহ", "আস্তাগফিরুল্লাহ",
+        "সুবহানাল্লাহি ওয়া বিহামদিহি", "সুবহানাল্লাহিল আজিম", "লা হাওলা ওয়া লা কুওয়াতা ইল্লা বিল্লাহ", "নবী ﷺ-এর ওপর দরুদ",
+    )
+    override val dhikrMeanings = listOf(
+        "আল্লাহ মহাপবিত্র",
+        "সমস্ত প্রশংসা আল্লাহর",
+        "আল্লাহ সর্বমহান",
+        "আল্লাহ ছাড়া কোনো ইলাহ নেই",
+        "আমি আল্লাহর কাছে ক্ষমা চাই",
+        "আল্লাহ মহাপবিত্র, সকল প্রশংসা তাঁর",
+        "মহান আল্লাহ মহাপবিত্র",
+        "আল্লাহর সাহায্য ছাড়া কোনো শক্তি ও সামর্থ্য নেই",
+        "হে আল্লাহ, মুহাম্মাদ ﷺ-এর ওপর রহমত বর্ষণ করুন",
+    )
+    override val tamamMeaning = "আল্লাহ ছাড়া কোনো ইলাহ নেই, তিনি এক, তাঁর কোনো শরিক নেই। রাজত্ব তাঁরই, প্রশংসাও তাঁরই, এবং তিনি সব কিছুর ওপর ক্ষমতাবান।"
+    override val tapToCount = "গুনতে চাপ দিন"
+
+    // ---------- Zakat ----------
+    override val zakatTitle = "যাকাত ক্যালকুলেটর"
+    override val zakatSubtitle = "নিসাব পরিমাণ সম্পদ পূর্ণ এক চান্দ্রবর্ষ থাকলে তার 2.5%"
+    override val partCash = "নগদ ও ব্যালেন্স"
+    override val partReceivables = "আদায়যোগ্য পাওনা"
+    override val partGold = "স্বর্ণ"
+    override val partSilver = "রুপা"
+    override val partStocks = "শেয়ার"
+    override val partTrade = "ব্যবসায়িক পণ্য"
+    override val enterGoldPrice = "নিসাব হিসাব করতে স্বর্ণের দাম লিখুন"
+    override val enterSilverPrice = "নিসাব হিসাব করতে রুপার দাম লিখুন"
+    override val nisabReached = "✓ আপনার সম্পদ নিসাব পূর্ণ করেছে — যাকাত ফরজ"
+    override val belowNisab = "নিসাবের কম — যাকাত ফরজ নয়"
+    override val enterAssets = "আপনার সম্পদের পরিমাণ লিখুন"
+    override val zakatDue = "প্রদেয় যাকাত"
+    override val totalAssets = "যাকাতযোগ্য মোট সম্পদ"
+    override val deductedDebts = "বাদ দেওয়া ঋণ"
+    override val netBase = "নিট যাকাতযোগ্য সম্পদ"
+    override val nisabValue = "নিসাবের মূল্য"
+    override val approxEquals = "আনুমানিক সমপরিমাণ"
+    override fun goldGrams24(g: String) = "$g গ্রাম 24 ক্যারেট স্বর্ণ"
+    override val shareResult = "ফলাফল শেয়ার করুন"
+    override fun zakatShareText(zakat: String, base: String) = "আমার প্রদেয় যাকাত: $zakat (যাকাতযোগ্য সম্পদ $base)"
+    override val settingsAndPrices = "সেটিংস ও দাম"
+    override val currency = "মুদ্রা"
+    override val nisabBasis = "নগদ অর্থের নিসাব"
+    override val nisabGold = "স্বর্ণ (85 গ্রাম)"
+    override val nisabSilver = "রুপা (595 গ্রাম)"
+    override val goldPrice24 = "1 গ্রাম 24 ক্যারেট স্বর্ণের দাম"
+    override val goldPriceHint = "জুয়েলারি দোকান বা আপনার দেশের নির্ভরযোগ্য দামের সাইট থেকে"
+    override val silverPrice = "1 গ্রাম রুপার দাম (ঐচ্ছিক)"
+    override val cashSection = "নগদ ও ব্যালেন্স"
+    override val cashInHand = "হাতে থাকা নগদ"
+    override val bankBalances = "ব্যাংক ও ওয়ালেটের ব্যালেন্স"
+    override val receivablesField = "আপনার পাওনা ঋণ, যা ফেরত পাওয়ার আশা আছে"
+    override val otherMoney = "অন্যান্য অর্থ"
+    override val goldSilverSection = "স্বর্ণ ও রুপা (গ্রামে)"
+    override fun goldKarat(k: Int) = "$k ক্যারেট স্বর্ণ"
+    override val pureSilver = "খাঁটি রুপা"
+    override val includeJewelry = "ব্যবহৃত অলংকারও হিসাবে ধরুন (হানাফি মত, এবং অধিক সতর্কতামূলক)"
+    override val jewelryField = "এর মধ্যে ব্যবহৃত অলংকার (21 ক্যারেট সমতুল্য)"
+    override val jewelryHint = "জমহুরের মতে ব্যক্তিগত ব্যবহারের অলংকারে যাকাত নেই, তাই এটি বাদ যায়"
+    override val investSection = "বিনিয়োগ ও ব্যবসা"
+    override val stocksTrade = "কেনাবেচার জন্য রাখা শেয়ার (বাজারমূল্য)"
+    override val stocksLong = "দীর্ঘমেয়াদি শেয়ার (যাকাতযোগ্য অংশ)"
+    override val tradeGoods = "ব্যবসায়িক পণ্য (মজুদের মূল্য)"
+    override val deductSection = "যা বাদ যাবে"
+    override val debtsField = "চলতি বছরে পরিশোধযোগ্য আপনার ঋণ"
+    override val debtsHint = "শুধু যাকাতবর্ষের মধ্যে দেয় কিস্তিগুলো"
+    override val breakdownTitle = "সম্পদের ধরন অনুযায়ী যাকাত"
+    override val zakatNote = "আপনার তথ্য শুধু আপনার ডিভাইসেই থাকে। আল্লাহ সূরা তাওবায় (9:60) যাকাতের আটটি খাত উল্লেখ করেছেন।"
+
+    // ---------- Zakat al-Fitr ----------
+    override val fitrTitle = "সদকাতুল ফিতর"
+    override val fitrSubtitle = "ঈদের নামাজের আগে আদায় করতে হয়"
+    override val foodAmountDue = "প্রদেয় খাদ্যের পরিমাণ"
+    override val totalCashValue = "মোট নগদ মূল্য"
+    override fun forPeople(n: Int) = "$n জনের জন্য"
+    override val peopleCount = "কতজনের পক্ষ থেকে দিচ্ছেন (নিজেসহ)"
+    override val modeFood = "খাদ্য (সা')"
+    override val modeMoney = "নগদ মূল্য"
+    override val foodType = "খাদ্যের ধরন"
+    override val foods = mapOf(
+        "rice" to "চাল", "riceSafe" to "চাল (অধিক সতর্কতা)", "wheat" to "গম",
+        "dates" to "খেজুর", "barley" to "যব", "other" to "অন্য পরিমাণ…",
+    )
+    override fun approxKg(kg: String) = "প্রায় $kg কেজি"
+    override val saWeight = "এক সা'-এর ওজন (কেজি)"
+    override val kgPrice = "প্রতি কেজির দাম (ঐচ্ছিক)"
+    override val kgPriceHint = "খাদ্য কেনার আনুমানিক খরচ জানতে"
+    override val saPerPerson = "জনপ্রতি এক সা'"
+    override val approxCost = "আনুমানিক খরচ"
+    override val valuePerPerson = "জনপ্রতি সদকাতুল ফিতরের মূল্য"
+    override val valuePerPersonHint = "প্রতি বছর আপনার দেশের সরকারি সংস্থা ঘোষণা করে"
+    override val valueNote = "মূল্য দিয়ে আদায় করা হানাফি মত; জমহুরের মতে খাদ্য দিতে হয়।"
+    override val fitrTimingNote = "কখন দেবেন: ঈদের নামাজের আগে। এক-দুই দিন আগেও দেওয়া যায়, তবে বিনা ওজরে নামাজের পরে দেরি করা যাবে না। এটি ফকির ও মিসকিনদের দেওয়া হয়।"
+
+    // ---------- Fidya & Kaffarah ----------
+    override val fidyaTitle = "ফিদিয়া ও কাফফারা"
+    override val fidyaSubtitle = "খাওয়ানোর পরিমাণ — কেজি ও মূল্যে"
+    override val tabFidya = "রোজার ফিদিয়া"
+    override val tabOath = "কসম"
+    override val tabIntercourse = "সহবাস"
+    override val fidyaResult = "ছুটে যাওয়া রোজার ফিদিয়া"
+    override fun fidyaSub(days: Int) = bn(days.toLong(), "দিনের") + " জন্য — প্রতিদিন একজন মিসকিন"
+    override val fidyaNote = "যিনি স্থায়ীভাবে রোজা রাখতে অক্ষম, যেমন বৃদ্ধ বা আরোগ্যের আশা নেই এমন রোগী। সব দিনের জন্য একজন মিসকিনকে বা একাধিক জনকে খাওয়ানো যায়।"
+    override val oathResult = "কসম ভঙ্গের কাফফারা"
+    override fun oathSub(oaths: Int) = if (oaths > 1) "${oaths}টি কাফফারা × 10 জন মিসকিন" else "10 জন মিসকিনকে খাওয়ানো"
+    override val oathAlternative = "অক্ষম হলে"
+    override fun fastDays(n: Int) = bn(n.toLong(), "দিন") + " রোজা"
+    override val oathNote = "দশজন মিসকিনকে খাওয়ানো, তাদের বস্ত্র দেওয়া অথবা একজন দাস মুক্ত করা — এর যেকোনো একটি; যে তা পারে না, সে তিন দিন রোজা রাখবে (সূরা মায়েদা 5:89)।"
+    override val intercourseResult = "রমজানের দিনে সহবাসের কাফফারা"
+    override val intercourseSub = "রোজা রাখতে অক্ষম হলে 60 জন মিসকিনকে খাওয়ানো"
+    override val ifStartToday = "আজ রোজা শুরু করলে শেষ হবে"
+    override val twoMonthsDuration = "দুই চান্দ্রমাসের মেয়াদ"
+    override val intercourseNote = "ক্রমানুসারে: একজন দাস মুক্ত করা; সম্ভব না হলে লাগাতার দুই মাস রোজা রাখা; তাতেও অক্ষম হলে ষাটজন মিসকিনকে খাওয়ানো — সাথে ওই দিনের কাজা ও তওবা।"
+    override val daysField = "দিনের সংখ্যা"
+    override val oathsField = "কাফফারার সংখ্যা"
+    override val feedMeasure = "প্রতি মিসকিনের খাদ্য"
+    override val muddOption = "এক মুদ — প্রায় 0.75 কেজি (মালেকি ও শাফেয়ি)"
+    override val halfSaOption = "অর্ধ সা' — প্রায় 1.5 কেজি (সমকালীন ফতোয়া)"
+    override val poorCount = "মিসকিন / বেলার সংখ্যা"
+    override val approxValue = "আনুমানিক মূল্য"
+
+    // ---------- Hijri converter ----------
+    override val hijriTitle = "হিজরি তারিখ"
+    override val hijriSubtitle = "উম্মুল কুরা ক্যালেন্ডার অনুযায়ী"
+    override val correspondingHijri = "সংশ্লিষ্ট হিজরি তারিখ"
+    override val correspondingGreg = "সংশ্লিষ্ট খ্রিস্টীয় তারিখ"
+    override val enterGregYear = "1882 থেকে 2174-এর মধ্যে একটি বছর লিখুন"
+    override val enterHijriYear = "1300 থেকে 1600-এর মধ্যে একটি হিজরি বছর লিখুন"
+    override val gregToHijri = "খ্রিস্টীয় → হিজরি"
+    override val hijriToGreg = "হিজরি → খ্রিস্টীয়"
+    override val todayDate = "আজকের তারিখ"
+    override val prevMonth = "আগের মাস"
+    override val nextMonth = "পরের মাস"
+    override val calendarHint = "বড় সংখ্যাটি হিজরি, ছোটটি খ্রিস্টীয়। রূপান্তর করতে যেকোনো দিনে চাপ দিন।"
+    override val moonNote = "চাঁদ দেখার ভিন্নতার কারণে কিছু দেশে তারিখ এক দিন আগে-পরে হতে পারে।"
+
+    // ---------- Age ----------
+    override val ageTitle = "বয়স ক্যালকুলেটর"
+    override val ageSubtitle = "হিজরি ও খ্রিস্টীয় বছরে"
+    override val ageGregorian = "আপনার বয়স (খ্রিস্টীয়)"
+    override fun ymd(y: Int, m: Int, d: Int) = "${bn(y.toLong(), "বছর")} ${bn(m.toLong(), "মাস")} ${bn(d.toLong(), "দিন")}"
+    override fun inHijri(age: String) = "হিজরি: $age"
+    override val birthGreg = "জন্মতারিখ (খ্রিস্টীয়)"
+    override val birthHijri = "জন্মতারিখ (হিজরি)"
+    override val birthWeekday = "জন্মের বার"
+    override val nextBirthday = "পরবর্তী জন্মদিন"
+    override val birthdayToday = "আজ 🎉"
+    override val tileDays = "দিন"
+    override val tileWeeks = "সপ্তাহ"
+    override val tileHours = "ঘণ্টা"
+    override val yourAge = "আপনার বয়স"
+    override val birthAfterToday = "জন্মতারিখটি আজকের পরে"
+    override val enterBirth = "আপনার জন্মতারিখ লিখুন"
+    override val birthDate = "জন্মতারিখ"
+    override val gregorian = "খ্রিস্টীয়"
+    override val hijri = "হিজরি"
+
+    // ---------- Islamic events ----------
+    override val eventsTitle = "ইসলামি দিবস"
+    override val eventsSubtitle = "উম্মুল কুরা ক্যালেন্ডার অনুযায়ী কাউন্টডাউন"
+    override val events = mapOf(
+        "ramadan" to Named("রমজান", "রোজা, রাতের নামাজ ও কুরআন তিলাওয়াতের মাস।"),
+        "lastTen" to Named("শেষ দশ রাত", "এর মধ্যেই রয়েছে লাইলাতুল কদর, যা হাজার মাসের চেয়ে উত্তম।"),
+        "eidFitr" to Named("ঈদুল ফিতর", "এর নামাজের আগে সদকাতুল ফিতর আদায় করা হয়।"),
+        "shawwal" to Named("শাওয়ালের ছয় রোজা", "যে রমজানের রোজা রাখল, অতঃপর শাওয়ালের ছয়টি রোজা রাখল, সে যেন সারা জীবন রোজা রাখল (মুসলিম)।"),
+        "dhulHijjah" to Named("জিলহজের প্রথম দশ দিন", "দুনিয়ার শ্রেষ্ঠ দিন; এ সময় নেক আমল ও তাকবির মুস্তাহাব।"),
+        "arafah" to Named("আরাফার দিন", "হজে না থাকা ব্যক্তির জন্য এ দিনের রোজা আগের ও পরের এক বছরের গুনাহের কাফফারা (মুসলিম)।"),
+        "eidAdha" to Named("ঈদুল আজহা", "কোরবানির দিন, এরপর আইয়ামে তাশরিকের তিন দিন।"),
+        "newYear" to Named("হিজরি নববর্ষ", "নতুন হিজরি বছরের সূচনা।"),
+        "ashura" to Named("আশুরার দিন", "এ দিনের রোজা আগের এক বছরের গুনাহের কাফফারা (মুসলিম); এর সাথে 9 তারিখের রোজা রাখাও মুস্তাহাব।"),
+    )
+    override val unitDays = "দিন"
+    override val unitHours = "ঘণ্টা"
+    override val unitMinutes = "মিনিট"
+    override val unitSeconds = "সেকেন্ড"
+    override val eventsNote = "তারিখগুলো আনুমানিক (উম্মুল কুরা); আপনার দেশে চাঁদ দেখার ওপর নির্ভর করে এক দিন আগে-পরে হতে পারে।"
+
+    // ---------- Inheritance ----------
+    override val inhTitle = "উত্তরাধিকার ক্যালকুলেটর"
+    override val inhSubtitle = "ফারায়েজের নিয়মে সম্পত্তি বণ্টন"
+    override val aslLabel = "মাসআলার মূল (আসল)"
+    override val awlCase = "আউলের মাসআলা (অংশ সম্পত্তির চেয়ে বেশি)"
+    override val raddCase = "রদের মাসআলা (অবশিষ্ট ফেরত)"
+    override val adilCase = "সুষম মাসআলা"
+    override fun tashihFrom(n: Long) = bn(n, "অংশে") + " সংশোধিত"
+    override val sharesTitle = "প্রত্যেক ওয়ারিশের অংশ"
+    override fun blockedBy(by: String) = "$by থাকায় বঞ্চিত"
+    override fun perPerson(v: String) = "জনপ্রতি $v"
+    override val shareDivision = "বণ্টন শেয়ার করুন"
+    override fun divisionShareText(list: String) = "সম্পত্তি বণ্টন: $list"
+    override val listSeparator = ", "
+    override val addHeirs = "নিচের তালিকা থেকে ওয়ারিশ যোগ করুন"
+    override val deceasedAndEstate = "মৃত ব্যক্তি ও সম্পত্তি"
+    override val deceasedMale = "মৃত ব্যক্তি পুরুষ"
+    override val deceasedFemale = "মৃত ব্যক্তি নারী"
+    override val estateTotal = "মোট সম্পত্তি"
+    override val funeralCosts = "কাফন-দাফনের খরচ"
+    override val deceasedDebts = "মৃত ব্যক্তির ঋণ"
+    override val bequest = "অসিয়ত (ওয়ারিশ নয় এমন কারও জন্য)"
+    override val bequestHint = "ঋণ পরিশোধের পর অবশিষ্টের এক-তৃতীয়াংশের বেশি নয়, যদি না ওয়ারিশরা সম্মত হন"
+    override val netEstate = "বণ্টনযোগ্য নিট সম্পত্তি"
+    override val bequestCapped = "(অসিয়ত এক-তৃতীয়াংশে সীমিত)"
+    override val newCase = "নতুন মাসআলা শুরু করুন"
+    override val inhDisclaimer = "ফলাফলটি জমহুরের মতের ভিত্তিতে একটি নির্দেশিকা মাত্র। এটি শরিয়া আদালত বা ফারায়েজ বিশেষজ্ঞ আলেমের বিকল্প নয়।"
+    override val heirs = mapOf(
+        "husband" to "স্বামী", "wife" to "স্ত্রী", "father" to "পিতা", "mother" to "মাতা",
+        "gf" to "দাদা", "gmm" to "নানি", "gmf" to "দাদি",
+        "son" to "পুত্র", "daughter" to "কন্যা", "gson" to "পুত্রের পুত্র", "gdau" to "পুত্রের কন্যা",
+        "fb" to "আপন ভাই", "fs" to "আপন বোন", "pb" to "বৈমাত্রেয় ভাই", "ps" to "বৈমাত্রেয় বোন",
+        "mb" to "বৈপিত্রেয় ভাই", "ms" to "বৈপিত্রেয় বোন", "fnep" to "আপন ভাইয়ের পুত্র", "pnep" to "বৈমাত্রেয় ভাইয়ের পুত্র",
+        "fun" to "আপন চাচা", "pun" to "বৈমাত্রেয় চাচা", "fcous" to "আপন চাচার পুত্র", "pcous" to "বৈমাত্রেয় চাচার পুত্র",
+    )
+    override val heirGroups = mapOf(
+        "spouses" to "স্বামী-স্ত্রী", "ascendants" to "পিতা-মাতা ও দাদা-দাদি/নানি", "descendants" to "সন্তান ও নাতি-নাতনি",
+        "siblings" to "ভাই-বোন", "distant" to "দূরবর্তী পুরুষ আত্মীয়",
+    )
+    override val blockers = mapOf(
+        "gf" to "দাদা",
+        "twoDaughters" to "দুই কন্যা (দুই-তৃতীয়াংশ পূর্ণ)",
+        "descendant" to "উত্তরাধিকারী সন্তান-সন্ততি",
+        "fbAfterMuadda" to "আপন ভাই (মুআদ্দার পর)",
+        "fsTookRest" to "অবশিষ্ট গ্রহণকারী আপন বোন",
+        "gfAndSiblings" to "দাদা ও ভাই-বোন",
+        "twoFullSisters" to "দুই আপন বোন",
+        "fsGhayr" to "আপন বোন (কন্যাদের সাথে আসাবা)",
+    )
+    override fun shareType(t: ShareType, radd: Boolean) = when (t) {
+        ShareType.FARD -> "নির্ধারিত অংশ"
+        ShareType.FARD_TASIB -> "নির্ধারিত অংশ + আসাবা"
+        ShareType.FARD_TAKMILA -> "নির্ধারিত অংশ (দুই-তৃতীয়াংশ পূরণ)"
+        ShareType.TASIB -> "আসাবা"
+        ShareType.TASIB_BIL_GHAYR -> "ভাইয়ের মাধ্যমে আসাবা"
+        ShareType.TASIB_MAA_GHAYR -> "কন্যাদের সাথে আসাবা"
+        ShareType.TASIB_MAA_JADD -> "দাদার সাথে আসাবা"
+        ShareType.FARD_THEN_MUQASAMA -> "নির্ধারিত অংশ, তারপর ভাগাভাগি"
+        ShareType.JADD_MUQASAMA -> "ভাই-বোনের সাথে: ভাগাভাগি"
+        ShareType.JADD_THIRD_ESTATE -> "ভাই-বোনের সাথে: সম্পত্তির এক-তৃতীয়াংশ"
+        ShareType.JADD_THIRD_REST -> "ভাই-বোনের সাথে: অবশিষ্টের এক-তৃতীয়াংশ"
+        ShareType.JADD_SIXTH -> "ভাই-বোনের সাথে: সম্পত্তির এক-ষষ্ঠাংশ"
+    } + if (radd) " + রদ" else ""
+    override fun inhNote(n: InhNote) = when (n) {
+        InhNote.MatSiblingsShare -> "বৈপিত্রেয় ভাই-বোনেরা নারী-পুরুষ নির্বিশেষে এক-তৃতীয়াংশে সমান অংশীদার।"
+        InhNote.Umariyya -> "এটি দুই উমারিয়্যা মাসআলার একটি: স্বামী বা স্ত্রীর অংশ দেওয়ার পর অবশিষ্টের এক-তৃতীয়াংশ মাতা পান।"
+        InhNote.GrandmothersShare -> "দাদি ও নানি এক-ষষ্ঠাংশে সমান অংশীদার।"
+        InhNote.FullSistersGhayr -> "আপন বোনেরা কন্যাদের সাথে আসাবা হয়ে যায়।"
+        InhNote.Akdariyya -> "এটি আকদারিয়্যা মাসআলা: বোনকে অর্ধেক ও দাদাকে এক-ষষ্ঠাংশ দেওয়া হয়, ফলে মাসআলা 9-এ আউল হয়; এরপর দুজনের অংশ একত্র করে পুরুষ দুই ভাগ ও নারী এক ভাগ হারে বণ্টন করা হয়, ফলে মাসআলা 27-এ দাঁড়ায়।"
+        is InhNote.JaddRule -> "ভাই-বোনদের সাথে দাদা তাঁর জন্য সবচেয়ে লাভজনকটি নেন: ভাগাভাগি, অথবা " +
+            (if (n.otherFard) "অবশিষ্টের এক-তৃতীয়াংশ, অথবা সম্পত্তির এক-ষষ্ঠাংশ" else "সম্পত্তির এক-তৃতীয়াংশ") +
+            " — এটি জমহুরের মত (মালেকি, শাফেয়ি, হাম্বলি)। ইমাম আবু হানিফা (রহ.)-এর মতে দাদা পিতার মতোই ভাই-বোনদের বঞ্চিত করেন।"
+        InhNote.Muadda -> "বৈমাত্রেয় ভাই-বোনদের দাদার বিপরীতে গণনা করা হয়েছে (মুআদ্দা), এরপর প্রয়োজন হলে তাদের অংশ আপন ভাই-বোনদের কাছে ফিরে যায়।"
+        is InhNote.NothingLeft -> "নির্ধারিত অংশগুলো দেওয়ার পর কিছুই অবশিষ্ট নেই, তাই আসাবা (${nameOf(n.winner)}) কিছুই পান না।"
+        InhNote.Mushtaraka -> "এটি মুশতারাকা (হিমারিয়্যা) মাসআলা: মালেকি ও শাফেয়িগণ আপন ভাই-বোনদের বৈপিত্রেয় ভাই-বোনদের সাথে এক-তৃতীয়াংশে শরিক করেন; এখানে ফলাফল হানাফি ও হাম্বলি মত অনুযায়ী।"
+        is InhNote.Awl -> "নির্ধারিত অংশগুলো মূলকে ছাড়িয়ে গেছে, তাই মাসআলা ${n.asl} থেকে ${n.awl}-এ বাড়ানো হয়েছে (আউল) এবং প্রত্যেকের অংশ আনুপাতিক হারে কমেছে।"
+        InhNote.Radd -> "কোনো আসাবা নেই, তাই অবশিষ্ট অংশ স্বামী-স্ত্রী ছাড়া বাকি অংশীদারদের মধ্যে তাদের অংশের অনুপাতে ফিরিয়ে দেওয়া হয় (রদ)।"
+        InhNote.SpouseOnlyRadd -> "একমাত্র ওয়ারিশ স্বামী বা স্ত্রী: অনেক সমকালীন আলেম ও কয়েকটি পারিবারিক আইনে অবশিষ্ট তাকেই ফিরিয়ে দেওয়া হয়; পূর্ববর্তী আলেমগণ তা যাবিল আরহামকে, এরপর বায়তুল মালকে দিতেন।"
+        InhNote.NoHeirs -> "কোনো যাবিল ফুরুজ বা আসাবা নেই; সম্পত্তি যাবিল আরহাম, এরপর বায়তুল মালে যাবে। উপযুক্ত আদালতের শরণাপন্ন হোন।"
+    }
+
+    // ---------- Settings ----------
+    override val settingsTitle = "সেটিংস"
+    override val appearance = "থিম"
+    override val themeAuto = "স্বয়ংক্রিয়"
+    override val themeLight = "লাইট"
+    override val themeDark = "ডার্ক"
+    override val language = "ভাষা"
+    override val deviceLanguage = "ডিভাইসের ভাষা"
+    override val use24h = "24-ঘণ্টার ঘড়ি"
+    override val use24hDesc = "সময় 24-ঘণ্টা ফরম্যাটে দেখান"
+    override val exactAlarm = "সঠিক সময়ে অ্যালার্ট"
+    override val exactAlarmDesc = "আজানের অ্যালার্ট ঠিক সময়ে পেতে নির্ভুল অ্যালার্মের অনুমতি দিন"
+    override val about = "অ্যাপ সম্পর্কে"
+    override val aboutName = "মিজান — মুসলিমের টুলস"
+    override fun version(v: String) = "সংস্করণ $v"
+    override val aboutText = "একটি বিনামূল্যের অ্যাপ, যাতে আছে একজন মুসলিমের প্রতিদিনের প্রয়োজনীয় টুলস: যাকাত, উত্তরাধিকার, নামাজের সময়, কিবলা, হিজরি তারিখ ও তাসবিহ। " +
+        "বিধানগুলো জমহুর ফকিহদের মত অনুসরণ করে, নামাজের সময় জ্যোতির্বিজ্ঞানের সূত্রে হিসাব করা হয়, আর তারিখ উম্মুল কুরা ক্যালেন্ডার অনুযায়ী।"
+    override val privacy = "গোপনীয়তা"
+    override val privacyText = "অ্যাপটি কোনো ব্যক্তিগত তথ্য সংগ্রহ করে না এবং ইন্টারনেট সংযোগও লাগে না। নামাজের সময় ও কিবলা হিসাবের জন্য আপনার অবস্থান শুধু আপনার ডিভাইসেই ব্যবহৃত হয়, " +
+        "আর আপনার সেটিংস ও সংখ্যাগুলো আপনার ডিভাইসেই থাকে।"
+    override val disclaimer = "ফলাফলগুলো নির্দেশিকা মাত্র। নিজের দ্বীনি বিষয়ে যোগ্য আলেম ও সরকারি সংস্থার শরণাপন্ন হোন।"
+}

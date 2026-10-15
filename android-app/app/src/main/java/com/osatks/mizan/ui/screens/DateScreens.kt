@@ -1,6 +1,16 @@
 package com.osatks.mizan.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -28,22 +39,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.HDate
 import com.osatks.mizan.core.Hijri
+import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.i18n.greg
+import com.osatks.mizan.i18n.hijri
+import com.osatks.mizan.i18n.weekday
+import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
 import com.osatks.mizan.ui.Picker
 import com.osatks.mizan.ui.ResultCard
+import com.osatks.mizan.ui.RollingText
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
 import com.osatks.mizan.ui.StatRow
 import com.osatks.mizan.ui.Tile
 import com.osatks.mizan.ui.ToolPage
+import com.osatks.mizan.ui.pressScale
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalDate
@@ -53,20 +74,22 @@ import java.time.temporal.ChronoUnit
 /** حقول اختيار تاريخ (يوم/شهر/سنة) لأي تقويم */
 @Composable
 private fun DateFields(hijri: Boolean, y: String, m: Int, d: Int, onY: (String) -> Unit, onM: (Int) -> Unit, onD: (Int) -> Unit) {
+    val s = LocalStrings.current
     val yi = y.toIntOrNull()
     val maxDay = if (hijri) (if (yi != null && yi in 1300..1600) Hijri.monthLength(yi, m) else 30)
     else (if (yi != null && yi in 1..9999) java.time.YearMonth.of(yi, m).lengthOfMonth() else 31)
     LaunchedEffect(maxDay) { if (d > maxDay) onD(maxDay) }
-    val months = if (hijri) Hijri.MONTHS else Hijri.GREG_MONTHS
+    val months = if (hijri) s.hijriMonths else s.gregMonths
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Picker("اليوم", (1..maxDay).toList(), d.coerceAtMost(maxDay), text = { "$it" }, onSelect = onD, modifier = Modifier.weight(0.8f))
-        Picker("الشهر", (1..12).toList(), m, text = { months[it - 1] }, onSelect = onM, modifier = Modifier.weight(1.4f))
+        Picker(s.dayLabel, (1..maxDay).toList(), d.coerceAtMost(maxDay), text = { "$it" }, onSelect = onD, modifier = Modifier.weight(0.8f))
+        Picker(s.monthLabel, (1..12).toList(), m, text = { months[it - 1] }, onSelect = onM, modifier = Modifier.weight(1.4f))
     }
-    NumField("السنة", y, onY, if (hijri) "هـ" else "م")
+    NumField(s.yearLabel, y, onY, if (hijri) s.hijriYearSuffix else s.gregYearSuffix)
 }
 
 @Composable
 fun HijriScreen(onBack: () -> Unit) {
+    val s = LocalStrings.current
     val today = LocalDate.now()
     val th = Hijri.toHijri(today) ?: HDate(1448, 1, 1)
     var dir by remember { mutableStateOf("g2h") }
@@ -76,57 +99,71 @@ fun HijriScreen(onBack: () -> Unit) {
     var hy by remember { mutableStateOf(th.y.toString()) }
     var hm by remember { mutableIntStateOf(th.m) }
     var hd by remember { mutableIntStateOf(th.d) }
-    var calY by remember { mutableIntStateOf(th.y) }
-    var calM by remember { mutableIntStateOf(th.m) }
+    var cal by remember { mutableStateOf(th.y * 12 + (th.m - 1)) }
 
     val (main, sub) = if (dir == "g2h") {
         val y = gy.toIntOrNull()
         val g = if (y != null && y in 1882..2174) runCatching { LocalDate.of(y, gm, gd.coerceAtMost(java.time.YearMonth.of(y, gm).lengthOfMonth())) }.getOrNull() else null
         val h = g?.let { Hijri.toHijri(it) }
-        if (g != null && h != null) Hijri.hijriStr(h) to "${Hijri.weekday(g)} — ${Hijri.gregStr(g)}" else "—" to "أدخل سنة بين 1882 و2174"
+        if (g != null && h != null) s.hijri(h) to "${s.weekday(g)} — ${s.greg(g)}" else "—" to s.enterGregYear
     } else {
         val y = hy.toIntOrNull()
         val g = if (y != null) Hijri.toGregorian(y, hm, hd) else null
-        if (g != null && y != null) Hijri.gregStr(g) to "${Hijri.weekday(g)} — ${Hijri.hijriStr(HDate(y, hm, hd))}" else "—" to "أدخل سنة هجرية بين 1300 و1600"
+        if (g != null && y != null) s.greg(g) to "${s.weekday(g)} — ${s.hijri(HDate(y, hm, hd))}" else "—" to s.enterHijriYear
     }
 
-    ToolPage("التاريخ الهجري", "وفق تقويم أم القرى", onBack) {
-        item { ResultCard(if (dir == "g2h") "التاريخ الهجري الموافق" else "التاريخ الميلادي الموافق", main, sub) }
+    ToolPage(s.hijriTitle, s.hijriSubtitle, onBack, sharedKey = "hijri", icon = TOOL_ICONS["hijri"]) {
+        item { ResultCard(if (dir == "g2h") s.correspondingHijri else s.correspondingGreg, main, sub) }
         item {
             SectionCard {
-                Segmented(listOf("g2h" to "ميلادي ← هجري", "h2g" to "هجري ← ميلادي"), dir) { dir = it }
+                Segmented(listOf("g2h" to s.gregToHijri, "h2g" to s.hijriToGreg), dir) { dir = it }
                 if (dir == "g2h") DateFields(false, gy, gm, gd, { gy = it }, { gm = it }, { gd = it })
                 else DateFields(true, hy, hm, hd, { hy = it }, { hm = it }, { hd = it })
                 TextButton(onClick = {
                     gy = today.year.toString(); gm = today.monthValue; gd = today.dayOfMonth
                     hy = th.y.toString(); hm = th.m; hd = th.d
-                }) { Text("تاريخ اليوم") }
+                }) { Text(s.todayDate) }
             }
         }
         item {
             SectionCard {
+                val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { if (calM == 1) { calM = 12; calY-- } else calM-- }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "الشهر السابق") }
-                    Text("${Hijri.MONTHS[calM - 1]} $calY هـ", Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium)
-                    IconButton(onClick = { if (calM == 12) { calM = 1; calY++ } else calM++ }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "الشهر التالي") }
+                    IconButton(onClick = { cal-- }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, s.prevMonth) }
+                    RollingText(s.hijriMonthTitle(cal % 12 + 1, cal / 12), MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                    IconButton(onClick = { cal++ }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, s.nextMonth) }
                 }
-                HijriMonthGrid(calY, calM, today) { day -> dir = "h2g"; hy = calY.toString(); hm = calM; hd = day }
-                Text("الرقم الكبير هجري والصغير ميلادي. اضغط أي يوم لتحويله.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                AnimatedContent(
+                    targetState = cal,
+                    transitionSpec = {
+                        val sign = (if (targetState > initialState) 1 else -1) * (if (rtl) -1 else 1)
+                        (slideInHorizontally(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { w -> sign * w / 2 } + fadeIn(tween(Motion.MEDIUM))) togetherWith
+                            (slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { w -> -sign * w / 2 } + fadeOut(tween(Motion.SHORT))) using
+                            SizeTransform(clip = true)
+                    },
+                    label = "month"
+                ) { c ->
+                    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        HijriMonthGrid(c / 12, c % 12 + 1, today) { day -> dir = "h2g"; hy = (c / 12).toString(); hm = c % 12 + 1; hd = day }
+                    }
+                }
+                Text(s.calendarHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        item { Note("قد يختلف التاريخ يوماً واحداً عن بعض الدول بسبب اختلاف رؤية الهلال.") }
+        item { Note(s.moonNote) }
     }
 }
 
 @Composable
 private fun HijriMonthGrid(y: Int, m: Int, today: LocalDate, onPick: (Int) -> Unit) {
+    val s = LocalStrings.current
     val first = Hijri.toGregorian(y, m, 1) ?: return
     val len = Hijri.monthLength(y, m)
-    // عمود البداية: السبت أول الأسبوع؟ نستخدم الأحد أولاً كما في التقاويم العربية
+    // الأسبوع يبدأ بالأحد كما في التقاويم العربية
     val lead = first.dayOfWeek.value % 7 // الأحد = 0
     Row(Modifier.fillMaxWidth()) {
-        listOf("أحد", "اثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت").forEach {
-            Text(it, Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        listOf(6, 0, 1, 2, 3, 4, 5).forEach {
+            Text(s.weekdaysShort[it], Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
         }
     }
     val cells = List(lead) { 0 } + (1..len).toList()
@@ -138,10 +175,12 @@ private fun HijriMonthGrid(y: Int, m: Int, today: LocalDate, onPick: (Int) -> Un
                     if (day > 0) {
                         val g = first.plusDays((day - 1).toLong())
                         val isToday = g == today
+                        val src = remember { MutableInteractionSource() }
                         Surface(
                             onClick = { onPick(day) }, shape = RoundedCornerShape(10.dp),
                             color = if (isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f),
-                            modifier = Modifier.fillMaxWidth().aspectRatio(0.85f)
+                            interactionSource = src,
+                            modifier = Modifier.fillMaxWidth().aspectRatio(0.85f).pressScale(src, 0.85f)
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                                 Text("$day", fontWeight = FontWeight.Bold, fontSize = 15.sp,
@@ -159,6 +198,7 @@ private fun HijriMonthGrid(y: Int, m: Int, today: LocalDate, onPick: (Int) -> Un
 
 @Composable
 fun AgeScreen(onBack: () -> Unit) {
+    val s = LocalStrings.current
     var hijri by remember { mutableStateOf(false) }
     var y by remember { mutableStateOf("") }
     var m by remember { mutableIntStateOf(1) }
@@ -170,7 +210,7 @@ fun AgeScreen(onBack: () -> Unit) {
         else if (yi in 1800..2200) runCatching { LocalDate.of(yi, m, d.coerceAtMost(java.time.YearMonth.of(yi, m).lengthOfMonth())) }.getOrNull() else null
     }
 
-    ToolPage("حاسبة العمر", "بالتقويمين الهجري والميلادي", onBack) {
+    ToolPage(s.ageTitle, s.ageSubtitle, onBack, sharedKey = "age", icon = TOOL_ICONS["age"]) {
         if (birth != null && !birth.isAfter(today)) {
             val g = java.time.Period.between(birth, today)
             val hb = Hijri.toHijri(birth); val ht = Hijri.toHijri(today)
@@ -178,30 +218,30 @@ fun AgeScreen(onBack: () -> Unit) {
                 var yy = ht.y - hb.y; var mm = ht.m - hb.m; var dd = ht.d - hb.d
                 if (dd < 0) { mm--; val pm = if (ht.m == 1) 12 else ht.m - 1; val py = if (ht.m == 1) ht.y - 1 else ht.y; dd += Hijri.monthLength(py, pm) }
                 if (mm < 0) { yy--; mm += 12 }
-                "$yy سنة $mm شهر $dd يوم"
+                s.ymd(yy, mm, dd)
             } else "—"
             val days = ChronoUnit.DAYS.between(birth, today)
             var nextB = birth.withYear(today.year)
             if (nextB.isBefore(today)) nextB = nextB.plusYears(1)
-            item { ResultCard("عمرك بالميلادي", "${g.years} سنة ${g.months} شهر ${g.days} يوم", "بالهجري: $hAge") }
+            item { ResultCard(s.ageGregorian, s.ymd(g.years, g.months, g.days), s.inHijri(hAge)) }
             item {
                 SectionCard {
-                    StatRow("تاريخ الميلاد ميلادياً", Hijri.gregStr(birth))
-                    StatRow("تاريخ الميلاد هجرياً", Hijri.hijriStr(hb))
-                    StatRow("يوم الميلاد", Hijri.weekday(birth))
+                    StatRow(s.birthGreg, s.greg(birth))
+                    StatRow(s.birthHijri, s.hijri(hb))
+                    StatRow(s.birthWeekday, s.weekday(birth))
                     val left = ChronoUnit.DAYS.between(today, nextB)
-                    StatRow("عيد ميلادك القادم", if (left == 0L) "اليوم 🎉" else "بعد $left يوماً")
+                    StatRow(s.nextBirthday, if (left == 0L) s.birthdayToday else s.inDays(left))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Tile(Fmt.int(days), "يوماً")
-                        Tile(Fmt.int(days / 7), "أسبوعاً")
-                        Tile(Fmt.int(days * 24), "ساعة")
+                        Tile(Fmt.int(days), s.tileDays)
+                        Tile(Fmt.int(days / 7), s.tileWeeks)
+                        Tile(Fmt.int(days * 24), s.tileHours)
                     }
                 }
             }
-        } else item { ResultCard("عمرك", "—", if (birth != null) "تاريخ الميلاد بعد اليوم" else "أدخل تاريخ ميلادك") }
+        } else item { ResultCard(s.yourAge, "—", if (birth != null) s.birthAfterToday else s.enterBirth) }
         item {
-            SectionCard("تاريخ الميلاد") {
-                Segmented(listOf("g" to "ميلادي", "h" to "هجري"), if (hijri) "h" else "g") {
+            SectionCard(s.birthDate) {
+                Segmented(listOf("g" to s.gregorian, "h" to s.hijri), if (hijri) "h" else "g") {
                     val newHijri = it == "h"
                     if (newHijri != hijri && birth != null) {
                         if (newHijri) Hijri.toHijri(birth)?.let { h -> y = h.y.toString(); m = h.m; d = h.d }
@@ -215,22 +255,23 @@ fun AgeScreen(onBack: () -> Unit) {
     }
 }
 
-private data class IslamicEvent(val m: Int, val d: Int, val name: String, val desc: String)
+private data class IslamicEvent(val m: Int, val d: Int, val key: String, val emoji: String)
 
 private val EVENTS = listOf(
-    IslamicEvent(9, 1, "🌙 شهر رمضان", "شهر الصيام والقيام وتلاوة القرآن."),
-    IslamicEvent(9, 21, "✨ العشر الأواخر", "فيها ليلة القدر خير من ألف شهر."),
-    IslamicEvent(10, 1, "🎉 عيد الفطر", "تُخرج زكاة الفطر قبل صلاته."),
-    IslamicEvent(10, 2, "📿 ست من شوال", "من صام رمضان ثم أتبعه ستاً من شوال كان كصيام الدهر (رواه مسلم)."),
-    IslamicEvent(12, 1, "🕋 عشر ذي الحجة", "أفضل أيام الدنيا، يُستحب فيها العمل الصالح والتكبير."),
-    IslamicEvent(12, 9, "🤲 يوم عرفة", "صيامه يكفّر السنة الماضية والباقية لغير الحاج (رواه مسلم)."),
-    IslamicEvent(12, 10, "🐑 عيد الأضحى", "يوم النحر، تليه أيام التشريق الثلاثة."),
-    IslamicEvent(1, 1, "📅 رأس السنة الهجرية", "بداية عام هجري جديد."),
-    IslamicEvent(1, 10, "🌊 يوم عاشوراء", "صيامه يكفّر السنة الماضية (رواه مسلم)، ويُستحب صيام التاسع معه."),
+    IslamicEvent(9, 1, "ramadan", "🌙"),
+    IslamicEvent(9, 21, "lastTen", "✨"),
+    IslamicEvent(10, 1, "eidFitr", "🎉"),
+    IslamicEvent(10, 2, "shawwal", "📿"),
+    IslamicEvent(12, 1, "dhulHijjah", "🕋"),
+    IslamicEvent(12, 9, "arafah", "🤲"),
+    IslamicEvent(12, 10, "eidAdha", "🐑"),
+    IslamicEvent(1, 1, "newYear", "📅"),
+    IslamicEvent(1, 10, "ashura", "🌊"),
 )
 
 @Composable
 fun EventsScreen(onBack: () -> Unit) {
+    val s = LocalStrings.current
     var now by remember { mutableStateOf(LocalDateTime.now()) }
     LaunchedEffect(Unit) { while (true) { now = LocalDateTime.now(); delay(1000) } }
     val today = now.toLocalDate()
@@ -241,38 +282,64 @@ fun EventsScreen(onBack: () -> Unit) {
             listOf(th.y, th.y + 1, th.y + 2).firstNotNullOfOrNull { y -> Hijri.toGregorian(y, e.m, e.d)?.takeIf { !it.isBefore(today) }?.let { Triple(e, it, y) } }
         }.sortedBy { it.second }
     }
-    var sel by remember { mutableIntStateOf(0) }
+    var sel by remember {
+        val wanted = Pending.event
+        Pending.event = null
+        mutableIntStateOf(upcoming.indexOfFirst { it.first.key == wanted }.coerceAtLeast(0))
+    }
 
-    ToolPage("المناسبات الإسلامية", "عد تنازلي وفق تقويم أم القرى", onBack) {
+    ToolPage(s.eventsTitle, s.eventsSubtitle, onBack, sharedKey = "events", icon = TOOL_ICONS["events"]) {
         if (upcoming.isNotEmpty()) {
             val (e, date, y) = upcoming[sel.coerceIn(upcoming.indices)]
             val left = Duration.between(now, date.atStartOfDay()).let { if (it.isNegative) Duration.ZERO else it }
+            val text = s.events.getValue(e.key)
             item {
-                ResultCard(e.name, "${left.toDays()} يوم  ${left.toHours() % 24} س  ${left.toMinutes() % 60} د  ${left.seconds % 60} ث",
-                    "${e.d} ${Hijri.MONTHS[e.m - 1]} $y هـ — ${Hijri.gregStr(date)}") {
-                    Text(e.desc, color = androidx.compose.ui.graphics.Color.White.copy(alpha = .9f), textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium)
+                ResultCard("${e.emoji} ${text.name}", s.hijriDate(e.d, e.m, y), s.greg(date)) {
+                    Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CountTile(left.toDays(), s.unitDays)
+                        CountTile(left.toHours() % 24, s.unitHours)
+                        CountTile(left.toMinutes() % 60, s.unitMinutes)
+                        CountTile(left.seconds % 60, s.unitSeconds)
+                    }
+                    Text(text.desc, color = Color.White.copy(alpha = .9f), textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             upcoming.forEachIndexed { i, (ev, date2, _) ->
                 item {
                     val days = ChronoUnit.DAYS.between(today, date2)
+                    val on = i == sel
+                    val bg by animateColorAsState(if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, tween(Motion.MEDIUM), label = "ev")
+                    val border by animateColorAsState(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, tween(Motion.MEDIUM), label = "evB")
+                    val src = remember { MutableInteractionSource() }
                     Surface(
-                        onClick = { sel = i }, shape = RoundedCornerShape(16.dp),
-                        color = if (i == sel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                        border = BorderStroke(1.dp, if (i == sel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
+                        onClick = { sel = i }, shape = RoundedCornerShape(16.dp), color = bg,
+                        border = BorderStroke(1.dp, border), interactionSource = src, modifier = Modifier.pressScale(src, 0.97f)
                     ) {
                         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(ev.emoji, fontSize = 22.sp)
+                            Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(ev.name, fontWeight = FontWeight.Bold)
-                                Text("${Hijri.weekday(date2)} ${Hijri.gregStr(date2)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(s.events[ev.key]?.name ?: ev.key, fontWeight = FontWeight.Bold)
+                                Text("${s.weekday(date2)} ${s.greg(date2)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            Spacer(Modifier.padding(4.dp))
-                            Text(when (days) { 0L -> "اليوم"; 1L -> "غداً"; else -> "بعد $days يوماً" }, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.ExtraBold)
+                            Spacer(Modifier.width(8.dp))
+                            Text(when (days) { 0L -> s.today; 1L -> s.tomorrow; else -> s.inDays(days) }, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.ExtraBold)
                         }
                     }
                 }
             }
         }
-        item { Note("التواريخ تقريبية وفق أم القرى، وقد تختلف يوماً بحسب رؤية الهلال في بلدك.") }
+        item { Note(s.eventsNote) }
+    }
+}
+
+/** خانة عدّ تنازلي بيضاء على خلفية النتيجة */
+@Composable
+private fun androidx.compose.foundation.layout.RowScope.CountTile(v: Long, label: String) {
+    Surface(Modifier.weight(1f), shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = .12f)) {
+        Column(Modifier.padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            RollingText(Fmt.two(v), MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold), Color.White)
+            Text(label, color = Color.White.copy(alpha = .8f), style = MaterialTheme.typography.labelMedium, maxLines = 1)
+        }
     }
 }
