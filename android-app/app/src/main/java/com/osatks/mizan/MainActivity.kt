@@ -41,6 +41,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.osatks.mizan.quran.QuranData
+import com.osatks.mizan.ui.quran.QuranScreen
+import com.osatks.mizan.ui.quran.SURAH_ROUTE
+import com.osatks.mizan.ui.quran.SurahScreen
+import com.osatks.mizan.ui.quran.surahRoute
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.i18n.Lang
@@ -72,6 +79,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppSettings.init(this)
+        QuranData.init(this)
         Motion.reduced = !ValueAnimator.areAnimatorsEnabled()
         // للقطات الشاشة والاختبار: --es lang en
         intent?.getStringExtra("lang")?.let { if (it == Lang.SYSTEM || Lang.of(it) != null) LocaleSync.choose(this, it) }
@@ -92,7 +100,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search")
+private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -100,7 +108,7 @@ private val TAB_ROUTES = TABS.map { it.route }.toSet()
 fun MizanApp(startRoute: String? = null) {
     val nav = rememberNavController()
     LaunchedEffect(startRoute) {
-        if (startRoute != null && startRoute != "home" && startRoute in ROUTES) nav.navigate(startRoute)
+        if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) nav.navigate(startRoute)
     }
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route
@@ -123,7 +131,27 @@ fun MizanApp(startRoute: String? = null) {
                     }
                     screen("home") { HomeScreen(open = { nav.navigate(it) }) }
                     screen("prayer") { PrayerScreen() }
-                    screen("qibla") { QiblaScreen() }
+                    screen("qibla") { QiblaScreen(back) }
+                    screen("quran") { QuranScreen(open = { nav.navigate(it) }) }
+                    composable(
+                        SURAH_ROUTE,
+                        arguments = listOf(
+                            navArgument("surah") { type = NavType.IntType },
+                            navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
+                            navArgument("from") { type = NavType.StringType; defaultValue = "row" },
+                        )
+                    ) { e ->
+                        val args = e.arguments
+                        CompositionLocalProvider(LocalNavScope provides this) {
+                            SurahScreen(
+                                surah = (args?.getInt("surah") ?: 1).coerceIn(1, 114),
+                                startAyah = args?.getInt("ayah") ?: 0,
+                                from = args?.getString("from") ?: "row",
+                                onBack = back,
+                                openSurah = { n -> nav.navigate(surahRoute(n, 0, "nav")) { popUpTo(SURAH_ROUTE) { inclusive = true } } }
+                            )
+                        }
+                    }
                     screen("tasbih") { TasbihScreen() }
                     screen("settings") { SettingsScreen() }
                     screen("zakat") { ZakatScreen(back) }

@@ -468,6 +468,65 @@ object Tr : Strings {
         InhNote.NoHeirs -> "Farz sahibi veya asabe mirasçı yoktur; terike zevi'l-erhâma, sonra beytülmâle geçer. Yetkili mahkemeye başvurun."
     }
 
+    // ---------- Quran ----------
+    override val tabQuran = "Kur'an"
+    override val quranTitle = "Kur'an-ı Kerim"
+    override val quranSubtitle = "Tefsirini okumak için bir ayete dokunun"
+    override val surahsTab = "Sureler"
+    override val juzTab = "Cüzler"
+    override val bookmarksTab = "Kaydedilenler"
+    override val continueReading = "Okumaya devam et"
+    override val startReading = "Okumaya başla"
+    override val meccan = "Mekkî"
+    override val medinan = "Medenî"
+    override fun ayahCount(n: Int) = tr(n.toLong(), "ayet")
+    override fun juzName(n: Int) = "$n. Cüz"
+    override fun pageName(n: Int) = "Sayfa $n"
+    override fun surahAyah(surah: String, ayah: Int) = "$surah · $ayah. Ayet"
+    override val surahNames = listOf(
+        "Fâtiha", "Bakara", "Âl-i İmrân", "Nisâ", "Mâide", "En'âm",
+        "A'râf", "Enfâl", "Tevbe", "Yûnus", "Hûd", "Yûsuf",
+        "Ra'd", "İbrâhim", "Hicr", "Nahl", "İsrâ", "Kehf",
+        "Meryem", "Tâhâ", "Enbiyâ", "Hac", "Mü'minûn", "Nûr",
+        "Furkân", "Şuarâ", "Neml", "Kasas", "Ankebût", "Rûm",
+        "Lokmân", "Secde", "Ahzâb", "Sebe'", "Fâtır", "Yâsîn",
+        "Sâffât", "Sâd", "Zümer", "Mü'min", "Fussilet", "Şûrâ",
+        "Zuhruf", "Duhân", "Câsiye", "Ahkâf", "Muhammed", "Fetih",
+        "Hucurât", "Kâf", "Zâriyât", "Tûr", "Necm", "Kamer",
+        "Rahmân", "Vâkıa", "Hadîd", "Mücâdele", "Haşr", "Mümtehine",
+        "Saf", "Cuma", "Münâfikûn", "Teğâbün", "Talâk", "Tahrîm",
+        "Mülk", "Kalem", "Hâkka", "Meâric", "Nûh", "Cin",
+        "Müzzemmil", "Müddessir", "Kıyâme", "İnsân", "Mürselât", "Nebe'",
+        "Nâziât", "Abese", "Tekvîr", "İnfitâr", "Mutaffifîn", "İnşikâk",
+        "Bürûc", "Târık", "A'lâ", "Gâşiye", "Fecr", "Beled",
+        "Şems", "Leyl", "Duhâ", "İnşirâh", "Tîn", "Alak",
+        "Kadr", "Beyyine", "Zilzâl", "Âdiyât", "Kâria", "Tekâsür",
+        "Asr", "Hümeze", "Fîl", "Kureyş", "Mâûn", "Kevser",
+        "Kâfirûn", "Nasr", "Tebbet", "İhlâs", "Felak", "Nâs",
+    )
+    override val searchQuranHint = "Sure veya ayetlerde kelime ara…"
+    override val searchQuranGroup = "Sureler"
+    override val searchAyahsGroup = "Ayetler"
+    override val mushafView = "Mushaf görünümü"
+    override val ayahView = "Ayet ayet"
+    override val textLarger = "Yazıyı büyüt"
+    override val textSmaller = "Yazıyı küçült"
+    override val tafsirTitle = "Tefsir"
+    override val tafsirMuyassar = "Müyesser Tefsiri"
+    override val tafsirJalalayn = "Celâleyn Tefsiri"
+    override val translationOfMeanings = "Meal"
+    override val bookmarkAyah = "Ayeti kaydet"
+    override val removeBookmark = "Kaydedilenlerden çıkar"
+    override val copy = "Kopyala"
+    override val copied = "Kopyalandı ✓"
+    override val prevAyah = "Önceki ayet"
+    override val nextAyah = "Sonraki ayet"
+    override val prevSurah = "Önceki sure"
+    override val nextSurah = "Sonraki sure"
+    override val noBookmarks = "Henüz kaydedilmiş ayet yok. Kaydetmek için bir ayeti açıp yer imi simgesine dokunun."
+    override val quranLoading = "Mushaf açılıyor…"
+    override val quranSources = "Kur'an metni (resm-i Osmânî) Tanzil Projesi'nden (tanzil.net); Müyesser Tefsiri (Kral Fahd Kompleksi), Celâleyn Tefsiri ve mealler ise tanzil.net/trans adresinden alınmıştır. Mushaf yazı tipi: Amiri Quran, SIL Open Font License."
+
     // ---------- Settings ----------
     override val settingsTitle = "Ayarlar"
     override val appearance = "Görünüm"

@@ -468,6 +468,65 @@ object Id : Strings {
         InhNote.NoHeirs -> "Tidak ada ashabul furud maupun 'asabah; harta diberikan kepada zawil arham, lalu baitulmal. Rujuklah ke pengadilan yang berwenang."
     }
 
+    // ---------- Quran ----------
+    override val tabQuran = "Al-Qur'an"
+    override val quranTitle = "Al-Qur'an Al-Karim"
+    override val quranSubtitle = "Ketuk ayat mana pun untuk membaca tafsirnya"
+    override val surahsTab = "Surah"
+    override val juzTab = "Juz"
+    override val bookmarksTab = "Tersimpan"
+    override val continueReading = "Lanjutkan membaca"
+    override val startReading = "Mulai membaca"
+    override val meccan = "Makkiyah"
+    override val medinan = "Madaniyah"
+    override fun ayahCount(n: Int) = idN(n.toLong(), "ayat")
+    override fun juzName(n: Int) = "Juz $n"
+    override fun pageName(n: Int) = "Halaman $n"
+    override fun surahAyah(surah: String, ayah: Int) = "$surah · Ayat $ayah"
+    override val surahNames = listOf(
+        "Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa'", "Al-Ma'idah", "Al-An'am",
+        "Al-A'raf", "Al-Anfal", "At-Taubah", "Yunus", "Hud", "Yusuf",
+        "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra'", "Al-Kahf",
+        "Maryam", "Taha", "Al-Anbiya'", "Al-Hajj", "Al-Mu'minun", "An-Nur",
+        "Al-Furqan", "Asy-Syu'ara'", "An-Naml", "Al-Qasas", "Al-'Ankabut", "Ar-Rum",
+        "Luqman", "As-Sajdah", "Al-Ahzab", "Saba'", "Fatir", "Yasin",
+        "As-Saffat", "Sad", "Az-Zumar", "Gafir", "Fussilat", "Asy-Syura",
+        "Az-Zukhruf", "Ad-Dukhan", "Al-Jasiyah", "Al-Ahqaf", "Muhammad", "Al-Fath",
+        "Al-Hujurat", "Qaf", "Az-Zariyat", "At-Tur", "An-Najm", "Al-Qamar",
+        "Ar-Rahman", "Al-Waqi'ah", "Al-Hadid", "Al-Mujadilah", "Al-Hasyr", "Al-Mumtahanah",
+        "As-Saff", "Al-Jumu'ah", "Al-Munafiqun", "At-Tagabun", "At-Talaq", "At-Tahrim",
+        "Al-Mulk", "Al-Qalam", "Al-Haqqah", "Al-Ma'arij", "Nuh", "Al-Jinn",
+        "Al-Muzzammil", "Al-Muddassir", "Al-Qiyamah", "Al-Insan", "Al-Mursalat", "An-Naba'",
+        "An-Nazi'at", "'Abasa", "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Insyiqaq",
+        "Al-Buruj", "At-Tariq", "Al-A'la", "Al-Gasyiyah", "Al-Fajr", "Al-Balad",
+        "Asy-Syams", "Al-Lail", "Ad-Duha", "Asy-Syarh", "At-Tin", "Al-'Alaq",
+        "Al-Qadr", "Al-Bayyinah", "Az-Zalzalah", "Al-'Adiyat", "Al-Qari'ah", "At-Takasur",
+        "Al-'Asr", "Al-Humazah", "Al-Fil", "Quraisy", "Al-Ma'un", "Al-Kausar",
+        "Al-Kafirun", "An-Nasr", "Al-Lahab", "Al-Ikhlas", "Al-Falaq", "An-Nas",
+    )
+    override val searchQuranHint = "Cari surah atau kata dalam ayat…"
+    override val searchQuranGroup = "Surah"
+    override val searchAyahsGroup = "Ayat"
+    override val mushafView = "Tampilan mushaf"
+    override val ayahView = "Ayat per ayat"
+    override val textLarger = "Perbesar teks"
+    override val textSmaller = "Perkecil teks"
+    override val tafsirTitle = "Tafsir"
+    override val tafsirMuyassar = "Tafsir Al-Muyassar"
+    override val tafsirJalalayn = "Tafsir Jalalain"
+    override val translationOfMeanings = "Terjemahan makna"
+    override val bookmarkAyah = "Simpan ayat"
+    override val removeBookmark = "Hapus dari Tersimpan"
+    override val copy = "Salin"
+    override val copied = "Disalin ✓"
+    override val prevAyah = "Ayat sebelumnya"
+    override val nextAyah = "Ayat berikutnya"
+    override val prevSurah = "Surah sebelumnya"
+    override val nextSurah = "Surah berikutnya"
+    override val noBookmarks = "Belum ada ayat tersimpan. Buka sebuah ayat, lalu ketuk ikon penanda untuk menyimpannya."
+    override val quranLoading = "Membuka mushaf…"
+    override val quranSources = "Teks Al-Qur'an (rasm Utsmani) dari Proyek Tanzil (tanzil.net). Tafsir Al-Muyassar (Kompleks Raja Fahd), Tafsir Jalalain, dan terjemahan makna dari tanzil.net/trans. Fon Al-Qur'an: Amiri Quran, berlisensi SIL Open Font License."
+
     // ---------- Settings ----------
     override val settingsTitle = "Setelan"
     override val appearance = "Tampilan"

@@ -353,6 +353,51 @@ interface Strings {
     /** display name of a blocker / winning heir key */
     fun nameOf(key: String): String = blockers[key] ?: heirs[key] ?: key
 
+    // ---------- Quran ----------
+    val tabQuran: String                // short tab label: "Quran"
+    val quranTitle: String              // "The Holy Quran"
+    val quranSubtitle: String           // "Tap any ayah to read its tafsir"
+    val surahsTab: String               // "Surahs"
+    val juzTab: String                  // "Juz"
+    val bookmarksTab: String            // "Saved"
+    val continueReading: String         // "Continue reading"
+    val startReading: String            // "Start reading"
+    val meccan: String                  // "Meccan"
+    val medinan: String                 // "Medinan"
+    /** number of ayahs, with plural: "7 ayahs", "1 ayah" */
+    fun ayahCount(n: Int): String
+    /** "Juz 30" */
+    fun juzName(n: Int): String
+    /** page of the Madinah Mushaf: "Page 604" */
+    fun pageName(n: Int): String
+    /** one ayah: "Al-Baqarah · Ayah 255" */
+    fun surahAyah(surah: String, ayah: Int): String
+    /** the 114 surah names in this language, in order (Al-Fatihah … An-Nas) */
+    val surahNames: List<String>
+    val searchQuranHint: String         // "Search a surah, or words in the ayahs…"
+    val searchQuranGroup: String        // search result group: "Surahs"
+    val searchAyahsGroup: String        // search result group: "Ayahs"
+    val mushafView: String              // "Mushaf view"
+    val ayahView: String                // "Ayah by ayah"
+    val textLarger: String              // "Larger text"
+    val textSmaller: String             // "Smaller text"
+    val tafsirTitle: String             // "Tafsir"
+    val tafsirMuyassar: String          // name of the Arabic tafsir: "Tafsir al-Muyassar"
+    val tafsirJalalayn: String          // name of the Arabic tafsir: "Tafsir al-Jalalayn"
+    val translationOfMeanings: String   // "Translation of the meanings"
+    val bookmarkAyah: String            // "Save ayah"
+    val removeBookmark: String          // "Remove from saved"
+    val copy: String                    // "Copy"
+    val copied: String                  // "Copied ✓"
+    val prevAyah: String                // "Previous ayah"
+    val nextAyah: String                // "Next ayah"
+    val prevSurah: String               // "Previous surah"
+    val nextSurah: String               // "Next surah"
+    val noBookmarks: String             // "No saved ayahs yet. Open an ayah and tap the bookmark to save it."
+    val quranLoading: String            // "Opening the Mushaf…"
+    /** About: where the Quran text, tafsir, translations and font come from. Keep the two URLs exactly. */
+    val quranSources: String
+
     // ---------- Settings ----------
     val settingsTitle: String
     val appearance: String

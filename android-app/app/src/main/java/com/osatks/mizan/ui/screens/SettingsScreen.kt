@@ -33,6 +33,7 @@ import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.notify.PrayerAlarms
 import com.osatks.mizan.ui.ClickRow
+import com.osatks.mizan.ui.LinkedText
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
@@ -92,6 +93,7 @@ fun SettingsScreen() {
                 Text(s.aboutName, style = MaterialTheme.typography.titleMedium)
                 Text(s.version(BuildConfigInfo.versionName(ctx)), style = MaterialTheme.typography.bodySmall)
                 Text(s.aboutText, style = MaterialTheme.typography.bodyMedium)
+                LinkedText(s.quranSources)
             }
         }
         item {

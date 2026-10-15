@@ -468,6 +468,65 @@ object Ur : Strings {
         InhNote.NoHeirs -> "نہ کوئی ذوی الفروض ہے نہ عصبہ؛ ترکہ ذوی الارحام کو، پھر بیت المال کو جاتا ہے۔ متعلقہ عدالت سے رجوع کریں۔"
     }
 
+    // ---------- قرآن مجید ----------
+    override val tabQuran = "قرآن"
+    override val quranTitle = "قرآن مجید"
+    override val quranSubtitle = "تفسیر پڑھنے کے لیے کسی بھی آیت کو چھوئیں"
+    override val surahsTab = "سورتیں"
+    override val juzTab = "پارے"
+    override val bookmarksTab = "محفوظ کردہ"
+    override val continueReading = "تلاوت جاری رکھیں"
+    override val startReading = "تلاوت شروع کریں"
+    override val meccan = "مکی"
+    override val medinan = "مدنی"
+    override fun ayahCount(n: Int) = ur(n.toLong(), "آیت", "آیات")
+    override fun juzName(n: Int) = "پارہ $n"
+    override fun pageName(n: Int) = "صفحہ $n"
+    override fun surahAyah(surah: String, ayah: Int) = "$surah · آیت $ayah"
+    override val surahNames = listOf(
+        "الفاتحہ", "البقرہ", "آل عمران", "النساء", "المائدہ", "الانعام",
+        "الاعراف", "الانفال", "التوبہ", "یونس", "ہود", "یوسف",
+        "الرعد", "ابراہیم", "الحجر", "النحل", "الاسراء", "الکہف",
+        "مریم", "طٰہٰ", "الانبیاء", "الحج", "المؤمنون", "النور",
+        "الفرقان", "الشعراء", "النمل", "القصص", "العنکبوت", "الروم",
+        "لقمان", "السجدہ", "الاحزاب", "سبا", "فاطر", "یٰسین",
+        "الصافات", "صٓ", "الزمر", "غافر", "فصلت", "الشوریٰ",
+        "الزخرف", "الدخان", "الجاثیہ", "الاحقاف", "محمد", "الفتح",
+        "الحجرات", "قٓ", "الذاریات", "الطور", "النجم", "القمر",
+        "الرحمٰن", "الواقعہ", "الحدید", "المجادلہ", "الحشر", "الممتحنہ",
+        "الصف", "الجمعہ", "المنافقون", "التغابن", "الطلاق", "التحریم",
+        "الملک", "القلم", "الحاقہ", "المعارج", "نوح", "الجن",
+        "المزمل", "المدثر", "القیامہ", "الانسان", "المرسلات", "النبا",
+        "النازعات", "عبس", "التکویر", "الانفطار", "المطففین", "الانشقاق",
+        "البروج", "الطارق", "الاعلیٰ", "الغاشیہ", "الفجر", "البلد",
+        "الشمس", "اللیل", "الضحیٰ", "الشرح", "التین", "العلق",
+        "القدر", "البینہ", "الزلزلہ", "العادیات", "القارعہ", "التکاثر",
+        "العصر", "الہمزہ", "الفیل", "قریش", "الماعون", "الکوثر",
+        "الکافرون", "النصر", "المسد", "الاخلاص", "الفلق", "الناس",
+    )
+    override val searchQuranHint = "سورت یا آیات کے الفاظ تلاش کریں…"
+    override val searchQuranGroup = "سورتیں"
+    override val searchAyahsGroup = "آیات"
+    override val mushafView = "مصحف کی صورت"
+    override val ayahView = "آیت بہ آیت"
+    override val textLarger = "متن بڑا کریں"
+    override val textSmaller = "متن چھوٹا کریں"
+    override val tafsirTitle = "تفسیر"
+    override val tafsirMuyassar = "التفسیر المیسر"
+    override val tafsirJalalayn = "تفسیر جلالین"
+    override val translationOfMeanings = "ترجمۂ معانی"
+    override val bookmarkAyah = "آیت محفوظ کریں"
+    override val removeBookmark = "محفوظ کردہ سے ہٹائیں"
+    override val copy = "کاپی کریں"
+    override val copied = "کاپی ہو گیا ✓"
+    override val prevAyah = "پچھلی آیت"
+    override val nextAyah = "اگلی آیت"
+    override val prevSurah = "پچھلی سورت"
+    override val nextSurah = "اگلی سورت"
+    override val noBookmarks = "ابھی تک کوئی آیت محفوظ نہیں کی گئی۔ محفوظ کرنے کے لیے آیت کھولیں اور بک مارک کو چھوئیں۔"
+    override val quranLoading = "مصحف کھولا جا رہا ہے…"
+    override val quranSources = "قرآن مجید کا متن (رسم عثمانی) تنزیل پروجیکٹ (tanzil.net) سے لیا گیا ہے۔ التفسیر المیسر (شاہ فہد کمپلیکس)، تفسیر جلالین اور معانی کے تراجم tanzil.net/trans سے لیے گئے ہیں۔ قرآنی فونٹ: Amiri Quran، جو SIL اوپن فونٹ لائسنس کے تحت دستیاب ہے۔"
+
     // ---------- ترتیبات ----------
     override val settingsTitle = "ترتیبات"
     override val appearance = "ظاہری شکل"

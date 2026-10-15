@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.DateRange
@@ -66,7 +67,10 @@ import com.osatks.mizan.i18n.hijri
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.i18n.weekday
+import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.ui.LocalBottomInset
+import com.osatks.mizan.ui.quran.ContinueCard
+import com.osatks.mizan.ui.quran.quranStyle
 import com.osatks.mizan.ui.RevealState
 import com.osatks.mizan.ui.RollingText
 import com.osatks.mizan.ui.starBackdrop
@@ -96,6 +100,7 @@ val TOOL_ICONS: Map<String, ImageVector> = mapOf(
 
 @Composable
 fun HomeScreen(open: (String) -> Unit) {
+    QuranPrefs.ensure()
     val s = LocalStrings.current
     var next by remember { mutableStateOf(PrayerUtil.next()) }
     var showLang by remember { mutableStateOf(false) }
@@ -162,12 +167,18 @@ fun HomeScreen(open: (String) -> Unit) {
             }
         }
         item {
-            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 4))
+            // القرآن الكريم: متابعة القراءة من آخر موضع، أو البدء
+            Box(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp).reveal(reveal, 4)) {
+                if (QuranPrefs.last >= 0) ContinueCard(QuranPrefs.last, open) else QuranStartCard { open("quran") }
+            }
+        }
+        item {
+            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 5))
         }
         TOOL_ORDER.chunked(2).forEachIndexed { row, pair ->
             item {
                 Row(
-                    Modifier.padding(horizontal = 16.dp, vertical = 6.dp).reveal(reveal, 5 + row).height(IntrinsicSize.Max),
+                    Modifier.padding(horizontal = 16.dp, vertical = 6.dp).reveal(reveal, 6 + row).height(IntrinsicSize.Max),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     pair.forEach { key -> ToolTile(key, Modifier.weight(1f)) { open(key) } }
@@ -202,6 +213,33 @@ private fun ToolTile(key: String, modifier: Modifier, onClick: () -> Unit) {
             Spacer(Modifier.height(10.dp))
             Text(t.name, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(t.desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/** بطاقة القرآن الكريم قبل أول قراءة؛ تتحول إلى رأس صفحة المصحف */
+@Composable
+private fun QuranStartCard(onClick: () -> Unit) {
+    val s = LocalStrings.current
+    val src = remember { MutableInteractionSource() }
+    Surface(
+        onClick = onClick, shape = RoundedCornerShape(22.dp), color = Color.Transparent, interactionSource = src,
+        modifier = Modifier.fillMaxWidth().sharedCard("card-quran", RoundedCornerShape(22.dp)).pressScale(src, 0.97f)
+    ) {
+        Row(
+            Modifier.background(HeroBrush).starBackdrop(Color.White.copy(alpha = .07f), 60.dp, Alignment.CenterEnd, (-30).dp, 0.dp, 90_000).padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                Modifier.sharedIcon("icon-quran").size(46.dp).clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = .14f)),
+                contentAlignment = Alignment.Center
+            ) { Icon(Icons.AutoMirrored.Filled.MenuBook, null, tint = Gold) }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(s.quranTitle, color = Color.White, style = MaterialTheme.typography.titleMedium)
+                Text(s.startReading, color = Gold, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            }
+            Text("ٱلْقُرْءَانُ", color = Color.White, style = quranStyle(26))
         }
     }
 }

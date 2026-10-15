@@ -468,6 +468,65 @@ object Fa : Strings {
         InhNote.NoHeirs -> "هیچ صاحب فرض یا عصبه‌ای وجود ندارد؛ ترکه به ذوی‌الارحام و سپس به بیت‌المال می‌رسد. به دادگاه صالح مراجعه کنید."
     }
 
+    // ---------- Quran ----------
+    override val tabQuran = "قرآن"
+    override val quranTitle = "قرآن کریم"
+    override val quranSubtitle = "برای خواندن تفسیر، روی هر آیه بزنید"
+    override val surahsTab = "سوره‌ها"
+    override val juzTab = "جزءها"
+    override val bookmarksTab = "ذخیره‌شده‌ها"
+    override val continueReading = "ادامه تلاوت"
+    override val startReading = "شروع تلاوت"
+    override val meccan = "مکی"
+    override val medinan = "مدنی"
+    override fun ayahCount(n: Int) = fa(n.toLong(), "آیه")
+    override fun juzName(n: Int) = "جزء $n"
+    override fun pageName(n: Int) = "صفحه $n"
+    override fun surahAyah(surah: String, ayah: Int) = "$surah · آیه $ayah"
+    override val surahNames = listOf(
+        "فاتحه", "بقره", "آل عمران", "نساء", "مائده", "انعام",
+        "اعراف", "انفال", "توبه", "یونس", "هود", "یوسف",
+        "رعد", "ابراهیم", "حجر", "نحل", "اسراء", "کهف",
+        "مریم", "طه", "انبیاء", "حج", "مؤمنون", "نور",
+        "فرقان", "شعراء", "نمل", "قصص", "عنکبوت", "روم",
+        "لقمان", "سجده", "احزاب", "سبأ", "فاطر", "یس",
+        "صافات", "ص", "زمر", "غافر", "فصلت", "شوری",
+        "زخرف", "دخان", "جاثیه", "احقاف", "محمد", "فتح",
+        "حجرات", "ق", "ذاریات", "طور", "نجم", "قمر",
+        "الرحمن", "واقعه", "حدید", "مجادله", "حشر", "ممتحنه",
+        "صف", "جمعه", "منافقون", "تغابن", "طلاق", "تحریم",
+        "ملک", "قلم", "حاقه", "معارج", "نوح", "جن",
+        "مزمل", "مدثر", "قیامت", "انسان", "مرسلات", "نبأ",
+        "نازعات", "عبس", "تکویر", "انفطار", "مطففین", "انشقاق",
+        "بروج", "طارق", "اعلی", "غاشیه", "فجر", "بلد",
+        "شمس", "لیل", "ضحی", "شرح", "تین", "علق",
+        "قدر", "بینه", "زلزله", "عادیات", "قارعه", "تکاثر",
+        "عصر", "همزه", "فیل", "قریش", "ماعون", "کوثر",
+        "کافرون", "نصر", "مسد", "اخلاص", "فلق", "ناس",
+    )
+    override val searchQuranHint = "جستجوی سوره یا متن آیات…"
+    override val searchQuranGroup = "سوره‌ها"
+    override val searchAyahsGroup = "آیات"
+    override val mushafView = "نمای مصحف"
+    override val ayahView = "آیه به آیه"
+    override val textLarger = "متن بزرگ‌تر"
+    override val textSmaller = "متن کوچک‌تر"
+    override val tafsirTitle = "تفسیر"
+    override val tafsirMuyassar = "التفسیر المیسر"
+    override val tafsirJalalayn = "تفسیر جلالین"
+    override val translationOfMeanings = "ترجمه معانی"
+    override val bookmarkAyah = "ذخیره آیه"
+    override val removeBookmark = "حذف از ذخیره‌شده‌ها"
+    override val copy = "کپی"
+    override val copied = "کپی شد ✓"
+    override val prevAyah = "آیه قبل"
+    override val nextAyah = "آیه بعد"
+    override val prevSurah = "سوره قبل"
+    override val nextSurah = "سوره بعد"
+    override val noBookmarks = "هنوز آیه‌ای ذخیره نکرده‌اید. یک آیه را باز کنید و روی علامت ذخیره بزنید."
+    override val quranLoading = "در حال باز کردن مصحف…"
+    override val quranSources = "متن قرآن کریم به رسم‌الخط عثمانی از پروژه تنزیل (tanzil.net). التفسیر المیسر (مجمع ملک فهد)، تفسیر جلالین و ترجمه‌های معانی از tanzil.net/trans. فونت قرآن: Amiri Quran، با مجوز SIL Open Font License."
+
     // ---------- Settings ----------
     override val settingsTitle = "تنظیمات"
     override val appearance = "ظاهر"

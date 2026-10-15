@@ -87,6 +87,16 @@ import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.pressScale
 import com.osatks.mizan.ui.sharedCard
 import com.osatks.mizan.ui.sharedIcon
+import com.osatks.mizan.quran.QuranData
+import com.osatks.mizan.quran.QuranMeta
+import com.osatks.mizan.quran.QuranSearch
+import com.osatks.mizan.ui.quran.ayahRef
+import com.osatks.mizan.ui.quran.quranStyle
+import com.osatks.mizan.ui.quran.surahName
+import com.osatks.mizan.ui.quran.surahRoute
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.delay
 
 /** طلب مؤجل لصفحة تُفتح من البحث (مناسبة بعينها) */
 object Pending {
@@ -112,7 +122,16 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 
     val terms = Search.terms(q)
-    val hits: List<Hit> = remember(q, lang) {
+    // نص المصحف وآيات مطابقة (تُحسب في الخلفية)
+    val quran by produceState(QuranData.cached(QuranData.UTHMANI)) { value = QuranData.uthmani() }
+    var ayahHits by remember { mutableStateOf<List<Int>>(emptyList()) }
+    LaunchedEffect(q, lang) {
+        ayahHits = emptyList()
+        if (terms.isEmpty()) return@LaunchedEffect
+        delay(300)
+        ayahHits = QuranSearch.ayahs(q, lang, limit = 6)
+    }
+    val hits: List<Hit> = remember(q, lang, ayahHits, quran) {
         val out = mutableListOf<Hit>()
         fun add(group: String, id: String, title: String, sub: String, icon: ImageVector, extra: String, action: () -> Unit) {
             val sc = if (terms.isEmpty()) (if (group == s.searchToolsGroup) 1 else 0) else Search.score(terms, title, "$sub $extra")
@@ -124,6 +143,20 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
                 "${s.toolKeywords[k]} ${En.tools[k]?.name} ${En.toolKeywords[k]} ${Ar.tools[k]?.name} ${Ar.toolKeywords[k]}") { open(k) }
         }
         if (terms.isNotEmpty()) {
+            for (n in 1..QuranMeta.SURAHS) {
+                add(s.searchQuranGroup, "q-$n", s.surahName(n),
+                    "${QuranMeta.NAMES_AR[n - 1]} · ${if (QuranMeta.isMedinan(n)) s.medinan else s.meccan} · ${s.ayahCount(QuranMeta.COUNTS[n - 1])}",
+                    Icons.AutoMirrored.Filled.MenuBook,
+                    "$n ${QuranMeta.NAMES_AR[n - 1]} ${QuranMeta.TNAMES[n - 1]} ${QuranMeta.ENAMES[n - 1]} ${En.surahName(n)} ${Ar.surahName(n)} ${s.quranTitle}") {
+                    open(surahRoute(n, 0, "hit"))
+                }
+            }
+            val refs = (listOfNotNull(QuranSearch.parseRef(q)) + ayahHits).distinct()
+            refs.forEachIndexed { k, i ->
+                val (sn, an) = QuranMeta.locate(i)
+                val sub = quran?.let { QuranData.withoutBismillah(it, i) } ?: ""
+                out += Hit(s.searchAyahsGroup, "v-$i", s.ayahRef(i), sub, Icons.AutoMirrored.Filled.MenuBook, 40 - k) { open(surahRoute(sn, an, "hit")) }
+            }
             val today = PrayerUtil.times(PrayerUtil.now().toLocalDate())
             PrayTimes.PRAYERS.forEach { k ->
                 add(s.searchPrayersGroup, "p-$k", s.prayer(k), s.time(today[k]), Icons.Filled.AccessTime,
@@ -159,7 +192,7 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
             add(s.searchSettingsGroup, "s-method", s.calcMethod, s.locationAndMethod, Icons.Filled.Tune,
                 "${En.calcMethod} ${Ar.calcMethod} ${s.methods.values.joinToString(" ")}") { open("prayer") }
         }
-        val order = listOf(s.searchToolsGroup, s.searchPrayersGroup, s.searchCitiesGroup, s.searchEventsGroup, s.searchDhikrGroup, s.searchSettingsGroup)
+        val order = listOf(s.searchToolsGroup, s.searchQuranGroup, s.searchAyahsGroup, s.searchPrayersGroup, s.searchCitiesGroup, s.searchEventsGroup, s.searchDhikrGroup, s.searchSettingsGroup)
         // أفضل مجموعة أولاً (بحسب أعلى نتيجة فيها)، وداخلها الأعلى درجة
         val groups = out.groupBy { it.group }
         groups.keys.sortedWith(compareByDescending<String> { g -> groups.getValue(g).maxOf { it.score } }.thenBy { order.indexOf(it) })
@@ -253,7 +286,10 @@ private fun HitRow(h: Hit, q: String, modifier: Modifier, onClick: () -> Unit) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(highlight(h.title, q), fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (h.subtitle.isNotEmpty()) Text(h.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (h.subtitle.isNotEmpty()) {
+                    if (h.id.startsWith("v-")) Text(h.subtitle, Modifier.fillMaxWidth(), style = quranStyle(18), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    else Text(h.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
             }
         }
     }

@@ -59,7 +59,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun QiblaScreen() {
+fun QiblaScreen(onBack: (() -> Unit)? = null) {
     val s = LocalStrings.current
     val ctx = LocalContext.current
     val view = LocalView.current
@@ -99,7 +99,7 @@ fun QiblaScreen() {
     val aligned = hasSensor && abs(diff) < 4
     LaunchedEffect(aligned) { if (aligned) view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }
 
-    ToolPage(s.qiblaTitle, s.placeName(place), sharedKey = "qibla", icon = TOOL_ICONS["qibla"]) {
+    ToolPage(s.qiblaTitle, s.placeName(place), onBack, sharedKey = "qibla", icon = TOOL_ICONS["qibla"]) {
         item {
             SectionCard {
                 Box(Modifier.fillMaxWidth().aspectRatio(1f).padding(8.dp), contentAlignment = Alignment.Center) {

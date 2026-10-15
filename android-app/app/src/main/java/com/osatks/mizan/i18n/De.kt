@@ -467,6 +467,65 @@ object De : Strings {
         InhNote.NoHeirs -> "Es gibt weder Erben mit festem Anteil noch Resterben; der Nachlass geht an entfernte Verwandte, dann an die Staatskasse. Wende dich an das zuständige Gericht."
     }
 
+    // ---------- Quran ----------
+    override val tabQuran = "Koran"
+    override val quranTitle = "Der edle Koran"
+    override val quranSubtitle = "Tippe auf einen Vers, um seinen Tafsir zu lesen"
+    override val surahsTab = "Suren"
+    override val juzTab = "Juz"
+    override val bookmarksTab = "Gespeichert"
+    override val continueReading = "Weiterlesen"
+    override val startReading = "Lesen beginnen"
+    override val meccan = "Mekkanisch"
+    override val medinan = "Medinensisch"
+    override fun ayahCount(n: Int) = de(n.toLong(), "Vers", "Verse")
+    override fun juzName(n: Int) = "Juz $n"
+    override fun pageName(n: Int) = "Seite $n"
+    override fun surahAyah(surah: String, ayah: Int) = "$surah · Vers $ayah"
+    override val surahNames = listOf(
+        "Al-Fatiha", "Al-Baqara", "Al 'Imran", "An-Nisa'", "Al-Ma'ida", "Al-An'am",
+        "Al-A'raf", "Al-Anfal", "At-Tauba", "Yunus", "Hud", "Yusuf",
+        "Ar-Ra'd", "Ibrahim", "Al-Hidschr", "An-Nahl", "Al-Isra'", "Al-Kahf",
+        "Maryam", "Ta-Ha", "Al-Anbiya'", "Al-Haddsch", "Al-Mu'minun", "An-Nur",
+        "Al-Furqan", "Asch-Schu'ara'", "An-Naml", "Al-Qasas", "Al-'Ankabut", "Ar-Rum",
+        "Luqman", "As-Sadschda", "Al-Ahzab", "Saba'", "Fatir", "Ya-Sin",
+        "As-Saffat", "Sad", "Az-Zumar", "Ghafir", "Fussilat", "Asch-Schura",
+        "Az-Zuchruf", "Ad-Duchan", "Al-Dschathiya", "Al-Ahqaf", "Muhammad", "Al-Fath",
+        "Al-Hudschurat", "Qaf", "Adh-Dhariyat", "At-Tur", "An-Nadschm", "Al-Qamar",
+        "Ar-Rahman", "Al-Waqi'a", "Al-Hadid", "Al-Mudschadila", "Al-Haschr", "Al-Mumtahana",
+        "As-Saff", "Al-Dschumu'a", "Al-Munafiqun", "At-Taghabun", "At-Talaq", "At-Tahrim",
+        "Al-Mulk", "Al-Qalam", "Al-Haqqa", "Al-Ma'aridsch", "Nuh", "Al-Dschinn",
+        "Al-Muzzammil", "Al-Muddaththir", "Al-Qiyama", "Al-Insan", "Al-Mursalat", "An-Naba'",
+        "An-Nazi'at", "'Abasa", "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Inschiqaq",
+        "Al-Burudsch", "At-Tariq", "Al-A'la", "Al-Ghaschiya", "Al-Fadschr", "Al-Balad",
+        "Asch-Schams", "Al-Lail", "Ad-Duha", "Asch-Scharh", "At-Tin", "Al-'Alaq",
+        "Al-Qadr", "Al-Bayyina", "Az-Zalzala", "Al-'Adiyat", "Al-Qari'a", "At-Takathur",
+        "Al-'Asr", "Al-Humaza", "Al-Fil", "Quraisch", "Al-Ma'un", "Al-Kauthar",
+        "Al-Kafirun", "An-Nasr", "Al-Masad", "Al-Ichlas", "Al-Falaq", "An-Nas",
+    )
+    override val searchQuranHint = "Suren oder Wörter in den Versen suchen…"
+    override val searchQuranGroup = "Suren"
+    override val searchAyahsGroup = "Verse"
+    override val mushafView = "Mushaf-Ansicht"
+    override val ayahView = "Vers für Vers"
+    override val textLarger = "Größere Schrift"
+    override val textSmaller = "Kleinere Schrift"
+    override val tafsirTitle = "Tafsir"
+    override val tafsirMuyassar = "Tafsir al-Muyassar"
+    override val tafsirJalalayn = "Tafsir al-Dschalalain"
+    override val translationOfMeanings = "Übersetzung der Bedeutungen"
+    override val bookmarkAyah = "Vers speichern"
+    override val removeBookmark = "Aus „Gespeichert“ entfernen"
+    override val copy = "Kopieren"
+    override val copied = "Kopiert ✓"
+    override val prevAyah = "Vorheriger Vers"
+    override val nextAyah = "Nächster Vers"
+    override val prevSurah = "Vorherige Sure"
+    override val nextSurah = "Nächste Sure"
+    override val noBookmarks = "Noch keine gespeicherten Verse. Öffne einen Vers und tippe auf das Lesezeichen, um ihn zu speichern."
+    override val quranLoading = "Mushaf wird geöffnet…"
+    override val quranSources = "Korantext (uthmanische Schreibweise) vom Tanzil-Projekt (tanzil.net). Tafsir al-Muyassar (König-Fahd-Komplex), Tafsir al-Dschalalain und die Übersetzungen der Bedeutungen von tanzil.net/trans. Koran-Schriftart: Amiri Quran, SIL Open Font License."
+
     // ---------- Settings ----------
     override val settingsTitle = "Einstellungen"
     override val appearance = "Darstellung"

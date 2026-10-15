@@ -79,6 +79,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -92,11 +93,14 @@ val LocalBottomInset = compositionLocalOf { 0.dp }
 
 /** رأس الصفحة المتدرج مع زر الرجوع؛ sharedKey يربطه ببطاقة الأداة في الرئيسية */
 @Composable
-fun PageHeader(title: String, subtitle: String? = null, onBack: (() -> Unit)? = null, sharedKey: String? = null, icon: ImageVector? = null) {
+fun PageHeader(
+    title: String, subtitle: String? = null, onBack: (() -> Unit)? = null, sharedKey: String? = null, icon: ImageVector? = null,
+    cardKey: String? = sharedKey?.let { "card-$it" }, actions: @Composable RowScope.() -> Unit = {},
+) {
     val s = LocalStrings.current
     Box(
         Modifier
-            .then(if (sharedKey != null) Modifier.sharedCard("card-$sharedKey", RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)) else Modifier)
+            .then(if (cardKey != null) Modifier.sharedCard(cardKey, RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)) else Modifier)
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
             .background(HeroBrush)
@@ -120,10 +124,11 @@ fun PageHeader(title: String, subtitle: String? = null, onBack: (() -> Unit)? = 
                 ) { Icon(icon, null, tint = Gold) }
                 Spacer(Modifier.width(12.dp))
             }
-            Column {
+            Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.headlineSmall, color = Color.White)
                 if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = .85f))
             }
+            actions()
         }
     }
 }
@@ -426,6 +431,26 @@ fun ClickRow(title: String, subtitle: String? = null, onClick: () -> Unit, leadi
         }
         trailing()
     }
+}
+
+/** نص تصبح فيه tanzil.net و tanzil.net/trans و SIL روابط تُفتح في المتصفح */
+@Composable
+fun LinkedText(text: String) {
+    val color = MaterialTheme.colorScheme.primary
+    val styles = androidx.compose.ui.text.TextLinkStyles(
+        androidx.compose.ui.text.SpanStyle(color = color, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)
+    )
+    val annotated = androidx.compose.ui.text.buildAnnotatedString {
+        var last = 0
+        Regex("tanzil\\.net/trans|tanzil\\.net|SIL").findAll(text).forEach { m ->
+            append(text.substring(last, m.range.first))
+            val url = when (m.value) { "SIL" -> "https://openfontlicense.org"; "tanzil.net/trans" -> "https://tanzil.net/trans/"; else -> "https://tanzil.net/" }
+            withLink(androidx.compose.ui.text.LinkAnnotation.Url(url, styles)) { append(m.value) }
+            last = m.range.last + 1
+        }
+        append(text.substring(last))
+    }
+    Text(annotated, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 /** فراغ بارتفاع ثابت (للمسافات بين عناصر الشبكات) */

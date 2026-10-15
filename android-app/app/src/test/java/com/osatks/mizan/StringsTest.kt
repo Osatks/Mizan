@@ -50,6 +50,8 @@ class StringsTest {
             assertEquals(l.code, 8, s.directions.size)
             assertEquals(l.code, 9, s.dhikrLabels.size)
             assertEquals(l.code, 9, s.dhikrMeanings.size)
+            assertEquals(l.code, 114, s.surahNames.size)
+            assertTrue("${l.code} surah names", s.surahNames.all { it.isNotBlank() } && s.surahNames.toSet().size == 114)
             if (l != Lang.AR) {
                 assertTrue("${l.code} meanings", s.dhikrMeanings.all { it.isNotBlank() } && s.tamamMeaning.isNotBlank())
             }
@@ -77,6 +79,10 @@ class StringsTest {
             assertFalse(s.ymd(30, 2, 5).isBlank())
             assertTrue(s.searchNoResults("xyz").contains("xyz"))
             assertTrue(s.turnRight(12).contains("12") && s.turnLeft(12).contains("12"))
+            for (n in listOf(1, 2, 3, 7, 11, 20, 100, 286)) assertTrue("${l.code} ayahCount($n)", s.ayahCount(n).contains("$n") || n <= 2)
+            assertTrue(s.juzName(30).contains("30") && s.pageName(604).contains("604"))
+            assertTrue(s.surahAyah("X", 255).contains("255"))
+            assertTrue("${l.code} sources keep the links", s.quranSources.contains("tanzil.net") && s.quranSources.contains("tanzil.net/trans"))
         }
     }
 
@@ -85,7 +91,7 @@ class StringsTest {
     fun tabLabelsAreShort() {
         for (l in Lang.entries) {
             val s = l.strings
-            listOf(s.tabHome, s.tabPrayer, s.tabQibla, s.tabTasbih, s.tabSettings).forEach {
+            listOf(s.tabHome, s.tabPrayer, s.tabQuran, s.tabTasbih, s.tabSettings).forEach {
                 assertTrue("${l.code}: \"$it\" is too long for a tab", it.length <= 14)
             }
         }

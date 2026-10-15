@@ -2,6 +2,7 @@ package com.osatks.mizan.i18n
 
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
+import com.osatks.mizan.quran.QuranMeta
 
 /** صيغ العدد في العربية: واحد، اثنان، 3-10، 11-99، وما سواها (100، 101…) */
 private fun arCount(n: Long, one: String, two: String, few: String, many: String, other: String): String = when {
@@ -468,6 +469,45 @@ object Ar : Strings {
         InhNote.SpouseOnlyRadd -> "لم يوجد وارث غير الزوج/الزوجة: الباقي يُرد عليه عند كثير من المعاصرين وفي عدد من قوانين الأحوال الشخصية، والأصل عند المتقدمين أنه لذوي الأرحام ثم لبيت المال."
         InhNote.NoHeirs -> "لا يوجد وارث من أصحاب الفروض أو العصبات؛ تنتقل التركة إلى ذوي الأرحام ثم بيت المال، ويُرجع في ذلك للمحكمة المختصة."
     }
+
+    // ---------- القرآن الكريم ----------
+    override val tabQuran = "القرآن"
+    override val quranTitle = "القرآن الكريم"
+    override val quranSubtitle = "اضغط على أي آية لقراءة تفسيرها"
+    override val surahsTab = "السور"
+    override val juzTab = "الأجزاء"
+    override val bookmarksTab = "المحفوظة"
+    override val continueReading = "تابع القراءة"
+    override val startReading = "ابدأ القراءة"
+    override val meccan = "مكية"
+    override val medinan = "مدنية"
+    override fun ayahCount(n: Int) = arCount(n.toLong(), "آية واحدة", "آيتان", "آيات", "آية", "آية")
+    override fun juzName(n: Int) = "الجزء $n"
+    override fun pageName(n: Int) = "الصفحة $n"
+    override fun surahAyah(surah: String, ayah: Int) = "$surah · الآية $ayah"
+    override val surahNames = QuranMeta.NAMES_AR.toList()
+    override val searchQuranHint = "ابحث عن سورة أو كلمات من الآيات…"
+    override val searchQuranGroup = "السور"
+    override val searchAyahsGroup = "الآيات"
+    override val mushafView = "عرض المصحف"
+    override val ayahView = "آية آية"
+    override val textLarger = "تكبير الخط"
+    override val textSmaller = "تصغير الخط"
+    override val tafsirTitle = "التفسير"
+    override val tafsirMuyassar = "التفسير الميسر"
+    override val tafsirJalalayn = "تفسير الجلالين"
+    override val translationOfMeanings = "ترجمة معاني القرآن"
+    override val bookmarkAyah = "حفظ الآية"
+    override val removeBookmark = "إزالة من المحفوظة"
+    override val copy = "نسخ"
+    override val copied = "تم النسخ ✓"
+    override val prevAyah = "الآية السابقة"
+    override val nextAyah = "الآية التالية"
+    override val prevSurah = "السورة السابقة"
+    override val nextSurah = "السورة التالية"
+    override val noBookmarks = "لا توجد آيات محفوظة بعد. افتح تفسير أي آية واضغط علامة الحفظ."
+    override val quranLoading = "جارٍ فتح المصحف…"
+    override val quranSources = "نص القرآن الكريم بالرسم العثماني من مشروع تنزيل (tanzil.net)، والتفسير الميسر (مجمع الملك فهد) وتفسير الجلالين وترجمات المعاني من tanzil.net/trans. خط المصحف: Amiri Quran برخصة SIL OFL."
 
     // ---------- الإعدادات ----------
     override val settingsTitle = "الإعدادات"

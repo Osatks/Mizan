@@ -23,12 +23,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Settings
@@ -61,7 +61,7 @@ data class TabItem(val route: String, val label: (Strings) -> String, val on: Im
 val TABS = listOf(
     TabItem("home", { it.tabHome }, Icons.Filled.Home, Icons.Outlined.Home),
     TabItem("prayer", { it.tabPrayer }, Icons.Filled.Schedule, Icons.Outlined.Schedule),
-    TabItem("qibla", { it.tabQibla }, Icons.Filled.Explore, Icons.Outlined.Explore),
+    TabItem("quran", { it.tabQuran }, Icons.AutoMirrored.Filled.MenuBook, Icons.AutoMirrored.Outlined.MenuBook),
     TabItem("tasbih", { it.tabTasbih }, Icons.Filled.TouchApp, Icons.Outlined.TouchApp),
     TabItem("settings", { it.tabSettings }, Icons.Filled.Settings, Icons.Outlined.Settings),
 )

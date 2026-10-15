@@ -468,6 +468,65 @@ object Bn : Strings {
         InhNote.NoHeirs -> "কোনো যাবিল ফুরুজ বা আসাবা নেই; সম্পত্তি যাবিল আরহাম, এরপর বায়তুল মালে যাবে। উপযুক্ত আদালতের শরণাপন্ন হোন।"
     }
 
+    // ---------- Quran ----------
+    override val tabQuran = "কুরআন"
+    override val quranTitle = "পবিত্র কুরআন"
+    override val quranSubtitle = "তাফসির পড়তে যেকোনো আয়াতে চাপ দিন"
+    override val surahsTab = "সূরা"
+    override val juzTab = "পারা"
+    override val bookmarksTab = "সংরক্ষিত"
+    override val continueReading = "পড়া চালিয়ে যান"
+    override val startReading = "পড়া শুরু করুন"
+    override val meccan = "মাক্কি"
+    override val medinan = "মাদানি"
+    override fun ayahCount(n: Int) = bn(n.toLong(), "আয়াত")
+    override fun juzName(n: Int) = "পারা $n"
+    override fun pageName(n: Int) = "পৃষ্ঠা $n"
+    override fun surahAyah(surah: String, ayah: Int) = "$surah · আয়াত $ayah"
+    override val surahNames = listOf(
+        "আল-ফাতিহা", "আল-বাকারা", "আলে ইমরান", "আন-নিসা", "আল-মায়েদা", "আল-আনআম",
+        "আল-আরাফ", "আল-আনফাল", "আত-তাওবা", "ইউনুস", "হুদ", "ইউসুফ",
+        "আর-রাদ", "ইবরাহিম", "আল-হিজর", "আন-নাহল", "আল-ইসরা", "আল-কাহফ",
+        "মারইয়াম", "ত্বা-হা", "আল-আম্বিয়া", "আল-হাজ্জ", "আল-মুমিনুন", "আন-নূর",
+        "আল-ফুরকান", "আশ-শুআরা", "আন-নামল", "আল-কাসাস", "আল-আনকাবুত", "আর-রুম",
+        "লুকমান", "আস-সাজদা", "আল-আহযাব", "সাবা", "ফাতির", "ইয়াসিন",
+        "আস-সাফফাত", "সোয়াদ", "আয-যুমার", "গাফির", "ফুসসিলাত", "আশ-শুরা",
+        "আয-যুখরুফ", "আদ-দুখান", "আল-জাসিয়া", "আল-আহকাফ", "মুহাম্মাদ", "আল-ফাতহ",
+        "আল-হুজুরাত", "ক্বাফ", "আয-যারিয়াত", "আত-তুর", "আন-নাজম", "আল-কামার",
+        "আর-রাহমান", "আল-ওয়াকিয়া", "আল-হাদিদ", "আল-মুজাদালা", "আল-হাশর", "আল-মুমতাহিনা",
+        "আস-সাফ", "আল-জুমুআ", "আল-মুনাফিকুন", "আত-তাগাবুন", "আত-তালাক", "আত-তাহরিম",
+        "আল-মুলক", "আল-কলম", "আল-হাক্কা", "আল-মাআরিজ", "নূহ", "আল-জিন",
+        "আল-মুযযাম্মিল", "আল-মুদ্দাসসির", "আল-কিয়ামা", "আল-ইনসান", "আল-মুরসালাত", "আন-নাবা",
+        "আন-নাযিআত", "আবাসা", "আত-তাকভির", "আল-ইনফিতার", "আল-মুতাফফিফিন", "আল-ইনশিকাক",
+        "আল-বুরুজ", "আত-তারিক", "আল-আলা", "আল-গাশিয়া", "আল-ফাজর", "আল-বালাদ",
+        "আশ-শামস", "আল-লাইল", "আদ-দুহা", "আশ-শারহ", "আত-তিন", "আল-আলাক",
+        "আল-কদর", "আল-বাইয়্যিনা", "আয-যালযালা", "আল-আদিয়াত", "আল-কারিআ", "আত-তাকাসুর",
+        "আল-আসর", "আল-হুমাযা", "আল-ফিল", "কুরাইশ", "আল-মাউন", "আল-কাওসার",
+        "আল-কাফিরুন", "আন-নাসর", "আল-মাসাদ", "আল-ইখলাস", "আল-ফালাক", "আন-নাস",
+    )
+    override val searchQuranHint = "সূরা বা আয়াতের শব্দ খুঁজুন…"
+    override val searchQuranGroup = "সূরা"
+    override val searchAyahsGroup = "আয়াত"
+    override val mushafView = "মুসহাফ আকারে"
+    override val ayahView = "আয়াত ধরে ধরে"
+    override val textLarger = "লেখা বড় করুন"
+    override val textSmaller = "লেখা ছোট করুন"
+    override val tafsirTitle = "তাফসির"
+    override val tafsirMuyassar = "তাফসিরে মুয়াসসার"
+    override val tafsirJalalayn = "তাফসিরে জালালাইন"
+    override val translationOfMeanings = "অর্থানুবাদ"
+    override val bookmarkAyah = "আয়াত সংরক্ষণ করুন"
+    override val removeBookmark = "সংরক্ষিত থেকে সরান"
+    override val copy = "কপি করুন"
+    override val copied = "কপি হয়েছে ✓"
+    override val prevAyah = "আগের আয়াত"
+    override val nextAyah = "পরের আয়াত"
+    override val prevSurah = "আগের সূরা"
+    override val nextSurah = "পরের সূরা"
+    override val noBookmarks = "এখনো কোনো আয়াত সংরক্ষিত নেই। সংরক্ষণ করতে আয়াত খুলে বুকমার্ক চিহ্নে চাপ দিন।"
+    override val quranLoading = "মুসহাফ খোলা হচ্ছে…"
+    override val quranSources = "কুরআনের পাঠ (উসমানি লিপি) তানযিল প্রকল্প (tanzil.net) থেকে নেওয়া। তাফসিরে মুয়াসসার (বাদশাহ ফাহাদ কমপ্লেক্স), তাফসিরে জালালাইন ও অর্থানুবাদগুলো tanzil.net/trans থেকে নেওয়া। কুরআনের ফন্ট: Amiri Quran, SIL ওপেন ফন্ট লাইসেন্স।"
+
     // ---------- Settings ----------
     override val settingsTitle = "সেটিংস"
     override val appearance = "থিম"

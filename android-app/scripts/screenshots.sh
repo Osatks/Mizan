@@ -37,6 +37,13 @@ shot home        11-home-dark
 shot prayer      12-prayer-dark
 shot inheritance 13-inheritance-dark
 
+# القرآن الكريم: الفهرس وصفحة سورة
+adb shell cmd uimode night no || true
+sleep 2
+shot quran          14-quran
+shot "surah/18"     15-surah-kahf
+shot quran          16-quran-en en
+
 # لغات أخرى: الرئيسية والمواقيت والمسبحة
 adb shell cmd uimode night no || true
 sleep 2

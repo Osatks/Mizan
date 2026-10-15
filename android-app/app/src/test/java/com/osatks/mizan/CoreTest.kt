@@ -50,6 +50,10 @@ class CoreTest {
         assertTrue(Search.score(Search.terms("mekk"), "Mekke") > 0)
         assertTrue(Search.score(Search.terms("zak"), "Zakat Calculator") > Search.score(Search.terms("zak"), "Other", "zakat"))
         assertEquals(0, Search.score(Search.terms("qibla"), "Zakat"))
+        // الفاصلة العليا في الأسماء المنقولة لا تقسم الكلمة
+        assertTrue(Search.score(Search.terms("enam"), "En'âm") > 0)
+        assertTrue(Search.score(Search.terms("araf"), "Al-A'raf") > 0)
+        assertTrue(Search.score(Search.terms("muminun"), "Mü'minûn") > 0)
     }
 
     @Test
