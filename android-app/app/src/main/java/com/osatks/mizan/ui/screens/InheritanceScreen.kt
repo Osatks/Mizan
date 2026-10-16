@@ -172,6 +172,7 @@ fun InheritanceScreen(onBack: () -> Unit) {
                 Text(s.newCase)
             }
         }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.inheritance) }
         item { Note(s.inhDisclaimer, warn = true) }
     }
 }

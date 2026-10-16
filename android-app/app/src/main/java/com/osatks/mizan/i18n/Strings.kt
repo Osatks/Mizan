@@ -475,6 +475,53 @@ interface Strings {
     val speed: String                   // "Speed"
     val sleepTimer: String              // "Sleep timer"
     fun minutes(n: Int): String         // "15 min"
+    val evidenceTitle: String           // section title
+    val evidenceSub: String             // subtitle
+    val proofQuran: String              // kind label
+    val proofHadith: String             // kind label
+    val proofConsensus: String          // kind label
+    val proofScholars: String           // kind label
+    val zakatTypesTitle: String         // hub title
+    val zakatTypesSub: String           // hub subtitle
+    val zkMoneyName: String             // type
+    val zkMoneyDesc: String             // type desc
+    val zkTradeName: String             // type
+    val zkTradeDesc: String             // type desc
+    val zkLivestockName: String         // type
+    val zkLivestockDesc: String         // type desc
+    val zkCropsName: String             // type
+    val zkCropsDesc: String             // type desc
+    val zkMineralsName: String          // type
+    val zkMineralsDesc: String          // type desc
+    val zkCombinedNote: String          // note
+    val camels: String                  // label
+    val cattle: String                  // label
+    val sheepGoats: String              // label
+    val unitHead: String                // unit for animals
+    val livestockDue: String            // result title
+    val nothingDue: String              // result
+    fun livestockNisab(n: Int): String  // "Nisab: 40"
+    val grazingCondition: String        // checkbox
+    val yearCondition: String           // checkbox
+    val conditionsNotMet: String        // note
+    fun livestockKind(kind: String): String  // animal due by key: shah bintMakhad bintLabun hiqqah jadhaah tabi musinnah
+    val cropsWeight: String             // field
+    val irrigation: String              // label
+    val irrRain: String                 // option
+    val irrIrrigated: String            // option
+    val irrMixed: String                // option
+    val cropsDue: String                // result title
+    fun cropsNisab(kg: String): String  // "Nisab: about 612 kg"
+    val zkRate: String                  // label
+    val rikazValue: String              // field
+    val mineralValue: String            // field
+    val mineralsDue: String             // result title
+    val obSkip: String                  // onboarding
+    val obNext: String                  // onboarding
+    val obStart: String                 // onboarding
+    val appGuide: String                // settings row
+    val appGuideSub: String             // settings row subtitle
+    val onboarding: List<Pair<String, String>>  // 5 pages (title, body): welcome, prayer&qibla, Quran, calculators with evidence, search
     /** About: where the Quran text, tafsir, translations and font come from. Keep the two URLs exactly. */
     val quranSources: String
 

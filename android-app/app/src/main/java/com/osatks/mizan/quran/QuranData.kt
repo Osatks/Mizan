@@ -36,6 +36,8 @@ object Sources {
         TafsirSource("bn.bengali", Lang.BN, SourceKind.TRANSLATION, "মুহিউদ্দীন খান"),
         TafsirSource("ru.kuliev", Lang.RU, SourceKind.TRANSLATION, "Эльмир Кулиев"),
         TafsirSource("de.bubenheim", Lang.DE, SourceKind.TRANSLATION, "Bubenheim & Elyas"),
+        TafsirSource("es.garcia", Lang.ES, SourceKind.TRANSLATION, "Muhammad Isa García"),
+        TafsirSource("uk.yakubovych", Lang.UK, SourceKind.TRANSLATION, "Михайло Якубович"),
     )
 
     private fun RemoteTafsir.asSource() = TafsirSource(id, lang, SourceKind.TAFSIR, author, this)

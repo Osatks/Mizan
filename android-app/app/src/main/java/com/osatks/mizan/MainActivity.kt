@@ -28,6 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -109,7 +112,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs")
+private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -167,6 +170,7 @@ fun MizanApp(startRoute: String? = null) {
                     screen("tasbih") { TasbihScreen() }
                     screen("settings") { SettingsScreen(open = { nav.navigate(it) }) }
                     screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
+                    screen("guide") { com.osatks.mizan.ui.screens.Onboarding(back) }
                     screen("zakat") { ZakatScreen(back) }
                     screen("fitr") { FitrScreen(back) }
                     screen("inheritance") { InheritanceScreen(back) }
@@ -183,6 +187,11 @@ fun MizanApp(startRoute: String? = null) {
             }
         }
 
+        // جولة أول تشغيل فوق كل شيء، مرة واحدة
+        var firstRun by remember { mutableStateOf(!AppSettings.getBool("onboarded", false) && startRoute == null) }
+        AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
+            com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
+        }
         AnimatedVisibility(
             visible = onTab,
             modifier = Modifier.align(Alignment.BottomCenter),

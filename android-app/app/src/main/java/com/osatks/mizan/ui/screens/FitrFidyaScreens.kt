@@ -82,6 +82,7 @@ fun FitrScreen(onBack: () -> Unit) {
             }
         }
         item { Note(s.fitrTimingNote) }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.fitr) }
     }
 }
 
@@ -145,5 +146,12 @@ fun FidyaScreen(onBack: () -> Unit) {
             }
         }
         item { Note(note) }
+        item {
+            EvidenceCard(when (tab) {
+                "fidya" -> com.osatks.mizan.i18n.Evidence.fidya
+                "yamin" -> com.osatks.mizan.i18n.Evidence.oath
+                else -> com.osatks.mizan.i18n.Evidence.intercourse
+            })
+        }
     }
 }

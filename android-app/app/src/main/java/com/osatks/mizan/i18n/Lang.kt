@@ -22,12 +22,14 @@ enum class Lang(val code: String, val native: String, val rtl: Boolean, val deci
     FA("fa", "فارسی", true, '.', ','),
     BN("bn", "বাংলা", false, '.', ','),
     RU("ru", "Русский", false, ',', ' '),
-    DE("de", "Deutsch", false, ',', '.');
+    DE("de", "Deutsch", false, ',', '.'),
+    ES("es", "Español", false, ',', '.'),
+    UK("uk", "Українська", false, ',', ' ');
 
     val strings: Strings
         get() = when (this) {
             AR -> Ar; EN -> En; FR -> Fr; TR -> Tr; UR -> Ur; ID -> Id
-            MS -> Ms; FA -> Fa; BN -> Bn; RU -> Ru; DE -> De
+            MS -> Ms; FA -> Fa; BN -> Bn; RU -> Ru; DE -> De; ES -> Es; UK -> Uk
         }
 
     val locale: Locale get() = Locale.forLanguageTag(code)

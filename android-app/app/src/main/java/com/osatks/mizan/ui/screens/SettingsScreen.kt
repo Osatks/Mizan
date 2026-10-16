@@ -1,5 +1,6 @@
 package com.osatks.mizan.ui.screens
 
+import androidx.compose.material.icons.filled.Explore
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -60,6 +61,13 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
                     onClick = { showLang = true },
                     leading = Icons.Filled.Translate
                 ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+            }
+        }
+        item {
+            SectionCard {
+                ClickRow(s.appGuide, s.appGuideSub, onClick = { open("guide") }, leading = Icons.Filled.Explore) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
         item {

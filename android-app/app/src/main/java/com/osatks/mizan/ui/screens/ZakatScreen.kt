@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
+import com.osatks.mizan.i18n.Evidence
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
@@ -56,12 +57,13 @@ private val CURRENCIES = listOf(
     Cur("IDR", "IDR", "روبية إندونيسية"), Cur("MYR", "MYR", "رينغيت ماليزي"), Cur("IRR", "IRR", "ريال إيراني"),
     Cur("RUB", "₽", "روبل روسي"), Cur("GBP", "£", "جنيه إسترليني"), Cur("USD", "$", "دولار أمريكي"), Cur("EUR", "€", "يورو"),
     Cur("CAD", "C$", "دولار كندي"), Cur("AUD", "A$", "دولار أسترالي"),
+    Cur("UAH", "₴", "هريفنيا أوكرانية"), Cur("MXN", "MX$", "بيزو مكسيكي"), Cur("ARS", "ARS", "بيزو أرجنتيني"),
 )
 
 /** العملة الافتراضية حسب لغة الواجهة عند أول استخدام */
 private fun defaultCurrency(lang: Lang) = when (lang) {
     Lang.AR -> "SAR"; Lang.TR -> "TRY"; Lang.UR -> "PKR"; Lang.ID -> "IDR"; Lang.MS -> "MYR"
-    Lang.FA -> "IRR"; Lang.BN -> "BDT"; Lang.RU -> "RUB"; Lang.FR, Lang.DE -> "EUR"; Lang.EN -> "USD"
+    Lang.FA -> "IRR"; Lang.BN -> "BDT"; Lang.RU -> "RUB"; Lang.FR, Lang.DE, Lang.ES -> "EUR"; Lang.EN -> "USD"; Lang.UK -> "UAH"
 }
 
 /** الإصدارات السابقة حفظت الرمز العربي ("ر.س")؛ يُحوَّل إلى رمز ISO */
@@ -81,8 +83,9 @@ private fun Cur.name(lang: Lang) = if (lang == Lang.AR) arName else
 
 private val FIELDS = listOf("gold_price", "silver_price", "cash", "bank", "receivable", "other", "g24", "g22", "g21", "g18", "silver", "jewel", "stocks_trade", "stocks_long", "goods", "debts")
 
+/** زكاة النقدين وعروض التجارة: تُضم في نصاب واحد فتُحسب معاً؛ tradeFirst يقدّم قسم التجارة والأسهم */
 @Composable
-fun ZakatScreen(onBack: () -> Unit) {
+internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ctx = LocalContext.current
@@ -122,7 +125,14 @@ fun ZakatScreen(onBack: () -> Unit) {
     }
     val toNisab by animateFloatAsState(if (nisab > 0) (net / nisab).toFloat().coerceIn(0f, 1f) else 0f, spring(dampingRatio = 0.85f, stiffness = 120f), label = "nisab")
 
-    ToolPage(s.zakatTitle, s.zakatSubtitle, onBack, sharedKey = "zakat", icon = TOOL_ICONS["zakat"]) {
+    val invest: @Composable () -> Unit = {
+        SectionCard(s.investSection) {
+            NumField(s.stocksTrade, v["stocks_trade"] ?: "", { set("stocks_trade", it) }, cur)
+            NumField(s.stocksLong, v["stocks_long"] ?: "", { set("stocks_long", it) }, cur)
+            NumField(s.tradeGoods, v["goods"] ?: "", { set("goods", it) }, cur)
+        }
+    }
+    ToolPage(if (tradeFirst) s.zkTradeName else s.zkMoneyName, s.zakatSubtitle, onBack, icon = TOOL_ICONS["zakat"]) {
         item {
             ResultCard(s.zakatDue, Fmt.num(zakat), badge, if (nisab <= 0 || net <= 0) null else due, unit = cur) {
                 if (nisab > 0) {
@@ -150,6 +160,7 @@ fun ZakatScreen(onBack: () -> Unit) {
                 }
             }
         }
+        if (tradeFirst) item { invest() }
         item {
             SectionCard(s.settingsAndPrices) {
                 Picker(s.currency, CURRENCIES, curObj, text = { c -> "${c.name(lang)} (${c.symbol(lang)})" },
@@ -184,13 +195,7 @@ fun ZakatScreen(onBack: () -> Unit) {
                 }
             }
         }
-        item {
-            SectionCard(s.investSection) {
-                NumField(s.stocksTrade, v["stocks_trade"] ?: "", { set("stocks_trade", it) }, cur)
-                NumField(s.stocksLong, v["stocks_long"] ?: "", { set("stocks_long", it) }, cur)
-                NumField(s.tradeGoods, v["goods"] ?: "", { set("goods", it) }, cur)
-            }
-        }
+        if (!tradeFirst) item { invest() }
         item {
             SectionCard(s.deductSection) {
                 NumField(s.debtsField, v["debts"] ?: "", { set("debts", it) }, cur, s.debtsHint)
@@ -205,5 +210,8 @@ fun ZakatScreen(onBack: () -> Unit) {
             }
         }
         item { Note(s.zakatNote) }
+        item { Note(s.zkCombinedNote) }
+        item { EvidenceCard(if (tradeFirst) Evidence.zakatTrade else Evidence.zakatMoney, startOpen = true) }
+        item { EvidenceCard(if (tradeFirst) Evidence.zakatMoney else Evidence.zakatTrade) }
     }
 }
