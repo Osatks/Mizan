@@ -1,5 +1,8 @@
 package com.osatks.mizan.ui.screens
 
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import com.osatks.mizan.i18n.LocalLang
+import androidx.compose.foundation.layout.size
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -123,6 +126,17 @@ fun InheritanceScreen(onBack: () -> Unit) {
                                     s.shareType(sh.type, sh.radd) + if (net > 0) "  ·  ${Fmt.num(amount)}" + (if (c > 1) " (${s.perPerson(Fmt.num(amount / c))})" else "") else "",
                                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                // دليل هذا النصيب
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    androidx.compose.material3.Icon(
+                                        androidx.compose.material.icons.Icons.AutoMirrored.Filled.MenuBook, null,
+                                        Modifier.size(14.dp), tint = com.osatks.mizan.ui.theme.GoldDeep
+                                    )
+                                    Text(
+                                        " " + com.osatks.mizan.i18n.Evidence.heirSource(h.key)[LocalLang.current],
+                                        style = MaterialTheme.typography.labelMedium, color = com.osatks.mizan.ui.theme.GoldDeep, fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
@@ -172,7 +186,7 @@ fun InheritanceScreen(onBack: () -> Unit) {
                 Text(s.newCase)
             }
         }
-        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.inheritance) }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.inheritance, startOpen = result != null) }
         item { Note(s.inhDisclaimer, warn = true) }
     }
 }
