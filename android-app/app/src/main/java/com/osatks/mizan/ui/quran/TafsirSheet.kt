@@ -67,6 +67,7 @@ import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.quran.Sources
+import com.osatks.mizan.quran.TafsirEntry
 import com.osatks.mizan.ui.ChipButton
 import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.shareText
@@ -78,23 +79,26 @@ import com.osatks.mizan.ui.theme.Gold
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TafsirSheet(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onDismiss: () -> Unit) {
+fun TafsirSheet(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onDismiss: () -> Unit, onLibrary: () -> Unit = {}) {
     val sheet = rememberModalBottomSheetState()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = mushafPalette().paper) {
-        TafsirContent(surah, ayah, text, onAyah)
+        TafsirContent(surah, ayah, text, onAyah, onLibrary)
     }
 }
 
 /** محتوى ورقة التفسير (منفصل ليُعرض أيضاً في لقطات الاختبار) */
 @Composable
-fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit) {
+fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onLibrary: () -> Unit = {}) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ctx = LocalContext.current
     val clipboard = LocalClipboardManager.current
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val src = QuranPrefs.sourceFor(lang)
-    val content by produceState(QuranData.cached("tafsir/${src.id}.txt"), src.id) { value = QuranData.source(src.id) }
+    // نص التفسير: من الذاكرة مباشرة إن كان جاهزاً، وإلا يُقرأ في الخلفية (التفاسير المنزَّلة تُقرأ سورةً سورة)
+    val reqKey = "${src.id}:$surah:$ayah"
+    val loaded by produceState<Pair<String, TafsirEntry?>?>(null, reqKey) { value = reqKey to Sources.entry(src, surah, ayah) }
+    val entry = Sources.cachedEntry(src, surah, ayah) ?: loaded?.takeIf { it.first == reqKey }?.second
     val count = QuranMeta.COUNTS[surah - 1]
     val index = QuranMeta.index(surah, ayah)
     val ayahText = QuranData.withoutBismillah(text, index)
@@ -133,8 +137,8 @@ fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> U
                     Toast.makeText(ctx, s.copied, Toast.LENGTH_SHORT).show()
                 }) { Icon(Icons.Filled.ContentCopy, s.copy, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
                 IconButton(onClick = {
-                    val tafsir = content?.getOrNull(index).orEmpty()
-                    shareText(ctx, s, "﴿$ayahText﴾\n[$ref]\n\n${Sources.label(src, s)}:\n$tafsir")
+                    val tafsir = entry?.text.orEmpty()
+                    shareText(ctx, s, "﴿$ayahText﴾\n[$ref]\n\n${Sources.label(src, s, lang)}:\n$tafsir")
                 }) { Icon(Icons.Filled.Share, s.share, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
 
@@ -162,11 +166,12 @@ fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> U
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-            // المصادر: لغة الواجهة أولاً
+            // المصادر الظاهرة (لغة الواجهة أولاً)، وفي آخرها زر لمكتبة التفاسير
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(vertical = 2.dp)) {
-                items(Sources.ordered(lang), key = { it.id }) { o ->
-                    ChipButton(Sources.label(o, s), o.id == src.id) { QuranPrefs.updateSource(o.id) }
+                items(Sources.visible(lang), key = { it.id }) { o ->
+                    ChipButton(Sources.label(o, s, lang), o.id == src.id) { QuranPrefs.updateSource(o.id) }
                 }
+                item(key = "more") { ChipButton("+ ${s.moreTafsirs}", false) { onLibrary() } }
             }
             Text(
                 "${Sources.kindLabel(src, s)} · ${src.author}",
@@ -174,24 +179,37 @@ fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> U
             )
 
             // التفسير: يتبدل بتلاشٍ عند تغيير الآية أو المصدر
-            val body = content
+            val primary = MaterialTheme.colorScheme.primary
             AnimatedContent(
-                Triple(src.id, ayah, body != null),
+                Triple(src.id, ayah, entry),
+                contentKey = { (id, a, e) -> Triple(id, a, e != null) },
                 transitionSpec = { fadeIn(tween(Motion.MEDIUM, 60)) togetherWith fadeOut(tween(Motion.SHORT)) using SizeTransform(clip = false) },
                 label = "tafsir"
-            ) { (_, a, ready) ->
-                if (!ready || body == null) {
+            ) { (_, _, e) ->
+                if (e == null) {
                     Box(Modifier.fillMaxWidth().heightIn(min = 80.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp)) }
                 } else {
-                    SelectionContainer {
-                        Text(
-                            body[QuranMeta.index(surah, a)], Modifier.fillMaxWidth(),
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                textDirection = if (src.lang.rtl) TextDirection.Rtl else TextDirection.Ltr,
-                                lineHeight = 28.sp
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        // بعض التفاسير تشرح عدة آيات معاً
+                        if (e.from != e.to) Text(
+                            s.ayahRange(e.from, e.to), style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold
                         )
+                        SelectionContainer {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                // فقرة لكل جزء، والآيات المقتبسة ﴿...﴾ بخط المصحف ولون مميز
+                                e.text.split(Regex("\\n\\s*\\n")).filter { it.isNotBlank() }.forEach { para ->
+                                    Text(
+                                        quotedAyahs(para.trim(), primary), Modifier.fillMaxWidth(),
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            textDirection = if (src.lang.rtl) TextDirection.Rtl else TextDirection.Ltr,
+                                            lineHeight = 28.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -209,4 +227,16 @@ fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> U
             }
         }
     }
+}
+
+/** يلوّن الآيات المقتبسة ﴿...﴾ داخل نص التفسير ويكتبها بخط المصحف */
+private fun quotedAyahs(text: String, color: androidx.compose.ui.graphics.Color): AnnotatedString = buildAnnotatedString {
+    var i = 0
+    val re = Regex("﴿[^﴾]{1,400}﴾")
+    for (m in re.findAll(text)) {
+        append(text, i, m.range.first)
+        withStyle(SpanStyle(color = color, fontFamily = QuranFont)) { append(m.value) }
+        i = m.range.last + 1
+    }
+    if (i < text.length) append(text, i, text.length)
 }

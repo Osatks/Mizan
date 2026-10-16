@@ -416,6 +416,23 @@ interface Strings {
     val silenceBody: String             // Do Not Disturb explanation, Android asks once
     val allow: String                   // "Allow"
     val notNow: String                  // "Not now"
+    val tafsirLibrary: String           // "Tafsir library"
+    val tafsirLibrarySub: String        // "Download tafsirs and choose which ones appear when you tap an ayah"
+    val onDevice: String                // "On this device"
+    val availableDownloads: String      // "Available to download"
+    val download: String                // "Download"
+    fun downloadingPct(pct: Int): String // "Downloading… 42%"
+    val cancel: String                  // "Cancel"
+    val delete: String                  // "Delete"
+    fun deleteTafsirQ(name: String): String // "Delete “X” from this device?"
+    val showInTafsir: String            // "Show in tafsir" (switch)
+    val builtIn: String                 // "Built in" (bundled with the app)
+    fun sizeMb(mb: String): String      // "≈ 9.8 MB"
+    val downloadFailed: String          // "Download failed. Check your internet connection."
+    val retry: String                   // "Try again"
+    val moreTafsirs: String             // "More tafsirs" (chip in the tafsir sheet)
+    val tafsirLibraryNote: String       // source credit + internet only for downloads
+    fun ayahRange(from: Int, to: Int): String // "Commentary on ayahs 8–10"
     /** About: where the Quran text, tafsir, translations and font come from. Keep the two URLs exactly. */
     val quranSources: String
 

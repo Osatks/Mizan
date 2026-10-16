@@ -545,6 +545,23 @@ object Tr : Strings {
     override val silenceBody = "Odak modunda Mizan «Rahatsız Etmeyin»i açabilir ve okumayı bitirdiğinizde yeniden kapatır. Android bunun için bir kez izin isteyecek."
     override val allow = "İzin ver"
     override val notNow = "Şimdi değil"
+    override val tafsirLibrary = "Tefsir kütüphanesi"
+    override val tafsirLibrarySub = "Tefsir indirin ve bir ayete dokunduğunuzda hangilerinin görüneceğini seçin"
+    override val onDevice = "Bu cihazda"
+    override val availableDownloads = "İndirilebilir"
+    override val download = "İndir"
+    override fun downloadingPct(pct: Int) = "İndiriliyor… %$pct"
+    override val cancel = "İptal"
+    override val delete = "Sil"
+    override fun deleteTafsirQ(name: String) = "“$name” bu cihazdan silinsin mi?"
+    override val showInTafsir = "Tefsirde göster"
+    override val builtIn = "Yerleşik"
+    override fun sizeMb(mb: String) = "≈ $mb MB"
+    override val downloadFailed = "İndirme başarısız. İnternet bağlantınızı kontrol edin."
+    override val retry = "Tekrar dene"
+    override val moreTafsirs = "Diğer tefsirler"
+    override val tafsirLibraryNote = "Tefsirler açık tafsir_api koleksiyonundan (quran.com ve QUL kaynaklı) indirilir. İnternet yalnızca bu indirmeler için kullanılır; sonrasında çevrimdışı çalışırlar."
+    override fun ayahRange(from: Int, to: Int) = "$from–$to. ayetlerin tefsiri"
     override val quranSources = "Kur'an metni (resm-i Osmânî) Tanzil Projesi'nden (tanzil.net); Müyesser Tefsiri (Kral Fahd Kompleksi), Celâleyn Tefsiri ve mealler ise tanzil.net/trans adresinden alınmıştır. Mushaf yazı tipi: Amiri Quran, SIL Open Font License."
 
     // ---------- Settings ----------
@@ -565,7 +582,7 @@ object Tr : Strings {
     override val aboutText = "Bir Müslümanın her gün ihtiyaç duyduğu araçları sunan ücretsiz bir uygulama: zekât, miras, namaz vakitleri, kıble, Hicri tarih ve tespih. " +
         "Hükümler fakihlerin çoğunluğunun görüşüne dayanır; namaz vakitleri astronomik formüllerle hesaplanır, tarihler Ümmü'l-Kurâ takvimini esas alır."
     override val privacy = "Gizlilik"
-    override val privacyText = "Uygulama hiçbir kişisel veri toplamaz ve internet bağlantısı gerektirmez. Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıbleyi hesaplamak için kullanılır; " +
+    override val privacyText = "Uygulama hiçbir kişisel veri toplamaz ve interneti yalnızca seçtiğiniz tefsirleri indirmek için kullanır. Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıbleyi hesaplamak için kullanılır; " +
         "ayarlarınız ve girdiğiniz rakamlar cihazınızda kalır."
     override val disclaimer = "Sonuçlar yol göstericidir. Kendi dinî sorularınız için yetkin âlimlere ve resmî kurumlara başvurun."
 }

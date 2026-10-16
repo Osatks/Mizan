@@ -119,7 +119,7 @@ import androidx.compose.foundation.layout.width
  * الضغط على أي آية يفتح تفسيرها. الصفحة التي يبقى عليها القارئ ثلاث ثوانٍ تُحسب مقروءة في الختمة.
  */
 @Composable
-fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, openSurah: (Int) -> Unit, startInFocus: Boolean = false) {
+fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, openSurah: (Int) -> Unit, startInFocus: Boolean = false, openLibrary: () -> Unit = {}) {
     QuranPrefs.ensure()
     QuranProgress.ensure()
     val s = LocalStrings.current
@@ -334,7 +334,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                     else if (sn == listSurah) list.animateScrollToItem(listItemOf(a))
                 }
             },
-            onDismiss = { sheetIdx = null }
+            onDismiss = { sheetIdx = null },
+            onLibrary = { sheetIdx = null; openLibrary() }
         )
     }
 }

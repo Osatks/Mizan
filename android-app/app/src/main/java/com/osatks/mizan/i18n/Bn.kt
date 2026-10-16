@@ -545,6 +545,23 @@ object Bn : Strings {
     override val silenceBody = "ফোকাস মোডে মিজান ‘বিরক্ত করবেন না’ চালু করতে পারে এবং পড়া শেষ হলে আবার বন্ধ করে দেয়। অ্যান্ড্রয়েড একবার অনুমতি চাইবে।"
     override val allow = "অনুমতি দিন"
     override val notNow = "এখন নয়"
+    override val tafsirLibrary = "তাফসির লাইব্রেরি"
+    override val tafsirLibrarySub = "তাফসির ডাউনলোড করুন এবং আয়াতে চাপলে কোনগুলো দেখাবে তা বেছে নিন"
+    override val onDevice = "এই ডিভাইসে"
+    override val availableDownloads = "ডাউনলোডের জন্য উপলব্ধ"
+    override val download = "ডাউনলোড"
+    override fun downloadingPct(pct: Int) = "ডাউনলোড হচ্ছে… $pct%"
+    override val cancel = "বাতিল"
+    override val delete = "মুছুন"
+    override fun deleteTafsirQ(name: String) = "“$name” এই ডিভাইস থেকে মুছবেন?"
+    override val showInTafsir = "তাফসিরে দেখান"
+    override val builtIn = "অ্যাপে অন্তর্ভুক্ত"
+    override fun sizeMb(mb: String) = "≈ $mb MB"
+    override val downloadFailed = "ডাউনলোড ব্যর্থ হয়েছে। ইন্টারনেট সংযোগ পরীক্ষা করুন।"
+    override val retry = "আবার চেষ্টা করুন"
+    override val moreTafsirs = "আরও তাফসির"
+    override val tafsirLibraryNote = "তাফসিরগুলো উন্মুক্ত tafsir_api সংগ্রহ (quran.com ও QUL থেকে) থেকে ডাউনলোড হয়। শুধু এই ডাউনলোডের জন্যই ইন্টারনেট ব্যবহার হয়; এরপর এগুলো অফলাইনে কাজ করে।"
+    override fun ayahRange(from: Int, to: Int) = "আয়াত $from–$to-এর তাফসির"
     override val quranSources = "কুরআনের পাঠ (উসমানি লিপি) তানযিল প্রকল্প (tanzil.net) থেকে নেওয়া। তাফসিরে মুয়াসসার (বাদশাহ ফাহাদ কমপ্লেক্স), তাফসিরে জালালাইন ও অর্থানুবাদগুলো tanzil.net/trans থেকে নেওয়া। কুরআনের ফন্ট: Amiri Quran, SIL ওপেন ফন্ট লাইসেন্স।"
 
     // ---------- Settings ----------
@@ -565,7 +582,7 @@ object Bn : Strings {
     override val aboutText = "একটি বিনামূল্যের অ্যাপ, যাতে আছে একজন মুসলিমের প্রতিদিনের প্রয়োজনীয় টুলস: যাকাত, উত্তরাধিকার, নামাজের সময়, কিবলা, হিজরি তারিখ ও তাসবিহ। " +
         "বিধানগুলো জমহুর ফকিহদের মত অনুসরণ করে, নামাজের সময় জ্যোতির্বিজ্ঞানের সূত্রে হিসাব করা হয়, আর তারিখ উম্মুল কুরা ক্যালেন্ডার অনুযায়ী।"
     override val privacy = "গোপনীয়তা"
-    override val privacyText = "অ্যাপটি কোনো ব্যক্তিগত তথ্য সংগ্রহ করে না এবং ইন্টারনেট সংযোগও লাগে না। নামাজের সময় ও কিবলা হিসাবের জন্য আপনার অবস্থান শুধু আপনার ডিভাইসেই ব্যবহৃত হয়, " +
+    override val privacyText = "অ্যাপটি কোনো ব্যক্তিগত তথ্য সংগ্রহ করে না এবং শুধু আপনার বেছে নেওয়া তাফসির ডাউনলোড করতে ইন্টারনেট ব্যবহার করে। নামাজের সময় ও কিবলা হিসাবের জন্য আপনার অবস্থান শুধু আপনার ডিভাইসেই ব্যবহৃত হয়, " +
         "আর আপনার সেটিংস ও সংখ্যাগুলো আপনার ডিভাইসেই থাকে।"
     override val disclaimer = "ফলাফলগুলো নির্দেশিকা মাত্র। নিজের দ্বীনি বিষয়ে যোগ্য আলেম ও সরকারি সংস্থার শরণাপন্ন হোন।"
 }

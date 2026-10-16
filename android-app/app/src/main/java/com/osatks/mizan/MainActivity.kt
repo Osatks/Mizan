@@ -80,6 +80,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         AppSettings.init(this)
         QuranData.init(this)
+        com.osatks.mizan.quran.TafsirLibrary.init(this)
         // إن أُغلق التطبيق أثناء القراءة في وضع التركيز يُعاد «عدم الإزعاج» كما كان
         com.osatks.mizan.ui.quran.QuietReading.restore(this)
         Motion.reduced = !ValueAnimator.areAnimatorsEnabled()
@@ -108,7 +109,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran")
+private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -156,12 +157,14 @@ fun MizanApp(startRoute: String? = null) {
                                 startAyah = args?.getInt("ayah") ?: 0,
                                 from = args?.getString("from") ?: "row",
                                 onBack = back,
-                                openSurah = { n -> nav.navigate(surahRoute(n, 0, "nav")) { popUpTo(SURAH_ROUTE) { inclusive = true } } }
+                                openSurah = { n -> nav.navigate(surahRoute(n, 0, "nav")) { popUpTo(SURAH_ROUTE) { inclusive = true } } },
+                                openLibrary = { nav.navigate("tafsirs") }
                             )
                         }
                     }
                     screen("tasbih") { TasbihScreen() }
-                    screen("settings") { SettingsScreen() }
+                    screen("settings") { SettingsScreen(open = { nav.navigate(it) }) }
+                    screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
                     screen("zakat") { ZakatScreen(back) }
                     screen("fitr") { FitrScreen(back) }
                     screen("inheritance") { InheritanceScreen(back) }

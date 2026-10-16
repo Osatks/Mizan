@@ -564,6 +564,23 @@ object Ru : Strings {
     override val silenceBody = "В режиме фокуса Мизан может включать «Не беспокоить» и выключать его, когда вы закончите читать. Android один раз попросит разрешение."
     override val allow = "Разрешить"
     override val notNow = "Не сейчас"
+    override val tafsirLibrary = "Библиотека тафсиров"
+    override val tafsirLibrarySub = "Скачивайте тафсиры и выбирайте, какие показывать при нажатии на аят"
+    override val onDevice = "На этом устройстве"
+    override val availableDownloads = "Доступно для загрузки"
+    override val download = "Скачать"
+    override fun downloadingPct(pct: Int) = "Загрузка… $pct%"
+    override val cancel = "Отмена"
+    override val delete = "Удалить"
+    override fun deleteTafsirQ(name: String) = "Удалить «$name» с устройства?"
+    override val showInTafsir = "Показывать в тафсире"
+    override val builtIn = "Встроенный"
+    override fun sizeMb(mb: String) = "≈ $mb МБ"
+    override val downloadFailed = "Не удалось скачать. Проверьте подключение к интернету."
+    override val retry = "Повторить"
+    override val moreTafsirs = "Другие тафсиры"
+    override val tafsirLibraryNote = "Тафсиры загружаются из открытой коллекции tafsir_api (по данным quran.com и QUL). Интернет используется только для этих загрузок; после них тафсиры работают офлайн."
+    override fun ayahRange(from: Int, to: Int) = "Тафсир аятов $from–$to"
     override val quranSources = "Текст Корана (начертание Усмани) взят из проекта Tanzil (tanzil.net). «Тафсир аль-Муяссар» (Комплекс имени короля Фахда), «Тафсир аль-Джалалайн» и переводы смыслов — с сайта tanzil.net/trans. Шрифт Корана: Amiri Quran, лицензия SIL Open Font License."
 
     // ---------- Settings ----------
@@ -584,7 +601,7 @@ object Ru : Strings {
     override val aboutText = "Бесплатное приложение с инструментами, которые нужны мусульманину каждый день: закят, наследство, время намаза, кибла, дата по хиджре и тасбих. " +
         "Расчёты следуют мнению большинства правоведов, время намаза вычисляется по астрономическим формулам, а даты — по календарю Умм аль-Кура."
     override val privacy = "Конфиденциальность"
-    override val privacyText = "Приложение не собирает персональные данные и не требует интернета. Местоположение используется только на вашем устройстве для расчёта времени намаза и киблы, " +
+    override val privacyText = "Приложение не собирает персональные данные и использует интернет только для загрузки выбранных вами тафсиров. Местоположение используется только на вашем устройстве для расчёта времени намаза и киблы, " +
         "а ваши настройки и данные остаются на устройстве."
     override val disclaimer = "Результаты носят справочный характер. По личным религиозным вопросам обращайтесь к знающим учёным и официальным организациям."
 }

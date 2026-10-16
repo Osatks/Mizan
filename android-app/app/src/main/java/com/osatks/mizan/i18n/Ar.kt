@@ -527,6 +527,23 @@ object Ar : Strings {
     override val silenceBody = "في وضع التركيز يمكن لميزان تفعيل «عدم الإزعاج» ثم إيقافه حين تنتهي من القراءة. سيطلب منك أندرويد السماح بذلك مرة واحدة."
     override val allow = "السماح"
     override val notNow = "ليس الآن"
+    override val tafsirLibrary = "مكتبة التفاسير"
+    override val tafsirLibrarySub = "نزّل التفاسير واختر ما يظهر منها عند الضغط على آية"
+    override val onDevice = "على جهازك"
+    override val availableDownloads = "متاح للتنزيل"
+    override val download = "تنزيل"
+    override fun downloadingPct(pct: Int) = "جارٍ التنزيل… $pct%"
+    override val cancel = "إلغاء"
+    override val delete = "حذف"
+    override fun deleteTafsirQ(name: String) = "حذف «$name» من جهازك؟"
+    override val showInTafsir = "إظهار في التفسير"
+    override val builtIn = "مدمج في التطبيق"
+    override fun sizeMb(mb: String) = "نحو $mb ميغابايت"
+    override val downloadFailed = "تعذّر التنزيل. تحقق من اتصالك بالإنترنت."
+    override val retry = "إعادة المحاولة"
+    override val moreTafsirs = "تفاسير أخرى"
+    override val tafsirLibraryNote = "تُنزَّل التفاسير من مجموعة tafsir_api المفتوحة (عن quran.com وQUL). لا يُستخدم الإنترنت إلا لهذا التنزيل، وبعده تعمل التفاسير دون اتصال."
+    override fun ayahRange(from: Int, to: Int) = "تفسير الآيات $from–$to"
     override val quranSources = "نص القرآن الكريم بالرسم العثماني من مشروع تنزيل (tanzil.net)، والتفسير الميسر (مجمع الملك فهد) وتفسير الجلالين وترجمات المعاني من tanzil.net/trans. خط المصحف: Amiri Quran برخصة SIL OFL."
 
     // ---------- الإعدادات ----------
@@ -547,7 +564,7 @@ object Ar : Strings {
     override val aboutText = "تطبيق مجاني يجمع أدوات يحتاجها المسلم يومياً: الزكاة والمواريث ومواقيت الصلاة والقبلة والتاريخ الهجري والمسبحة. " +
         "تعتمد الحسابات على المعتمد عند جمهور الفقهاء، ومواقيت الصلاة على معادلات فلكية، والتاريخ على تقويم أم القرى."
     override val privacy = "الخصوصية"
-    override val privacyText = "لا يجمع التطبيق أي بيانات شخصية ولا يحتاج إلى اتصال بالإنترنت. يُستخدم الموقع على جهازك فقط لحساب المواقيت والقبلة، " +
+    override val privacyText = "لا يجمع التطبيق أي بيانات شخصية ولا يستخدم الإنترنت إلا لتنزيل التفاسير التي تختارها. يُستخدم الموقع على جهازك فقط لحساب المواقيت والقبلة، " +
         "وتُحفظ إعداداتك وأرقامك على الجهاز ولا تُرسل إلى أي جهة."
     override val disclaimer = "النتائج إرشادية، ويُرجع في المسائل الشرعية الخاصة إلى أهل العلم والجهات الرسمية المختصة."
 }

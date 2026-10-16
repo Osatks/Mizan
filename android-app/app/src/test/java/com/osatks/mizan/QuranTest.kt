@@ -168,4 +168,24 @@ class QuranTest {
             assertEquals(pl.word.index, l.hit((pl.left + pl.right) / 2, row.top + row.height / 2))
         }
     }
+
+    @Test
+    fun downloadedTafsirStoresSharedCommentaryOnce() {
+        val lib = com.osatks.mizan.quran.TafsirLibrary
+        // تفسير يشرح الآيات 2-4 معاً (يتكرر نصه في المصدر لكل آية)، مع حاشية محقق وأسطر فارغة زائدة
+        val shared = "شرح الآيات [[في أ: نسخة]] من 2 إلى 4\n\n\n\nفقرة ثانية"
+        val entries = listOf(1 to "شرح الآية الأولى", 2 to shared, 3 to shared, 4 to shared, 5 to "شرح الخامسة")
+        val lines = lib.encodeSurah(entries)
+        assertEquals(5, lines.size)
+        assertEquals(listOf("3|=2", "4|=2"), lines.subList(2, 4))
+        assertFalse(lines.joinToString("").contains("[["))
+        val surah = lib.decodeSurah(lines.asSequence(), 5)
+        val e3 = surah.entry(3)
+        assertEquals("شرح الآيات من 2 إلى 4\n\nفقرة ثانية", e3.text)
+        assertEquals(2, e3.from); assertEquals(4, e3.to)
+        assertEquals(surah.entry(2).text, surah.entry(4).text)
+        val e1 = surah.entry(1)
+        assertEquals(1, e1.from); assertEquals(1, e1.to)
+        assertEquals("شرح الخامسة", surah.entry(5).text)
+    }
 }

@@ -541,9 +541,26 @@ object De : Strings {
     override val focusMode = "Fokusmodus"
     override val exitFocus = "Fokusmodus beenden"
     override val silenceTitle = "Benachrichtigungen beim Lesen stummschalten?"
-    override val silenceBody = "Im Fokusmodus kann Mizan „Bitte nicht stören“ einschalten und wieder ausschalten, wenn Sie mit dem Lesen aufhören. Android fragt einmal nach der Erlaubnis."
+    override val silenceBody = "Im Fokusmodus kann Mizan „Bitte nicht stören“ einschalten und wieder ausschalten, wenn du mit dem Lesen aufhörst. Android fragt einmal nach der Erlaubnis."
     override val allow = "Erlauben"
     override val notNow = "Nicht jetzt"
+    override val tafsirLibrary = "Tafsir-Bibliothek"
+    override val tafsirLibrarySub = "Lade Tafsire herunter und wähle, welche beim Tippen auf einen Vers erscheinen"
+    override val onDevice = "Auf diesem Gerät"
+    override val availableDownloads = "Zum Herunterladen"
+    override val download = "Herunterladen"
+    override fun downloadingPct(pct: Int) = "Wird heruntergeladen… $pct %"
+    override val cancel = "Abbrechen"
+    override val delete = "Löschen"
+    override fun deleteTafsirQ(name: String) = "„$name“ von diesem Gerät löschen?"
+    override val showInTafsir = "Im Tafsir anzeigen"
+    override val builtIn = "Integriert"
+    override fun sizeMb(mb: String) = "≈ $mb MB"
+    override val downloadFailed = "Download fehlgeschlagen. Prüfe deine Internetverbindung."
+    override val retry = "Erneut versuchen"
+    override val moreTafsirs = "Weitere Tafsire"
+    override val tafsirLibraryNote = "Die Tafsire werden aus der offenen Sammlung tafsir_api (Quellen: quran.com und QUL) geladen. Das Internet wird nur für diese Downloads genutzt; danach funktionieren sie offline."
+    override fun ayahRange(from: Int, to: Int) = "Erklärung der Verse $from–$to"
     override val quranSources = "Korantext (uthmanische Schreibweise) vom Tanzil-Projekt (tanzil.net). Tafsir al-Muyassar (König-Fahd-Komplex), Tafsir al-Dschalalain und die Übersetzungen der Bedeutungen von tanzil.net/trans. Koran-Schriftart: Amiri Quran, SIL Open Font License."
 
     // ---------- Settings ----------
@@ -564,7 +581,7 @@ object De : Strings {
     override val aboutText = "Eine kostenlose App mit den Tools, die Muslime täglich brauchen: Zakat, Erbe, Gebetszeiten, Qibla, Hidschra-Datum und Tasbih. " +
         "Die Regeln folgen der Mehrheit der Rechtsgelehrten, die Gebetszeiten beruhen auf astronomischen Formeln und die Daten auf dem Umm-al-Qura-Kalender."
     override val privacy = "Datenschutz"
-    override val privacyText = "Die App erhebt keine personenbezogenen Daten und benötigt keine Internetverbindung. Dein Standort wird nur auf deinem Gerät verwendet, um Gebetszeiten und Qibla zu berechnen, " +
+    override val privacyText = "Die App erhebt keine personenbezogenen Daten und nutzt das Internet nur, um die Tafsire herunterzuladen, die du auswählst. Dein Standort wird nur auf deinem Gerät verwendet, um Gebetszeiten und Qibla zu berechnen, " +
         "und deine Einstellungen und Zahlen bleiben auf deinem Gerät."
     override val disclaimer = "Die Ergebnisse dienen zur Orientierung. Wende dich bei persönlichen religiösen Fragen an qualifizierte Gelehrte und offizielle Stellen."
 }

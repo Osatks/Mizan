@@ -545,6 +545,23 @@ object Fa : Strings {
     override val silenceBody = "در حالت تمرکز، میزان می‌تواند «مزاحم نشوید» را روشن کند و وقتی خواندن را تمام کردید دوباره خاموشش کند. اندروید یک بار اجازه می‌خواهد."
     override val allow = "اجازه دادن"
     override val notNow = "اکنون نه"
+    override val tafsirLibrary = "کتابخانه تفسیرها"
+    override val tafsirLibrarySub = "تفسیرها را دانلود کنید و انتخاب کنید کدام‌ها هنگام لمس آیه نمایش داده شوند"
+    override val onDevice = "روی این دستگاه"
+    override val availableDownloads = "قابل دانلود"
+    override val download = "دانلود"
+    override fun downloadingPct(pct: Int) = "در حال دانلود… $pct٪"
+    override val cancel = "لغو"
+    override val delete = "حذف"
+    override fun deleteTafsirQ(name: String) = "«$name» از این دستگاه حذف شود؟"
+    override val showInTafsir = "نمایش در تفسیر"
+    override val builtIn = "داخلی"
+    override fun sizeMb(mb: String) = "حدود $mb مگابایت"
+    override val downloadFailed = "دانلود ناموفق بود. اتصال اینترنت را بررسی کنید."
+    override val retry = "تلاش دوباره"
+    override val moreTafsirs = "تفسیرهای دیگر"
+    override val tafsirLibraryNote = "تفسیرها از مجموعه باز tafsir_api (برگرفته از quran.com و QUL) دانلود می‌شوند. اینترنت فقط برای همین دانلودها به کار می‌رود و پس از آن تفسیرها بدون اینترنت کار می‌کنند."
+    override fun ayahRange(from: Int, to: Int) = "تفسیر آیات $from–$to"
     override val quranSources = "متن قرآن کریم به رسم‌الخط عثمانی از پروژه تنزیل (tanzil.net). التفسیر المیسر (مجمع ملک فهد)، تفسیر جلالین و ترجمه‌های معانی از tanzil.net/trans. فونت قرآن: Amiri Quran، با مجوز SIL Open Font License."
 
     // ---------- Settings ----------
@@ -565,7 +582,7 @@ object Fa : Strings {
     override val aboutText = "برنامه‌ای رایگان با ابزارهایی که مسلمان هر روز به آن‌ها نیاز دارد: زکات، ارث، اوقات نماز، قبله، تاریخ هجری قمری و تسبیح. " +
         "احکام بر پایه قول جمهور فقها، اوقات نماز بر پایه فرمول‌های نجومی و تاریخ‌ها طبق تقویم ام‌القری است."
     override val privacy = "حریم خصوصی"
-    override val privacyText = "این برنامه هیچ داده شخصی جمع‌آوری نمی‌کند و به اینترنت نیاز ندارد. موقعیت شما فقط روی دستگاهتان و برای محاسبه اوقات نماز و قبله به کار می‌رود، " +
+    override val privacyText = "این برنامه هیچ داده شخصی جمع‌آوری نمی‌کند و فقط برای دانلود تفسیرهایی که انتخاب می‌کنید از اینترنت استفاده می‌کند. موقعیت شما فقط روی دستگاهتان و برای محاسبه اوقات نماز و قبله به کار می‌رود، " +
         "و تنظیمات و اعداد شما روی دستگاهتان می‌ماند."
     override val disclaimer = "نتایج جنبه راهنما دارند. برای پرسش‌های شرعی خود به علمای واجد شرایط و نهادهای رسمی مراجعه کنید."
 }

@@ -563,6 +563,23 @@ object Fr : Strings {
     override val silenceBody = "En mode concentration, Mizan peut activer « Ne pas déranger » et le désactiver quand vous arrêtez de lire. Android vous demandera de l’autoriser une fois."
     override val allow = "Autoriser"
     override val notNow = "Plus tard"
+    override val tafsirLibrary = "Bibliothèque de tafsirs"
+    override val tafsirLibrarySub = "Téléchargez des tafsirs et choisissez ceux qui s’affichent quand vous touchez un verset"
+    override val onDevice = "Sur cet appareil"
+    override val availableDownloads = "Disponibles au téléchargement"
+    override val download = "Télécharger"
+    override fun downloadingPct(pct: Int) = "Téléchargement… $pct %"
+    override val cancel = "Annuler"
+    override val delete = "Supprimer"
+    override fun deleteTafsirQ(name: String) = "Supprimer « $name » de cet appareil ?"
+    override val showInTafsir = "Afficher dans le tafsir"
+    override val builtIn = "Intégré"
+    override fun sizeMb(mb: String) = "≈ $mb Mo"
+    override val downloadFailed = "Échec du téléchargement. Vérifiez votre connexion Internet."
+    override val retry = "Réessayer"
+    override val moreTafsirs = "Autres tafsirs"
+    override val tafsirLibraryNote = "Les tafsirs sont téléchargés depuis la collection ouverte tafsir_api (issue de quran.com et QUL). Internet n’est utilisé que pour ces téléchargements ; ensuite, ils fonctionnent hors ligne."
+    override fun ayahRange(from: Int, to: Int) = "Commentaire des versets $from–$to"
     override val quranSources = "Texte du Coran (écriture uthmanienne) issu du projet Tanzil (tanzil.net). Le Tafsir al-Muyassar (Complexe du Roi Fahd), le Tafsir al-Jalalayn et les traductions du sens proviennent de tanzil.net/trans. Police du Coran : Amiri Quran, sous licence SIL Open Font License."
 
     // ---------- Settings ----------
@@ -583,7 +600,7 @@ object Fr : Strings {
     override val aboutText = "Une application gratuite qui réunit les outils dont un musulman a besoin au quotidien : zakat, héritage, horaires de prière, qibla, date hégirienne et tasbih. " +
         "Les règles suivent la majorité des juristes, les horaires de prière reposent sur des formules astronomiques et les dates suivent le calendrier Umm al-Qura."
     override val privacy = "Confidentialité"
-    override val privacyText = "L'application ne collecte aucune donnée personnelle et ne nécessite pas de connexion Internet. Votre position n'est utilisée que sur votre appareil pour calculer les horaires de prière et la qibla, " +
+    override val privacyText = "L'application ne collecte aucune donnée personnelle et n’utilise Internet que pour télécharger les tafsirs que vous choisissez. Votre position n'est utilisée que sur votre appareil pour calculer les horaires de prière et la qibla, " +
         "et vos réglages et chiffres restent sur votre appareil."
     override val disclaimer = "Les résultats sont indicatifs. Pour vos questions religieuses personnelles, consultez des savants qualifiés et les instances officielles."
 }

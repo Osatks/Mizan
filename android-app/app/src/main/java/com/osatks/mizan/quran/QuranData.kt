@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 enum class SourceKind { TAFSIR, TRANSLATION }
 
-/** مصدر تفسير أو ترجمة معانٍ (ملف من tanzil.net/trans في assets/tafsir) */
-data class TafsirSource(val id: String, val lang: Lang, val kind: SourceKind, val author: String)
+/** مصدر تفسير أو ترجمة معانٍ: مدمج (ملف من tanzil.net/trans في assets/tafsir) أو منزَّل من مكتبة التفاسير */
+data class TafsirSource(val id: String, val lang: Lang, val kind: SourceKind, val author: String, val remote: RemoteTafsir? = null)
 
 object Sources {
     val ALL = listOf(
@@ -37,27 +37,47 @@ object Sources {
         TafsirSource("de.bubenheim", Lang.DE, SourceKind.TRANSLATION, "Bubenheim & Elyas"),
     )
 
-    fun byId(id: String?) = ALL.firstOrNull { it.id == id }
+    private fun RemoteTafsir.asSource() = TafsirSource(id, lang, SourceKind.TAFSIR, author, this)
+
+    /** المصادر الموجودة على الجهاز: المدمجة في التطبيق، ثم ما نزّله المستخدم من مكتبة التفاسير */
+    fun installed(): List<TafsirSource> = ALL + TafsirLibrary.downloaded().map { it.asSource() }
+
+    fun byId(id: String?) = installed().firstOrNull { it.id == id }
 
     /** ترجمة المعاني بلغة الواجهة (لا توجد للعربية) */
     fun translationFor(lang: Lang) = ALL.firstOrNull { it.lang == lang && it.kind == SourceKind.TRANSLATION }
 
-    /** المصدر الافتراضي عند فتح التفسير: التفسير الميسر للعربية، وتفسير بلغة الواجهة إن وُجد، وإلا ترجمتها */
-    fun defaultFor(lang: Lang) = ALL.firstOrNull { it.lang == lang && it.kind == SourceKind.TAFSIR }
-        ?: translationFor(lang) ?: ALL[0]
+    /** المصدر الافتراضي عند فتح التفسير: تفسير بلغة الواجهة إن وُجد (الميسر للعربية)، وإلا ترجمتها، من المصادر الظاهرة */
+    fun defaultFor(lang: Lang): TafsirSource {
+        val v = visible(lang)
+        return v.firstOrNull { it.lang == lang && it.kind == SourceKind.TAFSIR } ?: v.firstOrNull { it.lang == lang } ?: v.first()
+    }
 
-    /** مصادر لغة الواجهة أولاً، ثم التفاسير العربية، ثم بقية الترجمات */
-    fun ordered(lang: Lang): List<TafsirSource> =
-        ALL.filter { it.lang == lang } + ALL.filter { it.lang == Lang.AR && it.lang != lang } +
-            ALL.filter { it.lang != lang && it.lang != Lang.AR }
+    /** مصادر لغة الواجهة أولاً، ثم العربية، ثم بقية اللغات */
+    fun ordered(lang: Lang, list: List<TafsirSource> = installed()): List<TafsirSource> =
+        list.filter { it.lang == lang } + list.filter { it.lang == Lang.AR && it.lang != lang } +
+            list.filter { it.lang != lang && it.lang != Lang.AR }
+
+    /** ما يظهر في ورقة التفسير: المصادر التي لم يُخفها المستخدم (ويبقى واحد على الأقل) */
+    fun visible(lang: Lang): List<TafsirSource> =
+        ordered(lang).filter { !QuranPrefs.isHidden(it.id) }.ifEmpty { listOf(ALL[0]) }
 
     /** اسم قصير يظهر على زر المصدر */
-    fun label(src: TafsirSource, s: Strings): String = when (src.id) {
+    fun label(src: TafsirSource, s: Strings, lang: Lang): String = src.remote?.name(lang) ?: when (src.id) {
         "ar.muyassar" -> s.tafsirMuyassar
         "ar.jalalayn" -> s.tafsirJalalayn
         "id.jalalayn" -> "Tafsir Jalalayn"
         else -> src.lang.native
     }
+
+    /** تفسير آية إن كان جاهزاً في الذاكرة (فلا يومض مؤشر التحميل عند التنقل بين الآيات) */
+    fun cachedEntry(src: TafsirSource, surah: Int, ayah: Int): TafsirEntry? =
+        if (src.remote != null) TafsirLibrary.cachedEntry(src.remote.slug, surah, ayah)
+        else QuranData.cached("tafsir/${src.id}.txt")?.let { TafsirEntry(it[QuranMeta.index(surah, ayah)], ayah, ayah) }
+
+    suspend fun entry(src: TafsirSource, surah: Int, ayah: Int): TafsirEntry? =
+        if (src.remote != null) TafsirLibrary.entry(src.remote.slug, surah, ayah)
+        else TafsirEntry(QuranData.source(src.id)[QuranMeta.index(surah, ayah)], ayah, ayah)
 
     fun kindLabel(src: TafsirSource, s: Strings) = if (src.kind == SourceKind.TAFSIR) s.tafsirTitle else s.translationOfMeanings
 }
@@ -140,6 +160,8 @@ object QuranPrefs {
         private set
     var source by mutableStateOf("")   // "" = حسب اللغة
         private set
+    /** المصادر التي أخفاها المستخدم من ورقة التفسير */
+    val hidden = mutableStateListOf<String>()
 
     fun ensure() {
         if (loaded) return
@@ -148,12 +170,20 @@ object QuranPrefs {
         textSize = AppSettings.getInt("q_size", 26)
         mode = AppSettings.getString("q_mode")
         source = AppSettings.getString("q_src")
+        hidden.clear()
+        hidden += AppSettings.getString("q_hidden").split(',').filter { it.isNotEmpty() }
         bookmarks.clear()
         bookmarks += AppSettings.getString("q_marks").split(',').mapNotNull { it.toIntOrNull() }.filter { it in 0 until QuranMeta.AYAHS }
     }
 
     fun modeFor(lang: Lang) = mode.ifEmpty { if (lang == Lang.AR) "mushaf" else "list" }
-    fun sourceFor(lang: Lang) = Sources.byId(source) ?: Sources.defaultFor(lang)
+    fun sourceFor(lang: Lang) = Sources.byId(source)?.takeIf { !isHidden(it.id) } ?: Sources.defaultFor(lang)
+
+    fun isHidden(id: String) = id in hidden
+    fun setVisible(id: String, visible: Boolean) {
+        if (visible) hidden.remove(id) else if (id !in hidden) hidden.add(id)
+        AppSettings.putString("q_hidden", hidden.joinToString(","))
+    }
 
     fun updateLast(i: Int) { if (i != last) { last = i; AppSettings.putInt("q_last", i) } }
     fun updateSize(v: Int) { textSize = v.coerceIn(18, 40); AppSettings.putInt("q_size", textSize) }

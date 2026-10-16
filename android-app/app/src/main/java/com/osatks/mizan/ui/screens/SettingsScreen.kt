@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -40,7 +41,7 @@ import com.osatks.mizan.ui.Segmented
 import com.osatks.mizan.ui.ToolPage
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(open: (String) -> Unit = {}) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ctx = LocalContext.current
@@ -64,6 +65,14 @@ fun SettingsScreen() {
         item {
             SectionCard(s.appearance) {
                 Segmented(listOf("system" to s.themeAuto, "light" to s.themeLight, "dark" to s.themeDark), AppSettings.theme) { AppSettings.updateTheme(it) }
+            }
+        }
+        item {
+            // مكتبة التفاسير: تنزيل التفاسير واختيار ما يظهر منها
+            SectionCard(s.quranTitle) {
+                ClickRow(s.tafsirLibrary, s.tafsirLibrarySub, onClick = { open("tafsirs") }, leading = Icons.AutoMirrored.Filled.LibraryBooks) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
         item {

@@ -544,6 +544,23 @@ object En : Strings {
     override val silenceBody = "In focus mode, Mizan can turn on Do Not Disturb and turn it off again when you stop reading. Android will ask you to allow this once."
     override val allow = "Allow"
     override val notNow = "Not now"
+    override val tafsirLibrary = "Tafsir library"
+    override val tafsirLibrarySub = "Download tafsirs and choose which ones appear when you tap an ayah"
+    override val onDevice = "On this device"
+    override val availableDownloads = "Available to download"
+    override val download = "Download"
+    override fun downloadingPct(pct: Int) = "Downloading… $pct%"
+    override val cancel = "Cancel"
+    override val delete = "Delete"
+    override fun deleteTafsirQ(name: String) = "Delete “$name” from this device?"
+    override val showInTafsir = "Show in tafsir"
+    override val builtIn = "Built in"
+    override fun sizeMb(mb: String) = "≈ $mb MB"
+    override val downloadFailed = "Download failed. Check your internet connection."
+    override val retry = "Try again"
+    override val moreTafsirs = "More tafsirs"
+    override val tafsirLibraryNote = "Tafsirs are downloaded from the open tafsir_api collection (from quran.com and QUL). The internet is used only for these downloads; after that they work offline."
+    override fun ayahRange(from: Int, to: Int) = "Commentary on ayahs $from–$to"
     override val quranSources = "Quran text (Uthmani script) from the Tanzil Project (tanzil.net). Tafsir al-Muyassar (King Fahd Complex), Tafsir al-Jalalayn and the translations of the meanings from tanzil.net/trans. Quran font: Amiri Quran, SIL Open Font License."
 
     // ---------- Settings ----------
@@ -564,7 +581,7 @@ object En : Strings {
     override val aboutText = "A free app with the tools a Muslim needs every day: zakat, inheritance, prayer times, qibla, the Hijri date and a tasbih. " +
         "Rulings follow the majority of jurists, prayer times use astronomical formulas, and dates follow the Umm al-Qura calendar."
     override val privacy = "Privacy"
-    override val privacyText = "The app collects no personal data and needs no internet connection. Your location is used only on your device to compute prayer times and the qibla, " +
+    override val privacyText = "The app collects no personal data and uses the internet only to download the tafsirs you choose. Your location is used only on your device to compute prayer times and the qibla, " +
         "and your settings and numbers stay on your device."
     override val disclaimer = "Results are a guide. For your own religious questions, refer to qualified scholars and official bodies."
 }

@@ -545,6 +545,23 @@ object Ur : Strings {
     override val silenceBody = "فوکس موڈ میں میزان «ڈسٹرب نہ کریں» آن کر سکتا ہے اور پڑھنا ختم ہونے پر اسے دوبارہ بند کر دیتا ہے۔ اینڈرائیڈ ایک بار اس کی اجازت مانگے گا۔"
     override val allow = "اجازت دیں"
     override val notNow = "ابھی نہیں"
+    override val tafsirLibrary = "تفاسیر کی لائبریری"
+    override val tafsirLibrarySub = "تفاسیر ڈاؤن لوڈ کریں اور منتخب کریں کہ آیت پر ٹیپ کرنے پر کون سی دکھائی دیں"
+    override val onDevice = "آپ کے آلے پر"
+    override val availableDownloads = "ڈاؤن لوڈ کے لیے دستیاب"
+    override val download = "ڈاؤن لوڈ"
+    override fun downloadingPct(pct: Int) = "ڈاؤن لوڈ ہو رہا ہے… $pct%"
+    override val cancel = "منسوخ"
+    override val delete = "حذف کریں"
+    override fun deleteTafsirQ(name: String) = "«$name» کو اس آلے سے حذف کریں؟"
+    override val showInTafsir = "تفسیر میں دکھائیں"
+    override val builtIn = "ایپ میں شامل"
+    override fun sizeMb(mb: String) = "تقریباً $mb MB"
+    override val downloadFailed = "ڈاؤن لوڈ ناکام ہوا۔ اپنا انٹرنیٹ کنکشن چیک کریں۔"
+    override val retry = "دوبارہ کوشش کریں"
+    override val moreTafsirs = "مزید تفاسیر"
+    override val tafsirLibraryNote = "تفاسیر کھلے ذخیرے tafsir_api (ماخذ quran.com اور QUL) سے ڈاؤن لوڈ ہوتی ہیں۔ انٹرنیٹ صرف انہی ڈاؤن لوڈز کے لیے استعمال ہوتا ہے؛ اس کے بعد یہ بغیر انٹرنیٹ کام کرتی ہیں۔"
+    override fun ayahRange(from: Int, to: Int) = "آیات $from–$to کی تفسیر"
     override val quranSources = "قرآن مجید کا متن (رسم عثمانی) تنزیل پروجیکٹ (tanzil.net) سے لیا گیا ہے۔ التفسیر المیسر (شاہ فہد کمپلیکس)، تفسیر جلالین اور معانی کے تراجم tanzil.net/trans سے لیے گئے ہیں۔ قرآنی فونٹ: Amiri Quran، جو SIL اوپن فونٹ لائسنس کے تحت دستیاب ہے۔"
 
     // ---------- ترتیبات ----------
@@ -565,7 +582,7 @@ object Ur : Strings {
     override val aboutText = "ایک مفت ایپ جس میں وہ ٹولز ہیں جن کی ایک مسلمان کو روزانہ ضرورت ہوتی ہے: زکوٰۃ، وراثت، اوقات نماز، قبلہ، ہجری تاریخ اور تسبیح۔ " +
         "احکام جمہور فقہاء کے مطابق ہیں، اوقات نماز فلکیاتی فارمولوں سے نکالے جاتے ہیں، اور تاریخیں ام القریٰ کیلنڈر کے مطابق ہیں۔"
     override val privacy = "رازداری"
-    override val privacyText = "ایپ کوئی ذاتی ڈیٹا جمع نہیں کرتی اور اسے انٹرنیٹ کی ضرورت نہیں۔ آپ کا مقام صرف آپ کے آلے پر اوقات نماز اور قبلہ معلوم کرنے کے لیے استعمال ہوتا ہے، " +
+    override val privacyText = "ایپ کوئی ذاتی ڈیٹا جمع نہیں کرتی اور انٹرنیٹ صرف آپ کی منتخب کردہ تفاسیر ڈاؤن لوڈ کرنے کے لیے استعمال کرتی ہے۔ آپ کا مقام صرف آپ کے آلے پر اوقات نماز اور قبلہ معلوم کرنے کے لیے استعمال ہوتا ہے، " +
         "اور آپ کی ترتیبات اور اعداد آپ کے آلے ہی پر رہتے ہیں۔"
     override val disclaimer = "نتائج رہنمائی کے لیے ہیں۔ اپنے ذاتی شرعی مسائل میں مستند علماء اور سرکاری اداروں سے رجوع کریں۔"
 }

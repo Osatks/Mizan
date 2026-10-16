@@ -545,6 +545,23 @@ object Id : Strings {
     override val silenceBody = "Dalam mode fokus, Mizan dapat menyalakan Jangan Ganggu dan mematikannya lagi saat Anda selesai membaca. Android akan meminta izin sekali."
     override val allow = "Izinkan"
     override val notNow = "Nanti saja"
+    override val tafsirLibrary = "Perpustakaan tafsir"
+    override val tafsirLibrarySub = "Unduh tafsir dan pilih mana yang tampil saat Anda menyentuh ayat"
+    override val onDevice = "Di perangkat ini"
+    override val availableDownloads = "Tersedia untuk diunduh"
+    override val download = "Unduh"
+    override fun downloadingPct(pct: Int) = "Mengunduh… $pct%"
+    override val cancel = "Batal"
+    override val delete = "Hapus"
+    override fun deleteTafsirQ(name: String) = "Hapus “$name” dari perangkat ini?"
+    override val showInTafsir = "Tampilkan di tafsir"
+    override val builtIn = "Bawaan"
+    override fun sizeMb(mb: String) = "≈ $mb MB"
+    override val downloadFailed = "Gagal mengunduh. Periksa koneksi internet Anda."
+    override val retry = "Coba lagi"
+    override val moreTafsirs = "Tafsir lainnya"
+    override val tafsirLibraryNote = "Tafsir diunduh dari koleksi terbuka tafsir_api (bersumber dari quran.com dan QUL). Internet hanya dipakai untuk unduhan ini; setelah itu tafsir bisa dibuka tanpa koneksi."
+    override fun ayahRange(from: Int, to: Int) = "Tafsir ayat $from–$to"
     override val quranSources = "Teks Al-Qur'an (rasm Utsmani) dari Proyek Tanzil (tanzil.net). Tafsir Al-Muyassar (Kompleks Raja Fahd), Tafsir Jalalain, dan terjemahan makna dari tanzil.net/trans. Fon Al-Qur'an: Amiri Quran, berlisensi SIL Open Font License."
 
     // ---------- Settings ----------
@@ -565,7 +582,7 @@ object Id : Strings {
     override val aboutText = "Aplikasi gratis berisi fitur yang dibutuhkan Muslim setiap hari: zakat, waris, jadwal salat, kiblat, tanggal Hijriah, dan tasbih. " +
         "Hukum mengikuti pendapat jumhur fukaha, jadwal salat menggunakan rumus astronomi, dan tanggal mengikuti kalender Ummul Qura."
     override val privacy = "Privasi"
-    override val privacyText = "Aplikasi ini tidak mengumpulkan data pribadi dan tidak memerlukan koneksi internet. Lokasi Anda hanya digunakan di perangkat untuk menghitung jadwal salat dan kiblat, " +
+    override val privacyText = "Aplikasi ini tidak mengumpulkan data pribadi dan hanya memakai internet untuk mengunduh tafsir yang Anda pilih. Lokasi Anda hanya digunakan di perangkat untuk menghitung jadwal salat dan kiblat, " +
         "serta setelan dan angka Anda tetap tersimpan di perangkat."
     override val disclaimer = "Hasil bersifat panduan. Untuk persoalan agama pribadi Anda, rujuklah kepada ulama yang berkompeten dan lembaga resmi."
 }
