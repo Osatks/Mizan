@@ -88,7 +88,7 @@ object PrayerAlarms {
             PendingIntent.FLAG_IMMUTABLE
         )
         val n = NotificationCompat.Builder(ctx, CHANNEL)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_launcher_monochrome)
             .setContentTitle(s.prayerNowTitle(s.prayer(key)))
             .setContentText(s.prayerNowText(s.placeName(AppSettings.place)))
             .setPriority(NotificationCompat.PRIORITY_HIGH)

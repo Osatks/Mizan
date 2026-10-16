@@ -1,5 +1,5 @@
 /* عامل الخدمة لتطبيق ميزان — يُولَّد تلقائياً بواسطة build.py */
-const VERSION = "mizan-81da63145a";
+const VERSION = "mizan-36645cf150";
 const PRECACHE = ["/", "/404.html", "/about/", "/age-calculator/", "/articles/after-prayer-adhkar/", "/articles/faraid-basics/", "/articles/gold-jewelry-zakat/", "/articles/hijri-months/", "/articles/", "/articles/prayer-times-calculation/", "/articles/zakat-nisab/", "/contact/", "/disclaimer/", "/fidya-kaffarah/", "/hijri-converter/", "/inheritance-calculator/", "/islamic-events/", "/prayer-times/", "/privacy-policy/", "/qibla-direction/", "/tasbih/", "/terms/", "/zakat-al-fitr/", "/zakat-calculator/", "/assets/css/style.css", "/assets/img/favicon.svg", "/assets/img/icon-180.png", "/assets/img/icon-192.png", "/assets/img/icon-512.png", "/assets/img/icon-maskable-512.png", "/assets/js/age.js", "/assets/js/events.js", "/assets/js/fidya.js", "/assets/js/fitr.js", "/assets/js/hijri.js", "/assets/js/home.js", "/assets/js/inheritance.js", "/assets/js/main.js", "/assets/js/prayer.js", "/assets/js/praytimes.js", "/assets/js/qibla.js", "/assets/js/tasbih.js", "/assets/js/zakat.js"];
 const FONT_CACHE = "mizan-fonts";
 

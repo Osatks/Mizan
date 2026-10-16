@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- مولَّد من branding/icon.py: شكل الميزان وحده للأيقونات الملوّنة بلون النظام (أندرويد 13+) والإشعارات -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M51.891,37.406A2.109,2.109,0,1,0,56.109,37.406A2.109,2.109,0,1,0,51.891,37.406Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M54,38.672L54,38.672A1.336,1.336,0,0,1,55.336,40.008L55.336,68.133A1.336,1.336,0,0,1,54,69.469L54,69.469A1.336,1.336,0,0,1,52.664,68.133L52.664,40.008A1.336,1.336,0,0,1,54,38.672Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M36.773,42.398L71.227,42.398A1.195,1.195,0,0,1,72.422,43.594L72.422,43.594A1.195,1.195,0,0,1,71.227,44.789L36.773,44.789A1.195,1.195,0,0,1,35.578,43.594L35.578,43.594A1.195,1.195,0,0,1,36.773,42.398Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M51.188,67.5L56.812,67.5L59.766,69.891L48.234,69.891Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M45.984,69.469L62.016,69.469A1.266,1.266,0,0,1,63.281,70.734L63.281,70.734A1.266,1.266,0,0,1,62.016,72L45.984,72A1.266,1.266,0,0,1,44.719,70.734L44.719,70.734A1.266,1.266,0,0,1,45.984,69.469Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M30.938,58.781L45.562,58.781A7.312,5.344,0,0,1,30.938,58.781Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M62.438,58.781L77.062,58.781A7.312,5.344,0,0,1,62.438,58.781Z"/>
+    <path android:pathData="M38.25,43.594L32.062,58.641M38.25,43.594L44.438,58.641M69.75,43.594L63.562,58.641M69.75,43.594L75.938,58.641" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.27" android:strokeLineCap="round"/>
+</vector>
