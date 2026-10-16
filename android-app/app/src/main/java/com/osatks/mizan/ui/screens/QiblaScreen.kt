@@ -136,6 +136,7 @@ fun QiblaScreen(onBack: (() -> Unit)? = null) {
                 warn = accuracyLow
             )
         }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.qibla) }
     }
 }
 

@@ -151,6 +151,7 @@ fun HijriScreen(onBack: () -> Unit) {
             }
         }
         item { Note(s.moonNote) }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.hijri) }
     }
 }
 
@@ -252,6 +253,7 @@ fun AgeScreen(onBack: () -> Unit) {
                 DateFields(hijri, y, m, d, { y = it }, { m = it }, { d = it })
             }
         }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.age) }
     }
 }
 
@@ -330,6 +332,7 @@ fun EventsScreen(onBack: () -> Unit) {
             }
         }
         item { Note(s.eventsNote) }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.events) }
     }
 }
 

@@ -29,6 +29,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Agriculture
+import androidx.compose.material.icons.filled.ChildCare
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.ExpandMore
@@ -119,6 +124,13 @@ private fun conceptIcon(c: String): ImageVector = when (c) {
     "share" -> Icons.Filled.PieChart
     "order" -> Icons.Filled.Gavel
     "scholars" -> Icons.Filled.Forum
+    "sun" -> Icons.Filled.WbSunny
+    "qibla", "compass" -> Icons.Filled.Explore
+    "moon" -> Icons.Filled.NightsStay
+    "star" -> Icons.Filled.Star
+    "dhikr", "fingers" -> Icons.Filled.TouchApp
+    "child" -> Icons.Filled.ChildCare
+    "quran" -> Icons.AutoMirrored.Filled.MenuBook
     else -> Icons.Filled.Lightbulb
 }
 

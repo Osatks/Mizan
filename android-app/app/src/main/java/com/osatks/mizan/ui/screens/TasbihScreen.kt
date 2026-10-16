@@ -266,5 +266,6 @@ fun TasbihScreen() {
                 }
             }
         }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.tasbih) }
     }
 }

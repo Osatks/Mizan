@@ -203,6 +203,7 @@ fun PrayerScreen() {
                 Text(s.timesMayDiffer, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+        item { EvidenceCard(com.osatks.mizan.i18n.Evidence.prayer) }
     }
 
     if (pickCity) CityPickerSheet(place.key.takeIf { !place.gps }, onDismiss = { pickCity = false }) { c ->
