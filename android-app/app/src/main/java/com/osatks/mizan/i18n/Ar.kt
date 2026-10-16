@@ -521,6 +521,12 @@ object Ar : Strings {
     override fun khatmasCompleted(n: Int) = "الختمات المكتملة: $n"
     override val continuePortion = "تابع وردي"
     override val ayahOfDay = "آية اليوم"
+    override val focusMode = "وضع التركيز"
+    override val exitFocus = "الخروج من وضع التركيز"
+    override val silenceTitle = "إسكات الإشعارات أثناء القراءة؟"
+    override val silenceBody = "في وضع التركيز يمكن لميزان تفعيل «عدم الإزعاج» ثم إيقافه حين تنتهي من القراءة. سيطلب منك أندرويد السماح بذلك مرة واحدة."
+    override val allow = "السماح"
+    override val notNow = "ليس الآن"
     override val quranSources = "نص القرآن الكريم بالرسم العثماني من مشروع تنزيل (tanzil.net)، والتفسير الميسر (مجمع الملك فهد) وتفسير الجلالين وترجمات المعاني من tanzil.net/trans. خط المصحف: Amiri Quran برخصة SIL OFL."
 
     // ---------- الإعدادات ----------

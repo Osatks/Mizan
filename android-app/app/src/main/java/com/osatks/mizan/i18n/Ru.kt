@@ -558,6 +558,12 @@ object Ru : Strings {
     override fun khatmasCompleted(n: Int) = "Завершённых хатмов: $n"
     override val continuePortion = "Продолжить чтение"
     override val ayahOfDay = "Аят дня"
+    override val focusMode = "Режим фокуса"
+    override val exitFocus = "Выйти из режима фокуса"
+    override val silenceTitle = "Отключать уведомления во время чтения?"
+    override val silenceBody = "В режиме фокуса Мизан может включать «Не беспокоить» и выключать его, когда вы закончите читать. Android один раз попросит разрешение."
+    override val allow = "Разрешить"
+    override val notNow = "Не сейчас"
     override val quranSources = "Текст Корана (начертание Усмани) взят из проекта Tanzil (tanzil.net). «Тафсир аль-Муяссар» (Комплекс имени короля Фахда), «Тафсир аль-Джалалайн» и переводы смыслов — с сайта tanzil.net/trans. Шрифт Корана: Amiri Quran, лицензия SIL Open Font License."
 
     // ---------- Settings ----------

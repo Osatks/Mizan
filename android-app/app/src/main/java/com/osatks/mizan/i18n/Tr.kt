@@ -539,6 +539,12 @@ object Tr : Strings {
     override fun khatmasCompleted(n: Int) = "Tamamlanan hatimler: $n"
     override val continuePortion = "Virdime devam et"
     override val ayahOfDay = "Günün ayeti"
+    override val focusMode = "Odak modu"
+    override val exitFocus = "Odak modundan çık"
+    override val silenceTitle = "Okurken bildirimler susturulsun mu?"
+    override val silenceBody = "Odak modunda Mizan «Rahatsız Etmeyin»i açabilir ve okumayı bitirdiğinizde yeniden kapatır. Android bunun için bir kez izin isteyecek."
+    override val allow = "İzin ver"
+    override val notNow = "Şimdi değil"
     override val quranSources = "Kur'an metni (resm-i Osmânî) Tanzil Projesi'nden (tanzil.net); Müyesser Tefsiri (Kral Fahd Kompleksi), Celâleyn Tefsiri ve mealler ise tanzil.net/trans adresinden alınmıştır. Mushaf yazı tipi: Amiri Quran, SIL Open Font License."
 
     // ---------- Settings ----------

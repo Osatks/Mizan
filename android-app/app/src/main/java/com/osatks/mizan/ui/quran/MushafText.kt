@@ -49,6 +49,7 @@ import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.arabicDigits
 import com.osatks.mizan.ui.drawStar8
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.min
@@ -56,13 +57,16 @@ import kotlin.math.min
 // ---------- حساب الصفحة (بلا واجهة، يُختبر وحده) ----------
 
 /** كلمة في الصفحة؛ marker علامة نهاية الآية برقمها (۝١٢) إن كانت آخر كلمة في آيتها */
-internal class MWord(val text: String, val marker: String?, val index: Int)
+internal class MWord(val text: String, val marker: String?, val index: Int, val pause: String? = null) {
+    /** موضع المدّ (الكشيدة) في الكلمة لضبط السطر، أو -1 */
+    val kashidaAt = kashidaPoint(text)
+}
 
 /** سورة (أو جزء منها) في الصفحة: ترويسة إن بدأت السورة هنا، والبسملة، ثم كلماتها */
 internal class MBlock(val surah: Int, val banner: Boolean, val bismillah: Boolean, val words: List<MWord>)
 
-/** كلمة في موضعها من السطر؛ left/right حدود الكلمة مع علامتها */
-internal class Placed(val word: MWord, val left: Float, val right: Float, val wordW: Float, val markerW: Float)
+/** كلمة في موضعها من السطر؛ left/right حدود الكلمة مع علامتها، و text نصها كما يُرسم (قد يكون ممدوداً) */
+internal class Placed(val word: MWord, val left: Float, val right: Float, val wordW: Float, val markerW: Float, val text: String = word.text)
 
 internal sealed class MRow(val top: Float, val height: Float)
 internal class TextRow(top: Float, height: Float, val words: List<Placed>) : MRow(top, height)
@@ -84,23 +88,56 @@ internal class PageLayout(val textSize: Float, val lineH: Float, val rows: List<
 
 internal fun interface Measure { fun width(text: String, size: Float): Float }
 
-private const val LINE = 1.8f       // ارتفاع السطر نسبة إلى المقاس (أعلى التشكيل نحو 1.0 وأسفله نحو -0.5)
+private const val LINE = 1.9f       // ارتفاع السطر نسبة إلى المقاس (أعلى التشكيل نحو 1.0 وأسفله نحو -0.5)
+// المسافة بين الكلمات كما في المصحف: متقاربة. أقلها للتقسيم على الأسطر، والطبيعية قبل المدّ
+private const val MIN_GAP = 0.14f
+private const val NAT_GAP = 0.22f
+private const val MAX_KASHIDA = 3   // أقصى عدد للتطويلات في الكلمة الواحدة
+private const val KASHIDA_WORDS = 2 // يُمدّ في السطر كلمتان على الأكثر (الأطول)، كما في المصحف
+private const val PAUSE_SLOT = 0.2f // مكان علامة الوقف بعد كلمتها مباشرة
 private const val BANNER = 1.6f     // ترويسة السورة تأخذ سطراً ونصفاً تقريباً
 private const val REF = 100f
 
 /** علامات الوقف (ۖ ۗ ۚ …) تأتي في نص تنزيل كلماتٍ مستقلة؛ تُلصق بالكلمة قبلها حتى لا تبدأ بها سطراً */
+private fun isPause(w: String) = w.isNotEmpty() && w.all { it in '\u06D6'..'\u06DC' }
 private fun isMarkOnly(w: String) = w.all { Character.getType(it) == Character.NON_SPACING_MARK.toInt() || it in '\u06D6'..'\u06ED' }
+
+private const val DUAL = "بتثجحخسشصضطظعغفقكلمنهيئىٮٯڤـ"   // حروف تتصل بما بعدها
+private const val RIGHT = "اأإآٱدذرزوؤة"                    // حروف تتصل بما قبلها فقط
+private const val ALEFS = "اأإآٱ"
+
+private fun isMarkChar(c: Char) = Character.getType(c) == Character.NON_SPACING_MARK.toInt() || c in '\u06D6'..'\u06ED'
+
+/**
+ * أين يُمدّ الحرف (كشيدة) في الكلمة: بين حرفين متصلين، أقرب ما يكون إلى آخر الكلمة كما في الخط،
+ * ولا يُمدّ داخل «لا» ولا في لفظ الجلالة. يُرجع موضع الإدراج (قبل الحرف التالي وبعد تشكيل ما قبله) أو -1.
+ */
+internal fun kashidaPoint(w: String): Int {
+    if (w.filterNot(::isMarkChar).contains("لله")) return -1
+    val bases = w.indices.filter { !isMarkChar(w[it]) }
+    for (k in bases.size - 2 downTo 0) {
+        val a = w[bases[k]]; val b = w[bases[k + 1]]
+        if (a in DUAL && (b in DUAL || b in RIGHT) && !(a == 'ل' && b in ALEFS)) return bases[k + 1]
+    }
+    return -1
+}
 
 internal fun pageBlocks(page: Int, text: Array<String>): List<MBlock> =
     QuranMeta.pageRange(page).groupBy { QuranMeta.locate(it).first }.map { (surah, idxs) ->
         val words = ArrayList<MWord>()
         idxs.forEach { i ->
             val ws = ArrayList<String>()
+            val pauses = HashMap<Int, String>()
             QuranData.withoutBismillah(text, i).split(' ').filter { it.isNotEmpty() }.forEach { w ->
-                if (isMarkOnly(w) && ws.isNotEmpty()) ws[ws.lastIndex] = ws.last() + " " + w else ws += w
+                when {
+                    // علامة الوقف تُرسم في مكان خاص بها بعد كلمتها، فتبقى أطراف الأسطر مستوية
+                    isPause(w) && ws.isNotEmpty() -> pauses[ws.lastIndex] = (pauses[ws.lastIndex] ?: "") + w
+                    isMarkOnly(w) && ws.isNotEmpty() -> ws[ws.lastIndex] = ws.last() + " " + w
+                    else -> ws += w
+                }
             }
             val ayah = QuranMeta.locate(i).second
-            ws.forEachIndexed { k, w -> words += MWord(w, if (k == ws.lastIndex) "\u06DD" + arabicDigits(ayah) else null, i) }
+            ws.forEachIndexed { k, w -> words += MWord(w, if (k == ws.lastIndex) "\u06DD" + arabicDigits(ayah) else null, i, pauses[k]) }
         }
         val starts = QuranMeta.locate(idxs.first()).second == 1
         MBlock(surah, starts, starts && QuranData.hasBismillahHeader(surah), words)
@@ -155,19 +192,22 @@ internal fun balancedLines(widths: FloatArray, space: Float, maxW: Float): List<
  * ويوزع ما بقي من الارتفاع بين الصفوف فيبدأ النص أعلى الصفحة وينتهي عند أسفلها.
  */
 internal fun layoutPage(blocks: List<MBlock>, width: Float, height: Float, minSize: Float, maxSize: Float, step: Float, m: Measure): PageLayout {
-    val nbspRef = m.width("\u00A0", REF)
+    val nbspRef = REF * 0.1f   // علامة الآية قريبة من آخر كلمة فيها
     // كل كلمة تُقاس مرة واحدة عند مقاس مرجعي
     val refWord = blocks.map { b -> FloatArray(b.words.size) { m.width(b.words[it].text, REF) } }
     val refMark = blocks.map { b -> FloatArray(b.words.size) { j -> b.words[j].marker?.let { m.width(it, REF) } ?: 0f } }
     val ref = blocks.indices.map { bi ->
-        FloatArray(blocks[bi].words.size) { j -> refWord[bi][j] + (if (blocks[bi].words[j].marker != null) nbspRef + refMark[bi][j] else 0f) }
+        FloatArray(blocks[bi].words.size) { j ->
+            val w = blocks[bi].words[j]
+            refWord[bi][j] + (if (w.pause != null) REF * PAUSE_SLOT else 0f) + (if (w.marker != null) nbspRef + refMark[bi][j] else 0f)
+        }
     }
-    val spaceRef = m.width(" ", REF)
+    val gapRef = REF * MIN_GAP
     fun slots(size: Float): Float {
         val f = size / REF
         return blocks.indices.sumOf { b ->
             val ws = FloatArray(ref[b].size) { ref[b][it] * f }
-            (greedyLines(ws, spaceRef * f, width) + (if (blocks[b].banner) BANNER else 0f) + (if (blocks[b].bismillah) 1f else 0f)).toDouble()
+            (greedyLines(ws, gapRef * f, width) + (if (blocks[b].banner) BANNER else 0f) + (if (blocks[b].bismillah) 1f else 0f)).toDouble()
         }.toFloat()
     }
     var size = maxSize
@@ -180,8 +220,9 @@ internal fun layoutPage(blocks: List<MBlock>, width: Float, height: Float, minSi
 
     // العرض يتناسب مع المقاس (قياس خطي)، فلا حاجة لقياس الكلمات مرة ثانية
     val k = size / REF
-    val space = spaceRef * k
-    val nbsp = nbspRef * k
+    val space = gapRef * k
+    val natural = size * NAT_GAP
+    val tatweel = m.width("\u0640", size)
     class Pending(val kind: Int, val h: Float, val surah: Int = 0, val words: List<Placed> = emptyList())
     val pending = ArrayList<Pending>()
     for ((bi, b) in blocks.withIndex()) {
@@ -193,16 +234,37 @@ internal fun layoutPage(blocks: List<MBlock>, width: Float, height: Float, minSi
         val lines = balancedLines(total, space, width)
         for (r in lines) {
             val n = r.count()
-            val used = r.sumOf { total[it].toDouble() }.toFloat()
-            val fill = (used + space * (n - 1)) / width
+            val idx = r.toList()
+            val fill = (r.sumOf { total[it].toDouble() }.toFloat() + space * (n - 1)) / width
             // سطر قصير جداً (في صفحة قليلة الآيات) يُوسَّط بدل أن تتباعد كلماته
             val justify = n > 1 && fill >= 0.6f
-            val gap = if (justify) (width - used) / (n - 1) else space
+            // ضبط السطر كالمصحف: الكلمات متقاربة، ويُملأ الباقي بمدّ الحروف في الكلمات الطويلة أولاً،
+            // وما بقي بعد ذلك (أقل من مدّة واحدة لكل كلمة) يتوزع على المسافات
+            val kash = IntArray(n)
+            if (justify && tatweel > 0f) {
+                var budget = ((width - r.sumOf { total[it].toDouble() }.toFloat() - natural * (n - 1)) / tatweel).toInt()
+                val order = idx.indices.filter { b.words[idx[it]].kashidaAt >= 0 }
+                    .sortedByDescending { b.words[idx[it]].text.count { c -> !isMarkChar(c) } }
+                    .take(KASHIDA_WORDS)
+                var round = 0
+                while (budget > 0 && order.isNotEmpty() && round < MAX_KASHIDA) {
+                    for (j in order) { if (budget <= 0) break; kash[j]++; budget-- }
+                    round++
+                }
+            }
+            val texts = Array(n) { j ->
+                val w = b.words[idx[j]]
+                if (kash[j] == 0) w.text else w.text.substring(0, w.kashidaAt) + "\u0640".repeat(kash[j]) + w.text.substring(w.kashidaAt)
+            }
+            val ww = FloatArray(n) { j -> if (kash[j] == 0) wordW[idx[j]] else m.width(texts[j], size) }
+            val tw = FloatArray(n) { j -> total[idx[j]] - wordW[idx[j]] + ww[j] }
+            val used = tw.sum()
+            val gap = if (justify) ((width - used) / (n - 1)).coerceAtLeast(0f) else space
             var cursor = if (justify) width else (width + used + gap * (n - 1)) / 2
-            val placed = r.map { k ->
-                val right = cursor; val left = right - total[k]
+            val placed = List(n) { j ->
+                val right = cursor; val left = right - tw[j]
                 cursor = left - gap
-                Placed(b.words[k], left, right, wordW[k], markW[k])
+                Placed(b.words[idx[j]], left, right, ww[j], markW[idx[j]], texts[j])
             }
             pending += Pending(0, lineH, words = placed)
         }
@@ -225,7 +287,7 @@ internal fun layoutPage(blocks: List<MBlock>, width: Float, height: Float, minSi
 // ---------- الرسم ----------
 
 /** خط المصحف لرسم الصفحات على Canvas */
-private object MushafFont {
+internal object MushafFont {
     @Volatile private var typeface: Typeface? = null
     fun get(ctx: Context): Typeface = typeface ?: (ResourcesCompat.getFont(ctx, R.font.amiri_quran) ?: Typeface.DEFAULT).also { typeface = it }
 }
@@ -270,12 +332,24 @@ fun MushafCanvas(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> 
         val spPx = with(density) { 1.sp.toPx() }
         val key = "$page:${System.identityHashCode(text)}:$w:$h:$spPx"
         fun compute() = layoutPage(blocks, w, h, 13 * spPx, 30 * spPx, 0.5f * spPx, measureWith(tf)).also { LayoutCache.put(key, it) }
-        // تُحسب الصفحة في الخلفية (والصفحات المجاورة قبل أن تظهر)، وتظهر بتلاشٍ لطيف
-        val state = remember(key) { mutableStateOf(LayoutCache.peek(key) ?: if (inspection) compute() else null) }
-        LaunchedEffect(key) { if (state.value == null) state.value = withContext(Dispatchers.Default) { compute() } }
-        val layout = state.value
-        val appear = remember(key) { Animatable(if (layout != null) 1f else 0f) }
-        LaunchedEffect(layout != null) { if (layout != null && appear.value < 1f) appear.animateTo(1f, tween(220)) }
+        // تُحسب الصفحة في الخلفية (والصفحات المجاورة قبل أن تظهر). إذا تغيّر المقاس (ظهور الرأس أو اختفاؤه
+        // في وضع التركيز) تبقى الصفحة السابقة معروضة حتى يستقر المقاس، ثم تحل محلها الجديدة بتلاشٍ متقاطع.
+        val current = remember { mutableStateOf(LayoutCache.peek(key) ?: if (inspection) compute() else null) }
+        val leaving = remember { mutableStateOf<PageLayout?>(null) }
+        val mix = remember { Animatable(1f) }
+        LaunchedEffect(key) {
+            val next = LayoutCache.peek(key) ?: run {
+                if (current.value != null) delay(140)
+                withContext(Dispatchers.Default) { compute() }
+            }
+            if (next !== current.value) {
+                leaving.value = current.value
+                current.value = next
+                mix.snapTo(0f)
+                mix.animateTo(1f, tween(240))
+                leaving.value = null
+            }
+        }
 
         // الآية المختارة: الشريط الجديد يظهر والسابق يتلاشى
         var shown by remember { mutableIntStateOf(selected) }
@@ -289,28 +363,35 @@ fun MushafCanvas(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> 
         LaunchedEffect(pressed) { if (pressed >= 0) pressA.animateTo(1f, tween(140, delayMillis = 70)) else pressA.snapTo(0f) }
 
         val paint = remember(tf) { TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG or Paint.LINEAR_TEXT_FLAG).apply { typeface = tf } }
-        val l = layout ?: return@BoxWithConstraints
-        val area = if (l.fits) Modifier.fillMaxSize() else Modifier.fillMaxWidth().height(with(density) { l.height.toDp() })
-        val canvas = area
-            .semantics { contentDescription = description }
-            .pointerInput(l) {
-                detectTapGestures(
-                    onPress = { pos ->
-                        val i = l.hit(pos.x, pos.y)
-                        if (i >= 0) { pressed = i; tryAwaitRelease(); pressed = -1 }
-                    },
-                    onTap = { pos -> val i = l.hit(pos.x, pos.y); if (i >= 0) tapState.value(i) }
+        @Composable
+        fun layer(l: PageLayout, alpha: () -> Float, interactive: Boolean) {
+            val area = if (l.fits) Modifier.fillMaxSize() else Modifier.fillMaxWidth().height(with(density) { l.height.toDp() })
+            val canvas = area
+                .then(
+                    if (!interactive) Modifier else Modifier
+                        .semantics { contentDescription = description }
+                        .pointerInput(l) {
+                            detectTapGestures(
+                                onPress = { pos ->
+                                    val i = l.hit(pos.x, pos.y)
+                                    if (i >= 0) { pressed = i; tryAwaitRelease(); pressed = -1 }
+                                },
+                                onTap = { pos -> val i = l.hit(pos.x, pos.y); if (i >= 0) tapState.value(i) }
+                            )
+                        }
                 )
-            }
-            // الصفحة كلها (الترويسات والنص) تظهر معاً بتلاشٍ واحد
-            .graphicsLayer { alpha = appear.value }
-            .drawBehind {
-                band(l, previous, p.select, 1f - swap.value)
-                band(l, shown, p.select, swap.value)
-                band(l, pressed, p.press, pressA.value)
-                drawPage(l, p, paint, text[0], 1f)
-            }
-        if (l.fits) Spacer(canvas) else Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { Spacer(canvas) }
+                // الصفحة كلها (الترويسات والنص) تظهر وتختفي معاً
+                .graphicsLayer { this.alpha = alpha() }
+                .drawBehind {
+                    band(l, previous, p.select, 1f - swap.value)
+                    band(l, shown, p.select, swap.value)
+                    if (interactive) band(l, pressed, p.press, pressA.value)
+                    drawPage(l, p, paint, text[0], 1f)
+                }
+            if (l.fits) Spacer(canvas) else Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { Spacer(canvas) }
+        }
+        leaving.value?.let { old -> layer(old, { 1f - mix.value }, interactive = false) }
+        current.value?.let { l -> layer(l, { mix.value }, interactive = true) }
     }
 }
 
@@ -363,6 +444,7 @@ private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: TextPaint
     val ink = p.ink.copy(alpha = p.ink.alpha * alpha).toArgb()
     val marker = p.marker.copy(alpha = p.marker.alpha * alpha).toArgb()
     val title = p.goldDeep.copy(alpha = alpha).toArgb()
+    val bounds = android.graphics.Rect()
     drawIntoCanvas { c ->
         val nc = c.nativeCanvas
         for (row in l.rows) when (row) {
@@ -371,7 +453,13 @@ private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: TextPaint
                 val y = baseline(row.top, row.height, l.textSize)
                 for (pl in row.words) {
                     paint.color = ink
-                    nc.drawText(pl.word.text, pl.right - pl.wordW, y, paint)
+                    nc.drawText(pl.text, pl.right - pl.wordW, y, paint)
+                    pl.word.pause?.let { mark ->
+                        val slot = l.textSize * PAUSE_SLOT
+                        val cx = pl.right - pl.wordW - slot / 2
+                        paint.getTextBounds(mark, 0, mark.length, bounds)
+                        nc.drawText(mark, cx - (bounds.left + bounds.right) / 2f, y, paint)
+                    }
                     val mk = pl.word.marker ?: continue
                     paint.color = marker
                     nc.drawText(mk, pl.left, y, paint)

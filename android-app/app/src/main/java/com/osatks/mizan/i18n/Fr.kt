@@ -557,6 +557,12 @@ object Fr : Strings {
     override fun khatmasCompleted(n: Int) = "Khatmas terminées : $n"
     override val continuePortion = "Continuer ma portion"
     override val ayahOfDay = "Verset du jour"
+    override val focusMode = "Mode concentration"
+    override val exitFocus = "Quitter le mode concentration"
+    override val silenceTitle = "Couper les notifications pendant la lecture ?"
+    override val silenceBody = "En mode concentration, Mizan peut activer « Ne pas déranger » et le désactiver quand vous arrêtez de lire. Android vous demandera de l’autoriser une fois."
+    override val allow = "Autoriser"
+    override val notNow = "Plus tard"
     override val quranSources = "Texte du Coran (écriture uthmanienne) issu du projet Tanzil (tanzil.net). Le Tafsir al-Muyassar (Complexe du Roi Fahd), le Tafsir al-Jalalayn et les traductions du sens proviennent de tanzil.net/trans. Police du Coran : Amiri Quran, sous licence SIL Open Font License."
 
     // ---------- Settings ----------

@@ -539,6 +539,12 @@ object Fa : Strings {
     override fun khatmasCompleted(n: Int) = "ختم‌های کامل‌شده: $n"
     override val continuePortion = "ادامهٔ ورد"
     override val ayahOfDay = "آیهٔ روز"
+    override val focusMode = "حالت تمرکز"
+    override val exitFocus = "خروج از حالت تمرکز"
+    override val silenceTitle = "اعلان‌ها هنگام خواندن بی‌صدا شوند؟"
+    override val silenceBody = "در حالت تمرکز، میزان می‌تواند «مزاحم نشوید» را روشن کند و وقتی خواندن را تمام کردید دوباره خاموشش کند. اندروید یک بار اجازه می‌خواهد."
+    override val allow = "اجازه دادن"
+    override val notNow = "اکنون نه"
     override val quranSources = "متن قرآن کریم به رسم‌الخط عثمانی از پروژه تنزیل (tanzil.net). التفسیر المیسر (مجمع ملک فهد)، تفسیر جلالین و ترجمه‌های معانی از tanzil.net/trans. فونت قرآن: Amiri Quran، با مجوز SIL Open Font License."
 
     // ---------- Settings ----------

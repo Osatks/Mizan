@@ -539,6 +539,12 @@ object Id : Strings {
     override fun khatmasCompleted(n: Int) = "Khatam selesai: $n"
     override val continuePortion = "Lanjutkan wirid"
     override val ayahOfDay = "Ayat hari ini"
+    override val focusMode = "Mode fokus"
+    override val exitFocus = "Keluar dari mode fokus"
+    override val silenceTitle = "Senyapkan notifikasi saat membaca?"
+    override val silenceBody = "Dalam mode fokus, Mizan dapat menyalakan Jangan Ganggu dan mematikannya lagi saat Anda selesai membaca. Android akan meminta izin sekali."
+    override val allow = "Izinkan"
+    override val notNow = "Nanti saja"
     override val quranSources = "Teks Al-Qur'an (rasm Utsmani) dari Proyek Tanzil (tanzil.net). Tafsir Al-Muyassar (Kompleks Raja Fahd), Tafsir Jalalain, dan terjemahan makna dari tanzil.net/trans. Fon Al-Qur'an: Amiri Quran, berlisensi SIL Open Font License."
 
     // ---------- Settings ----------

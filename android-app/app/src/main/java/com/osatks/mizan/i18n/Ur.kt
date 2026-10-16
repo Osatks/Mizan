@@ -539,6 +539,12 @@ object Ur : Strings {
     override fun khatmasCompleted(n: Int) = "مکمل ختم: $n"
     override val continuePortion = "اپنا ورد جاری رکھیں"
     override val ayahOfDay = "آج کی آیت"
+    override val focusMode = "فوکس موڈ"
+    override val exitFocus = "فوکس موڈ سے باہر نکلیں"
+    override val silenceTitle = "پڑھتے وقت اطلاعات خاموش کریں؟"
+    override val silenceBody = "فوکس موڈ میں میزان «ڈسٹرب نہ کریں» آن کر سکتا ہے اور پڑھنا ختم ہونے پر اسے دوبارہ بند کر دیتا ہے۔ اینڈرائیڈ ایک بار اس کی اجازت مانگے گا۔"
+    override val allow = "اجازت دیں"
+    override val notNow = "ابھی نہیں"
     override val quranSources = "قرآن مجید کا متن (رسم عثمانی) تنزیل پروجیکٹ (tanzil.net) سے لیا گیا ہے۔ التفسیر المیسر (شاہ فہد کمپلیکس)، تفسیر جلالین اور معانی کے تراجم tanzil.net/trans سے لیے گئے ہیں۔ قرآنی فونٹ: Amiri Quran، جو SIL اوپن فونٹ لائسنس کے تحت دستیاب ہے۔"
 
     // ---------- ترتیبات ----------

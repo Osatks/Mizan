@@ -410,6 +410,12 @@ interface Strings {
     fun khatmasCompleted(n: Int): String // "Completed khatmas: 2"
     val continuePortion: String         // "Continue my portion"
     val ayahOfDay: String               // "Ayah of the day" (home-screen widget)
+    val focusMode: String               // "Focus mode" (Quran reading without the header)
+    val exitFocus: String               // "Exit focus mode"
+    val silenceTitle: String            // "Silence notifications while reading?"
+    val silenceBody: String             // Do Not Disturb explanation, Android asks once
+    val allow: String                   // "Allow"
+    val notNow: String                  // "Not now"
     /** About: where the Quran text, tafsir, translations and font come from. Keep the two URLs exactly. */
     val quranSources: String
 

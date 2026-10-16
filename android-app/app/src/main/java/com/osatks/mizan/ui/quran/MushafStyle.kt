@@ -1,11 +1,20 @@
 package com.osatks.mizan.ui.quran
 
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.platform.LocalContext
+import android.text.TextPaint
+import android.graphics.Rect
+import android.graphics.Paint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -72,18 +81,25 @@ fun DrawScope.drawPaper(p: MushafPalette) {
     drawRect(Brush.radialGradient(listOf(p.paper, p.paper, p.paperEdge), center = center, radius = size.maxDimension * 0.75f))
 }
 
+/** المسافة بين أسفل الورقة وخطَّي الإطار السفليين: يجلس رقم الصفحة عليهما في وسطهما تماماً */
+val FRAME_FOOT = 13.dp
+
 /** إطار الصفحة: خط ذهبي عريض وآخر رفيع بداخله، وفي زوايا الإطار الداخلي نجوم ثمانية */
 fun DrawScope.drawPageFrame(p: MushafPalette) {
-    val o = 7.dp.toPx(); val i = 11.dp.toPx()
-    drawRoundRect(p.goldDeep.copy(alpha = .8f), Offset(o, o), Size(size.width - 2 * o, size.height - 2 * o), CornerRadius(12.dp.toPx()), style = Stroke(1.6.dp.toPx()))
-    drawRoundRect(p.gold.copy(alpha = .7f), Offset(i, i), Size(size.width - 2 * i, size.height - 2 * i), CornerRadius(8.dp.toPx()), style = Stroke(0.8.dp.toPx()))
-    val r = 5.dp.toPx(); val c = i + 1.dp.toPx()
-    for (pt in listOf(Offset(c, c), Offset(size.width - c, c), Offset(c, size.height - c), Offset(size.width - c, size.height - c))) {
+    val o = 7.dp.toPx(); val i = 11.dp.toPx(); val foot = FRAME_FOOT.toPx()
+    drawRoundRect(p.goldDeep.copy(alpha = .8f), Offset(o, o), Size(size.width - 2 * o, size.height - 2 * o - foot), CornerRadius(12.dp.toPx()), style = Stroke(1.6.dp.toPx()))
+    drawRoundRect(p.gold.copy(alpha = .7f), Offset(i, i), Size(size.width - 2 * i, size.height - 2 * i - foot), CornerRadius(8.dp.toPx()), style = Stroke(0.8.dp.toPx()))
+    val r = 5.dp.toPx(); val c = i + 1.dp.toPx(); val bottom = size.height - foot - c
+    for (pt in listOf(Offset(c, c), Offset(size.width - c, c), Offset(c, bottom), Offset(size.width - c, bottom))) {
         drawCircle(p.paper, r * 0.9f, pt)
         drawStar8(pt, r, p.goldDeep, 1.dp.toPx(), rings = false)
         drawCircle(p.goldDeep, r * 0.22f, pt)
     }
 }
+
+/** مركز رقم الصفحة من أسفل الورقة: منتصف ما بين خطَّي الإطار السفليين */
+val MEDALLION_CENTER = 9.dp + FRAME_FOOT
+val MEDALLION_SIZE = 32.dp
 
 /** شريط علامة ذهبي يتدلى من أعلى الصفحة إذا كان فيها آية محفوظة؛ amount من 0 إلى 1 لحركة ظهوره */
 fun DrawScope.drawRibbon(p: MushafPalette, amount: Float) {
@@ -146,7 +162,7 @@ fun SurahCartouche(arabicName: String, modifier: Modifier = Modifier, height: Dp
     val p = mushafPalette()
     Box(modifier.fillMaxWidth().height(height).drawBehind { drawCartouche(0f, 0f, size.width, size.height, p) }, contentAlignment = Alignment.Center) {
         Text(
-            "سُورَةُ $arabicName", textAlign = TextAlign.Center, maxLines = 1, color = p.goldDeep,
+            "سُورَةُ $arabicName", Modifier.offset(y = -(height * 0.06f)), textAlign = TextAlign.Center, maxLines = 1, color = p.goldDeep,
             style = TextStyle(
                 fontFamily = QuranFont, fontSize = (height.value * 0.4f).sp, lineHeight = (height.value * 0.6f).sp,
                 textDirection = TextDirection.Rtl,
@@ -157,27 +173,27 @@ fun SurahCartouche(arabicName: String, modifier: Modifier = Modifier, height: Dp
 }
 
 /**
- * رقم الصفحة في ميدالية تجلس على إطار الصفحة. تمتلئ بالذهب حين تُحسب الصفحة مقروءة في الختمة.
+ * رقم الصفحة في ميدالية تجلس على إطار الصفحة في منتصفه تماماً. تمتلئ بالذهب حين تُحسب الصفحة مقروءة في الختمة.
+ * الرقم يُرسم من حدود حروفه الفعلية فيقع في وسط الدائرة تماماً (خط المصحف يترك فوق حروفه مساحة كبيرة).
  */
 @Composable
 fun PageMedallion(page: Int, read: Boolean, modifier: Modifier = Modifier) {
     val p = mushafPalette()
+    val ctx = LocalContext.current
+    val paint = remember { TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply { typeface = MushafFont.get(ctx) } }
+    val bounds = remember { Rect() }
+    val digits = arabicDigits(page)
     val fill by animateFloatAsState(if (read) 1f else 0f, tween(600), label = "medallion")
-    Box(modifier.size(34.dp), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.size(34.dp)) {
-            val r = size.minDimension / 2 - 1.dp.toPx()
-            drawCircle(p.paper, r)
-            drawCircle(p.fillDeep.copy(alpha = fill), r)
-            drawCircle(p.goldDeep, r, style = Stroke(1.3.dp.toPx()))
-            drawStar8(center, r * 0.86f, p.gold.copy(alpha = .55f + .45f * fill), 0.9.dp.toPx(), rings = false)
-        }
-        Text(
-            arabicDigits(page), color = p.ink,
-            style = TextStyle(
-                fontFamily = QuranFont, fontSize = (if (page >= 100) 11 else 12).sp, lineHeight = 14.sp,
-                lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
-            ),
-        )
+    Canvas(modifier.size(MEDALLION_SIZE)) {
+        val r = size.minDimension / 2 - 1.dp.toPx()
+        drawCircle(p.paper, r)
+        drawCircle(p.fillDeep.copy(alpha = fill), r)
+        drawCircle(p.goldDeep, r, style = Stroke(1.3.dp.toPx()))
+        drawStar8(center, r * 0.86f, p.gold.copy(alpha = .4f + .45f * fill), 0.9.dp.toPx(), rings = false)
+        paint.textSize = (if (page >= 100) 12.5f else 14f).sp.toPx()
+        paint.color = p.ink.toArgb()
+        paint.getTextBounds(digits, 0, digits.length, bounds)
+        drawIntoCanvas { it.nativeCanvas.drawText(digits, center.x - bounds.exactCenterX(), center.y - bounds.exactCenterY(), paint) }
     }
 }
 

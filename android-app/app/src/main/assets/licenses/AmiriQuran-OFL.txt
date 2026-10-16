@@ -1,5 +1,10 @@
 Copyright 2010-2022 The Amiri Quran Project Authors (https://github.com/aliftype/amiri).
 
+Modified for Mizan: the Quranic pause marks (U+06D6..U+06DC) are scaled to 82% and
+lowered to sit just above the letters, centred over the space before them, with their
+mark anchors moved by the same amount (see android-app/tools/lower_pause_marks.py).
+The modified font is distributed under the same license.
+
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
 https://openfontlicense.org

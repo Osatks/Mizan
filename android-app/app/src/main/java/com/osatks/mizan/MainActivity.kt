@@ -80,6 +80,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         AppSettings.init(this)
         QuranData.init(this)
+        // إن أُغلق التطبيق أثناء القراءة في وضع التركيز يُعاد «عدم الإزعاج» كما كان
+        com.osatks.mizan.ui.quran.QuietReading.restore(this)
         Motion.reduced = !ValueAnimator.areAnimatorsEnabled()
         // للقطات الشاشة والاختبار: --es lang en
         intent?.getStringExtra("lang")?.let { if (it == Lang.SYSTEM || Lang.of(it) != null) LocaleSync.choose(this, it) }

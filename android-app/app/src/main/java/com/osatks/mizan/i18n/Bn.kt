@@ -539,6 +539,12 @@ object Bn : Strings {
     override fun khatmasCompleted(n: Int) = "সম্পন্ন খতম: $n"
     override val continuePortion = "আমার অংশ চালিয়ে যান"
     override val ayahOfDay = "আজকের আয়াত"
+    override val focusMode = "ফোকাস মোড"
+    override val exitFocus = "ফোকাস মোড থেকে বের হোন"
+    override val silenceTitle = "পড়ার সময় নোটিফিকেশন বন্ধ রাখবেন?"
+    override val silenceBody = "ফোকাস মোডে মিজান ‘বিরক্ত করবেন না’ চালু করতে পারে এবং পড়া শেষ হলে আবার বন্ধ করে দেয়। অ্যান্ড্রয়েড একবার অনুমতি চাইবে।"
+    override val allow = "অনুমতি দিন"
+    override val notNow = "এখন নয়"
     override val quranSources = "কুরআনের পাঠ (উসমানি লিপি) তানযিল প্রকল্প (tanzil.net) থেকে নেওয়া। তাফসিরে মুয়াসসার (বাদশাহ ফাহাদ কমপ্লেক্স), তাফসিরে জালালাইন ও অর্থানুবাদগুলো tanzil.net/trans থেকে নেওয়া। কুরআনের ফন্ট: Amiri Quran, SIL ওপেন ফন্ট লাইসেন্স।"
 
     // ---------- Settings ----------
