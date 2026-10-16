@@ -562,7 +562,29 @@ object Tr : Strings {
     override val moreTafsirs = "Diğer tefsirler"
     override val tafsirLibraryNote = "Tefsirler açık tafsir_api koleksiyonundan (quran.com ve QUL kaynaklı) indirilir. İnternet yalnızca bu indirmeler için kullanılır; sonrasında çevrimdışı çalışırlar."
     override fun ayahRange(from: Int, to: Int) = "$from–$to. ayetlerin tefsiri"
-    override val quranSources = "Kur'an metni (resm-i Osmânî) Tanzil Projesi'nden (tanzil.net); Müyesser Tefsiri (Kral Fahd Kompleksi), Celâleyn Tefsiri ve mealler ise tanzil.net/trans adresinden alınmıştır. Mushaf yazı tipi: Amiri Quran, SIL Open Font License."
+    override val recitation = "Tilavet"
+    override val reciter = "Kâri"
+    override val playRecitation = "Tilaveti dinle"
+    override val pauseRecitation = "Duraklat"
+    override val stopRecitation = "Tilaveti durdur"
+    override val repeatAyah = "Her ayeti tekrarla"
+    override val listenFromHere = "Bu ayetten itibaren dinle"
+    override val audioNote = "Tilavetler EveryAyah.com üzerinden çalınır. Dinlediğiniz ayetler cihazınıza kaydedilir ve internetsiz de çalışır."
+    override val audioError = "Tilavet çalınamadı. İnternet bağlantınızı kontrol edin."
+    override val hifzMode = "Hıfz"
+    override val revealNext = "Sonrakini göster"
+    override val hideAll = "Tümünü gizle"
+    override val hifzHint = "Ezberden okuyun, sonra kontrol etmek için gizli ayete dokunun."
+    override val displayTitle = "Görünüm"
+    override val pageColor = "Sayfa rengi"
+    override val toneAuto = "Otomatik"
+    override val toneSepia = "Sepya"
+    override val toneNight = "Gece"
+    override val brightness = "Parlaklık"
+    override val brightnessSystem = "Cihaz parlaklığı"
+    override val textSizeLabel = "Yazı boyutu"
+    override val continueFocus = "Odak modunda devam et"
+    override val quranSources = "Kur'an metni (resm-i Osmânî) Tanzil Projesi'nden (tanzil.net); Müyesser Tefsiri (Kral Fahd Kompleksi), Celâleyn Tefsiri ve mealler ise tanzil.net/trans adresinden alınmıştır. Mushaf yazı tipi: Amiri Quran, SIL Open Font License. Tilavetler: EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "Ayarlar"
@@ -582,7 +604,7 @@ object Tr : Strings {
     override val aboutText = "Bir Müslümanın her gün ihtiyaç duyduğu araçları sunan ücretsiz bir uygulama: zekât, miras, namaz vakitleri, kıble, Hicri tarih ve tespih. " +
         "Hükümler fakihlerin çoğunluğunun görüşüne dayanır; namaz vakitleri astronomik formüllerle hesaplanır, tarihler Ümmü'l-Kurâ takvimini esas alır."
     override val privacy = "Gizlilik"
-    override val privacyText = "Uygulama hiçbir kişisel veri toplamaz ve interneti yalnızca seçtiğiniz tefsirleri indirmek için kullanır. Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıbleyi hesaplamak için kullanılır; " +
+    override val privacyText = "Uygulama hiçbir kişisel veri toplamaz ve interneti yalnızca seçtiğiniz tefsirleri indirmek ve istediğinizde tilavet çalmak için kullanır. Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıbleyi hesaplamak için kullanılır; " +
         "ayarlarınız ve girdiğiniz rakamlar cihazınızda kalır."
     override val disclaimer = "Sonuçlar yol göstericidir. Kendi dinî sorularınız için yetkin âlimlere ve resmî kurumlara başvurun."
 }

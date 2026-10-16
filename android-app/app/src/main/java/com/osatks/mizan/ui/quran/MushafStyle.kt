@@ -1,6 +1,7 @@
 package com.osatks.mizan.ui.quran
 
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -51,6 +52,8 @@ class MushafPalette(
     val paper: Color, val paperEdge: Color, val ink: Color, val muted: Color,
     val gold: Color, val goldDeep: Color, val fill: Color, val fillDeep: Color,
     val marker: Color, val select: Color, val press: Color,
+    /** لون ما حول الصفحة؛ Unspecified = لون التطبيق */
+    val backdrop: Color = Color.Unspecified,
 )
 
 private val LightPalette = MushafPalette(
@@ -65,8 +68,32 @@ private val DarkPalette = MushafPalette(
     marker = Color(0xFFD9B45E), select = Color(0x33E0B54A), press = Color(0x22E0B54A),
 )
 
+/** ورق دافئ أصفر كالكتب القديمة، أهدأ على العين من الأبيض */
+private val SepiaPalette = MushafPalette(
+    paper = Color(0xFFF3E6C8), paperEdge = Color(0xFFE6D2A6), ink = Color(0xFF3A2C17), muted = Color(0xFF7A6440),
+    gold = Color(0xFFB88B36), goldDeep = Color(0xFF8A6420), fill = Color(0xFFEAD6A6), fillDeep = Color(0xFFDEC28A),
+    marker = Color(0xFF7D5A18), select = Color(0x55C9A55A), press = Color(0x33B88B36),
+)
+
+/** القراءة الليلية: ورق شبه أسود وحروف كهرمانية دافئة، بلا ضوء أزرق ولا بياض يبهر العين في الظلام */
+private val NightPalette = MushafPalette(
+    paper = Color(0xFF120E08), paperEdge = Color(0xFF0B0805), ink = Color(0xFFD9B98A), muted = Color(0xFF9C8463),
+    gold = Color(0xFF8E6E34), goldDeep = Color(0xFFB8924A), fill = Color(0xFF1E170D), fillDeep = Color(0xFF2A2012),
+    marker = Color(0xFFC29B52), select = Color(0x33B8924A), press = Color(0x22B8924A), backdrop = Color(0xFF070503),
+)
+
+/** لون ورق القراءة الذي اختاره المستخدم ("" = حسب مظهر التطبيق) */
+fun readingPalette(tone: String): MushafPalette? = when (tone) {
+    "sepia" -> SepiaPalette
+    "night" -> NightPalette
+    else -> null
+}
+
+/** يُوفَّر داخل صفحة القراءة فقط، فتبقى ورقة التفسير والقوائم بألوان التطبيق */
+val LocalReadingPalette = staticCompositionLocalOf<MushafPalette?> { null }
+
 @Composable
-fun mushafPalette(): MushafPalette = if (LocalDark.current) DarkPalette else LightPalette
+fun mushafPalette(): MushafPalette = LocalReadingPalette.current ?: if (LocalDark.current) DarkPalette else LightPalette
 
 /** الأجزاء بأسمائها كما تُكتب في رأس صفحة المصحف */
 val JUZ_ORDINALS = arrayOf(

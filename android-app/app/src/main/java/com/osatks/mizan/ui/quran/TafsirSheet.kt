@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -79,16 +81,19 @@ import com.osatks.mizan.ui.theme.Gold
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TafsirSheet(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onDismiss: () -> Unit, onLibrary: () -> Unit = {}) {
+fun TafsirSheet(
+    surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onDismiss: () -> Unit, onLibrary: () -> Unit = {},
+    onListen: ((Int) -> Unit)? = null,
+) {
     val sheet = rememberModalBottomSheetState()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = mushafPalette().paper) {
-        TafsirContent(surah, ayah, text, onAyah, onLibrary)
+        TafsirContent(surah, ayah, text, onAyah, onLibrary, onListen)
     }
 }
 
 /** محتوى ورقة التفسير (منفصل ليُعرض أيضاً في لقطات الاختبار) */
 @Composable
-fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onLibrary: () -> Unit = {}) {
+fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onLibrary: () -> Unit = {}, onListen: ((Int) -> Unit)? = null) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ctx = LocalContext.current
@@ -162,6 +167,12 @@ fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> U
                     },
                     Modifier.fillMaxWidth(), style = quranStyle(24), color = mp.ink
                 )
+            }
+            // الاستماع: تبدأ التلاوة من هذه الآية وتستمر بعدها
+            if (onListen != null) FilledTonalButton(onClick = { onListen(ayah) }) {
+                Icon(Icons.Filled.PlayArrow, null, Modifier.size(20.dp))
+                Spacer(Modifier.size(6.dp))
+                Text(s.listenFromHere, maxLines = 1)
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

@@ -562,7 +562,29 @@ object Bn : Strings {
     override val moreTafsirs = "আরও তাফসির"
     override val tafsirLibraryNote = "তাফসিরগুলো উন্মুক্ত tafsir_api সংগ্রহ (quran.com ও QUL থেকে) থেকে ডাউনলোড হয়। শুধু এই ডাউনলোডের জন্যই ইন্টারনেট ব্যবহার হয়; এরপর এগুলো অফলাইনে কাজ করে।"
     override fun ayahRange(from: Int, to: Int) = "আয়াত $from–$to-এর তাফসির"
-    override val quranSources = "কুরআনের পাঠ (উসমানি লিপি) তানযিল প্রকল্প (tanzil.net) থেকে নেওয়া। তাফসিরে মুয়াসসার (বাদশাহ ফাহাদ কমপ্লেক্স), তাফসিরে জালালাইন ও অর্থানুবাদগুলো tanzil.net/trans থেকে নেওয়া। কুরআনের ফন্ট: Amiri Quran, SIL ওপেন ফন্ট লাইসেন্স।"
+    override val recitation = "তিলাওয়াত"
+    override val reciter = "কারী"
+    override val playRecitation = "তিলাওয়াত শুনুন"
+    override val pauseRecitation = "বিরতি"
+    override val stopRecitation = "তিলাওয়াত বন্ধ করুন"
+    override val repeatAyah = "প্রতিটি আয়াত পুনরাবৃত্তি"
+    override val listenFromHere = "এই আয়াত থেকে শুনুন"
+    override val audioNote = "তিলাওয়াত EveryAyah.com থেকে চলে। যে আয়াতগুলো আপনি শুনেছেন সেগুলো আপনার ডিভাইসে সংরক্ষিত থাকে এবং ইন্টারনেট ছাড়াই চলে।"
+    override val audioError = "তিলাওয়াত চালানো যায়নি। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।"
+    override val hifzMode = "হিফজ"
+    override val revealNext = "পরেরটি দেখান"
+    override val hideAll = "সব লুকান"
+    override val hifzHint = "মুখস্থ থেকে পড়ুন, তারপর যাচাই করতে লুকানো আয়াতে স্পর্শ করুন।"
+    override val displayTitle = "প্রদর্শন"
+    override val pageColor = "পৃষ্ঠার রং"
+    override val toneAuto = "স্বয়ংক্রিয়"
+    override val toneSepia = "সেপিয়া"
+    override val toneNight = "রাত"
+    override val brightness = "উজ্জ্বলতা"
+    override val brightnessSystem = "ডিভাইসের উজ্জ্বলতা"
+    override val textSizeLabel = "লেখার আকার"
+    override val continueFocus = "ফোকাস মোডে চালিয়ে যান"
+    override val quranSources = "কুরআনের পাঠ (উসমানি লিপি) তানযিল প্রকল্প (tanzil.net) থেকে নেওয়া। তাফসিরে মুয়াসসার (বাদশাহ ফাহাদ কমপ্লেক্স), তাফসিরে জালালাইন ও অর্থানুবাদগুলো tanzil.net/trans থেকে নেওয়া। কুরআনের ফন্ট: Amiri Quran, SIL ওপেন ফন্ট লাইসেন্স। তিলাওয়াত: EveryAyah.com।"
 
     // ---------- Settings ----------
     override val settingsTitle = "সেটিংস"
@@ -582,7 +604,7 @@ object Bn : Strings {
     override val aboutText = "একটি বিনামূল্যের অ্যাপ, যাতে আছে একজন মুসলিমের প্রতিদিনের প্রয়োজনীয় টুলস: যাকাত, উত্তরাধিকার, নামাজের সময়, কিবলা, হিজরি তারিখ ও তাসবিহ। " +
         "বিধানগুলো জমহুর ফকিহদের মত অনুসরণ করে, নামাজের সময় জ্যোতির্বিজ্ঞানের সূত্রে হিসাব করা হয়, আর তারিখ উম্মুল কুরা ক্যালেন্ডার অনুযায়ী।"
     override val privacy = "গোপনীয়তা"
-    override val privacyText = "অ্যাপটি কোনো ব্যক্তিগত তথ্য সংগ্রহ করে না এবং শুধু আপনার বেছে নেওয়া তাফসির ডাউনলোড করতে ইন্টারনেট ব্যবহার করে। নামাজের সময় ও কিবলা হিসাবের জন্য আপনার অবস্থান শুধু আপনার ডিভাইসেই ব্যবহৃত হয়, " +
+    override val privacyText = "অ্যাপটি কোনো ব্যক্তিগত তথ্য সংগ্রহ করে না এবং শুধু আপনার বেছে নেওয়া তাফসির ডাউনলোড করতে এবং আপনি চাইলে তিলাওয়াত চালাতে ইন্টারনেট ব্যবহার করে। নামাজের সময় ও কিবলা হিসাবের জন্য আপনার অবস্থান শুধু আপনার ডিভাইসেই ব্যবহৃত হয়, " +
         "আর আপনার সেটিংস ও সংখ্যাগুলো আপনার ডিভাইসেই থাকে।"
     override val disclaimer = "ফলাফলগুলো নির্দেশিকা মাত্র। নিজের দ্বীনি বিষয়ে যোগ্য আলেম ও সরকারি সংস্থার শরণাপন্ন হোন।"
 }

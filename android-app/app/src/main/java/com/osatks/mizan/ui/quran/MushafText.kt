@@ -97,6 +97,10 @@ private const val KASHIDA_WORDS = 2 // يُمدّ في السطر كلمتان �
 private const val PAUSE_SLOT = 0.2f // مكان علامة الوقف بعد كلمتها مباشرة
 private const val BANNER = 1.6f     // ترويسة السورة تأخذ سطراً ونصفاً تقريباً
 private const val REF = 100f
+// شريط الكلمة المخفية في وضع الحفظ: أعلاه وارتفاعه نسبة إلى المقاس من خط الأساس، وشفافيته
+private const val HIFZ_TOP = 0.46f
+private const val HIFZ_HEIGHT = 0.56f
+private const val HIFZ_ALPHA = 0.16f
 
 /** علامات الوقف (ۖ ۗ ۚ …) تأتي في نص تنزيل كلماتٍ مستقلة؛ تُلصق بالكلمة قبلها حتى لا تبدأ بها سطراً */
 private fun isPause(w: String) = w.isNotEmpty() && w.all { it in '\u06D6'..'\u06DC' }
@@ -314,7 +318,10 @@ private fun baseline(top: Float, h: Float, size: Float) = top + h / 2 + size * 0
  * الآية المختارة تُظلَّل بشريط متصل يتلاشى بين آية وأخرى، والضغط على أي كلمة يفتح تفسير آيتها.
  */
 @Composable
-fun MushafCanvas(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun MushafCanvas(
+    page: Int, text: Array<String>, selected: Int, onTap: (Int) -> Unit, modifier: Modifier = Modifier,
+    hifz: Boolean = false, revealed: Set<Int> = emptySet(),
+) {
     val p = mushafPalette()
     val ctx = LocalContext.current
     val density = LocalDensity.current
@@ -358,6 +365,30 @@ fun MushafCanvas(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> 
         LaunchedEffect(selected) {
             if (selected != shown) { previous = shown; shown = selected; swap.snapTo(0f); swap.animateTo(1f, tween(280)) }
         }
+        // الحفظ: الآيات المخفية أشرطة لينة وعلامات آياتها ظاهرة، وما يُكشف أو يُخفى يتلاشى إلى حاله الجديدة
+        val hifzA = remember { Animatable(if (hifz) 1f else 0f) }
+        LaunchedEffect(hifz) { hifzA.animateTo(if (hifz) 1f else 0f, tween(360)) }
+        var drawn by remember { mutableStateOf(revealed) }
+        var changing by remember { mutableStateOf(emptySet<Int>()) }
+        val change = remember { Animatable(1f) }
+        LaunchedEffect(revealed) {
+            val diff = (revealed - drawn) + (drawn - revealed)
+            if (diff.isEmpty()) return@LaunchedEffect
+            change.snapTo(0f)
+            changing = diff
+            drawn = revealed
+            change.animateTo(1f, tween(320))
+            changing = emptySet()
+        }
+        // مقدار إخفاء الآية: 0 ظاهرة، 1 شريط
+        val hide: (Int) -> Float = { i ->
+            val h = hifzA.value
+            if (h <= 0f) 0f else {
+                val target = if (i in drawn) 0f else 1f
+                h * if (i in changing) (1f - target) + (2f * target - 1f) * change.value else target
+            }
+        }
+
         var pressed by remember { mutableIntStateOf(-1) }
         val pressA = remember { Animatable(0f) }
         LaunchedEffect(pressed) { if (pressed >= 0) pressA.animateTo(1f, tween(140, delayMillis = 70)) else pressA.snapTo(0f) }
@@ -386,7 +417,7 @@ fun MushafCanvas(page: Int, text: Array<String>, selected: Int, onTap: (Int) -> 
                     band(l, previous, p.select, 1f - swap.value)
                     band(l, shown, p.select, swap.value)
                     if (interactive) band(l, pressed, p.press, pressA.value)
-                    drawPage(l, p, paint, text[0], 1f)
+                    drawPage(l, p, paint, text[0], 1f, hide)
                 }
             if (l.fits) Spacer(canvas) else Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { Spacer(canvas) }
         }
@@ -412,7 +443,7 @@ private fun DrawScope.band(l: PageLayout, index: Int, color: Color, alpha: Float
     }
 }
 
-private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: TextPaint, basmala: String, alpha: Float) {
+private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: TextPaint, basmala: String, alpha: Float, hide: (Int) -> Float = { 0f }) {
     // صفحتا الفاتحة وأول البقرة (نص قليل في وسط الصفحة): إطار مزخرف حول النص كما في المصاحف المطبوعة
     if (l.capped && l.rows.isNotEmpty()) {
         val pad = l.lineH * 0.45f
@@ -452,13 +483,26 @@ private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: TextPaint
                 paint.textSize = l.textSize
                 val y = baseline(row.top, row.height, l.textSize)
                 for (pl in row.words) {
-                    paint.color = ink
-                    nc.drawText(pl.text, pl.right - pl.wordW, y, paint)
-                    pl.word.pause?.let { mark ->
-                        val slot = l.textSize * PAUSE_SLOT
-                        val cx = pl.right - pl.wordW - slot / 2
-                        paint.getTextBounds(mark, 0, mark.length, bounds)
-                        nc.drawText(mark, cx - (bounds.left + bounds.right) / 2f, y, paint)
+                    val h = hide(pl.word.index)
+                    // الكلمة المخفية للحفظ: شريط لين بطولها يدل على موضعها وطولها
+                    if (h > 0f) {
+                        val inset = l.textSize * 0.04f
+                        val top = y - l.textSize * HIFZ_TOP
+                        val bh = l.textSize * HIFZ_HEIGHT
+                        drawRoundRect(
+                            p.ink.copy(alpha = HIFZ_ALPHA * h * alpha), Offset(pl.right - pl.wordW + inset, top),
+                            Size((pl.wordW - 2 * inset).coerceAtLeast(1f), bh), CornerRadius(bh / 2)
+                        )
+                    }
+                    if (h < 1f) {
+                        paint.color = if (h <= 0f) ink else p.ink.copy(alpha = p.ink.alpha * alpha * (1f - h)).toArgb()
+                        nc.drawText(pl.text, pl.right - pl.wordW, y, paint)
+                        pl.word.pause?.let { mark ->
+                            val slot = l.textSize * PAUSE_SLOT
+                            val cx = pl.right - pl.wordW - slot / 2
+                            paint.getTextBounds(mark, 0, mark.length, bounds)
+                            nc.drawText(mark, cx - (bounds.left + bounds.right) / 2f, y, paint)
+                        }
                     }
                     val mk = pl.word.marker ?: continue
                     paint.color = marker

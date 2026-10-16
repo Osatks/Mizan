@@ -562,7 +562,29 @@ object Ms : Strings {
     override val moreTafsirs = "Tafsir lain"
     override val tafsirLibraryNote = "Tafsir dimuat turun daripada koleksi terbuka tafsir_api (bersumberkan quran.com dan QUL). Internet hanya digunakan untuk muat turun ini; selepas itu ia berfungsi tanpa talian."
     override fun ayahRange(from: Int, to: Int) = "Tafsir ayat $from–$to"
-    override val quranSources = "Teks al-Quran (Rasm Uthmani) daripada Projek Tanzil (tanzil.net). Tafsir al-Muyassar (Kompleks Raja Fahd), Tafsir al-Jalalain dan terjemahan makna daripada tanzil.net/trans. Fon al-Quran: Amiri Quran, lesen SIL Open Font License."
+    override val recitation = "Tilawah"
+    override val reciter = "Qari"
+    override val playRecitation = "Mainkan tilawah"
+    override val pauseRecitation = "Jeda"
+    override val stopRecitation = "Hentikan tilawah"
+    override val repeatAyah = "Ulang setiap ayat"
+    override val listenFromHere = "Dengar dari ayat ini"
+    override val audioNote = "Tilawah dimainkan daripada EveryAyah.com. Ayat yang telah anda dengar disimpan dalam peranti anda dan boleh dimainkan tanpa internet."
+    override val audioError = "Tilawah tidak dapat dimainkan. Semak sambungan internet anda."
+    override val hifzMode = "Hafazan"
+    override val revealNext = "Tunjuk seterusnya"
+    override val hideAll = "Sembunyikan semua"
+    override val hifzHint = "Baca daripada hafazan, kemudian ketik ayat yang tersembunyi untuk menyemaknya."
+    override val displayTitle = "Paparan"
+    override val pageColor = "Warna halaman"
+    override val toneAuto = "Automatik"
+    override val toneSepia = "Sepia"
+    override val toneNight = "Malam"
+    override val brightness = "Kecerahan"
+    override val brightnessSystem = "Kecerahan peranti"
+    override val textSizeLabel = "Saiz teks"
+    override val continueFocus = "Teruskan dalam mod fokus"
+    override val quranSources = "Teks al-Quran (Rasm Uthmani) daripada Projek Tanzil (tanzil.net). Tafsir al-Muyassar (Kompleks Raja Fahd), Tafsir al-Jalalain dan terjemahan makna daripada tanzil.net/trans. Fon al-Quran: Amiri Quran, lesen SIL Open Font License. Tilawah: EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "Tetapan"
@@ -582,7 +604,7 @@ object Ms : Strings {
     override val aboutText = "Aplikasi percuma yang menghimpunkan alatan harian seorang Muslim: zakat, faraid, waktu solat, kiblat, tarikh Hijrah dan tasbih. " +
         "Hukum mengikut pandangan jumhur fuqaha, waktu solat menggunakan formula astronomi, dan tarikh mengikut kalendar Umm al-Qura."
     override val privacy = "Privasi"
-    override val privacyText = "Aplikasi ini tidak mengumpul sebarang data peribadi dan hanya menggunakan internet untuk memuat turun tafsir yang anda pilih. Lokasi anda hanya digunakan dalam peranti anda untuk mengira waktu solat dan kiblat, " +
+    override val privacyText = "Aplikasi ini tidak mengumpul sebarang data peribadi dan hanya menggunakan internet untuk memuat turun tafsir yang anda pilih dan memainkan tilawah apabila anda memintanya. Lokasi anda hanya digunakan dalam peranti anda untuk mengira waktu solat dan kiblat, " +
         "dan tetapan serta angka anda kekal dalam peranti anda."
     override val disclaimer = "Keputusan ini sekadar panduan. Untuk persoalan agama anda sendiri, rujuk ulama yang berkelayakan dan pihak berkuasa agama rasmi."
 }

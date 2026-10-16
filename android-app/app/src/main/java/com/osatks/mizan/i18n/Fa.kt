@@ -562,7 +562,29 @@ object Fa : Strings {
     override val moreTafsirs = "تفسیرهای دیگر"
     override val tafsirLibraryNote = "تفسیرها از مجموعه باز tafsir_api (برگرفته از quran.com و QUL) دانلود می‌شوند. اینترنت فقط برای همین دانلودها به کار می‌رود و پس از آن تفسیرها بدون اینترنت کار می‌کنند."
     override fun ayahRange(from: Int, to: Int) = "تفسیر آیات $from–$to"
-    override val quranSources = "متن قرآن کریم به رسم‌الخط عثمانی از پروژه تنزیل (tanzil.net). التفسیر المیسر (مجمع ملک فهد)، تفسیر جلالین و ترجمه‌های معانی از tanzil.net/trans. فونت قرآن: Amiri Quran، با مجوز SIL Open Font License."
+    override val recitation = "تلاوت"
+    override val reciter = "قاری"
+    override val playRecitation = "پخش تلاوت"
+    override val pauseRecitation = "مکث"
+    override val stopRecitation = "توقف تلاوت"
+    override val repeatAyah = "تکرار هر آیه"
+    override val listenFromHere = "شنیدن از این آیه"
+    override val audioNote = "تلاوت‌ها از EveryAyah.com پخش می‌شوند. آیه‌هایی که شنیده‌اید روی دستگاهتان ذخیره می‌شوند و بدون اینترنت هم پخش می‌شوند."
+    override val audioError = "پخش تلاوت ممکن نشد. اتصال اینترنت خود را بررسی کنید."
+    override val hifzMode = "حفظ"
+    override val revealNext = "نمایش بعدی"
+    override val hideAll = "پنهان کردن همه"
+    override val hifzHint = "از حفظ بخوانید، سپس برای بررسی روی آیهٔ پنهان بزنید."
+    override val displayTitle = "نمایش"
+    override val pageColor = "رنگ صفحه"
+    override val toneAuto = "خودکار"
+    override val toneSepia = "سپیا"
+    override val toneNight = "شب"
+    override val brightness = "روشنایی"
+    override val brightnessSystem = "روشنایی دستگاه"
+    override val textSizeLabel = "اندازه متن"
+    override val continueFocus = "ادامه در حالت تمرکز"
+    override val quranSources = "متن قرآن کریم به رسم‌الخط عثمانی از پروژه تنزیل (tanzil.net). التفسیر المیسر (مجمع ملک فهد)، تفسیر جلالین و ترجمه‌های معانی از tanzil.net/trans. فونت قرآن: Amiri Quran، با مجوز SIL Open Font License. تلاوت‌ها: EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "تنظیمات"
@@ -582,7 +604,7 @@ object Fa : Strings {
     override val aboutText = "برنامه‌ای رایگان با ابزارهایی که مسلمان هر روز به آن‌ها نیاز دارد: زکات، ارث، اوقات نماز، قبله، تاریخ هجری قمری و تسبیح. " +
         "احکام بر پایه قول جمهور فقها، اوقات نماز بر پایه فرمول‌های نجومی و تاریخ‌ها طبق تقویم ام‌القری است."
     override val privacy = "حریم خصوصی"
-    override val privacyText = "این برنامه هیچ داده شخصی جمع‌آوری نمی‌کند و فقط برای دانلود تفسیرهایی که انتخاب می‌کنید از اینترنت استفاده می‌کند. موقعیت شما فقط روی دستگاهتان و برای محاسبه اوقات نماز و قبله به کار می‌رود، " +
+    override val privacyText = "این برنامه هیچ داده شخصی جمع‌آوری نمی‌کند و فقط برای دانلود تفسیرهایی که انتخاب می‌کنید و پخش تلاوت به درخواست شما از اینترنت استفاده می‌کند. موقعیت شما فقط روی دستگاهتان و برای محاسبه اوقات نماز و قبله به کار می‌رود، " +
         "و تنظیمات و اعداد شما روی دستگاهتان می‌ماند."
     override val disclaimer = "نتایج جنبه راهنما دارند. برای پرسش‌های شرعی خود به علمای واجد شرایط و نهادهای رسمی مراجعه کنید."
 }

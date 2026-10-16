@@ -66,6 +66,8 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    // تلاوة القرآن: تشغيل آية آية مع ذاكرة مؤقتة للاستماع دون اتصال
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
 
     testImplementation("junit:junit:4.13.2")
 }

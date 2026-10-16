@@ -561,7 +561,29 @@ object En : Strings {
     override val moreTafsirs = "More tafsirs"
     override val tafsirLibraryNote = "Tafsirs are downloaded from the open tafsir_api collection (from quran.com and QUL). The internet is used only for these downloads; after that they work offline."
     override fun ayahRange(from: Int, to: Int) = "Commentary on ayahs $from–$to"
-    override val quranSources = "Quran text (Uthmani script) from the Tanzil Project (tanzil.net). Tafsir al-Muyassar (King Fahd Complex), Tafsir al-Jalalayn and the translations of the meanings from tanzil.net/trans. Quran font: Amiri Quran, SIL Open Font License."
+    override val recitation = "Recitation"
+    override val reciter = "Reciter"
+    override val playRecitation = "Play recitation"
+    override val pauseRecitation = "Pause"
+    override val stopRecitation = "Stop recitation"
+    override val repeatAyah = "Repeat each ayah"
+    override val listenFromHere = "Listen from this ayah"
+    override val audioNote = "Recitations play from EveryAyah.com. Ayahs you have listened to are saved on your device and play without internet."
+    override val audioError = "Couldn’t play the recitation. Check your internet connection."
+    override val hifzMode = "Memorization"
+    override val revealNext = "Reveal next"
+    override val hideAll = "Hide all"
+    override val hifzHint = "Recite from memory, then tap a hidden ayah to check it."
+    override val displayTitle = "Display"
+    override val pageColor = "Page color"
+    override val toneAuto = "Auto"
+    override val toneSepia = "Sepia"
+    override val toneNight = "Night"
+    override val brightness = "Brightness"
+    override val brightnessSystem = "Device brightness"
+    override val textSizeLabel = "Text size"
+    override val continueFocus = "Continue in focus mode"
+    override val quranSources = "Quran text (Uthmani script) from the Tanzil Project (tanzil.net). Tafsir al-Muyassar (King Fahd Complex), Tafsir al-Jalalayn and the translations of the meanings from tanzil.net/trans. Quran font: Amiri Quran, SIL Open Font License. Recitations: EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "Settings"
@@ -581,7 +603,7 @@ object En : Strings {
     override val aboutText = "A free app with the tools a Muslim needs every day: zakat, inheritance, prayer times, qibla, the Hijri date and a tasbih. " +
         "Rulings follow the majority of jurists, prayer times use astronomical formulas, and dates follow the Umm al-Qura calendar."
     override val privacy = "Privacy"
-    override val privacyText = "The app collects no personal data and uses the internet only to download the tafsirs you choose. Your location is used only on your device to compute prayer times and the qibla, " +
+    override val privacyText = "The app collects no personal data and uses the internet only to download the tafsirs you choose and to play recitations when you ask. Your location is used only on your device to compute prayer times and the qibla, " +
         "and your settings and numbers stay on your device."
     override val disclaimer = "Results are a guide. For your own religious questions, refer to qualified scholars and official bodies."
 }

@@ -581,7 +581,29 @@ object Ru : Strings {
     override val moreTafsirs = "Другие тафсиры"
     override val tafsirLibraryNote = "Тафсиры загружаются из открытой коллекции tafsir_api (по данным quran.com и QUL). Интернет используется только для этих загрузок; после них тафсиры работают офлайн."
     override fun ayahRange(from: Int, to: Int) = "Тафсир аятов $from–$to"
-    override val quranSources = "Текст Корана (начертание Усмани) взят из проекта Tanzil (tanzil.net). «Тафсир аль-Муяссар» (Комплекс имени короля Фахда), «Тафсир аль-Джалалайн» и переводы смыслов — с сайта tanzil.net/trans. Шрифт Корана: Amiri Quran, лицензия SIL Open Font License."
+    override val recitation = "Чтение Корана"
+    override val reciter = "Чтец"
+    override val playRecitation = "Слушать чтение"
+    override val pauseRecitation = "Пауза"
+    override val stopRecitation = "Остановить чтение"
+    override val repeatAyah = "Повтор каждого аята"
+    override val listenFromHere = "Слушать с этого аята"
+    override val audioNote = "Чтение воспроизводится с EveryAyah.com. Прослушанные аяты сохраняются на устройстве и воспроизводятся без интернета."
+    override val audioError = "Не удалось воспроизвести чтение. Проверьте подключение к интернету."
+    override val hifzMode = "Заучивание"
+    override val revealNext = "Показать следующий"
+    override val hideAll = "Скрыть все"
+    override val hifzHint = "Прочитайте по памяти, затем коснитесь скрытого аята, чтобы проверить себя."
+    override val displayTitle = "Отображение"
+    override val pageColor = "Цвет страницы"
+    override val toneAuto = "Авто"
+    override val toneSepia = "Сепия"
+    override val toneNight = "Ночь"
+    override val brightness = "Яркость"
+    override val brightnessSystem = "Яркость устройства"
+    override val textSizeLabel = "Размер текста"
+    override val continueFocus = "Продолжить в режиме фокуса"
+    override val quranSources = "Текст Корана (начертание Усмани) взят из проекта Tanzil (tanzil.net). «Тафсир аль-Муяссар» (Комплекс имени короля Фахда), «Тафсир аль-Джалалайн» и переводы смыслов — с сайта tanzil.net/trans. Шрифт Корана: Amiri Quran, лицензия SIL Open Font License. Чтение Корана: EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "Настройки"
@@ -601,7 +623,7 @@ object Ru : Strings {
     override val aboutText = "Бесплатное приложение с инструментами, которые нужны мусульманину каждый день: закят, наследство, время намаза, кибла, дата по хиджре и тасбих. " +
         "Расчёты следуют мнению большинства правоведов, время намаза вычисляется по астрономическим формулам, а даты — по календарю Умм аль-Кура."
     override val privacy = "Конфиденциальность"
-    override val privacyText = "Приложение не собирает персональные данные и использует интернет только для загрузки выбранных вами тафсиров. Местоположение используется только на вашем устройстве для расчёта времени намаза и киблы, " +
+    override val privacyText = "Приложение не собирает персональные данные и использует интернет только для загрузки выбранных вами тафсиров и воспроизведения чтения Корана по вашему запросу. Местоположение используется только на вашем устройстве для расчёта времени намаза и киблы, " +
         "а ваши настройки и данные остаются на устройстве."
     override val disclaimer = "Результаты носят справочный характер. По личным религиозным вопросам обращайтесь к знающим учёным и официальным организациям."
 }

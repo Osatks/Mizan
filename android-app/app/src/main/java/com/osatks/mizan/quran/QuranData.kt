@@ -2,6 +2,7 @@ package com.osatks.mizan.quran
 
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -162,6 +163,20 @@ object QuranPrefs {
         private set
     /** المصادر التي أخفاها المستخدم من ورقة التفسير */
     val hidden = mutableStateListOf<String>()
+    /** لون الورق في القراءة: "" مثل مظهر التطبيق | sepia ورقي دافئ | night ليلي */
+    var tone by mutableStateOf("")
+        private set
+    /** سطوع الشاشة أثناء القراءة من 0 إلى 1، أو -1 لسطوع الجهاز */
+    var brightness by mutableFloatStateOf(-1f)
+        private set
+    /** القارئ (اسم مجلده في everyayah)، و repeat تكرار كل آية (0 = بلا نهاية) */
+    var reciter by mutableStateOf("")
+        private set
+    var repeat by mutableIntStateOf(1)
+        private set
+    /** آخر موضع (أول آية في الصفحة) في وضع التركيز، لزر «تابع في وضع التركيز» */
+    var focusLast by mutableIntStateOf(-1)
+        private set
 
     fun ensure() {
         if (loaded) return
@@ -172,6 +187,11 @@ object QuranPrefs {
         source = AppSettings.getString("q_src")
         hidden.clear()
         hidden += AppSettings.getString("q_hidden").split(',').filter { it.isNotEmpty() }
+        tone = AppSettings.getString("q_tone")
+        brightness = AppSettings.getInt("q_bright", -1).let { if (it < 0) -1f else it / 100f }
+        reciter = AppSettings.getString("q_reciter")
+        repeat = AppSettings.getInt("q_repeat", 1)
+        focusLast = AppSettings.getInt("q_focus_last", -1)
         bookmarks.clear()
         bookmarks += AppSettings.getString("q_marks").split(',').mapNotNull { it.toIntOrNull() }.filter { it in 0 until QuranMeta.AYAHS }
     }
@@ -189,6 +209,11 @@ object QuranPrefs {
     fun updateSize(v: Int) { textSize = v.coerceIn(18, 40); AppSettings.putInt("q_size", textSize) }
     fun updateMode(v: String) { mode = v; AppSettings.putString("q_mode", v) }
     fun updateSource(id: String) { source = id; AppSettings.putString("q_src", id) }
+    fun updateTone(v: String) { tone = v; AppSettings.putString("q_tone", v) }
+    fun updateBrightness(v: Float) { brightness = if (v < 0f) -1f else v.coerceIn(0.02f, 1f); AppSettings.putInt("q_bright", if (v < 0f) -1 else (brightness * 100).toInt()) }
+    fun updateReciter(id: String) { reciter = id; AppSettings.putString("q_reciter", id) }
+    fun updateRepeat(n: Int) { repeat = n; AppSettings.putInt("q_repeat", n) }
+    fun updateFocusLast(i: Int) { if (i != focusLast) { focusLast = i; AppSettings.putInt("q_focus_last", i) } }
 
     fun isBookmarked(i: Int) = i in bookmarks
     fun toggleBookmark(i: Int) {

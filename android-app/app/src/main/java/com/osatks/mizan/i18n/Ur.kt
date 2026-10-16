@@ -562,7 +562,29 @@ object Ur : Strings {
     override val moreTafsirs = "مزید تفاسیر"
     override val tafsirLibraryNote = "تفاسیر کھلے ذخیرے tafsir_api (ماخذ quran.com اور QUL) سے ڈاؤن لوڈ ہوتی ہیں۔ انٹرنیٹ صرف انہی ڈاؤن لوڈز کے لیے استعمال ہوتا ہے؛ اس کے بعد یہ بغیر انٹرنیٹ کام کرتی ہیں۔"
     override fun ayahRange(from: Int, to: Int) = "آیات $from–$to کی تفسیر"
-    override val quranSources = "قرآن مجید کا متن (رسم عثمانی) تنزیل پروجیکٹ (tanzil.net) سے لیا گیا ہے۔ التفسیر المیسر (شاہ فہد کمپلیکس)، تفسیر جلالین اور معانی کے تراجم tanzil.net/trans سے لیے گئے ہیں۔ قرآنی فونٹ: Amiri Quran، جو SIL اوپن فونٹ لائسنس کے تحت دستیاب ہے۔"
+    override val recitation = "تلاوت"
+    override val reciter = "قاری"
+    override val playRecitation = "تلاوت سنیں"
+    override val pauseRecitation = "روکیں"
+    override val stopRecitation = "تلاوت بند کریں"
+    override val repeatAyah = "ہر آیت دہرائیں"
+    override val listenFromHere = "اس آیت سے سنیں"
+    override val audioNote = "تلاوتیں EveryAyah.com سے چلتی ہیں۔ جو آیات آپ سن چکے ہیں وہ آپ کے آلے پر محفوظ ہو جاتی ہیں اور انٹرنیٹ کے بغیر بھی چلتی ہیں۔"
+    override val audioError = "تلاوت نہیں چل سکی۔ اپنا انٹرنیٹ کنکشن چیک کریں۔"
+    override val hifzMode = "حفظ"
+    override val revealNext = "اگلی دکھائیں"
+    override val hideAll = "سب چھپائیں"
+    override val hifzHint = "یاد سے پڑھیں، پھر جانچنے کے لیے چھپی ہوئی آیت کو چھوئیں۔"
+    override val displayTitle = "ڈسپلے"
+    override val pageColor = "صفحے کا رنگ"
+    override val toneAuto = "خودکار"
+    override val toneSepia = "سیپیا"
+    override val toneNight = "رات"
+    override val brightness = "چمک"
+    override val brightnessSystem = "آلے کی چمک"
+    override val textSizeLabel = "متن کا سائز"
+    override val continueFocus = "فوکس موڈ میں جاری رکھیں"
+    override val quranSources = "قرآن مجید کا متن (رسم عثمانی) تنزیل پروجیکٹ (tanzil.net) سے لیا گیا ہے۔ التفسیر المیسر (شاہ فہد کمپلیکس)، تفسیر جلالین اور معانی کے تراجم tanzil.net/trans سے لیے گئے ہیں۔ قرآنی فونٹ: Amiri Quran، جو SIL اوپن فونٹ لائسنس کے تحت دستیاب ہے۔ تلاوتیں: EveryAyah.com۔"
 
     // ---------- ترتیبات ----------
     override val settingsTitle = "ترتیبات"
@@ -582,7 +604,7 @@ object Ur : Strings {
     override val aboutText = "ایک مفت ایپ جس میں وہ ٹولز ہیں جن کی ایک مسلمان کو روزانہ ضرورت ہوتی ہے: زکوٰۃ، وراثت، اوقات نماز، قبلہ، ہجری تاریخ اور تسبیح۔ " +
         "احکام جمہور فقہاء کے مطابق ہیں، اوقات نماز فلکیاتی فارمولوں سے نکالے جاتے ہیں، اور تاریخیں ام القریٰ کیلنڈر کے مطابق ہیں۔"
     override val privacy = "رازداری"
-    override val privacyText = "ایپ کوئی ذاتی ڈیٹا جمع نہیں کرتی اور انٹرنیٹ صرف آپ کی منتخب کردہ تفاسیر ڈاؤن لوڈ کرنے کے لیے استعمال کرتی ہے۔ آپ کا مقام صرف آپ کے آلے پر اوقات نماز اور قبلہ معلوم کرنے کے لیے استعمال ہوتا ہے، " +
+    override val privacyText = "ایپ کوئی ذاتی ڈیٹا جمع نہیں کرتی اور انٹرنیٹ صرف آپ کی منتخب کردہ تفاسیر ڈاؤن لوڈ کرنے اور آپ کے کہنے پر تلاوت چلانے کے لیے استعمال کرتی ہے۔ آپ کا مقام صرف آپ کے آلے پر اوقات نماز اور قبلہ معلوم کرنے کے لیے استعمال ہوتا ہے، " +
         "اور آپ کی ترتیبات اور اعداد آپ کے آلے ہی پر رہتے ہیں۔"
     override val disclaimer = "نتائج رہنمائی کے لیے ہیں۔ اپنے ذاتی شرعی مسائل میں مستند علماء اور سرکاری اداروں سے رجوع کریں۔"
 }

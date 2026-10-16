@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.provider.Settings
+import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
@@ -98,6 +99,43 @@ fun FocusEffects(active: Boolean) {
                 view.keepScreenOn = false
                 QuietReading.restore(ctx)
             }
+        }
+    }
+}
+
+/**
+ * سطوع الشاشة أثناء القراءة كما اختاره المستخدم (من 0 إلى 1)، أو سطوع الجهاز إن كانت القيمة سالبة.
+ * يخص نافذة التطبيق وحدها، ويعود سطوع الجهاز بمغادرة صفحة القراءة.
+ */
+@Composable
+fun ReadingBrightness() {
+    val level = com.osatks.mizan.quran.QuranPrefs.brightness
+    val view = LocalView.current
+    DisposableEffect(level, view) {
+        val window = view.context.findActivity()?.window
+        fun apply(v: Float) { window?.let { w -> w.attributes = w.attributes.apply { screenBrightness = v } } }
+        apply(if (level < 0f) WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE else level)
+        onDispose { apply(WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE) }
+    }
+}
+
+/**
+ * التلاوة تتبع صفحة القراءة: تتوقف مؤقتاً حين يغادر المستخدم التطبيق، وتنتهي بالخروج من الصفحة،
+ * أما تدوير الشاشة فلا يقطعها.
+ */
+@Composable
+fun RecitationLifecycle() {
+    val view = LocalView.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle, view) {
+        val activity = view.context.findActivity()
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP && activity?.isChangingConfigurations != true) com.osatks.mizan.quran.Recitation.pause()
+        }
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+            if (activity?.isChangingConfigurations != true) com.osatks.mizan.quran.Recitation.release()
         }
     }
 }

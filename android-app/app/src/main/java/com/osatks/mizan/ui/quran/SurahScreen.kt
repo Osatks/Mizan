@@ -1,5 +1,12 @@
 package com.osatks.mizan.ui.quran
 
+import android.widget.Toast
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputScope
+import com.osatks.mizan.quran.Recitation
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
@@ -38,8 +45,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.TextDecrease
-import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -110,13 +115,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.filled.FormatSize
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.foundation.layout.width
 
 /**
  * صفحة السورة. عرض المصحف: صفحات مصحف المدينة (604) تُقلَّب يميناً ويساراً، في رأسها السورة والجزء والحزب
  * وفي أسفلها رقم الصفحة، وكل آية تنتهي بعلامة \u06DD برقمها. عرض آية آية: بطاقة لكل آية مع ترجمة المعاني.
  * الضغط على أي آية يفتح تفسيرها. الصفحة التي يبقى عليها القارئ ثلاث ثوانٍ تُحسب مقروءة في الختمة.
+ * ومعها التلاوة آية آية، ولون الورق والسطوع للقراءة الليلية، وفي وضع التركيز: تقليب الصفحات بلمس طرفيها،
+ * وإخفاء الآيات للحفظ.
  */
 @Composable
 fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, openSurah: (Int) -> Unit, startInFocus: Boolean = false, openLibrary: () -> Unit = {}) {
@@ -132,7 +138,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val mode = QuranPrefs.modeFor(lang)
     val size = QuranPrefs.textSize
     val startIndex = QuranMeta.index(surah, startAyah.coerceAtLeast(1))
-    var selIdx by remember { mutableIntStateOf(if (startAyah > 0) startIndex else -1) }
+    // «تابع في وضع التركيز» يفتح الصفحة نفسها دون تظليل آية
+    var selIdx by remember { mutableIntStateOf(if (startAyah > 0 && from != "focus") startIndex else -1) }
     var sheetIdx by remember { mutableStateOf<Int?>(null) }
     var listSurah by remember { mutableIntStateOf(surah) }
     val list = rememberLazyListState()
@@ -164,14 +171,26 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     var focus by rememberSaveable { mutableStateOf(startInFocus) }
     var askSilence by remember { mutableStateOf(false) }
     var exitPing by remember { mutableIntStateOf(0) }
-    var showExit by remember { mutableStateOf(false) }
+    var showControls by remember { mutableStateOf(startInFocus) }
+    var audioSheet by remember { mutableStateOf(false) }
+    var displaySheet by remember { mutableStateOf(false) }
+    // الحفظ (في المصحف داخل وضع التركيز): الآيات مخفية حتى يكشفها القارئ
+    var hifz by rememberSaveable { mutableStateOf(false) }
+    var revealed by remember { mutableStateOf(emptySet<Int>()) }
+    val hifzOn = hifz && focus && mode == "mushaf"
     FocusEffects(focus)
+    ReadingBrightness()
+    RecitationLifecycle()
     BackHandler(enabled = focus) { focus = false }
-    // زر الخروج يظهر قليلاً عند الدخول، وعند لمس إطار الصفحة، وعند التمرير لأعلى في عرض آية آية
-    LaunchedEffect(focus, exitPing) {
-        showExit = focus
-        if (focus) { delay(3000); showExit = false }
+    // أزرار وضع التركيز تظهر قليلاً عند الدخول، وعند لمس إطار الصفحة أو استعمالها، وتبقى ما دامت ورقة إعداد مفتوحة
+    val sheetOpen = audioSheet || displaySheet
+    // في الحفظ تبقى الأدوات ظاهرة: الشريط في هامش الصفحة لا يغطي السطور
+    LaunchedEffect(focus, exitPing, sheetOpen, hifzOn) {
+        showControls = focus
+        if (focus && !sheetOpen && !hifzOn) { delay(3500); showControls = false }
     }
+    var hifzHint by remember { mutableStateOf(false) }
+    LaunchedEffect(hifzHint) { if (hifzHint) { delay(4500); hifzHint = false } }
     LaunchedEffect(focus, mode) {
         if (focus && mode == "list") {
             var last = list.firstVisibleItemIndex * 100_000 + list.firstVisibleItemScrollOffset
@@ -185,9 +204,54 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         focus = true
         if (!QuietReading.granted(ctx) && !QuietReading.asked()) askSilence = true
     }
+    // الموضع يُحفظ مع كل صفحة فلا يضيع ولو أُغلق التطبيق، وموضع وضع التركيز وحده لزر «تابع في وضع التركيز»
+    LaunchedEffect(mode, focus, text != null) {
+        if (text == null) return@LaunchedEffect
+        snapshotFlow { currentIndex() }.collectLatest { i ->
+            delay(700)
+            if (sheetIdx == null) QuranPrefs.updateLast(i)
+            if (focus) QuranPrefs.updateFocusLast(i)
+        }
+    }
+
+    // التلاوة: الآية المتلوة تُظلَّل، والصفحة (أو القائمة) تتبعها
+    LaunchedEffect(mode) {
+        snapshotFlow { if (Recitation.active) Recitation.current to Recitation.basmala else null }.collect { cur ->
+            val (i, basmala) = cur ?: return@collect
+            if (i < 0) return@collect
+            selIdx = if (basmala) -1 else i
+            if (mode == "mushaf") {
+                val pg = QuranMeta.pageOf(i) - 1
+                if (pg != pager.currentPage && !pager.isScrollInProgress) pager.animateScrollToPage(pg)
+            } else {
+                val (sn, an) = QuranMeta.locate(i)
+                if (sn != listSurah) { listSurah = sn; list.scrollToItem(listItemOf(an)) }
+                else {
+                    val info = list.layoutInfo
+                    val item = info.visibleItemsInfo.firstOrNull { it.index == listItemOf(an) }
+                    if (item == null || item.offset < 0 || item.offset + item.size > info.viewportEndOffset) list.animateScrollToItem(listItemOf(an))
+                }
+            }
+        }
+    }
+    var seenErrors by remember { mutableIntStateOf(Recitation.errors) }
+    LaunchedEffect(Recitation.errors) {
+        if (Recitation.errors != seenErrors) { seenErrors = Recitation.errors; Toast.makeText(ctx, s.audioError, Toast.LENGTH_LONG).show() }
+    }
+    // تبدأ التلاوة من الآية المختارة إن كانت في الصفحة، وإلا من أول الصفحة
+    fun playFrom(): Int =
+        if (mode == "mushaf") QuranMeta.pageRange(pager.currentPage + 1).let { r -> if (selIdx in r) selIdx else r.first }
+        else if (selIdx >= 0 && QuranMeta.locate(selIdx).first == listSurah) selIdx else firstListIndex()
+    fun playOrPause() { if (Recitation.active) Recitation.toggle() else Recitation.play(ctx, playFrom()) }
+    fun turn(d: Int) { scope.launch { pager.animateScrollToPage((pager.currentPage + d).coerceIn(0, QuranMeta.PAGES.size - 1)) } }
+    fun tapAyah(i: Int) { if (hifzOn && i !in revealed) revealed = revealed + i else open(i) }
 
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLow)) {
+    // المشغّل الصغير خارج وضع التركيز يأخذ مكانه أسفل الصفحة فلا يغطي سطورها
+    val playerRoom = if (Recitation.active && !focus) 76.dp else 0.dp
+    CompositionLocalProvider(LocalReadingPalette provides readingPalette(QuranPrefs.tone)) {
+    val pal = mushafPalette()
+    Box(Modifier.fillMaxSize().background(pal.backdrop.takeOrElse { MaterialTheme.colorScheme.surfaceContainerLow })) {
     Column(Modifier.fillMaxSize().then(if (focus) Modifier.windowInsetsPadding(WindowInsets.displayCutout) else Modifier)) {
         AnimatedVisibility(
             !focus,
@@ -200,21 +264,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             onBack, cardKey = "$from-$surah"
         ) {
             IconButton(onClick = { enterFocus() }) { Icon(Icons.Filled.Fullscreen, s.focusMode, tint = Color.White) }
-            // صفحة المصحف تختار مقاسها لتملأ الصفحة؛ التكبير والتصغير لعرض آية آية
-            if (mode != "mushaf") {
-                // مقاس الخط في زر واحد يفتح قائمة صغيرة (−  المقاس  +)
-                var sizeMenu by remember { mutableStateOf(false) }
-                Box {
-                    IconButton(onClick = { sizeMenu = true }) { Icon(Icons.Filled.FormatSize, "${s.textSmaller} / ${s.textLarger}", tint = Color.White) }
-                    DropdownMenu(sizeMenu, onDismissRequest = { sizeMenu = false }, shape = RoundedCornerShape(18.dp)) {
-                        Row(Modifier.padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(onClick = { QuranPrefs.updateSize(size - 2) }, enabled = size > 18) { Icon(Icons.Filled.TextDecrease, s.textSmaller) }
-                            Text("$size", Modifier.width(40.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium)
-                            IconButton(onClick = { QuranPrefs.updateSize(size + 2) }, enabled = size < 40) { Icon(Icons.Filled.TextIncrease, s.textLarger) }
-                        }
-                    }
-                }
-            }
+            // لون الصفحة والسطوع (ومقاس الخط في عرض آية آية؛ صفحة المصحف تختار مقاسها لتملأ الصفحة)
+            IconButton(onClick = { displaySheet = true }) { Icon(Icons.Filled.FormatSize, s.displayTitle, tint = Color.White) }
             IconButton(onClick = {
                 val i = currentIndex()
                 if (mode == "mushaf") {
@@ -263,14 +314,19 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                                 scaleX = sc; scaleY = sc
                                 alpha = 1f - 0.4f * o
                             }
-                        ) { MushafPage(p + 1, t, selIdx, bottom, onFrameTap = { if (focus) exitPing++ }) { open(it) } }
+                        ) {
+                            MushafPage(
+                                p + 1, t, selIdx, bottom + playerRoom, onFrameTap = { if (focus) exitPing++ },
+                                hifz = hifzOn, revealed = revealed, onEdge = if (focus) ::turn else null,
+                            ) { tapAyah(it) }
+                        }
                     }
                 }
             } else {
                 val paper = mushafPalette()
                 LazyColumn(
                     state = list, modifier = Modifier.fillMaxSize().drawBehind { drawPaper(paper) },
-                    contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 24.dp + bottom),
+                    contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 24.dp + bottom + playerRoom),
                 ) {
                     item(key = "banner") {
                         Column(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -296,17 +352,55 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     // زر الخروج من وضع التركيز
     AnimatedVisibility(
-        showExit, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(top = 14.dp),
+        showControls, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(top = 14.dp),
         enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { -it },
         exit = fadeOut(tween(Motion.MEDIUM)) + slideOutVertically(tween(Motion.MEDIUM)) { -it },
     ) {
-        Surface(onClick = { focus = false }, shape = CircleShape, color = Color.Black.copy(alpha = .62f), contentColor = Color.White) {
+        Surface(onClick = { focus = false }, shape = CircleShape, color = FocusChrome, contentColor = Color.White, border = FocusEdge) {
             Row(Modifier.padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.FullscreenExit, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(6.dp))
                 Text(s.exitFocus, style = MaterialTheme.typography.labelLarge)
             }
         }
+    }
+    // أدوات وضع التركيز في الأسفل: التلاوة والحفظ والعرض
+    Column(
+        Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(start = 12.dp, end = 12.dp, bottom = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AnimatedVisibility(
+            hifzHint && hifzOn,
+            enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it / 2 },
+            exit = fadeOut(tween(Motion.MEDIUM)),
+        ) { HintPill(s.hifzHint) }
+        AnimatedVisibility(
+            showControls,
+            enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it },
+            exit = fadeOut(tween(Motion.MEDIUM)) + slideOutVertically(tween(Motion.MEDIUM)) { it },
+        ) {
+            val onPage = QuranMeta.pageRange(pager.currentPage + 1)
+            FocusBar(
+                hifzAvailable = mode == "mushaf", hifz = hifzOn,
+                canReveal = onPage.any { it !in revealed }, canHide = revealed.isNotEmpty(),
+                onPlay = { exitPing++; playOrPause() },
+                onSkip = { d -> exitPing++; Recitation.skip(ctx, d) },
+                onAudio = { audioSheet = true },
+                onHifz = { exitPing++; hifz = !hifz; hifzHint = hifz; if (!hifz) revealed = emptySet() },
+                onDisplay = { displaySheet = true },
+                onRevealNext = { onPage.firstOrNull { it !in revealed }?.let { revealed = revealed + it } },
+                onHideAll = { revealed = emptySet() },
+            )
+        }
+    }
+    // المشغّل الصغير خارج وضع التركيز
+    AnimatedVisibility(
+        Recitation.active && !focus, Modifier.align(Alignment.BottomCenter).padding(start = 12.dp, end = 12.dp, bottom = bottom + 10.dp),
+        enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it },
+        exit = fadeOut(tween(Motion.SHORT)) + slideOutVertically(tween(Motion.MEDIUM)) { it },
+    ) {
+        MiniPlayer(onPlay = { playOrPause() }, onStop = { Recitation.stop() })
+    }
     }
     }
 
@@ -318,6 +412,10 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         confirmButton = { TextButton(onClick = { askSilence = false; QuietReading.requestAccess(ctx) }) { Text(s.allow) } },
         dismissButton = { TextButton(onClick = { askSilence = false; QuietReading.markAsked() }) { Text(s.notNow) } },
     )
+    if (audioSheet) ReadingSheet({ audioSheet = false }) {
+        AudioOptions(onChanged = { Recitation.restart(ctx) }, onStop = { Recitation.stop(); audioSheet = false })
+    }
+    if (displaySheet) ReadingSheet({ displaySheet = false }) { DisplayOptions(showTextSize = mode != "mushaf") }
 
     val current = sheetIdx
     val t = text
@@ -335,7 +433,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                 }
             },
             onDismiss = { sheetIdx = null },
-            onLibrary = { sheetIdx = null; openLibrary() }
+            onLibrary = { sheetIdx = null; openLibrary() },
+            onListen = { a -> sheetIdx = null; Recitation.play(ctx, QuranMeta.index(sn, a)) },
         )
     }
 }
@@ -345,7 +444,10 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
  * وتحتها نص الصفحة مضبوطاً من الطرفين، وفي أسفلها رقم الصفحة في ميدالية تجلس على الإطار.
  */
 @Composable
-internal fun MushafPage(page: Int, text: Array<String>, selected: Int, bottomInset: androidx.compose.ui.unit.Dp, onFrameTap: () -> Unit, onTap: (Int) -> Unit) {
+internal fun MushafPage(
+    page: Int, text: Array<String>, selected: Int, bottomInset: androidx.compose.ui.unit.Dp, onFrameTap: () -> Unit,
+    hifz: Boolean = false, revealed: Set<Int> = emptySet(), onEdge: ((Int) -> Unit)? = null, onTap: (Int) -> Unit,
+) {
     val p = mushafPalette()
     val first = QuranMeta.pageRange(page).first
     val (firstSurah, _) = QuranMeta.locate(first)
@@ -355,6 +457,7 @@ internal fun MushafPage(page: Int, text: Array<String>, selected: Int, bottomIns
     val ribbon by animateFloatAsState(if (marked) 1f else 0f, spring(dampingRatio = 0.6f, stiffness = 300f), label = "ribbon")
     val shape = RoundedCornerShape(18.dp)
     val frameTap = rememberUpdatedState(onFrameTap)
+    val edge = rememberUpdatedState(onEdge)
     val head = TextStyle(
         fontFamily = QuranFont, fontSize = 15.sp, lineHeight = 22.sp, textDirection = TextDirection.Rtl,
         lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
@@ -364,7 +467,9 @@ internal fun MushafPage(page: Int, text: Array<String>, selected: Int, bottomIns
             .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 8.dp + bottomInset)
             .shadow(10.dp, shape, ambientColor = Color(0xFF5C4300), spotColor = Color(0xFF5C4300))
             .clip(shape)
-            // لمس الإطار أو الرأس أو أسفل الصفحة (خارج النص) يُظهر زر الخروج من وضع التركيز
+            // في وضع التركيز: لمس طرف الصفحة يقلبها، الأيسر إلى التالية والأيمن إلى السابقة كالكتاب العربي
+            .then(if (onEdge != null) Modifier.pointerInput(Unit) { edgeTaps { d -> edge.value?.invoke(d) } } else Modifier)
+            // لمس الإطار أو الرأس أو أسفل الصفحة (خارج النص) يُظهر أدوات وضع التركيز
             .pointerInput(Unit) { detectTapGestures { frameTap.value() } }
             .drawBehind { drawPaper(p); drawPageFrame(p); if (ribbon > 0f) drawRibbon(p, ribbon) }
     ) {
@@ -381,10 +486,36 @@ internal fun MushafPage(page: Int, text: Array<String>, selected: Int, bottomIns
             )
         }
         Spacer(Modifier.fillMaxWidth().height(10.dp).drawBehind { drawRule(size.height / 2, 0f, size.width, p) })
-        MushafCanvas(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth().padding(top = 8.dp, bottom = 2.dp))
+        MushafCanvas(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth().padding(top = 8.dp, bottom = 2.dp), hifz, revealed)
     }
     // رقم الصفحة في وسط خطَّي الإطار السفليين
     PageMedallion(page, read, Modifier.align(Alignment.BottomCenter).padding(bottom = MEDALLION_CENTER - MEDALLION_SIZE / 2))
+    }
+}
+
+/** عرض طرف الصفحة الذي يقلبها لمسُه، نسبةً إلى عرضها */
+private const val EDGE = 0.14f
+
+/**
+ * لمسة قصيرة على طرف الصفحة تقلبها: dir = 1 للتالية (الطرف الأيسر) و -1 للسابقة (الأيمن).
+ * تُلتقط قبل النص فلا تفتح التفسير، أما السحب فيبقى لتقليب الصفحات المعتاد.
+ */
+private suspend fun PointerInputScope.edgeTaps(onEdge: (Int) -> Unit) = awaitEachGesture {
+    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+    val zone = size.width * EDGE
+    val dir = when {
+        down.position.x < zone -> 1
+        down.position.x > size.width - zone -> -1
+        else -> return@awaitEachGesture
+    }
+    val slop = viewConfiguration.touchSlop
+    while (true) {
+        val change = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id } ?: return@awaitEachGesture
+        if ((change.position - down.position).getDistance() > slop) return@awaitEachGesture
+        if (!change.pressed) {
+            if (change.uptimeMillis - down.uptimeMillis < viewConfiguration.longPressTimeoutMillis) { change.consume(); onEdge(dir) }
+            return@awaitEachGesture
+        }
     }
 }
 

@@ -433,6 +433,28 @@ interface Strings {
     val moreTafsirs: String             // "More tafsirs" (chip in the tafsir sheet)
     val tafsirLibraryNote: String       // source credit + internet only for downloads
     fun ayahRange(from: Int, to: Int): String // "Commentary on ayahs 8–10"
+    val recitation: String              // "Recitation" (audio sheet title)
+    val reciter: String                 // "Reciter"
+    val playRecitation: String          // "Play recitation"
+    val pauseRecitation: String         // "Pause"
+    val stopRecitation: String          // "Stop recitation"
+    val repeatAyah: String              // "Repeat each ayah"
+    val listenFromHere: String          // "Listen from this ayah" (tafsir sheet)
+    val audioNote: String               // streaming source + offline cache
+    val audioError: String              // "Couldn't play the recitation. Check your internet connection."
+    val hifzMode: String                // "Memorization" (hide ayahs)
+    val revealNext: String              // "Reveal next" (ayah)
+    val hideAll: String                 // "Hide all"
+    val hifzHint: String                // "Recite from memory, then tap a hidden ayah to check it."
+    val displayTitle: String            // "Display" (page color, brightness, text size)
+    val pageColor: String               // "Page color"
+    val toneAuto: String                // "Auto" (follows app theme)
+    val toneSepia: String               // "Sepia"
+    val toneNight: String               // "Night"
+    val brightness: String              // "Brightness"
+    val brightnessSystem: String        // "Device brightness" (switch)
+    val textSizeLabel: String           // "Text size"
+    val continueFocus: String           // "Continue in focus mode"
     /** About: where the Quran text, tafsir, translations and font come from. Keep the two URLs exactly. */
     val quranSources: String
 

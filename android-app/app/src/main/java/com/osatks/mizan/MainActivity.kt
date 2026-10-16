@@ -152,12 +152,14 @@ fun MizanApp(startRoute: String? = null) {
                     ) { e ->
                         val args = e.arguments
                         CompositionLocalProvider(LocalNavScope provides this) {
+                            val from = args?.getString("from") ?: "row"
                             SurahScreen(
                                 surah = (args?.getInt("surah") ?: 1).coerceIn(1, 114),
                                 startAyah = args?.getInt("ayah") ?: 0,
-                                from = args?.getString("from") ?: "row",
+                                from = from,
                                 onBack = back,
                                 openSurah = { n -> nav.navigate(surahRoute(n, 0, "nav")) { popUpTo(SURAH_ROUTE) { inclusive = true } } },
+                                startInFocus = from == "focus",
                                 openLibrary = { nav.navigate("tafsirs") }
                             )
                         }

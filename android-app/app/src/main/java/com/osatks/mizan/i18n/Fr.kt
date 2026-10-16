@@ -580,7 +580,29 @@ object Fr : Strings {
     override val moreTafsirs = "Autres tafsirs"
     override val tafsirLibraryNote = "Les tafsirs sont téléchargés depuis la collection ouverte tafsir_api (issue de quran.com et QUL). Internet n’est utilisé que pour ces téléchargements ; ensuite, ils fonctionnent hors ligne."
     override fun ayahRange(from: Int, to: Int) = "Commentaire des versets $from–$to"
-    override val quranSources = "Texte du Coran (écriture uthmanienne) issu du projet Tanzil (tanzil.net). Le Tafsir al-Muyassar (Complexe du Roi Fahd), le Tafsir al-Jalalayn et les traductions du sens proviennent de tanzil.net/trans. Police du Coran : Amiri Quran, sous licence SIL Open Font License."
+    override val recitation = "Récitation"
+    override val reciter = "Récitateur"
+    override val playRecitation = "Écouter la récitation"
+    override val pauseRecitation = "Pause"
+    override val stopRecitation = "Arrêter la récitation"
+    override val repeatAyah = "Répéter chaque verset"
+    override val listenFromHere = "Écouter à partir de ce verset"
+    override val audioNote = "Les récitations sont diffusées depuis EveryAyah.com. Les versets déjà écoutés sont enregistrés sur votre appareil et se lisent sans Internet."
+    override val audioError = "Impossible de lire la récitation. Vérifiez votre connexion Internet."
+    override val hifzMode = "Mémorisation"
+    override val revealNext = "Afficher le suivant"
+    override val hideAll = "Tout masquer"
+    override val hifzHint = "Récitez de mémoire, puis touchez un verset masqué pour vérifier."
+    override val displayTitle = "Affichage"
+    override val pageColor = "Couleur de la page"
+    override val toneAuto = "Auto"
+    override val toneSepia = "Sépia"
+    override val toneNight = "Nuit"
+    override val brightness = "Luminosité"
+    override val brightnessSystem = "Luminosité de l’appareil"
+    override val textSizeLabel = "Taille du texte"
+    override val continueFocus = "Continuer en mode concentration"
+    override val quranSources = "Texte du Coran (écriture uthmanienne) issu du projet Tanzil (tanzil.net). Le Tafsir al-Muyassar (Complexe du Roi Fahd), le Tafsir al-Jalalayn et les traductions du sens proviennent de tanzil.net/trans. Police du Coran : Amiri Quran, sous licence SIL Open Font License. Récitations : EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "Réglages"
@@ -600,7 +622,7 @@ object Fr : Strings {
     override val aboutText = "Une application gratuite qui réunit les outils dont un musulman a besoin au quotidien : zakat, héritage, horaires de prière, qibla, date hégirienne et tasbih. " +
         "Les règles suivent la majorité des juristes, les horaires de prière reposent sur des formules astronomiques et les dates suivent le calendrier Umm al-Qura."
     override val privacy = "Confidentialité"
-    override val privacyText = "L'application ne collecte aucune donnée personnelle et n’utilise Internet que pour télécharger les tafsirs que vous choisissez. Votre position n'est utilisée que sur votre appareil pour calculer les horaires de prière et la qibla, " +
+    override val privacyText = "L'application ne collecte aucune donnée personnelle et n’utilise Internet que pour télécharger les tafsirs que vous choisissez et lire les récitations que vous demandez. Votre position n'est utilisée que sur votre appareil pour calculer les horaires de prière et la qibla, " +
         "et vos réglages et chiffres restent sur votre appareil."
     override val disclaimer = "Les résultats sont indicatifs. Pour vos questions religieuses personnelles, consultez des savants qualifiés et les instances officielles."
 }

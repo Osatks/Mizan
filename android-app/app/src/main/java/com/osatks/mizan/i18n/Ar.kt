@@ -544,7 +544,29 @@ object Ar : Strings {
     override val moreTafsirs = "تفاسير أخرى"
     override val tafsirLibraryNote = "تُنزَّل التفاسير من مجموعة tafsir_api المفتوحة (عن quran.com وQUL). لا يُستخدم الإنترنت إلا لهذا التنزيل، وبعده تعمل التفاسير دون اتصال."
     override fun ayahRange(from: Int, to: Int) = "تفسير الآيات $from–$to"
-    override val quranSources = "نص القرآن الكريم بالرسم العثماني من مشروع تنزيل (tanzil.net)، والتفسير الميسر (مجمع الملك فهد) وتفسير الجلالين وترجمات المعاني من tanzil.net/trans. خط المصحف: Amiri Quran برخصة SIL OFL."
+    override val recitation = "التلاوة"
+    override val reciter = "القارئ"
+    override val playRecitation = "تشغيل التلاوة"
+    override val pauseRecitation = "إيقاف مؤقت"
+    override val stopRecitation = "إيقاف التلاوة"
+    override val repeatAyah = "تكرار كل آية"
+    override val listenFromHere = "استمع من هذه الآية"
+    override val audioNote = "تُشغَّل التلاوات من موقع EveryAyah.com، وما استمعت إليه من الآيات يُحفظ على جهازك فيعمل دون إنترنت."
+    override val audioError = "تعذّر تشغيل التلاوة. تحقّق من اتصالك بالإنترنت."
+    override val hifzMode = "الحفظ"
+    override val revealNext = "أظهر التالية"
+    override val hideAll = "إخفاء الكل"
+    override val hifzHint = "اقرأ من حفظك، ثم المس الآية المخفية لتتأكد منها."
+    override val displayTitle = "العرض"
+    override val pageColor = "لون الصفحة"
+    override val toneAuto = "تلقائي"
+    override val toneSepia = "ورقي"
+    override val toneNight = "ليلي"
+    override val brightness = "السطوع"
+    override val brightnessSystem = "سطوع الجهاز"
+    override val textSizeLabel = "حجم الخط"
+    override val continueFocus = "تابع في وضع التركيز"
+    override val quranSources = "نص القرآن الكريم بالرسم العثماني من مشروع تنزيل (tanzil.net)، والتفسير الميسر (مجمع الملك فهد) وتفسير الجلالين وترجمات المعاني من tanzil.net/trans. خط المصحف: Amiri Quran برخصة SIL OFL. والتلاوات من EveryAyah.com."
 
     // ---------- الإعدادات ----------
     override val settingsTitle = "الإعدادات"
@@ -564,7 +586,7 @@ object Ar : Strings {
     override val aboutText = "تطبيق مجاني يجمع أدوات يحتاجها المسلم يومياً: الزكاة والمواريث ومواقيت الصلاة والقبلة والتاريخ الهجري والمسبحة. " +
         "تعتمد الحسابات على المعتمد عند جمهور الفقهاء، ومواقيت الصلاة على معادلات فلكية، والتاريخ على تقويم أم القرى."
     override val privacy = "الخصوصية"
-    override val privacyText = "لا يجمع التطبيق أي بيانات شخصية ولا يستخدم الإنترنت إلا لتنزيل التفاسير التي تختارها. يُستخدم الموقع على جهازك فقط لحساب المواقيت والقبلة، " +
+    override val privacyText = "لا يجمع التطبيق أي بيانات شخصية ولا يستخدم الإنترنت إلا لتنزيل التفاسير التي تختارها وتشغيل التلاوة حين تطلبها. يُستخدم الموقع على جهازك فقط لحساب المواقيت والقبلة، " +
         "وتُحفظ إعداداتك وأرقامك على الجهاز ولا تُرسل إلى أي جهة."
     override val disclaimer = "النتائج إرشادية، ويُرجع في المسائل الشرعية الخاصة إلى أهل العلم والجهات الرسمية المختصة."
 }

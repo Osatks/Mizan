@@ -562,7 +562,29 @@ object Id : Strings {
     override val moreTafsirs = "Tafsir lainnya"
     override val tafsirLibraryNote = "Tafsir diunduh dari koleksi terbuka tafsir_api (bersumber dari quran.com dan QUL). Internet hanya dipakai untuk unduhan ini; setelah itu tafsir bisa dibuka tanpa koneksi."
     override fun ayahRange(from: Int, to: Int) = "Tafsir ayat $from–$to"
-    override val quranSources = "Teks Al-Qur'an (rasm Utsmani) dari Proyek Tanzil (tanzil.net). Tafsir Al-Muyassar (Kompleks Raja Fahd), Tafsir Jalalain, dan terjemahan makna dari tanzil.net/trans. Fon Al-Qur'an: Amiri Quran, berlisensi SIL Open Font License."
+    override val recitation = "Murotal"
+    override val reciter = "Qari"
+    override val playRecitation = "Putar murotal"
+    override val pauseRecitation = "Jeda"
+    override val stopRecitation = "Hentikan murotal"
+    override val repeatAyah = "Ulangi setiap ayat"
+    override val listenFromHere = "Dengarkan dari ayat ini"
+    override val audioNote = "Murotal diputar dari EveryAyah.com. Ayat yang sudah Anda dengarkan disimpan di perangkat dan bisa diputar tanpa internet."
+    override val audioError = "Murotal tidak dapat diputar. Periksa koneksi internet Anda."
+    override val hifzMode = "Hafalan"
+    override val revealNext = "Tampilkan berikutnya"
+    override val hideAll = "Sembunyikan semua"
+    override val hifzHint = "Bacalah dari hafalan, lalu ketuk ayat yang tersembunyi untuk memeriksanya."
+    override val displayTitle = "Tampilan"
+    override val pageColor = "Warna halaman"
+    override val toneAuto = "Otomatis"
+    override val toneSepia = "Sepia"
+    override val toneNight = "Malam"
+    override val brightness = "Kecerahan"
+    override val brightnessSystem = "Kecerahan perangkat"
+    override val textSizeLabel = "Ukuran teks"
+    override val continueFocus = "Lanjutkan dalam mode fokus"
+    override val quranSources = "Teks Al-Qur'an (rasm Utsmani) dari Proyek Tanzil (tanzil.net). Tafsir Al-Muyassar (Kompleks Raja Fahd), Tafsir Jalalain, dan terjemahan makna dari tanzil.net/trans. Fon Al-Qur'an: Amiri Quran, berlisensi SIL Open Font License. Murotal: EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "Setelan"
@@ -582,7 +604,7 @@ object Id : Strings {
     override val aboutText = "Aplikasi gratis berisi fitur yang dibutuhkan Muslim setiap hari: zakat, waris, jadwal salat, kiblat, tanggal Hijriah, dan tasbih. " +
         "Hukum mengikuti pendapat jumhur fukaha, jadwal salat menggunakan rumus astronomi, dan tanggal mengikuti kalender Ummul Qura."
     override val privacy = "Privasi"
-    override val privacyText = "Aplikasi ini tidak mengumpulkan data pribadi dan hanya memakai internet untuk mengunduh tafsir yang Anda pilih. Lokasi Anda hanya digunakan di perangkat untuk menghitung jadwal salat dan kiblat, " +
+    override val privacyText = "Aplikasi ini tidak mengumpulkan data pribadi dan hanya memakai internet untuk mengunduh tafsir yang Anda pilih dan memutar murotal saat Anda memintanya. Lokasi Anda hanya digunakan di perangkat untuk menghitung jadwal salat dan kiblat, " +
         "serta setelan dan angka Anda tetap tersimpan di perangkat."
     override val disclaimer = "Hasil bersifat panduan. Untuk persoalan agama pribadi Anda, rujuklah kepada ulama yang berkompeten dan lembaga resmi."
 }

@@ -561,7 +561,29 @@ object De : Strings {
     override val moreTafsirs = "Weitere Tafsire"
     override val tafsirLibraryNote = "Die Tafsire werden aus der offenen Sammlung tafsir_api (Quellen: quran.com und QUL) geladen. Das Internet wird nur für diese Downloads genutzt; danach funktionieren sie offline."
     override fun ayahRange(from: Int, to: Int) = "Erklärung der Verse $from–$to"
-    override val quranSources = "Korantext (uthmanische Schreibweise) vom Tanzil-Projekt (tanzil.net). Tafsir al-Muyassar (König-Fahd-Komplex), Tafsir al-Dschalalain und die Übersetzungen der Bedeutungen von tanzil.net/trans. Koran-Schriftart: Amiri Quran, SIL Open Font License."
+    override val recitation = "Rezitation"
+    override val reciter = "Rezitator"
+    override val playRecitation = "Rezitation abspielen"
+    override val pauseRecitation = "Pause"
+    override val stopRecitation = "Rezitation beenden"
+    override val repeatAyah = "Jeden Vers wiederholen"
+    override val listenFromHere = "Ab diesem Vers anhören"
+    override val audioNote = "Die Rezitationen werden von EveryAyah.com abgespielt. Verse, die du schon gehört hast, werden auf deinem Gerät gespeichert und laufen auch ohne Internet."
+    override val audioError = "Die Rezitation konnte nicht abgespielt werden. Prüfe deine Internetverbindung."
+    override val hifzMode = "Auswendiglernen"
+    override val revealNext = "Nächsten zeigen"
+    override val hideAll = "Alle verbergen"
+    override val hifzHint = "Rezitiere aus dem Gedächtnis und tippe dann auf einen verborgenen Vers, um dich zu prüfen."
+    override val displayTitle = "Anzeige"
+    override val pageColor = "Seitenfarbe"
+    override val toneAuto = "Automatisch"
+    override val toneSepia = "Sepia"
+    override val toneNight = "Nacht"
+    override val brightness = "Helligkeit"
+    override val brightnessSystem = "Gerätehelligkeit"
+    override val textSizeLabel = "Textgröße"
+    override val continueFocus = "Im Fokusmodus weiterlesen"
+    override val quranSources = "Korantext (uthmanische Schreibweise) vom Tanzil-Projekt (tanzil.net). Tafsir al-Muyassar (König-Fahd-Komplex), Tafsir al-Dschalalain und die Übersetzungen der Bedeutungen von tanzil.net/trans. Koran-Schriftart: Amiri Quran, SIL Open Font License. Rezitationen: EveryAyah.com."
 
     // ---------- Settings ----------
     override val settingsTitle = "Einstellungen"
@@ -581,7 +603,7 @@ object De : Strings {
     override val aboutText = "Eine kostenlose App mit den Tools, die Muslime täglich brauchen: Zakat, Erbe, Gebetszeiten, Qibla, Hidschra-Datum und Tasbih. " +
         "Die Regeln folgen der Mehrheit der Rechtsgelehrten, die Gebetszeiten beruhen auf astronomischen Formeln und die Daten auf dem Umm-al-Qura-Kalender."
     override val privacy = "Datenschutz"
-    override val privacyText = "Die App erhebt keine personenbezogenen Daten und nutzt das Internet nur, um die Tafsire herunterzuladen, die du auswählst. Dein Standort wird nur auf deinem Gerät verwendet, um Gebetszeiten und Qibla zu berechnen, " +
+    override val privacyText = "Die App erhebt keine personenbezogenen Daten und nutzt das Internet nur, um die Tafsire herunterzuladen, die du auswählst, und um Rezitationen abzuspielen, wenn du es möchtest. Dein Standort wird nur auf deinem Gerät verwendet, um Gebetszeiten und Qibla zu berechnen, " +
         "und deine Einstellungen und Zahlen bleiben auf deinem Gerät."
     override val disclaimer = "Die Ergebnisse dienen zur Orientierung. Wende dich bei persönlichen religiösen Fragen an qualifizierte Gelehrte und offizielle Stellen."
 }
