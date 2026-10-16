@@ -189,6 +189,14 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         showControls = focus
         if (focus && !sheetOpen && !hifzOn) { delay(3500); showControls = false }
     }
+    // ورد اليوم يكتمل أثناء القراءة: تهنئة قصيرة
+    var portionPill by remember { mutableStateOf(false) }
+    val portionReached = QuranProgress.dailyGoal().let { it > 0 && QuranProgress.todayCount >= it }
+    var wasReached by remember { mutableStateOf(portionReached) }
+    LaunchedEffect(portionReached) {
+        if (portionReached && !wasReached) { portionPill = true; delay(3200); portionPill = false }
+        wasReached = portionReached
+    }
     var hifzHint by remember { mutableStateOf(false) }
     LaunchedEffect(hifzHint) { if (hifzHint) { delay(4500); hifzHint = false } }
     LaunchedEffect(focus, mode) {
@@ -295,6 +303,10 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             }
         }
         }
+        // التقدم والمواظبة تحت الرأس (يختفي مع الرأس في وضع التركيز)
+        AnimatedVisibility(!focus, enter = expandVertically(tween(Motion.MEDIUM)) + fadeIn(), exit = shrinkVertically(tween(Motion.MEDIUM)) + fadeOut()) {
+            ReadingProgressBar(Modifier.padding(top = 4.dp))
+        }
         val t = text
         if (t == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -362,6 +374,13 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             }
         }
     }
+    // وضع التركيز: خط رفيع أعلى الشاشة بقدر ورد اليوم
+    if (focus) ReadingProgressLine(Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout))
+    // تهنئة حين يكتمل ورد اليوم أثناء القراءة
+    AnimatedVisibility(
+        portionPill, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(top = if (focus) 60.dp else 140.dp),
+        enter = fadeIn(tween(Motion.MEDIUM)) + scaleIn(tween(Motion.MEDIUM), 0.85f), exit = fadeOut(tween(Motion.MEDIUM)),
+    ) { PortionDonePill() }
     // زر الخروج من وضع التركيز
     AnimatedVisibility(
         showControls, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(top = 14.dp),

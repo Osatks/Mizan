@@ -1,5 +1,21 @@
 package com.osatks.mizan.ui.quran
 
+import androidx.compose.foundation.layout.fillMaxSize
+
+import com.osatks.mizan.quran.QuranProgress
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -455,5 +471,90 @@ private fun RowScope.ToneSwatch(tone: String, label: String) {
             color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
         )
+    }
+}
+
+// ---------- التقدم والمواظبة ----------
+
+/** نسبة ورد اليوم (أو الختمة كلها إن لم تكن للختمة مدة) */
+private fun todayFraction(): Float {
+    val p = QuranProgress
+    val goal = p.dailyGoal()
+    return if (goal > 0) (p.todayCount / goal.toFloat()).coerceIn(0f, 1f) else p.readCount / QuranProgress.PAGES.toFloat()
+}
+
+/**
+ * شريط التقدم في صفحة القراءة: أيام المواظبة بشعلة، وورد اليوم يمتلئ مع كل صفحة تُقرأ،
+ * ونسبة الختمة. يأخذ ألوان ورق القراءة (عادي، ورقي، ليلي).
+ */
+@Composable
+fun ReadingProgressBar(modifier: Modifier = Modifier) {
+    QuranProgress.ensure()
+    val s = LocalStrings.current
+    val p = QuranProgress
+    val pal = mushafPalette()
+    val goal = p.dailyGoal()
+    val done = goal > 0 && p.todayCount >= goal
+    val frac by animateFloatAsState(todayFraction(), spring(dampingRatio = 0.9f, stiffness = 120f), label = "today")
+    val khatma = p.readCount * 100 / QuranProgress.PAGES
+    Row(
+        modifier.fillMaxWidth().height(36.dp).padding(horizontal = 16.dp).semantics(mergeDescendants = true) {},
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // المواظبة
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.semantics { contentDescription = s.streakDays(p.streak) }) {
+            Icon(Icons.Filled.LocalFireDepartment, null, Modifier.size(18.dp), tint = if (p.streak > 0) Gold else pal.muted.copy(alpha = .5f))
+            Text("${p.streak}", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = pal.ink)
+        }
+        // ورد اليوم
+        Text(if (goal > 0) s.todayPortion else s.khatmaTitle, style = MaterialTheme.typography.labelMedium, color = pal.muted, maxLines = 1)
+        Box(Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(pal.fillDeep.copy(alpha = .55f))) {
+            Box(
+                Modifier.fillMaxHeight().fillMaxWidth(frac).clip(RoundedCornerShape(4.dp))
+                    .background(Brush.horizontalGradient(listOf(pal.gold, pal.goldDeep)))
+            )
+        }
+        if (done) Icon(Icons.Filled.CheckCircle, s.portionDone, Modifier.size(18.dp), tint = pal.goldDeep)
+        else Text(
+            if (goal > 0) "${p.todayCount}/$goal" else "$khatma%",
+            style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = pal.ink, maxLines = 1
+        )
+        // الختمة
+        if (goal > 0) Box(Modifier.size(28.dp).semantics { contentDescription = "${s.khatmaTitle} $khatma%" }, contentAlignment = Alignment.Center) {
+            val ring by animateFloatAsState(p.readCount / QuranProgress.PAGES.toFloat(), tween(600), label = "khatma")
+            val track = pal.fillDeep
+            val gold = pal.goldDeep
+            Canvas(Modifier.fillMaxSize()) {
+                val st = 3.dp.toPx()
+                val arc = Size(size.width - st, size.height - st)
+                drawArc(track, 0f, 360f, false, Offset(st / 2, st / 2), arc, style = Stroke(st))
+                drawArc(gold, -90f, 360f * ring, false, Offset(st / 2, st / 2), arc, style = Stroke(st, cap = StrokeCap.Round))
+            }
+            Text("$khatma", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = pal.ink)
+        }
+    }
+}
+
+/** في وضع التركيز: خط ذهبي رفيع أعلى الشاشة بقدر ورد اليوم */
+@Composable
+fun ReadingProgressLine(modifier: Modifier = Modifier) {
+    QuranProgress.ensure()
+    val pal = mushafPalette()
+    val frac by animateFloatAsState(todayFraction(), spring(dampingRatio = 0.9f, stiffness = 120f), label = "line")
+    Box(modifier.fillMaxWidth().height(3.dp).background(pal.fillDeep.copy(alpha = .35f))) {
+        Box(Modifier.fillMaxHeight().fillMaxWidth(frac).background(Brush.horizontalGradient(listOf(pal.gold, pal.goldDeep))))
+    }
+}
+
+/** تهنئة قصيرة حين يكتمل ورد اليوم أثناء القراءة */
+@Composable
+fun PortionDonePill() {
+    val s = LocalStrings.current
+    Surface(shape = CircleShape, color = FocusChrome, contentColor = Color.White, border = FocusEdge) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.LocalFireDepartment, null, Modifier.size(18.dp), tint = Gold)
+            Spacer(Modifier.width(8.dp))
+            Text(s.portionDone, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+        }
     }
 }
