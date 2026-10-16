@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.isSpecified
 import com.osatks.mizan.quran.Clip
 import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.Reciters
+import com.osatks.mizan.quran.rangeQueue
 import com.osatks.mizan.quran.recitationQueue
 import com.osatks.mizan.quran.recitationUrl
 import com.osatks.mizan.ui.quran.readingPalette
@@ -81,5 +82,19 @@ class RecitationTest {
         val night = readingPalette("night")!!
         assertTrue(night.backdrop.isSpecified)
         assertFalse(readingPalette("sepia")!!.backdrop.isSpecified)
+    }
+
+    @Test
+    fun rangesCrossSurahsAndRepeat() {
+        // من آخر الفاتحة إلى الآية 2 من البقرة: بسملة البقرة بينهما مرة واحدة
+        val q = recitationQueue(6, 1, QuranMeta.index(2, 2))
+        assertEquals(listOf(Clip(6), Clip(QuranMeta.index(2, 1), true), Clip(QuranMeta.index(2, 1)), Clip(QuranMeta.index(2, 2))), q)
+        // صفحة المقطع مكررة مرتين، وكل آية ثلاثاً
+        val page = QuranMeta.pageRange(82)
+        val r = rangeQueue(page.first, page.last, 3, 2)
+        assertEquals(page.count() * 3 * 2, r.size)
+        assertEquals(r.subList(0, r.size / 2), r.subList(r.size / 2, r.size))
+        // المتواصل لا يتكرر مقطعه
+        assertEquals(recitationQueue(QuranMeta.index(18, 1), 1), rangeQueue(QuranMeta.index(18, 1), -1, 1, 3))
     }
 }

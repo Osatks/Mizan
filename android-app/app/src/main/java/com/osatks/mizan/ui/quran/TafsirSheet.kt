@@ -163,9 +163,9 @@ fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> U
                     buildAnnotatedString {
                         append(QuranData.withoutBismillah(text, QuranMeta.index(surah, a)))
                         append('\u00A0')
-                        withStyle(SpanStyle(color = mp.marker)) { append("\u06DD" + arabicDigits(a)) }
+                        appendAyahEnd(a)
                     },
-                    Modifier.fillMaxWidth(), style = quranStyle(24), color = mp.ink
+                    Modifier.fillMaxWidth(), style = quranStyle(24), color = mp.ink, inlineContent = ayahEndContent(24.sp, mp.marker, mp.ink)
                 )
             }
             // الاستماع: تبدأ التلاوة من هذه الآية وتستمر بعدها

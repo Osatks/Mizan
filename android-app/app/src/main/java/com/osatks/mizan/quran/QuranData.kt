@@ -177,6 +177,24 @@ object QuranPrefs {
     /** آخر موضع (أول آية في الصفحة) في وضع التركيز، لزر «تابع في وضع التركيز» */
     var focusLast by mutableIntStateOf(-1)
         private set
+    /** مقطع التلاوة: continue متواصل | page هذه الصفحة | surah هذه السورة | custom من آية إلى آية */
+    var rangeMode by mutableStateOf("continue")
+        private set
+    var customFrom by mutableIntStateOf(0)
+        private set
+    var customTo by mutableIntStateOf(6)
+        private set
+    /** تكرار المقطع كله (0 = بلا نهاية) */
+    var rangeRepeat by mutableIntStateOf(1)
+        private set
+    /** وقفة بعد كل آية بالثواني ليرددها القارئ (0 بلا وقفة، -1 بطول الآية) */
+    var gap by mutableIntStateOf(0)
+        private set
+    var speed by mutableFloatStateOf(1f)
+        private set
+    /** مؤقت الإيقاف بالدقائق (0 بلا مؤقت) */
+    var sleep by mutableIntStateOf(0)
+        private set
 
     fun ensure() {
         if (loaded) return
@@ -192,6 +210,13 @@ object QuranPrefs {
         reciter = AppSettings.getString("q_reciter")
         repeat = AppSettings.getInt("q_repeat", 1)
         focusLast = AppSettings.getInt("q_focus_last", -1)
+        rangeMode = AppSettings.getString("q_rmode").ifEmpty { "continue" }
+        customFrom = AppSettings.getInt("q_cfrom", 0).coerceIn(0, QuranMeta.AYAHS - 1)
+        customTo = AppSettings.getInt("q_cto", 6).coerceIn(0, QuranMeta.AYAHS - 1)
+        rangeRepeat = AppSettings.getInt("q_rrep", 1)
+        gap = AppSettings.getInt("q_gap", 0)
+        speed = AppSettings.getInt("q_speed", 100) / 100f
+        sleep = AppSettings.getInt("q_sleep", 0)
         bookmarks.clear()
         bookmarks += AppSettings.getString("q_marks").split(',').mapNotNull { it.toIntOrNull() }.filter { it in 0 until QuranMeta.AYAHS }
     }
@@ -213,6 +238,15 @@ object QuranPrefs {
     fun updateBrightness(v: Float) { brightness = if (v < 0f) -1f else v.coerceIn(0.02f, 1f); AppSettings.putInt("q_bright", if (v < 0f) -1 else (brightness * 100).toInt()) }
     fun updateReciter(id: String) { reciter = id; AppSettings.putString("q_reciter", id) }
     fun updateRepeat(n: Int) { repeat = n; AppSettings.putInt("q_repeat", n) }
+    fun updateRangeMode(v: String) { rangeMode = v; AppSettings.putString("q_rmode", v) }
+    fun updateCustom(from: Int, to: Int) {
+        customFrom = from.coerceIn(0, QuranMeta.AYAHS - 1); customTo = to.coerceIn(customFrom, QuranMeta.AYAHS - 1)
+        AppSettings.putInt("q_cfrom", customFrom); AppSettings.putInt("q_cto", customTo)
+    }
+    fun updateRangeRepeat(n: Int) { rangeRepeat = n; AppSettings.putInt("q_rrep", n) }
+    fun updateGap(n: Int) { gap = n; AppSettings.putInt("q_gap", n) }
+    fun updateSpeed(v: Float) { speed = v; AppSettings.putInt("q_speed", (v * 100).toInt()) }
+    fun updateSleep(n: Int) { sleep = n; AppSettings.putInt("q_sleep", n) }
     fun updateFocusLast(i: Int) { if (i != focusLast) { focusLast = i; AppSettings.putInt("q_focus_last", i) } }
 
     fun isBookmarked(i: Int) = i in bookmarks

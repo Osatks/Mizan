@@ -455,6 +455,26 @@ interface Strings {
     val brightnessSystem: String        // "Device brightness" (switch)
     val textSizeLabel: String           // "Text size"
     val continueFocus: String           // "Continue in focus mode"
+    val smartPresets: String            // "Smart presets"
+    val presetListen: String            // "Listen"
+    val presetMemorize: String          // "Memorize"
+    val presetReview: String            // "Review"
+    val smartHint: String               // explains the Memorize and Review presets
+    val range: String                   // "Range" (which ayahs to recite)
+    val rangeContinue: String           // "Keep going"
+    val rangePage: String               // "This page"
+    val rangeSurah: String              // "This surah"
+    val rangeCustom: String             // "Custom"
+    val fromAyah: String                // "From"
+    val toAyah: String                  // "To"
+    val repeatRange: String             // "Repeat the range"
+    val pauseAfter: String              // "Pause after each ayah" (time to repeat it)
+    val off: String                     // "Off"
+    val pauseAyahLength: String         // "Ayah length" (pause as long as the ayah)
+    fun seconds(n: Int): String         // "2 s"
+    val speed: String                   // "Speed"
+    val sleepTimer: String              // "Sleep timer"
+    fun minutes(n: Int): String         // "15 min"
     /** About: where the Quran text, tafsir, translations and font come from. Keep the two URLs exactly. */
     val quranSources: String
 

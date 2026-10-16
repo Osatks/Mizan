@@ -242,7 +242,19 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     fun playFrom(): Int =
         if (mode == "mushaf") QuranMeta.pageRange(pager.currentPage + 1).let { r -> if (selIdx in r) selIdx else r.first }
         else if (selIdx >= 0 && QuranMeta.locate(selIdx).first == listSurah) selIdx else firstListIndex()
-    fun playOrPause() { if (Recitation.active) Recitation.toggle() else Recitation.play(ctx, playFrom()) }
+    // المقطع المختار: متواصل من الآية الحالية، أو هذه الصفحة، أو هذه السورة، أو من آية إلى آية
+    // at = true: يبدأ من الآية from داخل المقطع (عند تغيير الإعداد أثناء التلاوة، أو «استمع من هذه الآية»)
+    fun startRange(from: Int = playFrom(), at: Boolean = false) {
+        val r = when (QuranPrefs.rangeMode) {
+            "page" -> QuranMeta.pageRange(QuranMeta.pageOf(from))
+            "surah" -> QuranMeta.locate(from).first.let { sn -> QuranMeta.STARTS[sn - 1]..(QuranMeta.STARTS[sn - 1] + QuranMeta.COUNTS[sn - 1] - 1) }
+            "custom" -> QuranPrefs.customFrom..QuranPrefs.customTo
+            else -> null
+        }
+        if (r == null) Recitation.play(ctx, from)
+        else Recitation.play(ctx, if (at && from in r) from else r.first, r.last)
+    }
+    fun playOrPause() { if (Recitation.active) Recitation.toggle() else startRange() }
     fun turn(d: Int) { scope.launch { pager.animateScrollToPage((pager.currentPage + d).coerceIn(0, QuranMeta.PAGES.size - 1)) } }
     fun tapAyah(i: Int) { if (hifzOn && i !in revealed) revealed = revealed + i else open(i) }
 
@@ -413,7 +425,12 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         dismissButton = { TextButton(onClick = { askSilence = false; QuietReading.markAsked() }) { Text(s.notNow) } },
     )
     if (audioSheet) ReadingSheet({ audioSheet = false }) {
-        AudioOptions(onChanged = { Recitation.restart(ctx) }, onStop = { Recitation.stop(); audioSheet = false })
+        AudioOptions(
+            onChanged = { if (Recitation.active) startRange(Recitation.current.coerceAtLeast(0), at = true) },
+            onStop = { Recitation.stop(); audioSheet = false },
+            from = playFrom(),
+            onPlay = { startRange(); audioSheet = false },
+        )
     }
     if (displaySheet) ReadingSheet({ displaySheet = false }) { DisplayOptions(showTextSize = mode != "mushaf") }
 
@@ -434,7 +451,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             },
             onDismiss = { sheetIdx = null },
             onLibrary = { sheetIdx = null; openLibrary() },
-            onListen = { a -> sheetIdx = null; Recitation.play(ctx, QuranMeta.index(sn, a)) },
+            onListen = { a -> sheetIdx = null; startRange(QuranMeta.index(sn, a), at = true) },
         )
     }
 }
@@ -535,7 +552,7 @@ private fun AyahItem(
         buildAnnotatedString {
             append(QuranData.withoutBismillah(text, index))
             append('\u00A0')
-            withStyle(SpanStyle(color = p.marker)) { append("\u06DD" + arabicDigits(ayah)) }
+            appendAyahEnd(ayah)
         }
     }
     Column {
@@ -547,7 +564,7 @@ private fun AyahItem(
             if (QuranPrefs.isBookmarked(index)) {
                 Icon(Icons.Filled.Bookmark, null, tint = p.goldDeep, modifier = Modifier.size(18.dp).align(Alignment.End))
             }
-            Text(body, Modifier.fillMaxWidth(), style = quranStyle(size), color = p.ink)
+            Text(body, Modifier.fillMaxWidth(), style = quranStyle(size), color = p.ink, inlineContent = ayahEndContent(size.sp, p.marker, p.ink))
             if (translation != null) {
                 Text(
                     translation[index], Modifier.fillMaxWidth(),

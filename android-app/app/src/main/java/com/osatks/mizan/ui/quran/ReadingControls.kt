@@ -1,5 +1,16 @@
 package com.osatks.mizan.ui.quran
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Button
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.semantics.Role
@@ -233,10 +244,10 @@ private fun OptionLabel(t: String) {
     Text(t, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
 }
 
-/** إعداد التلاوة: القارئ، وتكرار كل آية (للحفظ)، ومصدر التلاوات */
+/** إعداد التلاوة: إعدادات ذكية جاهزة، والقارئ، والمقطع (من آية إلى آية) وتكراره، والوقفة للترديد، والسرعة، ومؤقت الإيقاف */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AudioOptions(onChanged: () -> Unit, onStop: () -> Unit) {
+fun AudioOptions(onChanged: () -> Unit, onStop: () -> Unit, from: Int = 0, onPlay: (() -> Unit)? = null) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     val chosen = Reciters.byId(QuranPrefs.reciter).id
@@ -245,24 +256,141 @@ fun AudioOptions(onChanged: () -> Unit, onStop: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         SheetTitle(Icons.Filled.Headphones, s.recitation)
+
+        OptionLabel(s.smartPresets)
+        val preset = currentPreset()
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            PresetCard("listen", Icons.Filled.Headphones, s.presetListen, preset) { applyPreset(it); onChanged() }
+            PresetCard("memorize", Icons.Filled.Psychology, s.presetMemorize, preset) { applyPreset(it); onChanged() }
+            PresetCard("review", Icons.Filled.Replay, s.presetReview, preset) { applyPreset(it); onChanged() }
+        }
+        Text(s.smartHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+        OptionLabel(s.range)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("continue" to s.rangeContinue, "page" to s.rangePage, "surah" to s.rangeSurah, "custom" to s.rangeCustom).forEach { (k, label) ->
+                ChipButton(label, QuranPrefs.rangeMode == k) {
+                    if (QuranPrefs.rangeMode != k) {
+                        // المقطع المخصص يبدأ من الآية الحالية إلى آخر سورتها، ثم يعدّله المستخدم
+                        if (k == "custom") QuranPrefs.updateCustom(from, surahEnd(from))
+                        QuranPrefs.updateRangeMode(k); onChanged()
+                    }
+                }
+            }
+        }
+        if (QuranPrefs.rangeMode == "custom") {
+            AyahPicker(s.fromAyah, QuranPrefs.customFrom) { QuranPrefs.updateCustom(it, maxOf(it, QuranPrefs.customTo)); onChanged() }
+            AyahPicker(s.toAyah, QuranPrefs.customTo) { QuranPrefs.updateCustom(minOf(it, QuranPrefs.customFrom), it); onChanged() }
+        }
+
+        OptionLabel(s.repeatAyah)
+        Chips(listOf(1, 3, 5, 0), QuranPrefs.repeat, { if (it == 0) "∞" else "$it×" }) { QuranPrefs.updateRepeat(it); onChanged() }
+        if (QuranPrefs.rangeMode != "continue") {
+            OptionLabel(s.repeatRange)
+            Chips(listOf(1, 2, 3, 0), QuranPrefs.rangeRepeat, { if (it == 0) "∞" else "$it×" }) { QuranPrefs.updateRangeRepeat(it); onChanged() }
+        }
+        OptionLabel(s.pauseAfter)
+        Chips(listOf(0, 2, 5, -1), QuranPrefs.gap, { when (it) { 0 -> s.off; -1 -> s.pauseAyahLength; else -> s.seconds(it) } }) { QuranPrefs.updateGap(it) }
+        OptionLabel(s.speed)
+        Chips(listOf(75, 100, 125, 150), (QuranPrefs.speed * 100).toInt(), { "${it / 100}${if (it % 100 == 0) "" else "." + (it % 100).toString().trimEnd('0')}×" }) {
+            QuranPrefs.updateSpeed(it / 100f); Recitation.applySpeed()
+        }
+        OptionLabel(s.sleepTimer)
+        Chips(listOf(0, 15, 30, 60), QuranPrefs.sleep, { if (it == 0) s.off else s.minutes(it) }) {
+            QuranPrefs.updateSleep(it); if (Recitation.active) Recitation.applySleep()
+        }
+
         OptionLabel(s.reciter)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Reciters.ALL.forEach { r ->
                 ChipButton(r.name(lang), r.id == chosen) { if (r.id != chosen) { QuranPrefs.updateReciter(r.id); onChanged() } }
             }
         }
-        OptionLabel(s.repeatAyah)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(1, 3, 5, 0).forEach { n ->
-                ChipButton(if (n == 0) "∞" else "$n×", QuranPrefs.repeat == n) { if (QuranPrefs.repeat != n) { QuranPrefs.updateRepeat(n); onChanged() } }
-            }
-        }
+
         Note(s.audioNote)
+        if (onPlay != null) Button(onClick = onPlay, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Filled.PlayArrow, null, Modifier.size(20.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(s.playRecitation)
+        }
         if (Recitation.active) OutlinedButton(onClick = onStop, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Filled.Stop, null, Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
             Text(s.stopRecitation)
         }
+    }
+}
+
+private fun surahEnd(i: Int): Int { val sn = QuranMeta.locate(i).first; return QuranMeta.STARTS[sn - 1] + QuranMeta.COUNTS[sn - 1] - 1 }
+
+/** الإعدادات الذكية: استماع عادي، أو حفظ (تكرار ووقفة للترديد على صفحة)، أو مراجعة (السورة كاملة أسرع قليلاً) */
+private fun applyPreset(p: String) {
+    when (p) {
+        "listen" -> { QuranPrefs.updateRepeat(1); QuranPrefs.updateRangeMode("continue"); QuranPrefs.updateGap(0); QuranPrefs.updateSpeed(1f) }
+        "memorize" -> { QuranPrefs.updateRepeat(3); QuranPrefs.updateRangeMode("page"); QuranPrefs.updateGap(-1); QuranPrefs.updateSpeed(1f) }
+        "review" -> { QuranPrefs.updateRepeat(1); QuranPrefs.updateRangeMode("surah"); QuranPrefs.updateGap(0); QuranPrefs.updateSpeed(1.25f) }
+    }
+    QuranPrefs.updateRangeRepeat(1)
+    Recitation.applySpeed()
+}
+
+private fun currentPreset(): String? = with(QuranPrefs) {
+    when {
+        repeat == 1 && rangeMode == "continue" && gap == 0 && speed == 1f -> "listen"
+        repeat == 3 && rangeMode == "page" && gap == -1 && speed == 1f && rangeRepeat == 1 -> "memorize"
+        repeat == 1 && rangeMode == "surah" && gap == 0 && speed == 1.25f && rangeRepeat == 1 -> "review"
+        else -> null
+    }
+}
+
+@Composable
+private fun RowScope.PresetCard(key: String, icon: ImageVector, label: String, selected: String?, onPick: (String) -> Unit) {
+    val on = selected == key
+    val bg by animateColorAsState(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface, tween(220), label = "preset")
+    val fg by animateColorAsState(if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, tween(220), label = "presetFg")
+    Surface(
+        onClick = { onPick(key) }, shape = RoundedCornerShape(16.dp), color = bg, contentColor = fg,
+        border = BorderStroke(1.dp, if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier.weight(1f)
+    ) {
+        Column(Modifier.padding(vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(icon, null, Modifier.size(24.dp))
+            Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, maxLines = 1)
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun Chips(values: List<Int>, selected: Int, label: (Int) -> String, onPick: (Int) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        values.forEach { v -> ChipButton(label(v), v == selected) { if (v != selected) onPick(v) } }
+    }
+}
+
+/** اختيار آية: السورة من قائمة، ورقم الآية بزرّي − و + */
+@Composable
+private fun AyahPicker(label: String, index: Int, onPick: (Int) -> Unit) {
+    val s = LocalStrings.current
+    val (surah, ayah) = QuranMeta.locate(index)
+    val count = QuranMeta.COUNTS[surah - 1]
+    var menu by remember { mutableStateOf(false) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.width(56.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+        Box(Modifier.weight(1f)) {
+            OutlinedButton(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(s.surahName(surah), Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Icon(Icons.Filled.ArrowDropDown, null)
+            }
+            DropdownMenu(menu, onDismissRequest = { menu = false }, modifier = Modifier.heightIn(max = 360.dp)) {
+                (1..QuranMeta.SURAHS).forEach { n ->
+                    DropdownMenuItem(text = { Text("$n. ${s.surahName(n)}") }, onClick = { menu = false; onPick(QuranMeta.STARTS[n - 1]) })
+                }
+            }
+        }
+        IconButton(onClick = { onPick(index - 1) }, enabled = ayah > 1) { Icon(Icons.Filled.Remove, null) }
+        Text("$ayah", Modifier.width(36.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium)
+        IconButton(onClick = { onPick(index + 1) }, enabled = ayah < count) { Icon(Icons.Filled.Add, null) }
     }
 }
 

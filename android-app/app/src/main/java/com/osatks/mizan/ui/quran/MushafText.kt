@@ -57,7 +57,7 @@ import kotlin.math.min
 // ---------- حساب الصفحة (بلا واجهة، يُختبر وحده) ----------
 
 /** كلمة في الصفحة؛ marker علامة نهاية الآية برقمها (۝١٢) إن كانت آخر كلمة في آيتها */
-internal class MWord(val text: String, val marker: String?, val index: Int, val pause: String? = null) {
+internal class MWord(val text: String, val marker: String?, val index: Int, val pause: String? = null, val ayah: Int = 0) {
     /** موضع المدّ (الكشيدة) في الكلمة لضبط السطر، أو -1 */
     val kashidaAt = kashidaPoint(text)
 }
@@ -141,7 +141,7 @@ internal fun pageBlocks(page: Int, text: Array<String>): List<MBlock> =
                 }
             }
             val ayah = QuranMeta.locate(i).second
-            ws.forEachIndexed { k, w -> words += MWord(w, if (k == ws.lastIndex) "\u06DD" + arabicDigits(ayah) else null, i, pauses[k]) }
+            ws.forEachIndexed { k, w -> words += MWord(w, if (k == ws.lastIndex) AYAH_END else null, i, pauses[k], ayah) }
         }
         val starts = QuranMeta.locate(idxs.first()).second == 1
         MBlock(surah, starts, starts && QuranData.hasBismillahHeader(surah), words)
@@ -289,6 +289,27 @@ internal fun layoutPage(blocks: List<MBlock>, width: Float, height: Float, minSi
 }
 
 // ---------- الرسم ----------
+
+/** علامة نهاية الآية وحدها؛ رقمها يُرسم داخلها بأنفسنا ولا نعتمد على تركيب الخط (لا يجمعهما كل إصدار من أندرويد) */
+internal const val AYAH_END = "\u06DD"
+// مركز الحلقة في خط المصحف نسبةً إلى المقاس: أفقياً من بدايتها، وعمودياً فوق خط الأساس
+private const val RING_CX = 0.64f
+private const val RING_CY = 0.166f
+
+/** يرسم ۝ عند left على خط الأساس، وفي وسطها تماماً رقم الآية بالأرقام المشرقية */
+internal fun drawAyahEnd(nc: android.graphics.Canvas, paint: TextPaint, ayah: Int, left: Float, baseline: Float, size: Float, ringColor: Int, numColor: Int) {
+    val saved = paint.textSize
+    paint.textSize = size
+    paint.color = ringColor
+    nc.drawText(AYAH_END, left, baseline, paint)
+    val digits = arabicDigits(ayah)
+    paint.textSize = size * (if (ayah >= 100) 0.38f else 0.5f)
+    paint.color = numColor
+    val b = android.graphics.Rect()
+    paint.getTextBounds(digits, 0, digits.length, b)
+    nc.drawText(digits, left + size * RING_CX - b.exactCenterX(), baseline - size * RING_CY - b.exactCenterY(), paint)
+    paint.textSize = saved
+}
 
 /** خط المصحف لرسم الصفحات على Canvas */
 internal object MushafFont {
@@ -504,9 +525,8 @@ private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: TextPaint
                             nc.drawText(mark, cx - (bounds.left + bounds.right) / 2f, y, paint)
                         }
                     }
-                    val mk = pl.word.marker ?: continue
-                    paint.color = marker
-                    nc.drawText(mk, pl.left, y, paint)
+                    if (pl.word.marker == null) continue
+                    drawAyahEnd(nc, paint, pl.word.ayah, pl.left, y, l.textSize, marker, ink)
                 }
             }
             is BasmalaRow -> {
