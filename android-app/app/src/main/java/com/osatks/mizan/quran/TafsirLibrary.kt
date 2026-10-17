@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.setValue
 import com.osatks.mizan.i18n.Lang
+import com.osatks.mizan.i18n.pack.Translit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,11 @@ import java.util.zip.GZIPOutputStream
  * تفسير يُنزَّل عند الطلب من مجموعة tafsir_api المفتوحة (عبر jsDelivr، ومصادرها quran.com وQUL).
  * names: اسم التفسير بلغات الواجهة (يُستعمل الإنجليزي إن لم يوجد)، و sizeMb حجم التنزيل التقريبي.
  */
-data class RemoteTafsir(val slug: String, val lang: Lang, val author: String, val authorEn: String, val sizeMb: Float, val names: Map<Lang, String>) {
+data class RemoteTafsir(
+    val slug: String, val lang: Lang, val author: String, val authorEn: String, val sizeMb: Float, val names: Map<Lang, String>,
+    /** تحويل الخط عند التنزيل (تفسير متاح بخط غير خط الواجهة) */
+    val translit: String? = null,
+) {
     val id get() = "dl:$slug"
     fun name(ui: Lang): String = names[ui] ?: if (ui.rtl) names[Lang.AR] ?: names.getValue(Lang.EN) else names[Lang.EN] ?: names.values.first()
     /** اسم المؤلف بلغة الواجهة: بخط التفسير إن كانت الواجهة بلغته أو بخط عربي مثله، وإلا بالإنجليزية */
@@ -59,7 +64,7 @@ object TafsirLibrary {
     const val BASE = "https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/"
     const val SURAHS = 114
 
-    val CATALOG = listOf(
+    private val BUILT_IN = listOf(
         RemoteTafsir("ar-tafsir-ibn-kathir", Lang.AR, "الحافظ ابن كثير", "Ibn Kathir", 9.8f, mapOf(
             Lang.AR to "تفسير ابن كثير", Lang.EN to "Tafsir Ibn Kathir", Lang.FR to "Tafsir Ibn Kathir", Lang.TR to "İbn Kesîr Tefsiri",
             Lang.UR to "تفسیر ابن کثیر", Lang.ID to "Tafsir Ibnu Katsir", Lang.MS to "Tafsir Ibnu Kathir", Lang.FA to "تفسیر ابن کثیر",
@@ -97,6 +102,14 @@ object TafsirLibrary {
         RemoteTafsir("russian-mokhtasar", Lang.RU, "Центр Тафсир", "Tafsir Center", 0.8f, mapOf(Lang.RU to "Аль-Мухтасар (краткий тафсир)", Lang.EN to "Al-Mukhtasar (Russian)", Lang.AR to "المختصر في التفسير (بالروسية)")),
     )
 
+    /** التفاسير المعروفة: المكتوبة هنا وما تضيفه حزم اللغات المثبتة */
+    val CATALOG: List<RemoteTafsir>
+        get() = BUILT_IN + Lang.packs.flatMap { l ->
+            l.pack!!.tafsirs.filter { t -> BUILT_IN.none { it.slug == t.slug } }.map { t ->
+                RemoteTafsir(t.slug, l, t.author, t.authorEn, t.sizeMb, mapOf(l to t.name, Lang.EN to (t.nameEn ?: t.name)), t.translit)
+            }
+        }
+
     fun bySlug(slug: String) = CATALOG.firstOrNull { it.slug == slug }
 
     private var root: File? = null
@@ -118,11 +131,11 @@ object TafsirLibrary {
 
     fun isDownloaded(slug: String) = root != null && File(dir(slug), "complete").exists()
 
-    private var memo: Pair<Int, List<RemoteTafsir>>? = null
+    private var memo: Pair<Any, List<RemoteTafsir>>? = null
 
     /** التفاسير المنزَّلة؛ تُحسب من الملفات مرة واحدة لكل تغيير (version يُقرأ فتُحدَّث الواجهة) */
     fun downloaded(): List<RemoteTafsir> {
-        val v = version
+        val v = version to Lang.packs
         memo?.let { (at, list) -> if (at == v) return list }
         return CATALOG.filter { isDownloaded(it.slug) }.also { if (root != null) memo = v to it }
     }
@@ -138,7 +151,8 @@ object TafsirLibrary {
                     ensureActive()
                     val f = File(d, "$s.gz")
                     if (!f.exists()) {
-                        val entries = retry { fetchSurah(slug, s) }
+                        val tr = bySlug(slug)?.translit
+                        val entries = retry { fetchSurah(slug, s) }.map { (a, t) -> a to Translit.apply(tr, t) }
                         val tmp = File(d, "$s.tmp")
                         GZIPOutputStream(tmp.outputStream()).bufferedWriter(Charsets.UTF_8).use { w ->
                             encodeSurah(entries).forEach { w.write(it); w.write('\n'.code) }

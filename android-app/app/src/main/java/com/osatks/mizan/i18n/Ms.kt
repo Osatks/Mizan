@@ -673,6 +673,9 @@ object Ms : Strings {
     override val exactAlarmDesc = "Benarkan penggera tepat supaya peringatan azan tiba tepat pada waktunya"
     override val about = "Perihal"
     override val aboutName = "Mizan — Alatan Muslim"
+    override val moreLanguages = "Muat turun bahasa lain"
+    override val langPackHint = "Bahasa dimuat turun dari laman web Mizan bersama terjemahan al-Quran, kemudian berfungsi tanpa internet."
+    override val update = "Kemas kini"
     override fun version(v: String) = "Versi $v"
     override val aboutText = "Aplikasi percuma yang menghimpunkan alatan harian seorang Muslim: zakat, faraid, waktu solat, kiblat, tarikh Hijrah dan tasbih. " +
         "Hukum mengikut pandangan jumhur fuqaha, waktu solat menggunakan formula astronomi, dan tarikh mengikut kalendar Umm al-Qura."

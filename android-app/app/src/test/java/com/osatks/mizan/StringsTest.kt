@@ -13,6 +13,8 @@ import org.junit.Test
 
 /** كل لغة يجب أن تغطي كل المفاتيح وأن تعمل كل دوالها (الجمع، التواريخ، الملاحظات) دون أخطاء */
 class StringsTest {
+    init { TestPacks.load() }
+
     private val notes = listOf(
         InhNote.MatSiblingsShare, InhNote.Umariyya, InhNote.GrandmothersShare, InhNote.FullSistersGhayr,
         InhNote.Akdariyya, InhNote.JaddRule(true), InhNote.JaddRule(false), InhNote.Muadda,

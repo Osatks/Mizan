@@ -12,11 +12,19 @@ class Tx(
     val fa: String? = null, val bn: String? = null, val ru: String? = null, val de: String? = null,
     val es: String? = null, val uk: String? = null,
 ) {
-    operator fun get(lang: Lang): String = when (lang.code) {
+    init { all += this }
+
+    /** الحزم تترجم الأدلة بالنص الإنجليزي مفتاحاً */
+    operator fun get(lang: Lang): String = lang.pack?.evidence?.get(en) ?: when (lang.code) {
         "ar" -> ar; "fr" -> fr; "tr" -> tr; "ur" -> ur; "id" -> id; "ms" -> ms
         "fa" -> fa; "bn" -> bn; "ru" -> ru; "de" -> de; "es" -> es; "uk" -> uk
         else -> en
     } ?: en
+
+    companion object {
+        /** كل نصوص الأدلة (لتصدير قالب الترجمة والتحقق من الحزم) */
+        val all = ArrayList<Tx>()
+    }
 }
 
 /** نوع الدليل: QURAN آية، HADITH حديث، CONSENSUS إجماع، SCHOLARS أقوال الفقهاء (ومنها ما اختاره التطبيق) */

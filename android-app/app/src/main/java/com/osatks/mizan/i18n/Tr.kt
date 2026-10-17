@@ -673,6 +673,9 @@ object Tr : Strings {
     override val exactAlarmDesc = "Ezan bildiriminin zamanında gelmesi için tam alarmlara izin verin"
     override val about = "Hakkında"
     override val aboutName = "Mizan — Müslümanın araçları"
+    override val moreLanguages = "Başka diller indir"
+    override val langPackHint = "Diller, Kur’an mealleriyle birlikte Mizan web sitesinden indirilir ve sonra internetsiz çalışır."
+    override val update = "Güncelle"
     override fun version(v: String) = "Sürüm $v"
     override val aboutText = "Bir Müslümanın her gün ihtiyaç duyduğu araçları sunan ücretsiz bir uygulama: zekât, miras, namaz vakitleri, kıble, Hicri tarih ve tespih. " +
         "Hükümler fakihlerin çoğunluğunun görüşüne dayanır; namaz vakitleri astronomik formüllerle hesaplanır, tarihler Ümmü'l-Kurâ takvimini esas alır."

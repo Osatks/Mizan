@@ -13,6 +13,8 @@ import org.junit.Test
 import java.time.LocalDate
 
 class CoreTest {
+    init { TestPacks.load() }
+
     @Test
     fun parseNumbersInEveryLanguage() {
         assertEquals(1234.5, Fmt.parse("1,234.5", Lang.EN), 1e-9)

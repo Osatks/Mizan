@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mizan</string>
+    <string name="widget_next_prayer">Keyingi namoz</string>
+    <string name="widget_prayer_times">Namoz vaqtlari</string>
+    <string name="widget_hijri">Hijriy sana</string>
+    <string name="widget_khatma">Mening xatmim</string>
+    <string name="widget_ayah">Kun oyati</string>
+</resources>

@@ -672,6 +672,9 @@ object De : Strings {
     override val exactAlarmDesc = "Exakte Alarme erlauben, damit der Adhan-Hinweis pünktlich kommt"
     override val about = "Über"
     override val aboutName = "Mizan — Tools für Muslime"
+    override val moreLanguages = "Weitere Sprachen herunterladen"
+    override val langPackHint = "Sprachen werden samt Koranübersetzung von der Mizan-Website geladen und funktionieren danach offline."
+    override val update = "Aktualisieren"
     override fun version(v: String) = "Version $v"
     override val aboutText = "Eine kostenlose App mit den Tools, die Muslime täglich brauchen: Zakat, Erbe, Gebetszeiten, Qibla, Hidschra-Datum und Tasbih. " +
         "Die Regeln folgen der Mehrheit der Rechtsgelehrten, die Gebetszeiten beruhen auf astronomischen Formeln und die Daten auf dem Umm-al-Qura-Kalender."

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.osatks.mizan.i18n.Ar
 import com.osatks.mizan.i18n.Lang
+import com.osatks.mizan.i18n.pack.LanguagePacks
 import java.util.TimeZone
 
 /**
@@ -61,6 +62,7 @@ object AppSettings {
         theme = sp.getString("theme", "system")!!
         notify = sp.getBoolean("notify", false)
         lang = sp.getString("lang", Lang.SYSTEM)!!
+        LanguagePacks.init(ctx)
     }
 
     /** ترحيل بيانات الإصدارات العربية فقط: اسم المدينة المحفوظ نصاً يصبح مفتاحاً، ويبقى المستخدم الحالي على العربية */

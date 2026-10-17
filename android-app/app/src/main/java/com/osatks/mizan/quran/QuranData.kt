@@ -11,8 +11,11 @@ import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Search
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.Strings
+import com.osatks.mizan.i18n.pack.QuranTranslit
+import com.osatks.mizan.i18n.pack.Translit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
 
@@ -22,7 +25,7 @@ enum class SourceKind { TAFSIR, TRANSLATION }
 data class TafsirSource(val id: String, val lang: Lang, val kind: SourceKind, val author: String, val remote: RemoteTafsir? = null)
 
 object Sources {
-    val ALL = listOf(
+    private val BUILT_IN = listOf(
         TafsirSource("ar.muyassar", Lang.AR, SourceKind.TAFSIR, "مجمع الملك فهد لطباعة المصحف الشريف"),
         TafsirSource("ar.jalalayn", Lang.AR, SourceKind.TAFSIR, "جلال الدين المحلي وجلال الدين السيوطي"),
         TafsirSource("id.jalalayn", Lang.ID, SourceKind.TAFSIR, "Tafsir Jalalayn (Bahasa Indonesia)"),
@@ -39,6 +42,10 @@ object Sources {
         TafsirSource("es.garcia", Lang.ES, SourceKind.TRANSLATION, "Muhammad Isa García"),
         TafsirSource("uk.yakubovych", Lang.UK, SourceKind.TRANSLATION, "Михайло Якубович"),
     )
+
+    /** المصادر المدمجة وترجمات معاني لغات الحزم المثبتة */
+    val ALL: List<TafsirSource>
+        get() = BUILT_IN + Lang.packs.mapNotNull { l -> l.pack?.quran?.let { q -> TafsirSource(q.id, l, SourceKind.TRANSLATION, q.author) } }
 
     private fun RemoteTafsir.asSource() = TafsirSource(id, lang, SourceKind.TAFSIR, author, this)
 
@@ -57,9 +64,13 @@ object Sources {
     }
 
     /** مصادر لغة الواجهة أولاً، ثم العربية، ثم بقية اللغات */
-    fun ordered(lang: Lang, list: List<TafsirSource> = installed()): List<TafsirSource> =
-        list.filter { it.lang == lang } + list.filter { it.lang == Lang.AR && it.lang != lang } +
-            list.filter { it.lang != lang && it.lang != Lang.AR }
+    fun ordered(lang: Lang, list: List<TafsirSource> = installed()): List<TafsirSource> {
+        // لغة الحزمة قد تقترح لغات تُعرض تفاسيرها بعدها (كالروسية للكازاخية)
+        val near = lang.pack?.tafsirFallback.orEmpty().filter { it != lang.code && it != Lang.AR.code }
+        return list.filter { it.lang == lang } + near.flatMap { c -> list.filter { it.lang.code == c } } +
+            list.filter { it.lang == Lang.AR && it.lang != lang } +
+            list.filter { it.lang != lang && it.lang != Lang.AR && it.lang.code !in near }
+    }
 
     /** ما يظهر في ورقة التفسير: المصادر التي لم يُخفها المستخدم (ويبقى واحد على الأقل) */
     fun visible(lang: Lang): List<TafsirSource> =
@@ -97,15 +108,21 @@ object QuranData {
     private val locks = ConcurrentHashMap<String, Any>()
 
     fun init(ctx: Context) {
-        val assets = ctx.applicationContext.assets
-        open = { path -> assets.open(path) }
+        val app = ctx.applicationContext
+        val assets = app.assets
+        // ترجمات معاني الحزم المنزَّلة في files/lang، وما عداها في assets
+        open = { path -> File(app.filesDir, "lang/$path").takeIf { it.exists() }?.inputStream() ?: assets.open(path) }
     }
 
     fun cached(path: String): Array<String>? = cache[path]
 
     suspend fun load(path: String): Array<String> = cache[path] ?: withContext(Dispatchers.IO) {
         synchronized(locks.getOrPut(path) { Any() }) {
-            cache[path] ?: open(path).use { parse(it) }.also { cache[path] = it }
+            cache[path] ?: open(path).use { parse(it) }.also { a ->
+                // نص بخط آخر (ترجمة الأوزبكية الكيريلية تُعرض باللاتينية)
+                QuranTranslit.map[path.substringAfterLast('/').removeSuffix(".txt")]?.let { t -> for (i in a.indices) a[i] = Translit.apply(t, a[i]) }
+                cache[path] = a
+            }
         }
     }
 

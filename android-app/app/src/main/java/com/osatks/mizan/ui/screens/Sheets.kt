@@ -20,11 +20,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import com.osatks.mizan.core.Fmt
+import com.osatks.mizan.i18n.pack.LanguagePacks
+import java.util.Locale
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.Search
@@ -64,51 +76,114 @@ import com.osatks.mizan.i18n.city
 import com.osatks.mizan.i18n.country
 import kotlinx.coroutines.launch
 
-/** اختيار اللغة: كل لغة باسمها الأصلي وتحته اسمها بلغة الواجهة */
+/**
+ * اختيار اللغة: كل لغة باسمها الأصلي وتحته اسمها بلغة الواجهة.
+ * وتحتها اللغات المتاحة للتنزيل من موقع ميزان (حزم اللغات)، وتحديث ما صدر له إصدار أحدث.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageSheet(onDismiss: () -> Unit) {
-    val s = LocalStrings.current
-    val ui = LocalLang.current
     val ctx = LocalContext.current
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val system = Lang.fromLocale(LocalConfiguration.current.locales[0])
-    fun pick(code: String) {
-        scope.launch { sheet.hide() }.invokeOnCompletion {
-            onDismiss()
-            if (code != AppSettings.lang) LocaleSync.choose(ctx, code)
-        }
-    }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surface) {
-        Row(Modifier.padding(horizontal = 24.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.Translate, null, tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.width(10.dp))
-            Text(s.language, style = MaterialTheme.typography.titleLarge)
-        }
-        LazyColumn(contentPadding = PaddingValues(12.dp, 8.dp, 12.dp, 32.dp)) {
-            item {
-                OptionRow(s.deviceLanguage, system.native, AppSettings.lang == Lang.SYSTEM) { pick(Lang.SYSTEM) }
-            }
-            items(Lang.entries.toList(), key = { it.code }) { l ->
-                val sub = l.locale.getDisplayLanguage(ui.locale).replaceFirstChar { it.titlecase(ui.locale) }
-                OptionRow(l.native, if (l == ui) null else sub, AppSettings.lang == l.code) { pick(l.code) }
+        LanguageList { code ->
+            scope.launch { sheet.hide() }.invokeOnCompletion {
+                onDismiss()
+                if (code != AppSettings.lang) LocaleSync.choose(ctx, code)
             }
         }
     }
 }
 
+/** محتوى ورقة اللغات: المثبتة، ثم المتاحة للتنزيل */
 @Composable
-private fun OptionRow(title: String, subtitle: String?, selected: Boolean, onClick: () -> Unit) {
+internal fun LanguageList(state: LazyListState = rememberLazyListState(), pick: (String) -> Unit) {
+    val s = LocalStrings.current
+    val ui = LocalLang.current
+    val scope = rememberCoroutineScope()
+    val system = Lang.fromLocale(LocalConfiguration.current.locales[0])
+    var confirmDelete by remember { mutableStateOf<Lang?>(null) }
+    fun displayName(code: String, fallback: String) =
+        Locale.forLanguageTag(code).getDisplayLanguage(ui.locale).takeIf { it.isNotEmpty() && it != code }
+            ?.replaceFirstChar { it.titlecase(ui.locale) } ?: fallback
+    LaunchedEffect(Unit) { if (LanguagePacks.remote == null) LanguagePacks.refresh() }
+    Column {
+        Row(Modifier.padding(horizontal = 24.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.Translate, null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(10.dp))
+            Text(s.language, style = MaterialTheme.typography.titleLarge)
+        }
+        LazyColumn(state = state, contentPadding = PaddingValues(12.dp, 8.dp, 12.dp, 32.dp)) {
+            item {
+                OptionRow(s.deviceLanguage, system.native, AppSettings.lang == Lang.SYSTEM) { pick(Lang.SYSTEM) }
+            }
+            items(Lang.entries, key = { it.code }) { l ->
+                val sub = displayName(l.code, l.pack?.english ?: l.code)
+                val removable = l.isPack && LanguagePacks.isDownloaded(l.code) && !LanguagePacks.isBundled(l.code) && AppSettings.lang != l.code
+                OptionRow(l.native, if (l == ui) null else sub, AppSettings.lang == l.code,
+                    trailing = if (removable) { { IconButton(onClick = { confirmDelete = l }) { Icon(Icons.Outlined.Delete, s.delete, tint = MaterialTheme.colorScheme.onSurfaceVariant) } } } else null,
+                ) { pick(l.code) }
+            }
+            // ---------- لغات للتنزيل ----------
+            item(key = "more") {
+                Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 20.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.CloudDownload, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(8.dp))
+                    Text(s.moreLanguages, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    if (LanguagePacks.checking) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                }
+                Text(s.langPackHint, Modifier.padding(horizontal = 16.dp, vertical = 4.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (LanguagePacks.checkFailed) item(key = "failed") {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(s.downloadFailed, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    TextButton(onClick = { scope.launch { LanguagePacks.refresh() } }) { Text(s.retry) }
+                }
+            }
+            items(LanguagePacks.offers(), key = { "dl:" + it.code }) { r ->
+                val pct = LanguagePacks.progress[r.code]
+                val isUpdate = Lang.of(r.code) != null
+                fun go() = LanguagePacks.start(r) { ok -> if (ok && !isUpdate) pick(r.code) }
+                val sub = displayName(r.code, r.english) + (if (r.sizeMb > 0) " · " + s.sizeMb(Fmt.num(r.sizeMb.toDouble(), 1, ui)) else "")
+                OptionRow(r.native, sub, false, trailing = {
+                    when {
+                        pct != null && pct >= 0 -> Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("$pct%", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                            Spacer(Modifier.width(8.dp))
+                            CircularProgressIndicator(progress = { pct / 100f }, modifier = Modifier.size(26.dp), strokeWidth = 3.dp)
+                        }
+                        pct == -1 -> TextButton(onClick = ::go) { Text(s.retry, color = MaterialTheme.colorScheme.error) }
+                        isUpdate -> TextButton(onClick = ::go) { Text(s.update) }
+                        else -> IconButton(onClick = ::go) { Icon(Icons.Filled.Download, s.download, tint = MaterialTheme.colorScheme.primary) }
+                    }
+                }) { if (pct == null || pct < 0) go() }
+            }
+        }
+    }
+    confirmDelete?.let { l ->
+        AlertDialog(
+            onDismissRequest = { confirmDelete = null },
+            title = { Text(s.deleteTafsirQ(l.native)) },
+            confirmButton = { TextButton(onClick = { LanguagePacks.delete(l.code); confirmDelete = null }) { Text(s.delete, color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text(s.cancel) } },
+        )
+    }
+}
+
+@Composable
+private fun OptionRow(title: String, subtitle: String?, selected: Boolean, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
     val bg by animateColorAsState(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, label = "opt")
     Row(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(bg).clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 13.dp),
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(bg).clickable(onClick = onClick)
+            .padding(start = 16.dp, end = if (trailing != null) 6.dp else 16.dp, top = 13.dp, bottom = 13.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
             if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        trailing?.invoke()
         AnimatedVisibility(selected, enter = scaleIn(spring(dampingRatio = 0.5f)), exit = scaleOut()) {
             Box(Modifier.size(28.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
                 Icon(Icons.Filled.Check, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(18.dp))

@@ -655,6 +655,9 @@ object Ar : Strings {
     override val exactAlarmDesc = "اسمح للتطبيق بالمنبهات الدقيقة لضبط وقت الأذان"
     override val about = "عن التطبيق"
     override val aboutName = "ميزان — أدوات المسلم"
+    override val moreLanguages = "تنزيل لغات أخرى"
+    override val langPackHint = "تُنزَّل اللغات من موقع ميزان مع ترجمة معاني القرآن، ثم تعمل دون إنترنت."
+    override val update = "تحديث"
     override fun version(v: String) = "الإصدار $v"
     override val aboutText = "تطبيق مجاني يجمع أدوات يحتاجها المسلم يومياً: الزكاة والمواريث ومواقيت الصلاة والقبلة والتاريخ الهجري والمسبحة. " +
         "تعتمد الحسابات على المعتمد عند جمهور الفقهاء، ومواقيت الصلاة على معادلات فلكية، والتاريخ على تقويم أم القرى."

@@ -673,6 +673,9 @@ object Fa : Strings {
     override val exactAlarmDesc = "اجازه هشدار دقیق بدهید تا اعلان اذان سر وقت برسد"
     override val about = "درباره"
     override val aboutName = "میزان — ابزارهای مسلمان"
+    override val moreLanguages = "دریافت زبان‌های دیگر"
+    override val langPackHint = "زبان‌ها همراه ترجمهٔ قرآن از وب‌سایت میزان دریافت می‌شوند و سپس بدون اینترنت کار می‌کنند."
+    override val update = "به‌روزرسانی"
     override fun version(v: String) = "نسخه $v"
     override val aboutText = "برنامه‌ای رایگان با ابزارهایی که مسلمان هر روز به آن‌ها نیاز دارد: زکات، ارث، اوقات نماز، قبله، تاریخ هجری قمری و تسبیح. " +
         "احکام بر پایه قول جمهور فقها، اوقات نماز بر پایه فرمول‌های نجومی و تاریخ‌ها طبق تقویم ام‌القری است."

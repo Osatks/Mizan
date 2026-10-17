@@ -1,0 +1,23 @@
+{
+ "format": 1,
+ "packs": [
+  {
+   "code": "kk",
+   "native": "Қазақша",
+   "english": "Kazakh",
+   "version": 1,
+   "format": 1,
+   "sizeMb": 1.5,
+   "file": "kk.json"
+  },
+  {
+   "code": "uz",
+   "native": "Oʻzbekcha",
+   "english": "Uzbek",
+   "version": 1,
+   "format": 1,
+   "sizeMb": 2.6,
+   "file": "uz.json"
+  }
+ ]
+}

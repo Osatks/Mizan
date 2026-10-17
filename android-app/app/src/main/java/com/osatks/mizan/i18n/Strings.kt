@@ -539,6 +539,9 @@ interface Strings {
     val exactAlarmDesc: String
     val about: String
     val aboutName: String
+    val moreLanguages: String          // section in the language sheet: "Download more languages"
+    val langPackHint: String           // languages come from the Mizan website, then work offline with their Quran translation
+    val update: String                 // button: "Update"
     fun version(v: String): String
     val aboutText: String
     val privacy: String

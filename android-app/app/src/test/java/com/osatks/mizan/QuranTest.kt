@@ -16,6 +16,8 @@ import java.io.File
 
 /** سلامة نص المصحف والتفاسير المضمّنة: كل ملف فيه 6236 آية في مواضعها، والبيانات الوصفية متسقة */
 class QuranTest {
+    init { TestPacks.load() }
+
     companion object {
         @JvmStatic @BeforeClass
         fun setUp() { QuranData.open = { File("src/main/assets/$it").inputStream() } }

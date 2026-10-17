@@ -42,6 +42,7 @@ import com.osatks.mizan.ui.ToolPage
 import com.osatks.mizan.ui.shareText
 import com.osatks.mizan.ui.theme.Gold
 import java.util.Currency
+import java.util.Locale
 
 /** عملة: رمز ISO، ورمزها المختصر واسمها بالعربية (بقية اللغات تأخذ الاسم من النظام) */
 private data class Cur(val iso: String, val arSymbol: String, val arName: String)
@@ -58,18 +59,28 @@ private val CURRENCIES = listOf(
     Cur("RUB", "₽", "روبل روسي"), Cur("GBP", "£", "جنيه إسترليني"), Cur("USD", "$", "دولار أمريكي"), Cur("EUR", "€", "يورو"),
     Cur("CAD", "C$", "دولار كندي"), Cur("AUD", "A$", "دولار أسترالي"),
     Cur("UAH", "₴", "هريفنيا أوكرانية"), Cur("MXN", "MX$", "بيزو مكسيكي"), Cur("ARS", "ARS", "بيزو أرجنتيني"),
+    Cur("UZS", "UZS", "سوم أوزبكي"), Cur("KZT", "₸", "تنغي كازاخستاني"), Cur("KGS", "KGS", "سوم قيرغيزي"),
+    Cur("TJS", "TJS", "سوموني طاجيكي"), Cur("AZN", "₼", "مانات أذربيجاني"),
 )
 
+/** عملات التطبيق، ومعها عملة حزمة اللغة الحالية إن لم تكن في القائمة */
+private fun currencies(lang: Lang): List<Cur> {
+    val extra = lang.pack?.currency?.takeIf { iso -> CURRENCIES.none { it.iso == iso } && runCatching { Currency.getInstance(iso) }.isSuccess }
+        ?: return CURRENCIES
+    return CURRENCIES + Cur(extra, extra, Currency.getInstance(extra).getDisplayName(Locale.forLanguageTag("ar")))
+}
+
 /** العملة الافتراضية حسب لغة الواجهة عند أول استخدام */
-private fun defaultCurrency(lang: Lang) = when (lang) {
+private fun defaultCurrency(lang: Lang) = lang.pack?.currency ?: when (lang) {
     Lang.AR -> "SAR"; Lang.TR -> "TRY"; Lang.UR -> "PKR"; Lang.ID -> "IDR"; Lang.MS -> "MYR"
-    Lang.FA -> "IRR"; Lang.BN -> "BDT"; Lang.RU -> "RUB"; Lang.FR, Lang.DE, Lang.ES -> "EUR"; Lang.EN -> "USD"; Lang.UK -> "UAH"
+    Lang.FA -> "IRR"; Lang.BN -> "BDT"; Lang.RU -> "RUB"; Lang.FR, Lang.DE, Lang.ES -> "EUR"; Lang.UK -> "UAH"
+    else -> "USD"
 }
 
 /** الإصدارات السابقة حفظت الرمز العربي ("ر.س")؛ يُحوَّل إلى رمز ISO */
 private fun savedCurrency(lang: Lang): String {
     val raw = AppSettings.getString("zk_cur")
-    return CURRENCIES.firstOrNull { it.iso == raw || it.arSymbol == raw }?.iso ?: defaultCurrency(lang)
+    return currencies(lang).firstOrNull { it.iso == raw || it.arSymbol == raw }?.iso ?: defaultCurrency(lang)
 }
 
 private fun Cur.symbol(lang: Lang) = when {
@@ -93,7 +104,7 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
     var curIso by remember { mutableStateOf(savedCurrency(lang)) }
     var basis by remember { mutableStateOf(AppSettings.getString("zk_basis", "gold")) }
     var includeJewelry by remember { mutableStateOf(AppSettings.getBool("zk_jewelry", true)) }
-    val curObj = CURRENCIES.first { it.iso == curIso }
+    val curObj = currencies(lang).let { l -> l.firstOrNull { it.iso == curIso } ?: l.first() }
     val cur = curObj.symbol(lang)
 
     fun set(k: String, value: String) { v[k] = value; AppSettings.putString("zk_$k", value) }
@@ -163,7 +174,7 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
         if (tradeFirst) item { invest() }
         item {
             SectionCard(s.settingsAndPrices) {
-                Picker(s.currency, CURRENCIES, curObj, text = { c -> "${c.name(lang)} (${c.symbol(lang)})" },
+                Picker(s.currency, currencies(lang), curObj, text = { c -> "${c.name(lang)} (${c.symbol(lang)})" },
                     onSelect = { curIso = it.iso; AppSettings.putString("zk_cur", it.iso) })
                 Text(s.nisabBasis, style = MaterialTheme.typography.labelLarge)
                 Segmented(listOf("gold" to s.nisabGold, "silver" to s.nisabSilver), basis) { basis = it; AppSettings.putString("zk_basis", it) }

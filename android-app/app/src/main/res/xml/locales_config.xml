@@ -14,4 +14,7 @@
     <locale android:name="de" />
     <locale android:name="es" />
     <locale android:name="uk" />
+    <!-- لغات الحزم المضمّنة (assets/lang)؛ الحزم المنزَّلة لاحقاً تُختار من داخل التطبيق -->
+    <locale android:name="uz" />
+    <locale android:name="kk" />
 </locale-config>

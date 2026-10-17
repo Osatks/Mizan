@@ -369,6 +369,8 @@ def build():
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(f, dest)
 
+    publish_language_packs()
+
     # عامل الخدمة: يخزّن كل الصفحات والملفات ليعمل التطبيق دون إنترنت
     sw_tpl = SRC / "templates" / "sw.js"
     if sw_tpl.exists():
@@ -393,9 +395,47 @@ def build():
 
     # ملفات إعدادات الاستضافة (Netlify / Cloudflare Pages)
     (DIST / "_headers").write_text(
-        "/assets/*\n  Cache-Control: public, max-age=604800\n", encoding="utf-8")
+        "/assets/*\n  Cache-Control: public, max-age=604800\n"
+        "/lang/*\n  Cache-Control: public, max-age=3600\n  Access-Control-Allow-Origin: *\n", encoding="utf-8")
 
     print(f"\nتم بناء {len(pages)} صفحة في {DIST}")
+
+
+def publish_language_packs():
+    """حزم لغات التطبيق: تُنشر في dist/lang مع ترجمة معانيها وفهرس index.json يقرؤه التطبيق.
+
+    المصادر: الحزم المضمّنة في التطبيق (android-app/app/src/main/assets/lang) وحزم الموقع فقط
+    (src/lang/*.json مع ملفات ترجمتها). لإضافة لغة دون تحديث التطبيق: ترجم src/lang/en.template.json
+    إلى src/lang/<code>.json، وضع ملف ترجمة المعاني بجانبه، وارفع إصدار "version" عند كل تعديل.
+    """
+    app = ROOT / "android-app" / "app" / "src" / "main" / "assets"
+    site = SRC / "lang"
+    out = DIST / "lang"
+    out.mkdir(parents=True, exist_ok=True)
+    files = sorted((app / "lang").glob("*.json")) + sorted(f for f in site.glob("*.json") if not f.name.endswith(".template.json"))
+    packs = {}
+    for f in files:
+        pack = json.loads(f.read_text(encoding="utf-8"))
+        packs[pack["code"]] = (f, pack)  # حزمة الموقع تحل محل المضمّنة بالرمز نفسه
+    index = []
+    for code, (f, pack) in sorted(packs.items()):
+        size = f.stat().st_size
+        shutil.copy2(f, out / f"{code}.json")
+        q = pack.get("quran")
+        if q:
+            qf = next((c for c in (site / q["file"], app / "tafsir" / f"{q['id']}.txt") if c.exists()), None)
+            if qf is None:
+                raise SystemExit(f"language pack {code}: Quran translation {q['file']} not found")
+            shutil.copy2(qf, out / q["file"])
+            size += qf.stat().st_size
+        index.append({"code": code, "native": pack["native"], "english": pack.get("english", code),
+                      "version": pack.get("version", 1), "format": pack.get("format", 1),
+                      "sizeMb": round(size / 1e6, 1), "file": f"{code}.json"})
+    (out / "index.json").write_text(json.dumps({"format": 1, "packs": index}, ensure_ascii=False, indent=1), encoding="utf-8")
+    tpl = site / "en.template.json"
+    if tpl.exists():
+        shutil.copy2(tpl, out / "en.template.json")
+    print(f"حزم اللغات: {', '.join(packs)}")
 
 
 if __name__ == "__main__":
