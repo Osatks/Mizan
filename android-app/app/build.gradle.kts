@@ -8,6 +8,12 @@ plugins {
 val keystorePath: String? = System.getenv("MIZAN_KEYSTORE")
 val hasReleaseKey = keystorePath != null && file(keystorePath).exists()
 
+// رقم الإصدار يزيد مع كل commit تلقائياً، فكل نسخة جديدة تحمل رقماً أعلى (محلياً وفي GitHub)
+val buildNumber: Int = runCatching {
+    ProcessBuilder("git", "rev-list", "--count", "HEAD").directory(rootDir).redirectErrorStream(true).start()
+        .inputStream.bufferedReader().readText().trim().toInt()
+}.getOrDefault(0)
+
 android {
     namespace = "com.osatks.mizan"
     compileSdk = 35
@@ -16,8 +22,9 @@ android {
         applicationId = "com.osatks.mizan"
         minSdk = 26
         targetSdk = 35
-        versionCode = (System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 0) + 10
-        versionName = "2.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
+        // أعلى من أرقام النسخ السابقة (رقم تشغيل GitHub + 10) حتى يُثبَّت التحديث فوقها
+        versionCode = 200 + buildNumber
+        versionName = "2.1.$buildNumber"
     }
 
     signingConfigs {
@@ -29,6 +36,12 @@ android {
                 keyPassword = System.getenv("MIZAN_KEY_PASSWORD")
             }
         }
+    }
+
+    // ملف النسخة باسم رقمها: mizan-2.1.30-release.apk
+    applicationVariants.all {
+        val v = versionName
+        outputs.all { (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName = "mizan-$v-${buildType.name}.apk" }
     }
 
     buildTypes {

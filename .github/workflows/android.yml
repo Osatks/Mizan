@@ -21,6 +21,8 @@ jobs:
         working-directory: android-app
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # كل السجل: رقم الإصدار = عدد الـ commits
 
       - uses: actions/setup-java@v5
         with:
