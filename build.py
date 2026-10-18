@@ -408,7 +408,7 @@ def publish_language_packs():
     (src/lang/*.json مع ملفات ترجمتها). لإضافة لغة دون تحديث التطبيق: ترجم src/lang/en.template.json
     إلى src/lang/<code>.json، وضع ملف ترجمة المعاني بجانبه، وارفع إصدار "version" عند كل تعديل.
     """
-    app = ROOT / "android-app" / "app" / "src" / "main" / "assets"
+    app = ROOT / "android-app" / "shared" / "src" / "commonMain" / "assets"
     site = SRC / "lang"
     out = DIST / "lang"
     out.mkdir(parents=True, exist_ok=True)

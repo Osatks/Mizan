@@ -2,7 +2,8 @@
 # يلتقط صوراً لشاشات التطبيق على المحاكي (يُشغَّل من GitHub Actions)
 set -u
 PKG=com.osatks.mizan
-APK=android-app/app/build/outputs/apk/debug/app-debug.apk
+# اسم الملف يحمل رقم الإصدار (mizan-2.1.N-debug.apk)
+APK=$(ls android-app/app/build/outputs/apk/debug/*.apk | head -1)
 OUT=screenshots
 mkdir -p "$OUT"
 
@@ -30,6 +31,8 @@ shot hijri       07-hijri
 shot events      08-events
 shot age         09-age
 shot settings    10-settings
+shot adhkar      17-adhkar
+shot "surah/2?ayah=255&from=focus" 18-focus-mode
 
 adb shell cmd uimode night yes || true
 sleep 2
@@ -48,7 +51,7 @@ shot quran          16-quran-en en
 adb shell cmd uimode night no || true
 sleep 2
 n=20
-for lang in en fr tr ur id ms fa bn ru de; do
+for lang in en fr tr ur id ms fa bn ru de es uk uz kk; do
   shot home     "$n-$lang-home" "$lang"
   shot prayer   "$((n+1))-$lang-prayer" "$lang"
   shot tasbih   "$((n+2))-$lang-tasbih" "$lang"

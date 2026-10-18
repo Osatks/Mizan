@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Mizan"
-include(":app")
+include(":app", ":shared")

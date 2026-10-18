@@ -10,8 +10,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "app/src/main/java/com/osatks/mizan/i18n/Strings.kt"
-OUT = ROOT / "app/src/main/java/com/osatks/mizan/i18n/pack/PackStrings.kt"
+SRC = ROOT / "shared/src/commonMain/kotlin/com/osatks/mizan/i18n/Strings.kt"
+OUT = ROOT / "shared/src/commonMain/kotlin/com/osatks/mizan/i18n/pack/PackStrings.kt"
 
 # Written by hand below: they need data beyond their arguments (month names, enum keys)
 SPECIAL = {"hijriDate", "gregDate", "hijriMonthTitle", "monthTableTitle", "shareType", "inhNote", "livestockKind", "nameOf"}

@@ -1,5 +1,10 @@
 package com.osatks.mizan.widget
 
+import com.osatks.mizan.quran.ayahOfDay
+import com.osatks.mizan.core.*
+import com.osatks.mizan.platform.init
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -32,8 +37,7 @@ import com.osatks.mizan.ui.quran.surahName
 import com.osatks.mizan.ui.quran.surahRoute
 import com.osatks.mizan.ui.screens.PrayerUtil
 import kotlinx.coroutines.runBlocking
-import java.time.Duration
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 import kotlin.concurrent.thread
 
 /**
@@ -61,7 +65,7 @@ object Widgets {
     )
     private const val TICK = 5150
 
-    fun init(ctx: Context) { AppSettings.init(ctx); QuranData.init(ctx) }
+    fun init(ctx: Context) { AppSettings.init(ctx) }
 
     internal fun render(ctx: Context, provider: MizanWidget, manager: AppWidgetManager, ids: IntArray) {
         init(ctx)
@@ -97,11 +101,11 @@ object Widgets {
     fun scheduleTick(ctx: Context) {
         init(ctx)
         if (!any(ctx)) return
-        val zone = PrayerUtil.zone()
         val now = PrayerUtil.now()
-        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
+        val midnight = now.date.plusDays(1).atStartOfDay()
         val at = minOf(PrayerUtil.next().at, midnight).plusSeconds(1)
-        val millis = at.atZone(zone).toInstant().toEpochMilli()
+        val zone = runCatching { TimeZone.of(AppSettings.place.tz) }.getOrElse { TimeZone.currentSystemDefault() }
+        val millis = at.toInstant(zone).toEpochMilliseconds()
         val am = ctx.getSystemService(AlarmManager::class.java)
         val pi = tickIntent(ctx)
         val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()
@@ -121,7 +125,7 @@ object Widgets {
     /** وقت مختصر يسع خانة صغيرة: بلا ص/م في نظام 12 ساعة */
     fun shortTime(hours: Double) = PrayTimes.format(hours, AppSettings.use24h, "", "").trim()
 
-    fun today(): LocalDate = PrayerUtil.now().toLocalDate()
+    fun today(): LocalDate = PrayerUtil.now().date
 }
 
 class WidgetTickReceiver : BroadcastReceiver() {
@@ -135,10 +139,10 @@ class WidgetTickReceiver : BroadcastReceiver() {
 class NextPrayerWidget : MizanWidget() {
     override fun build(ctx: Context, s: Strings, lang: Lang) = RemoteViews(ctx.packageName, R.layout.widget_next_prayer).apply {
         val next = PrayerUtil.next()
-        val left = Duration.between(PrayerUtil.now(), next.at).toMillis().coerceAtLeast(0)
+        val left = durationBetween(PrayerUtil.now(), next.at).inWholeMilliseconds.coerceAtLeast(0)
         setTextViewText(R.id.label, s.nextPrayerIn(s.placeName(AppSettings.place)))
         setTextViewText(R.id.name, s.prayer(next.key))
-        setTextViewText(R.id.time, s.time(next.at.toLocalTime().toSecondOfDay() / 3600.0))
+        setTextViewText(R.id.time, s.time(next.at.time.toSecondOfDay() / 3600.0))
         setChronometer(R.id.countdown, SystemClock.elapsedRealtime() + left, null, true)
         setChronometerCountDown(R.id.countdown, true)
         Widgets.open(ctx, "prayer", 1)?.let { setOnClickPendingIntent(R.id.root, it) }
@@ -155,7 +159,7 @@ class PrayerTimesWidget : MizanWidget() {
         val today = Widgets.today()
         val t = PrayerUtil.times(today)
         val next = PrayerUtil.next()
-        val nextKey = if (next.at.toLocalDate() == today) next.key else "fajr"
+        val nextKey = if (next.at.date == today) next.key else "fajr"
         setTextViewText(R.id.city, s.placeName(AppSettings.place))
         setTextViewText(R.id.date, Hijri.toHijri(today)?.let { h -> s.hijriDate(h.d, h.m, h.y) } ?: s.greg(today))
         PrayTimes.PRAYERS.forEachIndexed { i, key ->
@@ -216,11 +220,4 @@ class AyahWidget : MizanWidget() {
         Widgets.open(ctx, surahRoute(sn, an, "widget"), 5)?.let { setOnClickPendingIntent(R.id.root, it) }
     }
 
-    companion object {
-        /** آية قصيرة (تسع الأداة) تُختار بثبات لكل يوم */
-        fun ayahOfDay(text: Array<String>, day: LocalDate): Int {
-            val short = text.indices.filter { QuranData.withoutBismillah(text, it).length in 40..160 }
-            return short[Math.floorMod(day.toEpochDay() * 7919L, short.size.toLong()).toInt()]
-        }
-    }
 }

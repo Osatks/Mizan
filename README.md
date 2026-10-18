@@ -77,6 +77,15 @@ python -m http.server 8080 --directory dist
 - **مصادر القرآن (مضمّنة، تعمل دون إنترنت):** نص المصحف بالرسم العثماني والنص المبسّط للبحث من [مشروع تنزيل](https://tanzil.net) (CC BY 3.0، يُنسخ كما هو دون تعديل مع الإشارة للمصدر)، والتفاسير والترجمات من [tanzil.net/trans](https://tanzil.net/trans/) (للاستخدام غير التجاري، والتطبيق مجاني بلا إعلانات)، وكلها في `app/src/main/assets` بملفاتها الأصلية مع حقوقها. خط المصحف [Amiri Quran](https://github.com/aliftype/amiri) برخصة SIL OFL (`assets/licenses`). ويتحقق `QuranTest` من أن كل ملف فيه 6236 آية في مواضعها.
 - **الاختبارات:** `gradle testDebugUnitTest` داخل `android-app`.
 
+## تطبيق iOS (iosApp) — نسخة تطوير
+
+- **كود واحد للنظامين:** كل الشاشات والمنطق في وحدة Kotlin Multiplatform واحدة (`android-app/shared`، Compose Multiplatform)؛ أندرويد (`android-app/app`) و iOS (`iosApp`) غلافان صغيران حولها. ما يختلف بين النظامين في `shared/src/androidMain` و `shared/src/iosMain`:
+  التخزين (SharedPreferences / NSUserDefaults)، والملفات والشبكة، والتلاوة (ExoPlayer / AVPlayer)، والموقع والبوصلة (CoreLocation)، وتنبيهات الأذان (AlarmManager / إشعارات محلية لسبعة أيام قادمة)، ورسم خط المصحف (TextPaint / Skia مع HarfBuzz).
+- **البناء:** `.github/workflows/ios.yml` يبني على macOS في GitHub Actions ملف `mizan-2.1.N-ios-unsigned.ipa` (Artifacts). لا يحتاج Mac عندك.
+- **التثبيت دون Mac:** نزّل الملف وثبّته على الآيفون بحساب Apple ID مجاني عبر [Sideloadly](https://sideloadly.io) أو AltStore من ويندوز. التوقيع المجاني صالح 7 أيام ثم يُعاد التثبيت. للنشر في App Store أو TestFlight يلزم حساب مطوّر مدفوع.
+- **على Mac (اختياري):** `cd android-app && gradle :shared:linkReleaseFrameworkIosArm64` ثم `cd iosApp && xcodegen generate` وافتح `Mizan.xcodeproj`.
+- **ما لا يتوفر في iOS بعد:** أدوات الشاشة الرئيسية (Widgets)، وإسكات الإشعارات في وضع التركيز (لا يسمح به iOS)، واختيار اللغة من إعدادات النظام.
+
 ## ملاحظات شرعية
 
 - حاسبة المواريث تعتمد مذهب الجمهور، وتعالج الحجب والعول والرد والعمريتين والأكدرية، والجد مع الإخوة (المقاسمة)، والمشتركة (على قول الحنفية والحنابلة مع التنبيه على الخلاف).

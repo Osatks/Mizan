@@ -1,0 +1,76 @@
+name: iOS App
+
+# نسخة تطوير لـ iOS: تُبنى على macOS بلا توقيع (ملف .ipa)، ويوقّعها المستخدم بحسابه عند التثبيت
+# (Sideloadly أو AltStore بحساب Apple مجاني). الواجهات والمنطق من وحدة Kotlin المشتركة مع أندرويد.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "android-app/shared/**"
+      - "iosApp/**"
+      - ".github/workflows/ios.yml"
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # رقم الإصدار = عدد الـ commits (كما في أندرويد)
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Version
+        id: v
+        run: |
+          n=$(git rev-list --count HEAD)
+          echo "build=$n" >> "$GITHUB_OUTPUT"
+          echo "name=2.1.$n" >> "$GITHUB_OUTPUT"
+
+      # اختبارات الكود المشترك (JVM) قبل البناء
+      - name: Shared unit tests
+        working-directory: android-app
+        run: gradle :shared:testDebugUnitTest --no-daemon
+
+      - name: Build Kotlin framework (iosArm64)
+        working-directory: android-app
+        run: gradle :shared:linkReleaseFrameworkIosArm64 --no-daemon --stacktrace
+
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build app (unsigned)
+        working-directory: iosApp
+        run: |
+          xcodebuild -project Mizan.xcodeproj -scheme Mizan -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            MARKETING_VERSION=${{ steps.v.outputs.name }} CURRENT_PROJECT_VERSION=${{ steps.v.outputs.build }} \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build | tail -n 80
+          test -d build/Build/Products/Release-iphoneos/Mizan.app
+
+      - name: Package .ipa
+        working-directory: iosApp
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/Mizan.app Payload/
+          zip -qry "mizan-${{ steps.v.outputs.name }}-ios-unsigned.ipa" Payload
+          ls -la *.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mizan-ios
+          path: iosApp/*.ipa
+          if-no-files-found: error

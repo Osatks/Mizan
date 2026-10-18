@@ -15,3 +15,13 @@ android-app/build/
 android-app/app/build/
 android-app/local.properties
 android-app/.kotlin/
+# iOS: المشروع يُولَّد بـ XcodeGen
+iosApp/*.xcodeproj
+iosApp/build/
+iosApp/Payload/
+iosApp/*.ipa
+
+# مخرجات البناء في كل وحدات Gradle
+android-app/*/build/
+android-app/build/
+android-app/.kotlin/

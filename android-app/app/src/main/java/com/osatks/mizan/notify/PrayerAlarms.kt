@@ -1,5 +1,7 @@
 package com.osatks.mizan.notify
 
+import com.osatks.mizan.platform.init
+import kotlinx.datetime.toKotlinLocalDate
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationChannel
@@ -60,7 +62,7 @@ object PrayerAlarms {
         var target: Pair<LocalDateTime, String>? = null
         for (dayOffset in 0..1) {
             val day: LocalDate = now.toLocalDate().plusDays(dayOffset.toLong())
-            val t = PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi)
+            val t = PrayTimes.compute(day.toKotlinLocalDate(), p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi)
             for (key in PrayTimes.PRAYERS) {
                 if (key == "sunrise") continue
                 val h = t[key]

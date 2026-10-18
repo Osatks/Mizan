@@ -1,0 +1,37 @@
+# مشروع Xcode لتطبيق ميزان في iOS، يُولَّد بـ XcodeGen (xcodegen generate) فلا يُحفظ ملف .xcodeproj في المستودع.
+# الواجهات والمنطق كلها في وحدة Kotlin المشتركة (android-app/shared) وتُبنى إطاراً اسمه Shared.
+name: Mizan
+options:
+  bundleIdPrefix: com.osatks
+  deploymentTarget:
+    iOS: "15.0"
+  developmentLanguage: ar
+settings:
+  base:
+    MARKETING_VERSION: "2.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    ENABLE_BITCODE: NO
+targets:
+  Mizan:
+    type: application
+    platform: iOS
+    sources:
+      - path: iosApp
+      # نصوص المصحف والتفاسير والأذكار والخطوط وحزم اللغات: المجلد نفسه الذي يضمّنه أندرويد
+      - path: ../android-app/shared/src/commonMain/assets
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.osatks.mizan
+        PRODUCT_NAME: Mizan
+        INFOPLIST_FILE: iosApp/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../android-app/shared/build/bin/iosArm64/releaseFramework"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
+    dependencies:
+      - framework: ../android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework
+        embed: true
+        codeSign: false

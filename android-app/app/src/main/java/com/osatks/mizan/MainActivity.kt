@@ -1,5 +1,7 @@
 package com.osatks.mizan
 
+import com.osatks.mizan.platform.PrayerAlerts
+import com.osatks.mizan.platform.init
 import android.animation.ValueAnimator
 import android.content.res.Configuration
 import android.os.Bundle
@@ -82,14 +84,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppSettings.init(this)
-        QuranData.init(this)
-        com.osatks.mizan.adhkar.Adhkar.init(this)
-        com.osatks.mizan.quran.TafsirLibrary.init(this)
+        // الكود المشترك يطلب جدولة التنبيهات وتحديث قناتها عبر هذين
+        PrayerAlerts.onReschedule = { PrayerAlarms.scheduleNext(it) }
+        PrayerAlerts.onLanguageChanged = { PrayerAlarms.ensureChannel(it) }
         // إن أُغلق التطبيق أثناء القراءة في وضع التركيز يُعاد «عدم الإزعاج» كما كان
-        com.osatks.mizan.ui.quran.QuietReading.restore(this)
+        com.osatks.mizan.ui.quran.QuietReading.restore()
         Motion.reduced = !ValueAnimator.areAnimatorsEnabled()
         // للقطات الشاشة والاختبار: --es lang en
-        intent?.getStringExtra("lang")?.let { if (it == Lang.SYSTEM || Lang.of(it) != null) LocaleSync.choose(this, it) }
+        intent?.getStringExtra("lang")?.let { if (it == Lang.SYSTEM || Lang.of(it) != null) LocaleSync.choose(it) }
         LocaleSync.pull(this)
         PrayerAlarms.ensureChannel(this)
         PrayerAlarms.scheduleNext(this)
@@ -113,127 +115,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar")
-private val TAB_ROUTES = TABS.map { it.route }.toSet()
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Composable
-fun MizanApp(startRoute: String? = null) {
-    val nav = rememberNavController()
-    LaunchedEffect(startRoute) {
-        if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) nav.navigate(startRoute)
-    }
-    val entry by nav.currentBackStackEntryAsState()
-    val current = entry?.destination?.route
-    val onTab = current == null || current in TAB_ROUTES
-    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val back: () -> Unit = { nav.popBackStack() }
-
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        SharedTransitionLayout {
-            CompositionLocalProvider(LocalSharedScope provides this, LocalBottomInset provides if (onTab) 92.dp else 0.dp) {
-                NavHost(
-                    nav, startDestination = "home", modifier = Modifier.fillMaxSize(),
-                    enterTransition = { enter(rtl) },
-                    exitTransition = { exit() },
-                    popEnterTransition = { popEnter() },
-                    popExitTransition = { popExit(rtl) },
-                ) {
-                    fun screen(route: String, content: @Composable () -> Unit) = composable(route) {
-                        CompositionLocalProvider(LocalNavScope provides this) { content() }
-                    }
-                    screen("home") { HomeScreen(open = { nav.navigate(it) }) }
-                    screen("prayer") { PrayerScreen() }
-                    screen("qibla") { QiblaScreen(back) }
-                    screen("quran") { QuranScreen(open = { nav.navigate(it) }) }
-                    composable(
-                        SURAH_ROUTE,
-                        arguments = listOf(
-                            navArgument("surah") { type = NavType.IntType },
-                            navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
-                            navArgument("from") { type = NavType.StringType; defaultValue = "row" },
-                        )
-                    ) { e ->
-                        val args = e.arguments
-                        CompositionLocalProvider(LocalNavScope provides this) {
-                            val from = args?.getString("from") ?: "row"
-                            SurahScreen(
-                                surah = (args?.getInt("surah") ?: 1).coerceIn(1, 114),
-                                startAyah = args?.getInt("ayah") ?: 0,
-                                from = from,
-                                onBack = back,
-                                openSurah = { n -> nav.navigate(surahRoute(n, 0, "nav")) { popUpTo(SURAH_ROUTE) { inclusive = true } } },
-                                startInFocus = from == "focus",
-                                openLibrary = { nav.navigate("tafsirs") }
-                            )
-                        }
-                    }
-                    screen("tasbih") { TasbihScreen() }
-                    screen("adhkar") { com.osatks.mizan.ui.screens.AdhkarScreen(back) }
-                    screen("settings") { SettingsScreen(open = { nav.navigate(it) }) }
-                    screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
-                    screen("guide") { com.osatks.mizan.ui.screens.Onboarding(back) }
-                    screen("zakat") { ZakatScreen(back) }
-                    screen("fitr") { FitrScreen(back) }
-                    screen("inheritance") { InheritanceScreen(back) }
-                    screen("hijri") { HijriScreen(back) }
-                    screen("age") { AgeScreen(back) }
-                    screen("events") { EventsScreen(back) }
-                    screen("fidya") { FidyaScreen(back) }
-                    screen("search") {
-                        SearchScreen(back) { route ->
-                            nav.navigate(route) { popUpTo("search") { inclusive = true } }
-                        }
-                    }
-                }
-            }
-        }
-
-        // جولة أول تشغيل فوق كل شيء، مرة واحدة
-        var firstRun by remember { mutableStateOf(!AppSettings.getBool("onboarded", false) && startRoute == null) }
-        AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
-            com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
-        }
-        AnimatedVisibility(
-            visible = onTab,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enter = slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it } + fadeIn(),
-            exit = slideOutVertically(tween(Motion.SHORT, easing = Motion.Accelerate)) { it } + fadeOut(),
-        ) {
-            FloatingTabBar(current) { nav.goTab(it) }
-        }
-    }
-}
-
-// ---------- الانتقالات ----------
-// بين التبويبات: "تلاشٍ عابر" (يخبو القديم بسرعة ويكبر الجديد بلطف).
-// إلى أداة: تدخل الصفحة من جهة القراءة (اليمين في العربية) بينما تنكمش السابقة للخلف قليلاً.
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.isTabSwitch() =
-    initialState.destination.route in TAB_ROUTES && targetState.destination.route in TAB_ROUTES
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.enter(rtl: Boolean): EnterTransition =
-    if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
-    else slideInHorizontally(tween(Motion.LONG, easing = Motion.Emphasized)) { w -> (if (rtl) -w else w) / 4 } +
-        fadeIn(tween(Motion.MEDIUM, delayMillis = 40))
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(): ExitTransition =
-    if (isTabSwitch()) fadeOut(tween(90))
-    else scaleOut(tween(Motion.LONG, easing = Motion.Emphasized), targetScale = 0.94f) + fadeOut(tween(Motion.MEDIUM))
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(): EnterTransition =
-    if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
-    else scaleIn(tween(Motion.LONG, easing = Motion.Emphasized), initialScale = 0.94f) + fadeIn(tween(Motion.MEDIUM))
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(rtl: Boolean): ExitTransition =
-    if (isTabSwitch()) fadeOut(tween(90))
-    else slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { w -> (if (rtl) -w else w) / 4 } +
-        fadeOut(tween(Motion.SHORT, delayMillis = 60))
-
-private fun NavHostController.goTab(route: String) {
-    navigate(route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
-        launchSingleTop = true
-        restoreState = true
-    }
-}
