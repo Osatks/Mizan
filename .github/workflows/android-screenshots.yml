@@ -47,7 +47,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 31
-          target: aosp_atd
+          target: google_apis
           arch: x86_64
           profile: pixel_6
           cores: 4
@@ -56,7 +56,7 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 900
           force-avd-creation: false
-          emulator-options: -no-window -no-snapshot -gpu guest -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -no-snapshot -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash android-app/scripts/screenshots.sh
 
       - uses: actions/upload-artifact@v4
