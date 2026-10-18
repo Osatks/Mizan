@@ -92,6 +92,9 @@ object Adhkar {
         cached ?: parse(read("adhkar/adhkar.json") ?: emptyMap()).also { cached = it }
     }
 
+    /** الأقسام إن قُرئت من قبل (فلا يظهر مؤشر التحميل عند العودة) */
+    fun loaded(): List<AdhkarSection>? = cached
+
     fun section(id: String) = sections().firstOrNull { it.id == id }
 
     fun byId(id: String) = sections().asSequence().flatMap { it.items }.firstOrNull { it.id == id }

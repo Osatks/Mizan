@@ -149,7 +149,7 @@ private fun doneToday(id: String) = AppSettings.getInt(doneKey(id), -1) == Local
 fun AdhkarScreen(onBack: () -> Unit, start: String = "") {
     var open by rememberSaveable { mutableStateOf(start) }
     BackHandler(open.isNotEmpty()) { open = "" }
-    val sections by produceState<List<AdhkarSection>?>(null) { value = withContext(Dispatchers.IO) { Adhkar.sections() } }
+    val sections by produceState(Adhkar.loaded()) { if (value == null) value = withContext(Dispatchers.IO) { Adhkar.sections() } }
     val list = sections
     AnimatedContent(
         open to (list != null), label = "adhkar",
@@ -248,7 +248,8 @@ internal fun AdhkarSectionPage(sec: AdhkarSection, onBack: () -> Unit) {
     val progress = sec.items.sumOf { (done[it.id] ?: 0).coerceAtMost(it.count) }
     val complete = progress >= total
     // ترجمة الآيات للأذكار القرآنية من ترجمة المعاني بلغة الواجهة
-    val quran by produceState<Array<String>?>(null, lang) {
+    val quranSrc = remember(lang) { if (lang == Lang.AR) null else Sources.translationFor(lang) }
+    val quran by produceState(quranSrc?.let { QuranData.cached("tafsir/${it.id}.txt") }, lang) {
         value = if (lang == Lang.AR || sec.items.none { it.ayah.isNotEmpty() }) null
         else Sources.translationFor(lang)?.let { runCatching { QuranData.source(it.id) }.getOrNull() }
     }
@@ -304,7 +305,8 @@ private fun DhikrCard(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<String>?,
     val border by animateColorAsState(if (finished) Gold else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f), label = "border")
     val src = remember { MutableInteractionSource() }
     val t = translation(d, tr, lang, quran)
-    val note = if (lang == Lang.AR) d.note else tr.items[d.id]?.note ?: d.note
+    // الملاحظة القصيرة (متى يقال) على البطاقة، والطويلة (التخريج والخلاف) في الدليل فقط
+    val note = (if (lang == Lang.AR) d.note else tr.items[d.id]?.note ?: d.note)?.takeIf { it.length <= 80 }
     Surface(
         onClick = onTap, shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(if (finished) 1.5.dp else 1.dp, border), interactionSource = src,

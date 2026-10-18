@@ -666,7 +666,7 @@ object Ar : Strings {
     override val dhikrVirtue = "الفضل"
     override val dhikrQuranRef = "من القرآن الكريم"
     override val dhikrDone = "أتممت هذه الأذكار، تقبّل الله منك"
-    override val dhikrTapHint = "اضغط على الذكر لتعدّ، وعلى ﴿الدليل﴾ لترى مصدره ودرجته"
+    override val dhikrTapHint = "اضغط على الذكر لتعدّ، وعلى «الدليل» لترى مصدره ودرجته"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, =1 {مرة واحدة} =2 {مرتان} few {# مرات} other {# مرة}}", mapOf("n" to n), "ar")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, =1 {ذكر واحد} =2 {ذكران} few {# أذكار} other {# ذكرًا}}", mapOf("n" to n), "ar")
     override val moreLanguages = "تنزيل لغات أخرى"

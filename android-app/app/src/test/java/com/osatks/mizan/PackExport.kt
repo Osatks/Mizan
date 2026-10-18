@@ -115,5 +115,7 @@ object PackExport {
         "tafsirs" to emptyList<Any>(), "tafsirFallback" to emptyList<Any>(),
         "strings" to strings(),
         "evidence" to evidenceKeys().associateWith { it },
+        // ترجمة الأذكار بصيغة assets/adhkar/en.json (العربية في adhkar.json هي الأصل)
+        "adhkar" to Json.obj(File("src/main/assets/adhkar/en.json").readText()),
     )
 }
