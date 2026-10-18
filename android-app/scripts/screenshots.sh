@@ -12,13 +12,17 @@ adb logcat -c || true
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb shell settings put system screen_off_timeout 600000 || true
 adb shell input keyevent KEYCODE_WAKEUP || true
+# تنبيه «ملء الشاشة» الذي يظهر أول مرة يغطي لقطة وضع التركيز
+adb shell settings put secure immersive_mode_confirmations confirmed || true
 
 # shot <route> <name> [lang] [accent]: اللغة الافتراضية للقطات هي العربية، واللون الزمردي
 shot() {
   # المسار بين علامتي اقتباس: صدفة الجهاز تقطع النص عند "&"
   adb shell am start -W -S -n $PKG/.MainActivity --es route "'$1'" --es lang "${3:-ar}" --es accent "${4:-emerald}" --ez demo true > /dev/null
-  sleep 5
+  sleep "${WAIT:-5}"
   adb exec-out screencap -p > "$OUT/$2.png"
+  # نصوص الشاشة من شجرة الوصول: تبيّن أي شاشة ظهرت فعلاً
+  adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1 && adb exec-out cat /sdcard/ui.xml > "$OUT/$2.xml" || true
   echo "captured $2 ($(adb shell dumpsys window | grep -m1 mCurrentFocus | tr -d '\r'))"
 }
 
@@ -35,6 +39,10 @@ shot age         09-age
 shot settings    10-settings
 shot adhkar      17-adhkar
 shot "surah/2?ayah=255&from=focus" 18-focus-mode
+# لقطات بانتظار أطول لشاشات ظهرت بدلها الرئيسية
+WAIT=12 shot qibla  03b-qibla-wait
+WAIT=12 shot hijri  07b-hijri-wait
+WAIT=12 shot events 08b-events-wait
 
 adb shell cmd uimode night yes || true
 sleep 2
