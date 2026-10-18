@@ -7,6 +7,7 @@ import com.osatks.mizan.i18n.Evidence
 import com.osatks.mizan.i18n.Named
 import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.i18n.Tx
+import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.i18n.pack.LangPack
 import com.osatks.mizan.i18n.pack.Template
 import java.io.File
