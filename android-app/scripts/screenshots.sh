@@ -8,16 +8,18 @@ OUT=screenshots
 mkdir -p "$OUT"
 
 adb install -r "$APK"
+adb logcat -c || true
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb shell settings put system screen_off_timeout 600000 || true
 adb shell input keyevent KEYCODE_WAKEUP || true
 
 # shot <route> <name> [lang]: اللغة الافتراضية للقطات هي العربية
 shot() {
-  adb shell am start -W -S -n $PKG/.MainActivity --es route "$1" --es lang "${3:-ar}" --ez demo true > /dev/null
+  # المسار بين علامتي اقتباس: صدفة الجهاز تقطع النص عند "&"
+  adb shell am start -W -S -n $PKG/.MainActivity --es route "'$1'" --es lang "${3:-ar}" --ez demo true > /dev/null
   sleep 5
   adb exec-out screencap -p > "$OUT/$2.png"
-  echo "captured $2"
+  echo "captured $2 ($(adb shell dumpsys window | grep -m1 mCurrentFocus | tr -d '\r'))"
 }
 
 adb shell cmd uimode night no || true
@@ -59,3 +61,12 @@ for lang in en fr tr ur id ms fa bn ru de es uk uz kk; do
 done
 
 ls -la "$OUT"
+adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
+adb logcat -d > "$OUT/logcat.txt" || true
+
+# لقطات متطابقة كلها تعني أن الشاشة لم تُرسم: نُفشل الخطوة بدل نتيجة خضراء مضلِّلة
+if [ "$(md5sum "$OUT"/*.png | awk '{print $1}' | sort -u | wc -l)" -le 1 ]; then
+  echo "All screenshots are identical; the display was not captured." >&2
+  cat "$OUT/logcat-crash.txt" >&2
+  exit 1
+fi
