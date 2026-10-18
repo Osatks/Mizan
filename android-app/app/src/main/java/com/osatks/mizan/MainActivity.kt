@@ -99,6 +99,8 @@ class MainActivity : ComponentActivity() {
         // فتح شاشة محددة عند التشغيل (للاختصارات ولقطات الشاشة): --es route prayer
         val startRoute = intent?.getStringExtra("route")
         Demo.enabled = intent?.getBooleanExtra("demo", false) == true
+        // لقطات الشاشة: لون التطبيق يُختار من الأمر نفسه
+        if (Demo.enabled) intent?.getStringExtra("accent")?.let { AppSettings.updateAccent(it) }
         setContent { LanguageHost { MizanTheme { MizanApp(startRoute) } } }
     }
 

@@ -687,6 +687,8 @@ object Uk : Strings {
     override val themeAuto = "Авто"
     override val themeLight = "Світла"
     override val themeDark = "Темна"
+    override val appColor = "Колір застосунку"
+    override val accentNames = listOf("Смарагдовий", "Бірюзовий", "Синій", "Фіолетовий", "Рожевий", "Бордовий", "Помаранчевий", "Медовий", "Коричневий", "Графітовий")
     override val language = "Мова"
     override val deviceLanguage = "Мова пристрою"
     override val use24h = "24-годинний формат"

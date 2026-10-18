@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 1,
+ "version": 2,
  "currency": "KZT",
  "quran": {
   "id": "kk.altai",
@@ -858,6 +858,19 @@
   "textSmaller": "Мәтінді кішірейту",
   "themeAuto": "Авто",
   "themeDark": "Қараңғы",
+  "appColor": "Қолданба түсі",
+  "accentNames": [
+   "Зүмірет",
+   "Көкшіл жасыл",
+   "Көк",
+   "Күлгін",
+   "Қызғылт",
+   "Қошқыл қызыл",
+   "Қызғылт сары",
+   "Бал",
+   "Қоңыр",
+   "Графит"
+  ],
   "themeLight": "Жарық",
   "tileDays": "күн",
   "tileHours": "сағат",

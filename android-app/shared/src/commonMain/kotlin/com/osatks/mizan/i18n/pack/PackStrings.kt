@@ -533,6 +533,8 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val themeAuto: String by lazy { s("themeAuto") ?: En.themeAuto }
     override val themeLight: String by lazy { s("themeLight") ?: En.themeLight }
     override val themeDark: String by lazy { s("themeDark") ?: En.themeDark }
+    override val appColor: String by lazy { s("appColor") ?: En.appColor }
+    override val accentNames: List<String> by lazy { list("accentNames", En.accentNames) }
     override val language: String by lazy { s("language") ?: En.language }
     override val deviceLanguage: String by lazy { s("deviceLanguage") ?: En.deviceLanguage }
     override val use24h: String by lazy { s("use24h") ?: En.use24h }

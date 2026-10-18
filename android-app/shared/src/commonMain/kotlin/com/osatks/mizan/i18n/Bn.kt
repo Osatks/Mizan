@@ -668,6 +668,8 @@ object Bn : Strings {
     override val themeAuto = "স্বয়ংক্রিয়"
     override val themeLight = "লাইট"
     override val themeDark = "ডার্ক"
+    override val appColor = "অ্যাপের রং"
+    override val accentNames = listOf("পান্না", "ফিরোজা", "নীল", "বেগুনি", "গোলাপি", "মেরুন", "কমলা", "মধু", "বাদামি", "ধূসর")
     override val language = "ভাষা"
     override val deviceLanguage = "ডিভাইসের ভাষা"
     override val use24h = "24-ঘণ্টার ঘড়ি"

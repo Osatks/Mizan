@@ -531,6 +531,9 @@ interface Strings {
     val themeAuto: String
     val themeLight: String
     val themeDark: String
+    val appColor: String
+    /** أسماء ألوان التطبيق بترتيب Accent */
+    val accentNames: List<String>
     val language: String
     val deviceLanguage: String
     val use24h: String

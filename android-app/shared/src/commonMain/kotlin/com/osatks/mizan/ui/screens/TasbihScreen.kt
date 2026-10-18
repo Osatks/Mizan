@@ -73,6 +73,7 @@ import com.osatks.mizan.ui.Tile
 import com.osatks.mizan.ui.ToolPage
 import com.osatks.mizan.ui.theme.DhikrStyle
 import com.osatks.mizan.ui.theme.Gold
+import com.osatks.mizan.ui.theme.themed
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlin.math.PI
@@ -216,7 +217,7 @@ fun TasbihScreen() {
                             Modifier.size(210.dp)
                                 .graphicsLayer { scaleX = press.value; scaleY = press.value }
                                 .clip(CircleShape)
-                                .background(Brush.radialGradient(listOf(Color(0xFF1A8A6F), Color(0xFF0B4A3D))))
+                                .background(Brush.radialGradient(listOf(Color(0xFF1A8A6F).themed, Color(0xFF0B4A3D).themed)))
                                 .semantics { contentDescription = s.tapToCount }
                                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { inc() },
                             contentAlignment = Alignment.Center

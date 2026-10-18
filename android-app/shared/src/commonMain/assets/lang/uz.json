@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 1,
+ "version": 2,
  "currency": "UZS",
  "quran": {
   "id": "uz.sodik",
@@ -869,6 +869,19 @@
   "textSmaller": "Kichikroq matn",
   "themeAuto": "Avto",
   "themeDark": "Qorongʻi",
+  "appColor": "Ilova rangi",
+  "accentNames": [
+   "Zumrad",
+   "Feruza",
+   "Koʻk",
+   "Binafsha",
+   "Pushti",
+   "Toʻq qizil",
+   "Toʻq sariq",
+   "Asal",
+   "Jigarrang",
+   "Grafit"
+  ],
   "themeLight": "Yorugʻ",
   "tileDays": "kun",
   "tileHours": "soat",

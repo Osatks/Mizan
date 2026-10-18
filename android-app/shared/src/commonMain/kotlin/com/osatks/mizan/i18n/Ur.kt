@@ -668,6 +668,8 @@ object Ur : Strings {
     override val themeAuto = "خودکار"
     override val themeLight = "روشن"
     override val themeDark = "تاریک"
+    override val appColor = "ایپ کا رنگ"
+    override val accentNames = listOf("زمردی", "فیروزی", "نیلا", "جامنی", "گلابی", "عنابی", "نارنجی", "شہدی", "بھورا", "سرمئی")
     override val language = "زبان"
     override val deviceLanguage = "آلے کی زبان"
     override val use24h = "24 گھنٹے کی گھڑی"

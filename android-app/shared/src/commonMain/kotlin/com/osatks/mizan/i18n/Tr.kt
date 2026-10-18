@@ -668,6 +668,8 @@ object Tr : Strings {
     override val themeAuto = "Otomatik"
     override val themeLight = "Açık"
     override val themeDark = "Koyu"
+    override val appColor = "Uygulama rengi"
+    override val accentNames = listOf("Zümrüt", "Turkuaz", "Mavi", "Mor", "Pembe", "Bordo", "Turuncu", "Bal", "Kahverengi", "Grafit")
     override val language = "Dil"
     override val deviceLanguage = "Cihaz dili"
     override val use24h = "24 saat biçimi"

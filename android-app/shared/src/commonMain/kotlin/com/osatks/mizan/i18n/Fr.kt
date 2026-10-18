@@ -686,6 +686,8 @@ object Fr : Strings {
     override val themeAuto = "Auto"
     override val themeLight = "Clair"
     override val themeDark = "Sombre"
+    override val appColor = "Couleur de l’app"
+    override val accentNames = listOf("Émeraude", "Sarcelle", "Bleu", "Violet", "Rose", "Bordeaux", "Orange", "Miel", "Marron", "Graphite")
     override val language = "Langue"
     override val deviceLanguage = "Langue de l'appareil"
     override val use24h = "Format 24 heures"

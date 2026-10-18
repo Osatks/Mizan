@@ -37,6 +37,7 @@ object AppSettings {
     var use24h by mutableStateOf(false)
         private set
     var theme by mutableStateOf("system") // system | light | dark
+    var accent by mutableStateOf("emerald") // لون التطبيق: مفتاح من Accent
         private set
     var notify by mutableStateOf(false)
         private set
@@ -61,6 +62,7 @@ object AppSettings {
         hanafi = sp.getBool("hanafi", false)
         use24h = sp.getBool("use24h", false)
         theme = (sp.getString("theme") ?: "system")
+        accent = (sp.getString("accent") ?: "emerald")
         notify = sp.getBool("notify", false)
         lang = (sp.getString("lang") ?: Lang.SYSTEM)
         LanguagePacks.init()
@@ -94,6 +96,7 @@ object AppSettings {
     fun updateHanafi(v: Boolean) { hanafi = v; sp.edit().putBoolean("hanafi", v).apply() }
     fun updateUse24h(v: Boolean) { use24h = v; sp.edit().putBoolean("use24h", v).apply() }
     fun updateTheme(v: String) { theme = v; sp.edit().putString("theme", v).apply() }
+    fun updateAccent(v: String) { accent = v; sp.edit().putString("accent", v).apply() }
     fun updateNotify(v: Boolean) { notify = v; sp.edit().putBoolean("notify", v).apply() }
     fun updateLang(v: String) { lang = v; sp.edit().putString("lang", v).apply() }
 

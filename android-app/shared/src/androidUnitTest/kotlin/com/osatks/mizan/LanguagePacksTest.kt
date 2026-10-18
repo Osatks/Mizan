@@ -60,12 +60,15 @@ class LanguagePacksTest {
         val site = Files.createTempDirectory("mizan-site").toFile()
         @Suppress("UNCHECKED_CAST")
         val kk = Json.obj(File("src/commonMain/assets/lang/kk.json").readText()).toMutableMap()
-        kk["version"] = 2L
+        // الحزمة على الموقع أحدث بإصدار واحد من المضمّنة في التطبيق
+        val bundled = (kk["version"] as Number).toInt()
+        val newer = bundled + 1
+        kk["version"] = newer.toLong()
         kk["quran"] = mapOf("id" to "kk.test", "author" to "Test", "file" to "kk.test.txt")
         File(site, "kk.json").writeText(Json.write(kk))
         File(site, "kk.test.txt").writeText("1|1|Тест\n")
         File(site, "index.json").writeText(Json.write(mapOf("format" to 1L, "packs" to listOf(
-            mapOf("code" to "kk", "native" to "Қазақша", "english" to "Kazakh", "version" to 2L, "sizeMb" to 0.1, "file" to "kk.json"),
+            mapOf("code" to "kk", "native" to "Қазақша", "english" to "Kazakh", "version" to newer.toLong(), "sizeMb" to 0.1, "file" to "kk.json"),
             mapOf("code" to "xx", "native" to "Future", "version" to 1L, "format" to 99L, "file" to "xx.json"),
             mapOf("code" to "en", "native" to "English", "version" to 9L, "file" to "en.json"),
         ))))
@@ -74,16 +77,16 @@ class LanguagePacksTest {
         val offers = LanguagePacks.offers()
         assertEquals(listOf("kk"), offers.map { it.code }) // الصيغة الأحدث والمدمجة لا تُعرض
         assertTrue(LanguagePacks.download(offers[0], base))
-        assertEquals(2, Lang.of("kk")!!.pack!!.version)
+        assertEquals(newer, Lang.of("kk")!!.pack!!.version)
         assertEquals("kk.test", Sources.translationFor(Lang.of("kk")!!)!!.id)
         assertTrue(File(TestPacks.files, "lang/tafsir/kk.test.txt").exists())
         assertTrue(LanguagePacks.offers().isEmpty())
         LanguagePacks.delete("kk")
-        assertEquals(1, Lang.of("kk")!!.pack!!.version) // تعود الحزمة المضمّنة
+        assertEquals(bundled, Lang.of("kk")!!.pack!!.version) // تعود الحزمة المضمّنة
         assertFalse(File(TestPacks.files, "lang/tafsir/kk.test.txt").exists())
         // فشل التنزيل لا يثبت شيئاً
         File(site, "kk.test.txt").delete()
         assertFalse(LanguagePacks.download(LanguagePacks.offers()[0], base))
-        assertEquals(1, Lang.of("kk")!!.pack!!.version)
+        assertEquals(bundled, Lang.of("kk")!!.pack!!.version)
     }
 }

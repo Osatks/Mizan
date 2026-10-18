@@ -668,6 +668,8 @@ object Fa : Strings {
     override val themeAuto = "خودکار"
     override val themeLight = "روشن"
     override val themeDark = "تیره"
+    override val appColor = "رنگ برنامه"
+    override val accentNames = listOf("زمردی", "فیروزه‌ای", "آبی", "بنفش", "صورتی", "زرشکی", "نارنجی", "عسلی", "قهوه‌ای", "خاکستری")
     override val language = "زبان"
     override val deviceLanguage = "زبان دستگاه"
     override val use24h = "ساعت 24 ساعته"

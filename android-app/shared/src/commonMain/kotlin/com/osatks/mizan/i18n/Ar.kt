@@ -650,6 +650,8 @@ object Ar : Strings {
     override val themeAuto = "تلقائي"
     override val themeLight = "فاتح"
     override val themeDark = "داكن"
+    override val appColor = "لون التطبيق"
+    override val accentNames = listOf("زمردي", "فيروزي", "أزرق", "بنفسجي", "وردي", "عنابي", "برتقالي", "عسلي", "بني", "رمادي")
     override val language = "اللغة"
     override val deviceLanguage = "لغة الجهاز"
     override val use24h = "نظام 24 ساعة"

@@ -668,6 +668,8 @@ object Ms : Strings {
     override val themeAuto = "Automatik"
     override val themeLight = "Cerah"
     override val themeDark = "Gelap"
+    override val appColor = "Warna aplikasi"
+    override val accentNames = listOf("Zamrud", "Biru kehijauan", "Biru", "Ungu", "Merah jambu", "Merah marun", "Jingga", "Madu", "Coklat", "Grafit")
     override val language = "Bahasa"
     override val deviceLanguage = "Bahasa peranti"
     override val use24h = "Format 24 jam"

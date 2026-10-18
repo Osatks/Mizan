@@ -31,6 +31,29 @@ import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
 import com.osatks.mizan.ui.ToolPage
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import com.osatks.mizan.ui.theme.Accent
+import com.osatks.mizan.ui.theme.heroBrush
 
 @Composable
 fun SettingsScreen(open: (String) -> Unit = {}) {
@@ -61,6 +84,13 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
         item {
             SectionCard(s.appearance) {
                 Segmented(listOf("system" to s.themeAuto, "light" to s.themeLight, "dark" to s.themeDark), AppSettings.theme) { AppSettings.updateTheme(it) }
+                val accent = Accent.of(AppSettings.accent)
+                Text(
+                    "${s.appColor} · ${s.accentNames.getOrElse(accent.ordinal) { accent.key }}",
+                    Modifier.padding(top = 16.dp, bottom = 6.dp, start = 4.dp, end = 4.dp),
+                    style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                AccentPicker(accent, s.accentNames) { AppSettings.updateAccent(it.key) }
             }
         }
         item {
@@ -101,4 +131,28 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
     }
 
     if (showLang) LanguageSheet { showLang = false }
+}
+
+/** عشرة ألوان للتطبيق في صفين؛ اللون المختار عليه حلقة وعلامة صح */
+@Composable
+private fun AccentPicker(selected: Accent, names: List<String>, onPick: (Accent) -> Unit) {
+    Column(Modifier.fillMaxWidth().selectableGroup(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Accent.entries.chunked(5).forEach { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                row.forEach { a ->
+                    val on = a == selected
+                    Box(
+                        Modifier.size(48.dp).clip(CircleShape)
+                            .selectable(on, role = Role.RadioButton) { onPick(a) }
+                            .semantics { contentDescription = names.getOrElse(a.ordinal) { a.key } }
+                            .border(2.dp, if (on) MaterialTheme.colorScheme.onSurface else Color.Transparent, CircleShape)
+                            .padding(5.dp).clip(CircleShape).background(heroBrush(a)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (on) Icon(Icons.Filled.Check, null, Modifier.size(20.dp), tint = Color.White)
+                    }
+                }
+            }
+        }
+    }
 }

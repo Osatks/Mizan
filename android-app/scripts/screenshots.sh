@@ -13,10 +13,10 @@ adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb shell settings put system screen_off_timeout 600000 || true
 adb shell input keyevent KEYCODE_WAKEUP || true
 
-# shot <route> <name> [lang]: اللغة الافتراضية للقطات هي العربية
+# shot <route> <name> [lang] [accent]: اللغة الافتراضية للقطات هي العربية، واللون الزمردي
 shot() {
   # المسار بين علامتي اقتباس: صدفة الجهاز تقطع النص عند "&"
-  adb shell am start -W -S -n $PKG/.MainActivity --es route "'$1'" --es lang "${3:-ar}" --ez demo true > /dev/null
+  adb shell am start -W -S -n $PKG/.MainActivity --es route "'$1'" --es lang "${3:-ar}" --es accent "${4:-emerald}" --ez demo true > /dev/null
   sleep 5
   adb exec-out screencap -p > "$OUT/$2.png"
   echo "captured $2 ($(adb shell dumpsys window | grep -m1 mCurrentFocus | tr -d '\r'))"
@@ -48,6 +48,20 @@ sleep 2
 shot quran          14-quran
 shot "surah/18"     15-surah-kahf
 shot quran          16-quran-en en
+
+# ألوان التطبيق
+adb shell cmd uimode night no || true
+sleep 2
+shot settings 70-accent-settings ar pink
+shot home     71-accent-pink     ar pink
+shot home     72-accent-purple   ar purple
+shot home     73-accent-blue     ar blue
+shot home     74-accent-honey    ar honey
+shot tasbih   75-accent-maroon   ar maroon
+adb shell cmd uimode night yes || true
+sleep 2
+shot prayer   76-accent-purple-dark ar purple
+shot home     77-accent-teal-dark   ar teal
 
 # لغات أخرى: الرئيسية والمواقيت والمسبحة
 adb shell cmd uimode night no || true
