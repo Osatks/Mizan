@@ -23,6 +23,7 @@
     "addHeirs": "Add the heirs from the list below",
     "adhanAlert": "Adhan alert",
     "adhanAlertDesc": "A notification when each prayer time begins",
+    "adhkarNow": "Now",
     "adilCase": "Balanced case",
     "ageGregorian": "Your age (Gregorian)",
     "ageSubtitle": "In Hijri and Gregorian years",
@@ -214,6 +215,10 @@
     "delete": "Delete",
     "deleteTafsirQ": "Delete “{name}” from this device?",
     "deviceLanguage": "Device language",
+    "dhikrDone": "You completed these adhkar. May Allah accept it from you",
+    "dhikrEvidence": "Evidence",
+    "dhikrGrade": "Grade",
+    "dhikrItems": "{n, plural, one {# dhikr} other {# adhkar}}",
     "dhikrLabels": ["SubhanAllah", "Alhamdulillah", "Allahu Akbar", "La ilaha illallah", "Astaghfirullah", "SubhanAllahi wa bihamdih", "SubhanAllahil-Azim", "La hawla wa la quwwata illa billah", "Salawat on the Prophet ﷺ"],
     "dhikrMeanings": [
       "Glory be to Allah",
@@ -226,6 +231,12 @@
       "There is no might nor power except by Allah",
       "O Allah, send blessings upon Muhammad"
     ],
+    "dhikrNarrator": "Narrator",
+    "dhikrQuranRef": "From the Holy Quran",
+    "dhikrSource": "Source",
+    "dhikrTapHint": "Tap a dhikr to count it, and Evidence to see its source and grade",
+    "dhikrTimes": "{n, plural, one {once} other {# times}}",
+    "dhikrVirtue": "Virtue",
     "directions": ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"],
     "disclaimer": "Results are a guide. For your own religious questions, refer to qualified scholars and official bodies.",
     "displayTitle": "Display",
@@ -822,6 +833,7 @@
       "hijri": "calendar date convert islamic umm al-qura",
       "events": "ramadan eid arafah ashura holidays",
       "tasbih": "dhikr zikr counter beads adhkar",
+      "adhkar": "adhkar azkar dhikr dua supplication hisn fortress morning evening sleep ramadan",
       "fitr": "fitrah fitra sa eid",
       "age": "birthday birth years",
       "fidya": "fidyah kaffara expiation oath fasting feeding"
@@ -854,6 +866,10 @@
       "tasbih": {
         "name": "Tasbih",
         "desc": "Dhikr counter with ready adhkar"
+      },
+      "adhkar": {
+        "name": "Adhkar",
+        "desc": "Fortress of the Muslim and daily adhkar, with evidence"
       },
       "fitr": {
         "name": "Zakat al-Fitr",
@@ -1107,5 +1123,1983 @@
     "The reward of recitation": "The reward of recitation",
     "Every letter is a good deed, multiplied tenfold.": "Every letter is a good deed, multiplied tenfold.",
     "Al-Tirmidhi (2910), graded authentic": "Al-Tirmidhi (2910), graded authentic"
+  },
+  "adhkar": {
+    "sections": {
+      "morning": {
+        "title": "Morning adhkar",
+        "desc": "From Fajr until sunrise"
+      },
+      "evening": {
+        "title": "Evening adhkar",
+        "desc": "From Asr until sunset"
+      },
+      "sleep": {
+        "title": "Sleep adhkar",
+        "desc": "At bedtime, when turning over at night, when frightened, or after a bad dream"
+      },
+      "waking": {
+        "title": "Waking up adhkar",
+        "desc": "Upon waking up from sleep"
+      },
+      "afterPrayer": {
+        "title": "Adhkar after the prayer",
+        "desc": "After the salam of the obligatory prayers, and after Witr"
+      },
+      "prayer": {
+        "title": "Prayer adhkar",
+        "desc": "From the opening supplication until before the salam"
+      },
+      "adhan": {
+        "title": "Adhan adhkar",
+        "desc": "What to say on hearing the call to prayer and after it"
+      },
+      "mosque": {
+        "title": "Mosque adhkar",
+        "desc": "Going to, entering and leaving the mosque"
+      },
+      "quranDuas": {
+        "title": "Supplications from the Quran",
+        "desc": "Supplications of the prophets, the righteous and the angels in the Book of Allah"
+      },
+      "istighfar": {
+        "title": "Seeking forgiveness and repentance",
+        "desc": "Formulas of seeking forgiveness and what is reported on repentance"
+      },
+      "tasbih": {
+        "title": "Glorification, praise and salawat on the Prophet ﷺ",
+        "desc": "The virtue of tasbih, tahmid, tahlil and takbir, and the wordings of salawat on the Prophet ﷺ"
+      },
+      "ramadan": {
+        "title": "Ramadan and fasting adhkar",
+        "desc": "Sighting the crescent, breaking the fast, etiquette of the fasting person, and Laylat al-Qadr"
+      },
+      "distress": {
+        "title": "Worry and distress",
+        "desc": "For worry, grief and distress, fear of enemies and rulers, debt, and setbacks"
+      },
+      "protection": {
+        "title": "Protection from Satan and whispers",
+        "desc": "What protects from Satan, his whispers and plots, and from trials"
+      },
+      "sickness": {
+        "title": "Sickness and ruqyah",
+        "desc": "Visiting the sick, grave illness, pain, the evil eye, and protecting children"
+      },
+      "home": {
+        "title": "Home and purification adhkar",
+        "desc": "Leaving and entering the home, the toilet, and ablution"
+      },
+      "clothes": {
+        "title": "Clothing adhkar",
+        "desc": "When dressing, wearing new clothes, and undressing"
+      },
+      "food": {
+        "title": "Food and drink adhkar",
+        "desc": "Before and after eating, and supplications for the host"
+      },
+      "travel": {
+        "title": "Travel adhkar",
+        "desc": "Riding, travelling, entering a town or market, farewells and returning"
+      },
+      "weather": {
+        "title": "Rain and wind",
+        "desc": "When the wind blows, on hearing thunder, praying for rain, and when it rains"
+      },
+      "hajj": {
+        "title": "Hajj and ‘Umrah",
+        "desc": "Talbiyah, tawaf, sa‘i, the Day of ‘Arafah, Muzdalifah and stoning the Jamarat"
+      },
+      "istikhara": {
+        "title": "Istikharah and Witr qunut",
+        "desc": "The supplication of the istikharah prayer and the qunut of Witr"
+      },
+      "funeral": {
+        "title": "Funerals and condolence",
+        "desc": "At death and calamity, the funeral prayer, burial, condolence and visiting graves"
+      },
+      "daily": {
+        "title": "Miscellaneous adhkar and etiquette",
+        "desc": "Adhkar for everyday occasions and etiquette in dealing with people"
+      }
+    },
+    "groups": {
+      "sleep/0": "Before sleeping",
+      "sleep/1": "When turning over during the night",
+      "sleep/2": "When frightened in sleep or feeling lonely",
+      "sleep/3": "What to do after a bad dream",
+      "afterPrayer/0": "After the salam of the prayer",
+      "afterPrayer/1": "After the Witr prayer",
+      "prayer/0": "Opening supplications",
+      "prayer/1": "In ruku' (bowing)",
+      "prayer/2": "Rising from ruku'",
+      "prayer/3": "In sujud (prostration)",
+      "prayer/4": "Sitting between the two prostrations",
+      "prayer/5": "Prostration of recitation",
+      "prayer/6": "The tashahhud",
+      "prayer/7": "Prayers upon the Prophet ﷺ after the tashahhud",
+      "prayer/8": "Supplications after the final tashahhud, before the salam",
+      "mosque/0": "Going to the mosque",
+      "mosque/1": "Entering the mosque",
+      "mosque/2": "Leaving the mosque",
+      "istighfar/0": "Seeking forgiveness and repentance",
+      "istighfar/1": "What to say and do after committing a sin",
+      "tasbih/0": "The virtue of glorifying, praising and magnifying Allah",
+      "tasbih/1": "How the Prophet ﷺ glorified Allah",
+      "tasbih/2": "Salawat on the Prophet ﷺ and its virtue",
+      "ramadan/0": "On sighting the new crescent",
+      "ramadan/1": "On breaking the fast",
+      "ramadan/2": "When breaking the fast with a household",
+      "ramadan/3": "When a fasting person is invited to food",
+      "ramadan/4": "When a fasting person is insulted",
+      "ramadan/5": "Laylat al-Qadr and the last ten nights",
+      "distress/0": "In times of worry and grief",
+      "distress/1": "In times of distress",
+      "distress/2": "On meeting an enemy or a person in authority",
+      "distress/3": "When fearing the oppression of a ruler",
+      "distress/4": "Supplication against an enemy",
+      "distress/5": "When fearing harm from people",
+      "distress/6": "For settling a debt",
+      "distress/7": "When a matter becomes difficult",
+      "distress/8": "When something displeasing happens or one is overcome",
+      "protection/0": "For one afflicted by doubts in faith",
+      "protection/1": "Against distraction in prayer and recitation",
+      "protection/2": "Driving away Satan and his whispers",
+      "protection/3": "To repel the plots of the rebellious devils",
+      "protection/4": "Protection from the False Messiah (al-Dajjal)",
+      "protection/5": "For fear of shirk",
+      "protection/6": "Against belief in bad omens",
+      "protection/7": "When frightened",
+      "sickness/0": "Supplication when visiting the sick",
+      "sickness/1": "The virtue of visiting the sick",
+      "sickness/2": "Supplication of the gravely ill",
+      "sickness/3": "When feeling pain in the body",
+      "sickness/4": "When fearing to afflict something with the evil eye",
+      "sickness/5": "Seeking protection for children",
+      "home/0": "Leaving the home",
+      "home/1": "Entering the home",
+      "home/2": "Entering the toilet",
+      "home/3": "Leaving the toilet",
+      "home/4": "Before ablution",
+      "home/5": "After completing ablution",
+      "clothes/0": "Getting dressed",
+      "clothes/1": "Putting on new clothes",
+      "clothes/2": "For someone wearing new clothes",
+      "clothes/3": "When undressing",
+      "food/0": "Before eating",
+      "food/1": "After eating",
+      "food/2": "The guest's supplication for the host",
+      "food/3": "For someone who gives you food or drink",
+      "food/4": "On seeing the first fruit of the season",
+      "travel/0": "When riding a mount or vehicle",
+      "travel/1": "Supplication for travel",
+      "travel/2": "On entering a town or city",
+      "travel/3": "On entering a market",
+      "travel/4": "When the mount stumbles",
+      "travel/5": "The traveller’s supplication for those staying behind",
+      "travel/6": "The resident’s supplication for the traveller",
+      "travel/7": "Takbir and tasbih along the way",
+      "travel/8": "The traveller’s supplication before dawn",
+      "travel/9": "When stopping at a place, on a journey or otherwise",
+      "travel/10": "On returning from a journey",
+      "weather/0": "When the wind blows",
+      "weather/1": "On hearing thunder",
+      "weather/2": "Supplications for rain",
+      "weather/3": "When it rains",
+      "weather/4": "After the rain",
+      "weather/5": "Asking for the rain to be withheld",
+      "hajj/0": "The Talbiyah of the pilgrim",
+      "hajj/1": "Takbir at the Black Stone",
+      "hajj/2": "Between the Yemeni Corner and the Black Stone",
+      "hajj/3": "On al-Safa and al-Marwah",
+      "hajj/4": "On the Day of ‘Arafah",
+      "hajj/5": "At al-Mash‘ar al-Haram (Muzdalifah)",
+      "hajj/6": "Takbir with each pebble at the Jamarat",
+      "istikhara/0": "The istikharah supplication",
+      "istikhara/1": "Qunut in the Witr prayer",
+      "funeral/0": "Prompting the dying person",
+      "funeral/1": "When struck by a calamity",
+      "funeral/2": "On closing the eyes of the deceased",
+      "funeral/3": "Supplications for the deceased in the funeral prayer",
+      "funeral/4": "Supplication for a child in the funeral prayer",
+      "funeral/5": "Offering condolence",
+      "funeral/6": "On placing the deceased in the grave",
+      "funeral/7": "After burying the deceased",
+      "funeral/8": "On visiting graves",
+      "daily/0": "When sneezing",
+      "daily/1": "To a non-Muslim who sneezes and praises Allah",
+      "daily/2": "For the newly married",
+      "daily/3": "The groom's supplication, and on buying an animal",
+      "daily/4": "Before intimacy with one's spouse",
+      "daily/5": "When angry",
+      "daily/6": "On seeing someone afflicted",
+      "daily/7": "What to say in a gathering",
+      "daily/8": "Expiation of the gathering",
+      "daily/9": "To one who says: May Allah forgive you",
+      "daily/10": "To one who does you a favour",
+      "daily/11": "To one who says: I love you for Allah's sake",
+      "daily/12": "To one who offers you his wealth",
+      "daily/13": "To the lender when repaying a loan",
+      "daily/14": "Spreading the greeting of peace",
+      "daily/15": "Replying to a non-Muslim's greeting",
+      "daily/16": "On hearing a rooster crow or a donkey bray",
+      "daily/17": "On hearing dogs barking at night",
+      "daily/18": "For someone you have insulted",
+      "daily/19": "How to praise a fellow Muslim",
+      "daily/20": "What to say when you are praised",
+      "daily/21": "When something pleasing or displeasing happens",
+      "daily/22": "When amazed or pleased",
+      "daily/23": "What to do on receiving good news",
+      "daily/24": "When slaughtering an animal",
+      "daily/25": "Comprehensive good conduct and etiquette"
+    },
+    "items": {
+      "mor01": {
+        "t": "I seek refuge in Allah from Satan, the accursed. Allah – there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+        "narr": "Ubayy ibn Ka'b (may Allah be pleased with him)",
+        "fadl": "The jinn told Ubayy ibn Ka'b: “Whoever says it in the evening is protected from us until morning, and whoever says it in the morning is protected from us until evening.” When he told the Prophet ﷺ, he said: “The wicked one has spoken the truth.”"
+      },
+      "mor02": {
+        "narr": "Abdullah ibn Khubayb (may Allah be pleased with him)",
+        "fadl": "“Say: Qul huwa Allahu ahad and the two Mu'awwidhat (al-Falaq and an-Nas) in the evening and in the morning, three times; they will suffice you against everything.”"
+      },
+      "mor03": {
+        "t": "We have reached the morning, and at this very time all sovereignty belongs to Allah, and all praise is for Allah. None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent. My Lord, I ask You for the good of what is in this day and the good of what follows it, and I take refuge in You from the evil of what is in this day and the evil of what follows it. My Lord, I take refuge in You from laziness and the misery of old age. My Lord, I take refuge in You from punishment in the Fire and punishment in the grave.",
+        "narr": "Abdullah ibn Mas'ud (may Allah be pleased with him)"
+      },
+      "mor04": {
+        "t": "O Allah, by You we have reached the morning and by You we have reached the evening; by You we live and by You we die, and to You is the resurrection.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)"
+      },
+      "mor05": {
+        "t": "O Allah, You are my Lord; none has the right to be worshipped except You. You created me and I am Your servant, and I abide by Your covenant and promise as best I can. I take refuge in You from the evil of what I have done. I acknowledge Your favour upon me, and I acknowledge my sin, so forgive me, for none forgives sins except You.",
+        "narr": "Shaddad ibn Aws (may Allah be pleased with him)",
+        "fadl": "“The master of seeking forgiveness is … Whoever says it during the day with firm faith in it and dies that day before evening will be among the people of Paradise.”",
+        "note": "The master of all supplications for forgiveness (Sayyid al-Istighfar)"
+      },
+      "mor06": {
+        "t": "O Allah, I have reached the morning, and I call on You, the bearers of Your Throne, Your angels and all of Your creation to witness that You are Allah; none has the right to be worshipped except You, alone, without partner, and that Muhammad is Your servant and Messenger.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "fadl": "“Whoever says in the morning or the evening: ‘O Allah, I have reached the morning, calling You to witness …’, Allah frees a quarter of him from the Fire; whoever says it twice, Allah frees half of him; whoever says it three times, Allah frees three quarters of him; and if he says it four times, Allah frees him from the Fire.”",
+        "note": "Its chain was graded hasan by Shaykh Ibn Baz (Tuhfat al-Akhyar); Shaykh al-Albani graded it weak."
+      },
+      "mor07": {
+        "t": "O Allah, whatever blessing I or any of Your creation have this morning is from You alone, without partner; so to You belongs all praise and to You all thanks.",
+        "narr": "Abdullah ibn Ghannam al-Bayadi (may Allah be pleased with him)",
+        "fadl": "“Whoever says it in the morning … has fulfilled the thanks due for his day.”",
+        "note": "Its chain was graded hasan by Shaykh Ibn Baz (Tuhfat al-Akhyar); Shaykh al-Albani graded it weak."
+      },
+      "mor08": {
+        "t": "O Allah, grant my body well-being. O Allah, grant my hearing well-being. O Allah, grant my sight well-being. None has the right to be worshipped except You. O Allah, I take refuge in You from disbelief and poverty, and I take refuge in You from the punishment of the grave. None has the right to be worshipped except You.",
+        "narr": "Abu Bakrah (may Allah be pleased with him)",
+        "fadl": "When his son asked him why he repeated it three times morning and evening, Abu Bakrah said: “I heard the Messenger of Allah ﷺ supplicate with these words, and I love to follow his Sunnah.”"
+      },
+      "mor09": {
+        "t": "Allah is sufficient for me; none has the right to be worshipped except Him. Upon Him I rely, and He is the Lord of the Mighty Throne.",
+        "narr": "Abu al-Darda' (may Allah be pleased with him)",
+        "fadl": "“Whoever says, in the morning and in the evening, ‘Allah is sufficient for me … Lord of the Mighty Throne’ seven times, Allah will suffice him in whatever concerns him.”",
+        "note": "Abu Dawud reports it as the saying of Abu al-Darda', Ibn al-Sunni as the Prophet's ﷺ words; Shu'ayb and Abd al-Qadir al-Arna'ut graded its chain sahih, while Shaykh al-Albani graded it weak."
+      },
+      "mor10": {
+        "t": "O Allah, I ask You for pardon and well-being in this world and the Hereafter. O Allah, I ask You for pardon and well-being in my religion, my worldly affairs, my family and my wealth. O Allah, conceal my faults and calm my fears. O Allah, guard me from in front of me and behind me, from my right and my left, and from above me, and I seek refuge in Your greatness from being taken unawares from beneath me.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "fadl": "“The Messenger of Allah ﷺ never left these supplications in the evening and in the morning.”"
+      },
+      "mor11": {
+        "t": "O Allah, Knower of the unseen and the seen, Originator of the heavens and the earth, Lord and Sovereign of all things, I bear witness that none has the right to be worshipped except You. I take refuge in You from the evil of my soul and from the evil of Satan and his snares (also narrated: his shirk), and from committing evil against myself or bringing it upon a Muslim.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him): Abu Bakr al-Siddiq asked the Prophet ﷺ",
+        "fadl": "“Say it in the morning, in the evening, and when you lie down to sleep.”"
+      },
+      "mor12": {
+        "t": "In the name of Allah, with whose name nothing on earth or in the heaven can cause harm, and He is the All-Hearing, the All-Knowing.",
+        "narr": "Uthman ibn Affan (may Allah be pleased with him)",
+        "fadl": "“There is no servant who says in the morning of every day and the evening of every night: ‘In the name of Allah, with whose name nothing … can cause harm …’ three times, and then anything harms him.”"
+      },
+      "mor13": {
+        "t": "I am pleased with Allah as my Lord, with Islam as my religion, and with Muhammad ﷺ as my Prophet.",
+        "narr": "A servant of the Prophet ﷺ, reported by Abu Sallam",
+        "fadl": "“There is no Muslim – or person, or servant – who says in the evening and in the morning: ‘I am pleased with Allah as my Lord, with Islam as my religion and with Muhammad as my Prophet’, except that it becomes a right upon Allah to please him on the Day of Resurrection.”",
+        "note": "Three times, as in the narration of Ahmad and al-Nasa'i ('Amal al-Yawm wal-Laylah)."
+      },
+      "mor14": {
+        "t": "O Ever-Living, O Sustainer of all, by Your mercy I seek help: set right all my affairs for me, and do not leave me to myself even for the blink of an eye.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "fadl": "The Prophet ﷺ said to Fatimah (may Allah be pleased with her): “What prevents you from listening to what I advise you? That you say in the morning and in the evening: …”"
+      },
+      "mor15": {
+        "t": "We have reached the morning, and at this very time all sovereignty belongs to Allah, Lord of the worlds. O Allah, I ask You for the good of this day: its opening, its victory, its light, its blessing and its guidance; and I take refuge in You from the evil of what is in it and the evil of what follows it.",
+        "narr": "Abu Malik al-Ash'ari (may Allah be pleased with him)",
+        "fadl": "“When one of you reaches the morning, let him say: ‘We have reached the morning and all sovereignty belongs to Allah, Lord of the worlds …’ Then when he reaches the evening, let him say the same.”",
+        "note": "Shu'ayb and Abd al-Qadir al-Arna'ut graded its chain hasan (in their edition of Zad al-Ma'ad); Shaykh al-Albani graded it weak."
+      },
+      "mor16": {
+        "t": "We have reached the morning upon the fitrah of Islam, upon the word of sincere devotion (La ilaha illallah), upon the religion of our Prophet Muhammad ﷺ, and upon the way of our father Ibrahim, who was upright, a Muslim, and was not of those who associate partners with Allah.",
+        "narr": "Abd al-Rahman ibn Abza (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ used to say it upon reaching the morning."
+      },
+      "mor17": {
+        "t": "How perfect Allah is, and I praise Him.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Whoever says, in the morning and in the evening, ‘Subhan Allahi wa bihamdihi’ one hundred times, no one will come on the Day of Resurrection with anything better than what he brings, except someone who said the same or more.”"
+      },
+      "mor18": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise, and He is over all things omnipotent.",
+        "narr": "Abu Ayyub al-Ansari (may Allah be pleased with him)",
+        "fadl": "“Whoever says ‘None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent’ ten times is like one who has freed four souls from the descendants of Isma'il.”",
+        "note": "Ten times, or once when feeling lazy. In the hadith of Abu 'Ayyash al-Zuraqi (Abu Dawud, Ibn Majah): whoever says it once in the morning is protected from Satan until evening, and if he says it in the evening he has the same until morning."
+      },
+      "mor19": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise, and He is over all things omnipotent.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Whoever says ‘None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent’ one hundred times in a day, it will be for him equal to freeing ten slaves; one hundred good deeds will be recorded for him and one hundred bad deeds erased; it will be a protection for him from Satan that day until evening; and no one will bring anything better than what he brings, except someone who did more.”",
+        "note": "One hundred times, in the morning."
+      },
+      "mor20": {
+        "t": "How perfect Allah is, and I praise Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words.",
+        "narr": "Juwayriyah bint al-Harith, Mother of the Believers (may Allah be pleased with her)",
+        "fadl": "“After leaving you I said four phrases, three times, which, if weighed against all you have said since this morning, would outweigh it.”",
+        "note": "Three times, in the morning."
+      },
+      "mor21": {
+        "t": "O Allah, I ask You for beneficial knowledge, good provision, and deeds that are accepted.",
+        "narr": "Umm Salamah, Mother of the Believers (may Allah be pleased with her)",
+        "note": "In the morning; the Prophet ﷺ used to say it after the Fajr prayer, upon giving the salam."
+      },
+      "mor22": {
+        "t": "I seek Allah's forgiveness and I turn to Him in repentance.",
+        "narr": "Al-Agharr al-Muzani and Abu Hurayrah (may Allah be pleased with them)",
+        "fadl": "“O people, repent to Allah, for I repent to Him one hundred times a day.”",
+        "note": "One hundred times in the day. In al-Bukhari: “By Allah, I seek Allah's forgiveness and repent to Him more than seventy times a day.”"
+      },
+      "mor23": {
+        "t": "O Allah, send prayers and peace upon our Prophet Muhammad.",
+        "narr": "Abu al-Darda' (may Allah be pleased with him)",
+        "fadl": "“Whoever sends prayers upon me ten times in the morning and ten times in the evening, my intercession will reach him on the Day of Resurrection.”",
+        "note": "Reported by al-Tabarani with two chains, one of which al-Mundhiri called good; al-Albani graded it hasan in Sahih al-Targhib (as cited by Hisn al-Muslim) but later graded it weak due to a break in the chain. The virtue of sending prayers upon the Prophet ﷺ in general is authentically established."
+      },
+      "eve01": {
+        "t": "I seek refuge in Allah from Satan, the accursed. Allah – there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+        "narr": "Ubayy ibn Ka'b (may Allah be pleased with him)",
+        "fadl": "The jinn told Ubayy ibn Ka'b: “Whoever says it in the evening is protected from us until morning, and whoever says it in the morning is protected from us until evening.” When he told the Prophet ﷺ, he said: “The wicked one has spoken the truth.”"
+      },
+      "eve02": {
+        "narr": "Abdullah ibn Khubayb (may Allah be pleased with him)",
+        "fadl": "“Say: Qul huwa Allahu ahad and the two Mu'awwidhat (al-Falaq and an-Nas) in the evening and in the morning, three times; they will suffice you against everything.”"
+      },
+      "eve03": {
+        "t": "We have reached the evening, and at this very time all sovereignty belongs to Allah, and all praise is for Allah. None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent. My Lord, I ask You for the good of what is in this night and the good of what follows it, and I take refuge in You from the evil of what is in this night and the evil of what follows it. My Lord, I take refuge in You from laziness and the misery of old age. My Lord, I take refuge in You from punishment in the Fire and punishment in the grave.",
+        "narr": "Abdullah ibn Mas'ud (may Allah be pleased with him)"
+      },
+      "eve04": {
+        "t": "O Allah, by You we have reached the evening and by You we have reached the morning; by You we live and by You we die, and to You is the final return.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)"
+      },
+      "eve05": {
+        "t": "O Allah, You are my Lord; none has the right to be worshipped except You. You created me and I am Your servant, and I abide by Your covenant and promise as best I can. I take refuge in You from the evil of what I have done. I acknowledge Your favour upon me, and I acknowledge my sin, so forgive me, for none forgives sins except You.",
+        "narr": "Shaddad ibn Aws (may Allah be pleased with him)",
+        "fadl": "“The master of seeking forgiveness is … Whoever says it at night with firm faith in it and dies before morning will be among the people of Paradise.”",
+        "note": "The master of all supplications for forgiveness (Sayyid al-Istighfar)"
+      },
+      "eve06": {
+        "t": "O Allah, I have reached the evening, and I call on You, the bearers of Your Throne, Your angels and all of Your creation to witness that You are Allah; none has the right to be worshipped except You, alone, without partner, and that Muhammad is Your servant and Messenger.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "fadl": "“Whoever says in the morning or the evening: ‘O Allah, I have reached the morning, calling You to witness …’, Allah frees a quarter of him from the Fire; whoever says it twice, Allah frees half of him; whoever says it three times, Allah frees three quarters of him; and if he says it four times, Allah frees him from the Fire.”",
+        "note": "Its chain was graded hasan by Shaykh Ibn Baz (Tuhfat al-Akhyar); Shaykh al-Albani graded it weak."
+      },
+      "eve07": {
+        "t": "O Allah, whatever blessing I or any of Your creation have this evening is from You alone, without partner; so to You belongs all praise and to You all thanks.",
+        "narr": "Abdullah ibn Ghannam al-Bayadi (may Allah be pleased with him)",
+        "fadl": "“And whoever says the same in the evening has fulfilled the thanks due for his night.”",
+        "note": "Its chain was graded hasan by Shaykh Ibn Baz (Tuhfat al-Akhyar); Shaykh al-Albani graded it weak."
+      },
+      "eve08": {
+        "t": "O Allah, grant my body well-being. O Allah, grant my hearing well-being. O Allah, grant my sight well-being. None has the right to be worshipped except You. O Allah, I take refuge in You from disbelief and poverty, and I take refuge in You from the punishment of the grave. None has the right to be worshipped except You.",
+        "narr": "Abu Bakrah (may Allah be pleased with him)",
+        "fadl": "When his son asked him why he repeated it three times morning and evening, Abu Bakrah said: “I heard the Messenger of Allah ﷺ supplicate with these words, and I love to follow his Sunnah.”"
+      },
+      "eve09": {
+        "t": "Allah is sufficient for me; none has the right to be worshipped except Him. Upon Him I rely, and He is the Lord of the Mighty Throne.",
+        "narr": "Abu al-Darda' (may Allah be pleased with him)",
+        "fadl": "“Whoever says, in the morning and in the evening, ‘Allah is sufficient for me … Lord of the Mighty Throne’ seven times, Allah will suffice him in whatever concerns him.”",
+        "note": "Abu Dawud reports it as the saying of Abu al-Darda', Ibn al-Sunni as the Prophet's ﷺ words; Shu'ayb and Abd al-Qadir al-Arna'ut graded its chain sahih, while Shaykh al-Albani graded it weak."
+      },
+      "eve10": {
+        "t": "O Allah, I ask You for pardon and well-being in this world and the Hereafter. O Allah, I ask You for pardon and well-being in my religion, my worldly affairs, my family and my wealth. O Allah, conceal my faults and calm my fears. O Allah, guard me from in front of me and behind me, from my right and my left, and from above me, and I seek refuge in Your greatness from being taken unawares from beneath me.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "fadl": "“The Messenger of Allah ﷺ never left these supplications in the evening and in the morning.”"
+      },
+      "eve11": {
+        "t": "O Allah, Knower of the unseen and the seen, Originator of the heavens and the earth, Lord and Sovereign of all things, I bear witness that none has the right to be worshipped except You. I take refuge in You from the evil of my soul and from the evil of Satan and his snares (also narrated: his shirk), and from committing evil against myself or bringing it upon a Muslim.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him): Abu Bakr al-Siddiq asked the Prophet ﷺ",
+        "fadl": "“Say it in the morning, in the evening, and when you lie down to sleep.”"
+      },
+      "eve12": {
+        "t": "In the name of Allah, with whose name nothing on earth or in the heaven can cause harm, and He is the All-Hearing, the All-Knowing.",
+        "narr": "Uthman ibn Affan (may Allah be pleased with him)",
+        "fadl": "“There is no servant who says in the morning of every day and the evening of every night: ‘In the name of Allah, with whose name nothing … can cause harm …’ three times, and then anything harms him.”"
+      },
+      "eve13": {
+        "t": "I am pleased with Allah as my Lord, with Islam as my religion, and with Muhammad ﷺ as my Prophet.",
+        "narr": "A servant of the Prophet ﷺ, reported by Abu Sallam",
+        "fadl": "“There is no Muslim – or person, or servant – who says in the evening and in the morning: ‘I am pleased with Allah as my Lord, with Islam as my religion and with Muhammad as my Prophet’, except that it becomes a right upon Allah to please him on the Day of Resurrection.”",
+        "note": "Three times, as in the narration of Ahmad and al-Nasa'i ('Amal al-Yawm wal-Laylah)."
+      },
+      "eve14": {
+        "t": "O Ever-Living, O Sustainer of all, by Your mercy I seek help: set right all my affairs for me, and do not leave me to myself even for the blink of an eye.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "fadl": "The Prophet ﷺ said to Fatimah (may Allah be pleased with her): “What prevents you from listening to what I advise you? That you say in the morning and in the evening: …”"
+      },
+      "eve15": {
+        "t": "We have reached the evening, and at this very time all sovereignty belongs to Allah, Lord of the worlds. O Allah, I ask You for the good of this night: its opening, its victory, its light, its blessing and its guidance; and I take refuge in You from the evil of what is in it and the evil of what follows it.",
+        "narr": "Abu Malik al-Ash'ari (may Allah be pleased with him)",
+        "fadl": "“When one of you reaches the morning, let him say: ‘We have reached the morning and all sovereignty belongs to Allah, Lord of the worlds …’ Then when he reaches the evening, let him say the same.”",
+        "note": "Shu'ayb and Abd al-Qadir al-Arna'ut graded its chain hasan (in their edition of Zad al-Ma'ad); Shaykh al-Albani graded it weak."
+      },
+      "eve16": {
+        "t": "We have reached the evening upon the fitrah of Islam, upon the word of sincere devotion (La ilaha illallah), upon the religion of our Prophet Muhammad ﷺ, and upon the way of our father Ibrahim, who was upright, a Muslim, and was not of those who associate partners with Allah.",
+        "narr": "Abd al-Rahman ibn Abza (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ used to say it upon reaching the evening."
+      },
+      "eve17": {
+        "t": "How perfect Allah is, and I praise Him.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Whoever says, in the morning and in the evening, ‘Subhan Allahi wa bihamdihi’ one hundred times, no one will come on the Day of Resurrection with anything better than what he brings, except someone who said the same or more.”"
+      },
+      "eve18": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise, and He is over all things omnipotent.",
+        "narr": "Abu Ayyub al-Ansari (may Allah be pleased with him)",
+        "fadl": "“Whoever says ‘None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent’ ten times is like one who has freed four souls from the descendants of Isma'il.”",
+        "note": "Ten times, or once when feeling lazy. In the hadith of Abu 'Ayyash al-Zuraqi (Abu Dawud, Ibn Majah): whoever says it once in the morning is protected from Satan until evening, and if he says it in the evening he has the same until morning."
+      },
+      "eve19": {
+        "t": "I seek Allah's forgiveness and I turn to Him in repentance.",
+        "narr": "Al-Agharr al-Muzani and Abu Hurayrah (may Allah be pleased with them)",
+        "fadl": "“O people, repent to Allah, for I repent to Him one hundred times a day.”",
+        "note": "One hundred times in the day. In al-Bukhari: “By Allah, I seek Allah's forgiveness and repent to Him more than seventy times a day.”"
+      },
+      "eve20": {
+        "t": "I seek refuge in the perfect words of Allah from the evil of what He has created.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "He ﷺ said to a man who had been stung by a scorpion: “Had you said in the evening, ‘I seek refuge in the perfect words of Allah from the evil of what He has created’, it would not have harmed you.”",
+        "note": "Three times in the evening (the threefold repetition is in al-Tirmidhi's narration)."
+      },
+      "eve21": {
+        "t": "O Allah, send prayers and peace upon our Prophet Muhammad.",
+        "narr": "Abu al-Darda' (may Allah be pleased with him)",
+        "fadl": "“Whoever sends prayers upon me ten times in the morning and ten times in the evening, my intercession will reach him on the Day of Resurrection.”",
+        "note": "Reported by al-Tabarani with two chains, one of which al-Mundhiri called good; al-Albani graded it hasan in Sahih al-Targhib (as cited by Hisn al-Muslim) but later graded it weak due to a break in the chain. The virtue of sending prayers upon the Prophet ﷺ in general is authentically established."
+      },
+      "slp01": {
+        "narr": "Aishah, Mother of the Believers (may Allah be pleased with her)",
+        "note": "He ﷺ would put his palms together, blow lightly into them and recite these surahs over them, then wipe as much of his body as he could, beginning with his head, face and the front of his body; he did this three times."
+      },
+      "slp02": {
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "Satan told Abu Hurayrah: “When you go to your bed, recite Ayat al-Kursi … a guardian from Allah will remain over you and no devil will come near you until morning.” The Prophet ﷺ said: “He has told you the truth, though he is a great liar.”"
+      },
+      "slp03": {
+        "narr": "Abu Mas'ud al-Ansari al-Badri (may Allah be pleased with him)",
+        "fadl": "“Whoever recites the last two verses of Surat al-Baqarah at night, they will suffice him.”"
+      },
+      "slp04": {
+        "t": "In Your name, my Lord, I lay down my side, and by You I raise it. If You take my soul, then have mercy on it; and if You send it back, then protect it with that with which You protect Your righteous servants.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“When one of you goes to his bed, let him dust off his bed with the inner edge of his lower garment, for he does not know what has come onto it after him; then let him say: …”"
+      },
+      "slp05": {
+        "t": "O Allah, You created my soul and You take it in death; to You belong its death and its life. If You keep it alive, then protect it, and if You cause it to die, then forgive it. O Allah, I ask You for well-being.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "note": "Ibn Umar taught it to a man to say when lying down, and said he heard it from the Messenger of Allah ﷺ."
+      },
+      "slp06": {
+        "t": "O Allah, protect me from Your punishment on the Day You resurrect Your servants.",
+        "narr": "Hafsah, Mother of the Believers (may Allah be pleased with her)",
+        "note": "When he ﷺ wanted to sleep, he would place his right hand under his cheek and say it three times."
+      },
+      "slp07": {
+        "t": "In Your name, O Allah, I die and I live.",
+        "narr": "Hudhayfah ibn al-Yaman and al-Bara' ibn Azib (may Allah be pleased with them)"
+      },
+      "slp08": {
+        "t": "How perfect Allah is.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "fadl": "“Shall I not teach you something better than what you asked me for? When you lie down to sleep, say Allahu akbar thirty-four times, Subhan Allah thirty-three times and Alhamdulillah thirty-three times; that is better for you than a servant.”"
+      },
+      "slp09": {
+        "t": "All praise is for Allah.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)"
+      },
+      "slp10": {
+        "t": "Allah is the Greatest.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)"
+      },
+      "slp11": {
+        "t": "O Allah, Lord of the seven heavens and Lord of the earth, and Lord of the Mighty Throne, our Lord and Lord of all things, Splitter of the seed and the date-stone, Revealer of the Torah, the Gospel and the Criterion (the Qur'an): I take refuge in You from the evil of everything whose forelock You hold. O Allah, You are the First, so there is nothing before You; You are the Last, so there is nothing after You; You are the Most High (al-Zahir), so there is nothing above You; and You are the Most Near (al-Batin), so there is nothing beyond You. Settle our debt for us and free us from poverty.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "He ﷺ instructed that when one lies down to sleep he should lie on his right side and then say this."
+      },
+      "slp12": {
+        "t": "All praise is for Allah, who fed us and gave us drink, who sufficed us and sheltered us; for how many are there who have none to suffice them and none to shelter them.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "He ﷺ used to say it when he went to his bed."
+      },
+      "slp13": {
+        "t": "O Allah, Knower of the unseen and the seen, Originator of the heavens and the earth, Lord and Sovereign of all things, I bear witness that none has the right to be worshipped except You. I take refuge in You from the evil of my soul and from the evil of Satan and his shirk (his call to associate partners with Allah), and from committing evil against myself or bringing it upon a Muslim.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him): Abu Bakr al-Siddiq asked the Prophet ﷺ",
+        "fadl": "“Say it in the morning, in the evening, and when you lie down to sleep.”"
+      },
+      "slp14": {
+        "t": "Recite Surat as-Sajdah (Alif Lam Mim. Tanzil…, chapter 32) and Surat al-Mulk (Tabarak alladhi biyadihi al-mulk, chapter 67).",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "fadl": "“The Prophet ﷺ would not sleep until he had recited Alif Lam Mim Tanzil (as-Sajdah) and Tabarak alladhi biyadihi al-mulk (al-Mulk).”"
+      },
+      "slp15": {
+        "t": "O Allah, I submit my soul to You, I entrust my affair to You, I turn my face to You, and I lean my back on You, in hope of You and in fear of You. There is no refuge and no escape from You except to You. I believe in Your Book which You have revealed and in Your Prophet whom You have sent.",
+        "narr": "Al-Bara' ibn Azib (may Allah be pleased with them both)",
+        "fadl": "“When you go to your bed, perform wudu as you do for prayer, then lie on your right side and say: … If you die that night, you will die upon the fitrah; and make these the last words you say.”"
+      },
+      "slp16": {
+        "t": "None has the right to be worshipped except Allah, the One, the Subduer, Lord of the heavens and the earth and all that is between them, the Almighty, the Oft-Forgiving.",
+        "narr": "Aishah, Mother of the Believers (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ used to say it when he turned over in his sleep at night."
+      },
+      "slp17": {
+        "t": "I seek refuge in the perfect words of Allah from His anger and His punishment, from the evil of His servants, and from the whisperings of the devils and from their coming to me.",
+        "narr": "Abdullah ibn Amr ibn al-As (may Allah be pleased with them both)",
+        "fadl": "“When one of you is frightened in his sleep, let him say: … and it will not harm him.”"
+      },
+      "slp18": {
+        "t": "Spit lightly (blowing with little spittle) to your left three times; seek refuge in Allah from Satan and from the evil of what you saw, three times; do not tell anyone about it; and turn over from the side you were lying on.",
+        "narr": "Abu Qatadah and Jabir ibn Abdullah (may Allah be pleased with them)",
+        "fadl": "“If he sees something he dislikes, let him spit lightly to his left three times, seek refuge in Allah from the evil of Satan and the evil of the dream, and not tell anyone about it; then it will not harm him.”",
+        "note": "These are actions to be done by one who sees something he dislikes in his sleep."
+      },
+      "slp19": {
+        "t": "Get up and pray, if one wishes.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“If one of you sees something he dislikes, let him get up and pray, and not tell people about it.”"
+      },
+      "wak01": {
+        "t": "All praise is for Allah, who gave us life after having caused us to die, and to Him is the resurrection.",
+        "narr": "Hudhayfah ibn al-Yaman and al-Bara' ibn Azib (may Allah be pleased with them)"
+      },
+      "wak02": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent. How perfect Allah is, all praise is for Allah, none has the right to be worshipped except Allah, Allah is the Greatest, and there is no might nor power except with Allah, the Most High, the Most Great. My Lord, forgive me.",
+        "narr": "Ubadah ibn al-Samit (may Allah be pleased with him)",
+        "fadl": "“Whoever wakes up at night and says: … and then says, ‘O Allah, forgive me’, or makes a supplication, he will be answered; and if he performs wudu and prays, his prayer will be accepted.”",
+        "note": "For one who wakes up during the night; the wording is that of Ibn Majah."
+      },
+      "wak03": {
+        "t": "All praise is for Allah, who restored my body to health, returned my soul to me, and permitted me to remember Him.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“When he wakes up, let him say: ‘All praise is for Allah, who restored my body to health, returned my soul to me, and permitted me to remember Him.’”"
+      },
+      "wak04": {
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both)",
+        "note": "When the Prophet ﷺ got up at night, he would look up at the sky and recite these verses from the end of Surat Al Imran."
+      },
+      "aft01": {
+        "t": "I seek Allah's forgiveness.",
+        "narr": "Thawban, the freed servant of the Messenger of Allah ﷺ (may Allah be pleased with him)",
+        "fadl": "“When the Messenger of Allah ﷺ finished his prayer, he would seek forgiveness three times and say: O Allah, You are as-Salam and from You is all peace; blessed are You, O Possessor of majesty and honour.”",
+        "note": "Al-Awza'i explained: one says, 'Astaghfirullah, astaghfirullah'."
+      },
+      "aft02": {
+        "t": "O Allah, You are as-Salam (the One free from every imperfection), and from You is all peace. Blessed are You, O Possessor of majesty and honour.",
+        "narr": "Thawban, the freed servant of the Messenger of Allah ﷺ (may Allah be pleased with him)"
+      },
+      "aft03": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent. O Allah, none can withhold what You give, and none can give what You withhold, and the wealth and status of the wealthy cannot benefit them against You.",
+        "narr": "Al-Mughirah ibn Shu'bah (may Allah be pleased with him)",
+        "fadl": "“The Prophet ﷺ used to say after every obligatory prayer: …”",
+        "note": "Hisn al-Muslim notes the first part (La ilaha illallah … qadir) is said three times."
+      },
+      "aft04": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent. There is no might nor power except with Allah. None has the right to be worshipped except Allah, and we worship none but Him. His is all blessing, His is all bounty, and His is all excellent praise. None has the right to be worshipped except Allah; we make our religion sincerely His, even though the disbelievers dislike it.",
+        "narr": "Abdullah ibn al-Zubayr (may Allah be pleased with them both)",
+        "fadl": "“The Messenger of Allah ﷺ used to proclaim Allah's oneness with these words after every prayer.”"
+      },
+      "aft05": {
+        "t": "How perfect Allah is; all praise is for Allah; Allah is the Greatest.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Whoever glorifies Allah after every prayer thirty-three times, praises Allah thirty-three times and declares His greatness thirty-three times – that is ninety-nine – and completes the hundred by saying: ‘None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise, and He is over all things omnipotent’, his sins will be forgiven even if they are like the foam of the sea.”",
+        "note": "Thirty-three times (the three said together, or each one thirty-three times), then complete the hundred with the following."
+      },
+      "aft06": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise, and He is over all things omnipotent.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "Completes the hundred after the tasbih, tahmid and takbir."
+      },
+      "aft07": {
+        "narr": "Uqbah ibn Amir (may Allah be pleased with him)",
+        "fadl": "“The Messenger of Allah ﷺ commanded me to recite the Mu'awwidhat after every prayer.”",
+        "note": "Once after every prayer, and three times after the Fajr and Maghrib prayers."
+      },
+      "aft08": {
+        "narr": "Abu Umamah al-Bahili (may Allah be pleased with him)",
+        "fadl": "“Whoever recites Ayat al-Kursi after every obligatory prayer, nothing prevents him from entering Paradise except death.”",
+        "note": "Recited after every prayer (al-Nasa'i, 'Amal al-Yawm wal-Laylah)."
+      },
+      "aft09": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner; to Him belongs all sovereignty and praise; He gives life and causes death, and He is over all things omnipotent.",
+        "narr": "Abu Dharr al-Ghifari (may Allah be pleased with him)",
+        "fadl": "“Whoever says after the Fajr prayer, while still sitting as he was and before speaking: … ten times, ten good deeds are recorded for him, ten bad deeds are erased, he is raised ten degrees, he is protected that whole day from every harm and guarded from Satan.”",
+        "note": "Ten times after the Maghrib and Fajr prayers."
+      },
+      "aft10": {
+        "t": "O Allah, I ask You for beneficial knowledge, good provision, and deeds that are accepted.",
+        "narr": "Umm Salamah, Mother of the Believers (may Allah be pleased with her)",
+        "fadl": "“The Prophet ﷺ used to say, after praying Fajr, upon giving the salam: …”",
+        "note": "After the salam of the Fajr prayer."
+      },
+      "aft11": {
+        "t": "How perfect is the King, the Most Holy.",
+        "narr": "Ubayy ibn Ka'b (may Allah be pleased with him)",
+        "fadl": "“When he finished (the Witr), he would say: ‘How perfect is the King, the Most Holy’ three times, lengthening the last of them.”",
+        "note": "Three times, raising and drawing out the voice on the third and adding: “Rabbil-mala'ikati war-ruh” (Lord of the angels and the Spirit) – an addition reported by al-Daraqutni."
+      },
+      "sal01": {
+        "t": "O Allah, put a distance between me and my sins as You have put a distance between the East and the West. O Allah, purify me of my sins as a white garment is purified of dirt. O Allah, wash away my sins with snow, water and hail.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "Said after the opening takbir, before the recitation"
+      },
+      "sal02": {
+        "t": "How perfect You are, O Allah, and with Your praise. Blessed is Your name, exalted is Your majesty, and there is none worthy of worship besides You.",
+        "narr": "Abu Sa'id al-Khudri and Aishah (may Allah be pleased with them)",
+        "note": "Said after the opening takbir, before the recitation"
+      },
+      "sal03": {
+        "t": "I have turned my face towards the One who created the heavens and the earth, as a pure monotheist, and I am not of those who associate partners with Allah. Indeed my prayer, my sacrifice, my life and my death are for Allah, Lord of the worlds; He has no partner. With this I have been commanded, and I am of the Muslims. O Allah, You are the King; none has the right to be worshipped except You. You are my Lord and I am Your servant. I have wronged myself and I acknowledge my sin, so forgive me all my sins, for none forgives sins except You. Guide me to the best of character, for none guides to the best of it except You, and turn away from me its evil, for none turns away its evil from me except You. Here I am at Your service, ready to obey You. All good is in Your hands, and evil is not attributed to You. I exist by You and I return to You. Blessed and Exalted are You. I seek Your forgiveness and I turn to You in repentance.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ would say it when he stood for prayer"
+      },
+      "sal04": {
+        "t": "O Allah, Lord of Jibril, Mika'il and Israfil, Originator of the heavens and the earth, Knower of the unseen and the seen, You judge between Your servants concerning that over which they used to differ. Guide me, by Your permission, to the truth in that over which they differed. Indeed You guide whom You will to a straight path.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ would open his prayer with it when he rose at night"
+      },
+      "sal05": {
+        "t": "Allah is the Most Great, greatly (three times); much praise is for Allah (three times); and glory be to Allah morning and evening (three times). I seek refuge with Allah from the devil: from his arrogance, his poetry and his madness.",
+        "narr": "Jubayr ibn Mut'im (may Allah be pleased with him); its core is in Muslim from Ibn Umar",
+        "fadl": "“I marvelled at it: the gates of heaven were opened for it.” (Muslim, about saying: Allah is the Most Great, greatly; much praise is for Allah; glory be to Allah morning and evening)",
+        "note": "The threefold repetition and the seeking of refuge are from Jubayr ibn Mut'im's hadith in Abu Dawud and Ibn Majah, whose chain has been discussed; the formula said once is established in Sahih Muslim from Ibn Umar"
+      },
+      "sal06": {
+        "t": "O Allah, to You belongs all praise; You are the Light of the heavens and the earth and all that is in them. To You belongs all praise; You are the Sustainer of the heavens and the earth and all that is in them. To You belongs all praise; You are the Lord of the heavens and the earth and all that is in them. To You belongs all praise; Yours is the dominion of the heavens and the earth and all that is in them. To You belongs all praise; You are the King of the heavens and the earth. To You belongs all praise. You are the Truth, Your promise is true, Your word is true, the meeting with You is true, Paradise is true, the Fire is true, the Prophets are true, Muhammad ﷺ is true, and the Hour is true. O Allah, to You I have submitted, in You I have put my trust, in You I have believed, to You I have turned in repentance, by You I argue, and to You I turn for judgement. So forgive me what I have done before and what I will do after, what I have concealed and what I have done openly, and what You know better than I. You are the One who brings forward and the One who puts back; none has the right to be worshipped except You. You are my God; none has the right to be worshipped except You. There is no might nor power except with Allah.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ would say it when he rose for the night prayer (tahajjud); the wordings of the various narrations are combined here"
+      },
+      "sal07": {
+        "t": "How perfect is my Lord, the Most Great.",
+        "narr": "Hudhayfah ibn al-Yaman (may Allah be pleased with him)",
+        "note": "In ruku', three times"
+      },
+      "sal08": {
+        "t": "How perfect You are, O Allah, our Lord, and with Your praise. O Allah, forgive me.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ would often say it in his ruku' and sujud"
+      },
+      "sal09": {
+        "t": "Perfect and Holy is He, Lord of the angels and of the Spirit (Jibril).",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "In ruku' and sujud"
+      },
+      "sal10": {
+        "t": "O Allah, to You I have bowed, in You I have believed, and to You I have submitted. My hearing, my sight, my brain, my bones, my sinews, and all that my feet carry are humbled before You.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "note": "The phrase “and all that my feet carry” is not in Sahih Muslim; it is in a narration in the Musnad of Ahmad"
+      },
+      "sal11": {
+        "t": "How perfect is the Possessor of might, dominion, grandeur and majesty.",
+        "narr": "Awf ibn Malik al-Ashja'i (may Allah be pleased with him)",
+        "note": "In ruku' and sujud"
+      },
+      "sal12": {
+        "t": "Allah hears the one who praises Him.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "Said while rising from ruku'"
+      },
+      "sal13": {
+        "t": "Our Lord, and to You belongs all praise: abundant, good and blessed praise.",
+        "narr": "Rifa'ah ibn Rafi' al-Zuraqi (may Allah be pleased with him)",
+        "fadl": "“I saw over thirty angels racing to be the first to write it down.”",
+        "note": "Said after standing up straight from ruku'"
+      },
+      "sal14": {
+        "t": "Filling the heavens, filling the earth and all that is between them, and filling whatever else You will. O You who are worthy of praise and glory, the truest thing a servant has said, and we are all Your servants: O Allah, none can withhold what You give, none can give what You withhold, and the wealth of the wealthy cannot avail him against You.",
+        "narr": "Abu Sa'id al-Khudri (may Allah be pleased with him)",
+        "note": "Said after “Our Lord, and to You belongs all praise”"
+      },
+      "sal15": {
+        "t": "How perfect is my Lord, the Most High.",
+        "narr": "Hudhayfah ibn al-Yaman (may Allah be pleased with him)",
+        "note": "In sujud, three times"
+      },
+      "sal16": {
+        "t": "How perfect You are, O Allah, our Lord, and with Your praise. O Allah, forgive me.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ would often say it in his ruku' and sujud"
+      },
+      "sal17": {
+        "t": "Perfect and Holy is He, Lord of the angels and of the Spirit (Jibril).",
+        "narr": "Aishah (may Allah be pleased with her)"
+      },
+      "sal18": {
+        "t": "O Allah, to You I have prostrated, in You I have believed, and to You I have submitted. My face has prostrated to the One who created it, fashioned it, and brought forth its hearing and sight. Blessed is Allah, the best of creators.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)"
+      },
+      "sal19": {
+        "t": "How perfect is the Possessor of might, dominion, grandeur and majesty.",
+        "narr": "Awf ibn Malik al-Ashja'i (may Allah be pleased with him)"
+      },
+      "sal20": {
+        "t": "O Allah, forgive me all my sins: the small and the great, the first and the last, the open and the secret.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“The closest a servant is to his Lord is while he is prostrating, so make abundant supplication.” (Muslim 482)"
+      },
+      "sal21": {
+        "t": "O Allah, I seek refuge in Your pleasure from Your anger, and in Your pardon from Your punishment, and I seek refuge in You from You. I cannot count Your praise; You are as You have praised Yourself.",
+        "narr": "Aishah (may Allah be pleased with her)"
+      },
+      "sal22": {
+        "t": "My Lord, forgive me. My Lord, forgive me.",
+        "narr": "Hudhayfah ibn al-Yaman (may Allah be pleased with him)"
+      },
+      "sal23": {
+        "t": "O Allah, forgive me, have mercy on me, guide me, mend my affairs, grant me well-being, provide for me, and raise my rank.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with him)",
+        "note": "The wordings of Abu Dawud, al-Tirmidhi and Ibn Majah are combined here"
+      },
+      "sal24": {
+        "t": "My face has prostrated to the One who created it and brought forth its hearing and sight by His might and power. So blessed is Allah, the best of creators.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ would say it in the prostration of recitation at night. The phrase “So blessed is Allah, the best of creators” is an addition in al-Hakim, who graded it sahih, and al-Dhahabi agreed"
+      },
+      "sal25": {
+        "t": "O Allah, record for me a reward with You for it, remove from me a sin by it, store it for me with You as a treasure, and accept it from me as You accepted it from Your servant Dawud.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with him)"
+      },
+      "sal26": {
+        "t": "All greetings are for Allah, and all prayers and all good things. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah. I bear witness that none has the right to be worshipped except Allah, and I bear witness that Muhammad is His servant and Messenger.",
+        "narr": "Abdullah ibn Mas'ud (may Allah be pleased with him)"
+      },
+      "sal27": {
+        "t": "O Allah, send prayers upon Muhammad and upon the family of Muhammad, as You sent prayers upon Ibrahim and upon the family of Ibrahim; You are indeed Praiseworthy, Glorious. O Allah, send blessings upon Muhammad and upon the family of Muhammad, as You sent blessings upon Ibrahim and upon the family of Ibrahim; You are indeed Praiseworthy, Glorious.",
+        "narr": "Ka'b ibn 'Ujrah (may Allah be pleased with him)",
+        "note": "This is al-Bukhari's wording"
+      },
+      "sal28": {
+        "t": "O Allah, send prayers upon Muhammad and upon his wives and his offspring, as You sent prayers upon the family of Ibrahim; and send blessings upon Muhammad and upon his wives and his offspring, as You sent blessings upon the family of Ibrahim. You are indeed Praiseworthy, Glorious.",
+        "narr": "Abu Humayd al-Sa'idi (may Allah be pleased with him)"
+      },
+      "sal29": {
+        "t": "O Allah, I seek refuge in You from the punishment of the grave, from the punishment of Hell, from the trials of life and death, and from the evil of the trial of the False Messiah (al-Dajjal).",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“When one of you finishes the final tashahhud, let him seek refuge with Allah from four things.” (Muslim)"
+      },
+      "sal30": {
+        "t": "O Allah, I seek refuge in You from the punishment of the grave, I seek refuge in You from the trial of the False Messiah, and I seek refuge in You from the trials of life and death. O Allah, I seek refuge in You from sin and from debt.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ would supplicate with it in the prayer"
+      },
+      "sal31": {
+        "t": "O Allah, I have wronged myself greatly, and none forgives sins except You, so grant me forgiveness from Yourself and have mercy on me. You are indeed the Most Forgiving, the Most Merciful.",
+        "narr": "Abu Bakr al-Siddiq (may Allah be pleased with him)",
+        "fadl": "Abu Bakr said to the Prophet ﷺ: “Teach me a supplication to say in my prayer.” He said: “Say: …”"
+      },
+      "sal32": {
+        "t": "O Allah, forgive me what I have done before and what I will do after, what I have concealed and what I have done openly, what I have done in excess, and what You know better than I. You are the One who brings forward and the One who puts back; none has the right to be worshipped except You.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "note": "It was among the last things the Prophet ﷺ would say between the tashahhud and the taslim"
+      },
+      "sal33": {
+        "t": "O Allah, help me to remember You, to thank You, and to worship You well.",
+        "narr": "Mu'adh ibn Jabal (may Allah be pleased with him)",
+        "fadl": "“O Mu'adh, by Allah I love you… Do not fail to say at the end of every prayer: …”"
+      },
+      "sal34": {
+        "t": "O Allah, I seek refuge in You from miserliness, I seek refuge in You from cowardice, I seek refuge in You from being returned to the most decrepit old age, and I seek refuge in You from the trials of this world and the punishment of the grave.",
+        "narr": "Sa'd ibn Abi Waqqas (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ would seek refuge with these at the end of the prayer"
+      },
+      "sal35": {
+        "t": "O Allah, I ask You for Paradise and I seek refuge in You from the Fire.",
+        "narr": "A man from the Companions of the Prophet ﷺ; Ibn Majah narrates it from Abu Hurayrah",
+        "fadl": "The man said: “I cannot murmur as you do nor as Mu'adh does.” The Prophet ﷺ said: “It is around this that we murmur.”"
+      },
+      "sal36": {
+        "t": "O Allah, by Your knowledge of the unseen and Your power over creation, keep me alive as long as You know life is good for me, and take me when You know death is good for me. O Allah, I ask You for fear of You in private and in public, for a word of truth in contentment and in anger, and for moderation in wealth and in poverty. I ask You for bliss that never ends and for a delight of the eye that never ceases. I ask You for contentment after Your decree, for a pleasant life after death, and for the delight of looking at Your Face and longing to meet You, without harmful adversity or misleading trial. O Allah, adorn us with the adornment of faith and make us guides who are rightly guided.",
+        "narr": "Ammar ibn Yasir (may Allah be pleased with him)"
+      },
+      "sal37": {
+        "t": "O Allah, I ask You, O Allah, as You are the One, the Unique, the Self-Sufficient, who neither begets nor was begotten, and to whom no one is equal, to forgive me my sins. You are indeed the Most Forgiving, the Most Merciful.",
+        "narr": "Mihjan ibn al-Adra' (may Allah be pleased with him)",
+        "fadl": "“He has been forgiven, he has been forgiven” (three times)",
+        "note": "The Prophet ﷺ heard a man saying it in his tashahhud"
+      },
+      "sal38": {
+        "t": "O Allah, I ask You, as all praise is Yours; none has the right to be worshipped except You alone, without partner, the Bestower of favours. O Originator of the heavens and the earth, O Possessor of majesty and honour, O Ever-Living, O Sustainer of all, I ask You for Paradise and I seek refuge in You from the Fire.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "fadl": "“He has called upon Allah by His Greatest Name, by which, when He is called, He answers, and when He is asked, He gives.”"
+      },
+      "sal39": {
+        "t": "O Allah, I ask You, as I bear witness that You are Allah; none has the right to be worshipped except You, the One, the Self-Sufficient, who neither begets nor was begotten, and to whom no one is equal.",
+        "narr": "Buraydah ibn al-Husayb (may Allah be pleased with him)",
+        "fadl": "“You have asked Allah by the Name by which, when He is asked, He gives, and when He is called, He answers.”"
+      },
+      "adh01": {
+        "t": "There is no might nor power except with Allah.",
+        "narr": "Abu Sa'id al-Khudri and Umar ibn al-Khattab (may Allah be pleased with them)",
+        "fadl": "“… from his heart, he will enter Paradise.” (Muslim, about the one who answers the mu'adhdhin)",
+        "note": "Repeat what the mu'adhdhin says, except at “Hayya 'ala al-salah” and “Hayya 'ala al-falah”, where you say: There is no might nor power except with Allah"
+      },
+      "adh02": {
+        "t": "And I too bear witness that none has the right to be worshipped except Allah alone, without partner, and that Muhammad is His servant and Messenger. I am pleased with Allah as Lord, with Muhammad as Messenger, and with Islam as religion.",
+        "narr": "Sa'd ibn Abi Waqqas (may Allah be pleased with him)",
+        "fadl": "“… his sins will be forgiven.”",
+        "note": "Said right after the mu'adhdhin's testimony of faith"
+      },
+      "adh03": {
+        "t": "O Allah, send prayers upon Muhammad and upon the family of Muhammad, as You sent prayers upon Ibrahim and upon the family of Ibrahim; You are indeed Praiseworthy, Glorious. O Allah, send blessings upon Muhammad and upon the family of Muhammad, as You sent blessings upon Ibrahim and upon the family of Ibrahim; You are indeed Praiseworthy, Glorious.",
+        "narr": "Abdullah ibn Amr ibn al-As (may Allah be pleased with him)",
+        "fadl": "“When you hear the mu'adhdhin, say what he says, then send prayers upon me, for whoever sends one prayer upon me, Allah sends ten upon him.”",
+        "note": "Send prayers upon the Prophet ﷺ after finishing answering the mu'adhdhin; the most complete form is the Ibrahimi prayer"
+      },
+      "adh04": {
+        "t": "O Allah, Lord of this perfect call and of the prayer about to be established, grant Muhammad al-wasilah (a station in Paradise) and al-fadilah (a rank above all creation), and raise him to the praised station that You have promised him.",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with him)",
+        "fadl": "“Whoever says, upon hearing the call: … my intercession will be his on the Day of Resurrection.”",
+        "note": "Al-Bayhaqi adds at the end: “Indeed You do not break Your promise”; Ibn Baz graded its chain hasan, while al-Albani considered it an irregular (shadh) addition"
+      },
+      "adh05": {
+        "t": "Supplication made between the adhan and the iqamah is not rejected.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "This is not a specific formula but an encouragement to supplicate for yourself, for whatever you wish, between the adhan and the iqamah"
+      },
+      "msj01": {
+        "t": "O Allah, place light in my heart, light on my tongue, light in my hearing, and light in my sight; place light above me, light below me, light on my right, light on my left, light in front of me, and light behind me; place light in my soul; magnify light for me, increase light for me, grant me light and make me light. O Allah, give me light, and place light in my sinews, light in my flesh, light in my blood, light in my hair, and light in my skin.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with him)",
+        "note": "In Muslim's narration the Prophet ﷺ went out to the Fajr prayer saying it. Other narrations add, as cited in Hisn al-Muslim: “O Allah, place light for me in my grave… and light in my bones”, “and increase me in light” (three times), and “grant me light upon light”"
+      },
+      "msj02": {
+        "t": "I seek refuge with Allah the Almighty, with His Noble Face and His eternal authority, from the accursed devil.",
+        "narr": "Abdullah ibn Amr ibn al-As (may Allah be pleased with him)",
+        "fadl": "“When he says that, the devil says: He has been protected from me for the rest of the day.”",
+        "note": "Enter the mosque with the right foot"
+      },
+      "msj03": {
+        "t": "In the name of Allah, and prayers and peace be upon the Messenger of Allah. O Allah, open for me the gates of Your mercy.",
+        "narr": "Abu Humayd al-Sa'idi or Abu Usayd (may Allah be pleased with them)",
+        "note": "“O Allah, open for me the gates of Your mercy” is in Sahih Muslim; the instruction to send peace upon the Prophet ﷺ before it is in Abu Dawud, and the basmalah is in Ibn al-Sunni"
+      },
+      "msj04": {
+        "t": "In the name of Allah, and prayers and peace be upon the Messenger of Allah. O Allah, I ask You of Your bounty. O Allah, protect me from the accursed devil.",
+        "narr": "Abu Humayd al-Sa'idi or Abu Usayd, and Abu Hurayrah (may Allah be pleased with them)",
+        "note": "Leave with the left foot. The phrase “O Allah, protect me from the accursed devil” is in Ibn Majah"
+      },
+      "qdu01": {
+        "t": "Our Lord, accept [this] from us. Indeed, You are the Hearing, the Knowing. Our Lord, and make us Muslims [in submission] to You and from our descendants a Muslim nation [in submission] to You. And show us our rites and accept our repentance. Indeed, You are the Accepting of repentance, the Merciful.",
+        "note": "Supplication of Ibrahim and Isma'il (peace be upon them)"
+      },
+      "qdu02": {
+        "t": "Our Lord, give us in this world [that which is] good and in the Hereafter [that which is] good and protect us from the punishment of the Fire.",
+        "note": "Supplication of the believers; it was the supplication the Prophet ﷺ made most often"
+      },
+      "qdu03": {
+        "t": "Our Lord, pour upon us patience and plant firmly our feet and give us victory over the disbelieving people.",
+        "note": "Supplication of the believers in Talut's army when facing Jalut"
+      },
+      "qdu04": {
+        "t": "Our Lord, do not impose blame upon us if we have forgotten or erred. Our Lord, and lay not upon us a burden like that which You laid upon those before us. Our Lord, and burden us not with that which we have no ability to bear. And pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people.",
+        "note": "Supplication of the believers at the end of Surat al-Baqarah"
+      },
+      "qdu05": {
+        "t": "Our Lord, let not our hearts deviate after You have guided us and grant us from Yourself mercy. Indeed, You are the Bestower.",
+        "note": "Supplication of those firm in knowledge"
+      },
+      "qdu06": {
+        "t": "Our Lord, indeed we have believed, so forgive us our sins and protect us from the punishment of the Fire.",
+        "note": "Supplication of the righteous"
+      },
+      "qdu07": {
+        "t": "Our Lord, we have believed in what You revealed and have followed the messenger, so register us among the witnesses [to truth].",
+        "note": "Supplication of the disciples, the helpers of 'Isa (peace be upon him)"
+      },
+      "qdu08": {
+        "t": "Our Lord, forgive us our sins and the excess [committed] in our affairs and plant firmly our feet and give us victory over the disbelieving people.",
+        "note": "Supplication of the godly people who fought alongside the prophets"
+      },
+      "qdu09": {
+        "t": "Our Lord, You did not create this aimlessly; exalted are You [above such a thing]; then protect us from the punishment of the Fire. Our Lord, indeed whoever You admit to the Fire — You have disgraced him, and for the wrongdoers there are no helpers. Our Lord, indeed we have heard a caller calling to faith, [saying], ‘Believe in your Lord,’ and we have believed. Our Lord, so forgive us our sins and remove from us our misdeeds and cause us to die with the righteous. Our Lord, and grant us what You promised us through Your messengers and do not disgrace us on the Day of Resurrection. Indeed, You do not fail in [Your] promise.",
+        "note": "Supplication of the people of understanding who reflect on the creation of the heavens and the earth"
+      },
+      "qdu10": {
+        "t": "Our Lord, we have wronged ourselves, and if You do not forgive us and have mercy upon us, we will surely be among the losers.",
+        "note": "Supplication of Adam and Hawwa' (peace be upon them)"
+      },
+      "qdu11": {
+        "t": "Our Lord, pour upon us patience and let us die as Muslims [in submission to You].",
+        "note": "Supplication of Pharaoh's magicians after they believed"
+      },
+      "qdu12": {
+        "t": "Our Lord, make us not [objects of] trial for the wrongdoing people. And save us by Your mercy from the disbelieving people.",
+        "note": "Supplication of the people of Musa (peace be upon him)"
+      },
+      "qdu13": {
+        "t": "My Lord, make me an establisher of prayer, and [many] from my descendants. Our Lord, and accept my supplication. Our Lord, forgive me and my parents and the believers the Day the account is established.",
+        "note": "Supplication of Ibrahim (peace be upon him)"
+      },
+      "qdu14": {
+        "t": "My Lord, have mercy upon them as they brought me up [when I was] small.",
+        "note": "Supplication for parents which Allah commands children to make"
+      },
+      "qdu15": {
+        "t": "My Lord, cause me to enter a sound entrance and to exit a sound exit and grant me from Yourself a supporting authority.",
+        "note": "A supplication Allah commanded His Prophet ﷺ to make"
+      },
+      "qdu16": {
+        "t": "Our Lord, grant us from Yourself mercy and prepare for us from our affair right guidance.",
+        "note": "Supplication of the People of the Cave"
+      },
+      "qdu17": {
+        "t": "My Lord, expand for me my breast [with assurance] and ease for me my task and untie the knot from my tongue that they may understand my speech.",
+        "note": "Supplication of Musa (peace be upon him)"
+      },
+      "qdu18": {
+        "t": "My Lord, increase me in knowledge.",
+        "note": "A supplication Allah taught His Prophet ﷺ"
+      },
+      "qdu19": {
+        "t": "Indeed, adversity has touched me, and You are the Most Merciful of the merciful.",
+        "note": "Supplication of Ayyub (peace be upon him)"
+      },
+      "qdu20": {
+        "t": "There is no deity except You; exalted are You. Indeed, I have been of the wrongdoers.",
+        "note": "Supplication of Yunus (Dhu al-Nun, peace be upon him) in the belly of the whale"
+      },
+      "qdu21": {
+        "t": "My Lord, I seek refuge in You from the incitements of the devils, and I seek refuge in You, my Lord, lest they be present with me.",
+        "note": "Seeking refuge which Allah commanded His Prophet ﷺ to say"
+      },
+      "qdu22": {
+        "t": "Our Lord, we have believed, so forgive us and have mercy upon us, and You are the best of the merciful.",
+        "note": "Supplication of a party of Allah's believing servants"
+      },
+      "qdu23": {
+        "t": "My Lord, forgive and have mercy, and You are the best of the merciful.",
+        "note": "A supplication Allah commanded His Prophet ﷺ to make"
+      },
+      "qdu24": {
+        "t": "Our Lord, avert from us the punishment of Hell. Indeed, its punishment is ever adhering; indeed, it is evil as a settlement and residence.",
+        "note": "Supplication of the servants of the Most Merciful"
+      },
+      "qdu25": {
+        "t": "Our Lord, grant us from among our wives and offspring comfort to our eyes and make us a leader for the righteous.",
+        "note": "Supplication of the servants of the Most Merciful"
+      },
+      "qdu26": {
+        "t": "My Lord, enable me to be grateful for Your favor which You have bestowed upon me and upon my parents and to do righteousness of which You approve. And admit me by Your mercy into [the ranks of] Your righteous servants.",
+        "note": "Supplication of Sulayman (peace be upon him)"
+      },
+      "qdu27": {
+        "t": "My Lord, indeed I am, for whatever good You would send down to me, in need.",
+        "note": "Supplication of Musa (peace be upon him) in Madyan"
+      },
+      "qdu28": {
+        "t": "Our Lord, You have encompassed all things in mercy and knowledge, so forgive those who have repented and followed Your way and protect them from the punishment of Hellfire. Our Lord, and admit them to gardens of perpetual residence which You have promised them and whoever was righteous among their fathers, their spouses and their offspring. Indeed, it is You who is the Exalted in Might, the Wise. And protect them from the evil consequences [of their deeds]. And he whom You protect from evil consequences that Day — You will have given him mercy. And that is the great attainment.",
+        "note": "Supplication of the angels who bear the Throne, for the believers"
+      },
+      "qdu29": {
+        "t": "My Lord, enable me to be grateful for Your favor which You have bestowed upon me and upon my parents and to work righteousness of which You will approve and make righteous for me my offspring. Indeed, I have repented to You, and indeed, I am of the Muslims.",
+        "note": "Supplication of the believer when he reaches maturity and forty years"
+      },
+      "qdu30": {
+        "t": "Our Lord, forgive us and our brothers who preceded us in faith and put not in our hearts [any] resentment toward those who have believed. Our Lord, indeed You are Kind and Merciful.",
+        "note": "Supplication of those who came after the Muhajirun and the Ansar"
+      },
+      "qdu31": {
+        "t": "Our Lord, upon You we have relied, and to You we have returned, and to You is the destination. Our Lord, make us not [objects of] torment for the disbelievers and forgive us, our Lord. Indeed, it is You who is the Exalted in Might, the Wise.",
+        "note": "Supplication of Ibrahim (peace be upon him) and those with him"
+      },
+      "qdu32": {
+        "t": "Our Lord, perfect for us our light and forgive us. Indeed, You are over all things competent.",
+        "note": "Supplication of the believers on the Day of Resurrection"
+      },
+      "qdu33": {
+        "t": "My Lord, forgive me and my parents and whoever enters my house a believer and the believing men and believing women. And do not increase the wrongdoers except in destruction.",
+        "note": "Supplication of Nuh (peace be upon him)"
+      },
+      "stg01": {
+        "t": "I seek Allah's forgiveness and I turn to Him in repentance.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“By Allah, I seek Allah's forgiveness and turn to Him in repentance more than seventy times a day.”",
+        "note": "The Prophet ﷺ said it more than seventy times a day"
+      },
+      "stg02": {
+        "t": "I seek Allah's forgiveness.",
+        "narr": "Al-Agharr al-Muzani (may Allah be pleased with him)",
+        "fadl": "“My heart becomes clouded, and I seek Allah's forgiveness a hundred times a day.” In another narration: “O people, repent to Allah, for I repent to Him a hundred times a day.”",
+        "note": "“Clouded”: Ibn al-Athir said it refers to moments of distraction from his constant remembrance, which he ﷺ counted against himself and so hastened to seek forgiveness"
+      },
+      "stg03": {
+        "t": "I seek the forgiveness of Allah the Mighty, besides whom none has the right to be worshipped except Him, the Ever-Living, the Self-Subsisting, and I turn to Him in repentance.",
+        "narr": "Zayd, the freed slave of the Messenger of Allah ﷺ (may Allah be pleased with him)",
+        "fadl": "“Whoever says: I seek the forgiveness of Allah the Mighty, besides whom none has the right to be worshipped except Him, the Ever-Living, the Self-Subsisting, and I turn to Him in repentance — he will be forgiven even if he had fled from the battlefield.”",
+        "note": "The word “the Mighty” is in al-Tirmidhi's narration, not in Abu Dawud's"
+      },
+      "stg04": {
+        "t": "The closest that the Lord comes to His servant is in the last part of the night, so if you are able to be among those who remember Allah at that hour, then do so.",
+        "narr": "'Amr ibn 'Abasah (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of remembrance and seeking forgiveness in the last part of the night — read it to act upon it"
+      },
+      "stg05": {
+        "t": "The closest a servant is to his Lord is while he is prostrating, so supplicate much [in it].",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of supplicating in prostration — read it to act upon it"
+      },
+      "stg06": {
+        "t": "There is no servant who commits a sin, then purifies himself well, then stands and prays two rak'ahs, then seeks Allah's forgiveness, except that Allah forgives him.",
+        "narr": "Abu Bakr al-Siddiq (may Allah be pleased with him)",
+        "note": "What to do after a sin: perform ablution, pray two rak'ahs, then seek Allah's forgiveness. The Prophet ﷺ then recited: “And those who, when they commit an immorality or wrong themselves, remember Allah and seek forgiveness for their sins” (3:135)"
+      },
+      "tsb01": {
+        "t": "Glory be to Allah and praise be to Him.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Whoever says ‘Glory be to Allah and praise be to Him’ a hundred times in a day, his sins will be wiped away even if they are like the foam of the sea.”"
+      },
+      "tsb02": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs the dominion and to Him belongs all praise, and He is over all things competent.",
+        "narr": "Abu Ayyub al-Ansari (may Allah be pleased with him)",
+        "fadl": "“Whoever says: None has the right to be worshipped except Allah, alone, without partner; to Him belongs the dominion and all praise, and He is over all things competent — ten times, it is as if he freed four souls from the descendants of Isma'il.”",
+        "note": "The wording is Muslim's"
+      },
+      "tsb03": {
+        "t": "Glory be to Allah and praise be to Him; glory be to Allah the Magnificent.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Two words are light on the tongue, heavy on the Scale, and beloved to the Most Merciful: Glory be to Allah and praise be to Him; glory be to Allah the Magnificent.”"
+      },
+      "tsb04": {
+        "t": "Glory be to Allah, all praise is for Allah, none has the right to be worshipped except Allah, and Allah is the Greatest.",
+        "narr": "Abu Hurayrah and Samurah ibn Jundub (may Allah be pleased with them)",
+        "fadl": "“That I say: Glory be to Allah, all praise is for Allah, none has the right to be worshipped except Allah, and Allah is the Greatest — is more beloved to me than all that the sun rises upon.” And he ﷺ said: “The most beloved words to Allah are four: Glory be to Allah, all praise is for Allah, none has the right to be worshipped except Allah, and Allah is the Greatest. It does not matter which of them you begin with.”"
+      },
+      "tsb05": {
+        "t": "Glory be to Allah.",
+        "narr": "Sa'd ibn Abi Waqqas (may Allah be pleased with him)",
+        "fadl": "“Is any of you unable to earn a thousand good deeds each day?” One of those sitting with him asked: How can one of us earn a thousand good deeds? He said: “He glorifies Allah a hundred times, and a thousand good deeds are recorded for him, or a thousand sins are wiped away from him.”"
+      },
+      "tsb06": {
+        "t": "Glory be to Allah the Magnificent, and praise be to Him.",
+        "narr": "Jabir ibn 'Abdullah (may Allah be pleased with them both)",
+        "fadl": "“Whoever says ‘Glory be to Allah the Magnificent, and praise be to Him,’ a palm tree is planted for him in Paradise.”"
+      },
+      "tsb07": {
+        "t": "There is no might and no power except with Allah.",
+        "narr": "Abu Musa al-Ash'ari ('Abdullah ibn Qays) (may Allah be pleased with him)",
+        "fadl": "“O 'Abdullah ibn Qays, shall I not direct you to a treasure from the treasures of Paradise?” I said: Yes, O Messenger of Allah. He said: “Say: There is no might and no power except with Allah.”",
+        "note": "The wording is Muslim's"
+      },
+      "tsb08": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. Allah is the Greatest, greatly; much praise is for Allah; glory be to Allah, Lord of the worlds; there is no might and no power except with Allah, the Almighty, the Wise. O Allah, forgive me, have mercy on me, guide me and provide for me.",
+        "narr": "Sa'd ibn Abi Waqqas (may Allah be pleased with him)",
+        "fadl": "A Bedouin came to the Messenger of Allah ﷺ and said: Teach me words to say … He said: These are for my Lord, so what is for me? He said: “Say: O Allah, forgive me, have mercy on me, guide me and provide for me.”"
+      },
+      "tsb09": {
+        "t": "O Allah, forgive me, have mercy on me, guide me, grant me well-being and provide for me.",
+        "narr": "Tariq ibn Ashyam al-Ashja'i (may Allah be pleased with him)",
+        "fadl": "When a man accepted Islam, the Prophet ﷺ would teach him the prayer, then instruct him to supplicate with these words. In another narration: “For these gather for you [the good of] your worldly life and your Hereafter.”"
+      },
+      "tsb10": {
+        "t": "None has the right to be worshipped except Allah.",
+        "narr": "Jabir ibn 'Abdullah (may Allah be pleased with them both)",
+        "fadl": "“The best supplication is: All praise is for Allah, and the best remembrance is: None has the right to be worshipped except Allah.”",
+        "note": "The best form of remembrance"
+      },
+      "tsb11": {
+        "t": "All praise is for Allah.",
+        "narr": "Jabir ibn 'Abdullah (may Allah be pleased with them both)",
+        "fadl": "“The best supplication is: All praise is for Allah, and the best remembrance is: None has the right to be worshipped except Allah.”",
+        "note": "The best supplication"
+      },
+      "tsb12": {
+        "t": "Glory be to Allah, all praise is for Allah, none has the right to be worshipped except Allah, Allah is the Greatest, and there is no might and no power except with Allah.",
+        "narr": "'Uthman ibn 'Affan and Abu Sa'id al-Khudri (may Allah be pleased with them)",
+        "note": "These are “the enduring good deeds” mentioned in: “But the enduring good deeds are better to your Lord for reward” (18:46). Ahmad (513) from 'Uthman; Abu Sa'id's narration was authenticated by Ibn Hibban and al-Hakim, as Ibn Hajar noted in Bulugh al-Maram"
+      },
+      "tsb13": {
+        "t": "I saw the Prophet ﷺ counting the tasbih [on his fingers] — and in an additional narration: with his right hand.",
+        "narr": "'Abdullah ibn 'Amr (may Allah be pleased with them both)",
+        "note": "How the Prophet ﷺ glorified Allah: he counted his tasbih on the fingers of his right hand"
+      },
+      "tsb14": {
+        "t": "O Allah, send prayers upon Muhammad and upon the family of Muhammad, as You sent prayers upon Ibrahim and upon the family of Ibrahim; indeed You are Praiseworthy, Glorious. O Allah, send blessings upon Muhammad and upon the family of Muhammad, as You sent blessings upon Ibrahim and upon the family of Ibrahim; indeed You are Praiseworthy, Glorious.",
+        "narr": "Ka'b ibn 'Ujrah (may Allah be pleased with him)",
+        "fadl": "They said: O Messenger of Allah, we have learned how to send greetings of peace upon you, so how do we send prayers upon you? He said: “Say: …”",
+        "note": "The Ibrahimi salawat, said in the tashahhud and at other times"
+      },
+      "tsb15": {
+        "t": "O Allah, send prayers upon Muhammad and upon his wives and his descendants, as You sent prayers upon the family of Ibrahim; and send blessings upon Muhammad and upon his wives and his descendants, as You sent blessings upon the family of Ibrahim; indeed You are Praiseworthy, Glorious.",
+        "narr": "Abu Humayd al-Sa'idi (may Allah be pleased with him)",
+        "note": "The wording is Muslim's"
+      },
+      "tsb16": {
+        "t": "Whoever sends one prayer upon me, Allah sends ten prayers upon him for it.",
+        "narr": "'Abdullah ibn 'Amr (may Allah be pleased with them both)",
+        "note": "A hadith on the virtue of sending prayers upon the Prophet ﷺ — read it to act upon it"
+      },
+      "tsb17": {
+        "t": "Do not make my grave a place of festivity, and send prayers upon me, for your prayers reach me wherever you are.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of sending prayers upon the Prophet ﷺ — read it to act upon it"
+      },
+      "tsb18": {
+        "t": "The miser is the one in whose presence I am mentioned and he does not send prayers upon me.",
+        "narr": "'Ali ibn Abi Talib (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of sending prayers upon the Prophet ﷺ — read it to act upon it"
+      },
+      "tsb19": {
+        "t": "Allah has angels who roam the earth and convey to me the greetings of peace from my Ummah.",
+        "narr": "'Abdullah ibn Mas'ud (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of sending prayers upon the Prophet ﷺ — read it to act upon it"
+      },
+      "tsb20": {
+        "t": "There is no one who sends greetings of peace upon me except that Allah returns my soul to me so that I may return his greeting.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of sending prayers upon the Prophet ﷺ — read it to act upon it"
+      },
+      "ram01": {
+        "t": "Allah is the Most Great. O Allah, bring it over us with security and faith, with safety and Islam, and with success in what You love and are pleased with, our Lord. Our Lord and your Lord is Allah.",
+        "narr": "Talhah ibn Ubaydullah and Abdullah ibn Umar (may Allah be pleased with them)",
+        "note": "On sighting the new crescent. This is al-Darimi's wording from Ibn Umar; al-Tirmidhi's wording from Talhah is: “O Allah, bring it over us with blessing and faith, with safety and Islam. My Lord and your Lord is Allah.”"
+      },
+      "ram02": {
+        "t": "The thirst has gone, the veins are moistened, and the reward is confirmed, if Allah wills.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ would say it when he broke his fast. As for “O Allah, for You I fasted and with Your provision I break my fast”, Abu Dawud (2358) narrates it as a mursal report from Mu'adh ibn Zuhrah, and it is weak"
+      },
+      "ram03": {
+        "t": "O Allah, I ask You by Your mercy which encompasses all things to forgive me.",
+        "narr": "Abdullah ibn Amr ibn al-As (may Allah be pleased with him)",
+        "fadl": "“The fasting person, when breaking the fast, has a supplication that is not rejected.”",
+        "note": "Abdullah ibn Amr used to say this when breaking his fast (his own practice). Ibn Hajar graded it hasan in Takhrij al-Adhkar, while al-Albani graded it weak (Irwa' al-Ghalil 921). The hadith “Three people's supplications are not rejected: the fasting person until he breaks his fast…” is narrated by al-Tirmidhi (3598), who graded it hasan, and Ibn Majah (1752); its chain contains Abu Mudillah, who is little known. Al-Albani graded sahih the wording: “Three supplications are not rejected: the supplication of a parent, of the fasting person and of the traveller” (al-Bayhaqi; al-Silsilah al-Sahihah)"
+      },
+      "ram04": {
+        "t": "May fasting people break their fast with you, may the righteous eat your food, and may the angels send prayers upon you.",
+        "narr": "Anas ibn Malik and Abdullah ibn al-Zubayr (may Allah be pleased with them)",
+        "note": "A supplication for the household with whom you broke your fast"
+      },
+      "ram05": {
+        "t": "When one of you is invited, let him accept. If he is fasting, let him supplicate (for them), and if he is not fasting, let him eat.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "This is guidance rather than a formula to recite: “let him pray” means let him supplicate for the hosts for blessing and forgiveness"
+      },
+      "ram06": {
+        "t": "I am fasting, I am fasting.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Fasting is a shield, so let him not speak obscenely nor act ignorantly. If someone fights him or insults him, let him say: I am fasting — twice.”",
+        "note": "When someone insults or fights you while you are fasting"
+      },
+      "ram07": {
+        "t": "O Allah, You are Pardoning and You love to pardon, so pardon me.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "fadl": "She said: “O Messenger of Allah, if I know which night is Laylat al-Qadr, what should I say in it?” He said: “Say: …”",
+        "note": "Say it often in the last ten nights of Ramadan. The word “Karim” after “'Afuww” is not in the reliable narrations, so it is not added"
+      },
+      "krb01": {
+        "t": "O Allah, I am Your servant, son of Your servant, son of Your maidservant. My forelock is in Your hand, Your judgement upon me is ever executed, and Your decree upon me is just. I ask You by every name that is Yours, with which You have named Yourself, or revealed in Your Book, or taught to any of Your creation, or kept to Yourself in the knowledge of the unseen with You, that You make the Quran the spring of my heart, the light of my chest, the removal of my sorrow and the departure of my worry.",
+        "narr": "Abdullah ibn Mas'ud (may Allah be pleased with him)",
+        "fadl": "“No one is ever afflicted by worry or grief and says (this) except that Allah removes his worry and grief and replaces it with relief.”"
+      },
+      "krb02": {
+        "t": "O Allah, I seek refuge in You from worry and grief, from incapacity and laziness, from miserliness and cowardice, and from the burden of debt and being overpowered by men.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ used to say it often. The author also lists it under supplications for settling a debt"
+      },
+      "krb03": {
+        "t": "None has the right to be worshipped except Allah, the Magnificent, the Forbearing. None has the right to be worshipped except Allah, Lord of the Magnificent Throne. None has the right to be worshipped except Allah, Lord of the heavens, Lord of the earth, and Lord of the Noble Throne.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both)",
+        "note": "The Prophet ﷺ used to say it in times of distress"
+      },
+      "krb04": {
+        "t": "O Allah, it is Your mercy that I hope for, so do not leave me to myself even for the blink of an eye, and set right all my affairs. None has the right to be worshipped except You.",
+        "narr": "Abu Bakrah Nufay‘ ibn al-Harith (may Allah be pleased with him)",
+        "fadl": "“The supplications of the one in distress are: ‘O Allah, it is Your mercy that I hope for…’”"
+      },
+      "krb05": {
+        "t": "None has the right to be worshipped except You. How perfect You are; verily I have been among the wrongdoers.",
+        "narr": "Sa‘d ibn Abi Waqqas (may Allah be pleased with him)",
+        "fadl": "“The supplication of Dhun-Nun (Yunus) when he called out from the belly of the whale: ‘None has the right to be worshipped except You; how perfect You are, verily I have been among the wrongdoers.’ No Muslim ever supplicates with it for anything except that Allah answers him.”"
+      },
+      "krb06": {
+        "t": "Allah, Allah is my Lord; I do not associate anything with Him.",
+        "narr": "Asma’ bint ‘Umays (may Allah be pleased with her)",
+        "fadl": "“Shall I not teach you words to say at a time of distress: ‘Allah, Allah is my Lord; I do not associate anything with Him’?”"
+      },
+      "krb07": {
+        "t": "O Allah, we place You before them (to repel them), and we seek refuge in You from their evil.",
+        "narr": "Abu Musa al-Ash‘ari (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ said it when he feared a people"
+      },
+      "krb08": {
+        "t": "O Allah, You are my support and You are my helper. By You I move, by You I attack, and by You I fight.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ said it when going out to battle"
+      },
+      "krb09": {
+        "t": "Allah is sufficient for us, and He is the best Disposer of affairs.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both)",
+        "fadl": "“‘Allah is sufficient for us, and He is the best Disposer of affairs’ — Ibrahim (peace be upon him) said it when he was thrown into the fire, and Muhammad ﷺ said it when they said: ‘The people have gathered against you, so fear them.’”"
+      },
+      "krb10": {
+        "t": "O Allah, Lord of the seven heavens and Lord of the Magnificent Throne, be my protector against so-and-so son of so-and-so and his allies among Your creation, lest any of them should hasten to harm me or transgress against me. Mighty is the one under Your protection, glorious is Your praise, and none has the right to be worshipped except You.",
+        "narr": "Abdullah ibn Mas'ud (may Allah be pleased with him), as his own statement (mawquf)",
+        "note": "Said by one who fears the oppression of a ruler; mention the person’s name in place of “so-and-so son of so-and-so”"
+      },
+      "krb11": {
+        "t": "Allah is the greatest. Allah is mightier than all His creation. Allah is mightier than what I fear and dread. I seek refuge in Allah, besides Whom none has the right to be worshipped, Who holds the seven heavens from falling upon the earth except by His permission, from the evil of Your servant so-and-so, and his troops, his followers and his supporters, from among the jinn and mankind. O Allah, be my protector against their evil. Glorious is Your praise, mighty is the one under Your protection, blessed is Your name, and there is no god other than You.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both), as his own statement (mawquf)",
+        "note": "When going to a formidable ruler whose assault you fear; mention the person’s name in place of “so-and-so”"
+      },
+      "krb12": {
+        "t": "O Allah, Revealer of the Book, Swift in reckoning, defeat the confederates. O Allah, defeat them and shake them.",
+        "narr": "Abdullah ibn Abi Awfa (may Allah be pleased with them both)",
+        "note": "The Prophet ﷺ supplicated with it against the confederates (al-Ahzab)"
+      },
+      "krb13": {
+        "t": "O Allah, suffice me against them however You will.",
+        "narr": "Suhayb al-Rumi (may Allah be pleased with him)",
+        "note": "The believing boy in the story of the People of the Ditch said it when they tried to kill him, and Allah protected him from them"
+      },
+      "krb14": {
+        "t": "O Allah, suffice me with what You have made lawful against what You have made unlawful, and by Your bounty make me independent of all besides You.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "fadl": "“Shall I not teach you words that the Messenger of Allah ﷺ taught me? Even if you had a debt like Mount Sir, Allah would settle it for you.”"
+      },
+      "krb15": {
+        "t": "O Allah, nothing is easy except what You make easy, and You make the difficult, if You will, easy.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)"
+      },
+      "krb16": {
+        "t": "It is the decree of Allah, and He does what He wills.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“If something befalls you, do not say: ‘If only I had done such-and-such, it would have been such-and-such.’ Rather say: ‘It is the decree of Allah, and He does what He wills,’ for ‘if only’ opens the door to the work of Satan.”"
+      },
+      "hsn01": {
+        "t": "I seek refuge in Allah.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Satan comes to one of you and says: Who created this? Who created that? — until he says: Who created your Lord? When he reaches that, let him seek refuge in Allah and stop [such thoughts].”",
+        "note": "Seek refuge in Allah and stop pursuing the whisper"
+      },
+      "hsn02": {
+        "t": "I believe in Allah and His messengers.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“People will keep asking questions until it is said: Allah created creation, so who created Allah? Whoever finds any of that, let him say: I believe in Allah.” Another narration adds: “and His messengers.”"
+      },
+      "hsn03": {
+        "t": "He is the First and the Last, the Ascendant and the Intimate, and He is, of all things, Knowing.",
+        "narr": "'Abdullah ibn 'Abbas (may Allah be pleased with them both)",
+        "fadl": "“If you find something [of doubt] in yourself, say: ‘He is the First and the Last, the Ascendant and the Intimate, and He is, of all things, Knowing.’”",
+        "note": "Surat al-Hadid, verse 3"
+      },
+      "hsn04": {
+        "t": "I seek refuge in Allah from Satan the outcast.",
+        "narr": "'Uthman ibn Abi al-'As (may Allah be pleased with him)",
+        "fadl": "“That is a devil called Khinzab. When you sense him, seek refuge in Allah from him and spit lightly to your left three times.” He said: I did that and Allah took him away from me.",
+        "note": "For distraction in prayer and recitation: seek refuge and spit lightly (dry spitting) to the left three times"
+      },
+      "hsn05": {
+        "t": "I seek refuge in Allah, the All-Hearing, the All-Knowing, from Satan the outcast — from his madness, his arrogance and his poetry.",
+        "narr": "Abu Sa'id al-Khudri (may Allah be pleased with him)",
+        "note": "Seeking refuge repels Satan; the Prophet ﷺ said this when opening the night prayer. Allah says: “And say: My Lord, I seek refuge in You from the incitements of the devils” (23:97)"
+      },
+      "hsn06": {
+        "t": "When the call to prayer is made, Satan turns his back and flees, passing wind, so that he does not hear the call.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "The adhan drives Satan away — a hadith to know and act upon"
+      },
+      "hsn07": {
+        "t": "Do not make your houses graveyards. Satan flees from the house in which Surat al-Baqarah is recited.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "Remembrance and Quran recitation drive Satan away: e.g. the morning and evening adhkar, adhkar of sleeping and waking, entering and leaving the home and mosque, and Ayat al-Kursi and the end of al-Baqarah before sleep"
+      },
+      "hsn08": {
+        "t": "I seek refuge in the perfect words of Allah, which no righteous or wicked person can exceed, from the evil of what He has created, made and brought into being; from the evil of what descends from the sky and the evil of what ascends to it; from the evil of what He has spread on the earth and the evil of what comes out of it; from the evil of the trials of the night and the day; and from the evil of every night visitor, except a visitor who comes with good, O Most Merciful.",
+        "narr": "'Abd al-Rahman ibn Khanbash (may Allah be pleased with him)",
+        "note": "Jibril taught it to the Prophet ﷺ on the night the devils plotted against him; when he said it, Allah extinguished their fire and defeated them"
+      },
+      "hsn09": {
+        "narr": "Abu al-Darda' (may Allah be pleased with him)",
+        "fadl": "“Whoever memorizes ten verses from the beginning of Surat al-Kahf will be protected from the Dajjal.”",
+        "note": "The first ten verses of Surat al-Kahf; in another narration of Muslim: “from the end of al-Kahf”"
+      },
+      "hsn10": {
+        "t": "O Allah, I seek refuge in You from the punishment of the grave, from the punishment of Hell, from the trials of life and death, and from the evil of the trial of the False Messiah (al-Dajjal).",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "Said after the final tashahhud, before the taslim, in every prayer"
+      },
+      "hsn11": {
+        "t": "O Allah, I seek refuge in You from associating partners with You knowingly, and I seek Your forgiveness for what I do not know.",
+        "narr": "Abu Musa al-Ash'ari (may Allah be pleased with him)",
+        "note": "Supplication for fear of shirk; in al-Adab al-Mufrad it is from Ma'qil ibn Yasar about Abu Bakr al-Siddiq (may Allah be pleased with them)"
+      },
+      "hsn12": {
+        "t": "O Allah, there is no omen except Your decree, there is no good except Your good, and there is no god other than You.",
+        "narr": "'Abdullah ibn 'Amr (may Allah be pleased with them both)",
+        "fadl": "“Whoever is turned back from his need by an evil omen has committed shirk.” They asked: What is the expiation for that? He said: “That one of them says: O Allah, there is no good except Your good, no omen except Your decree, and there is no god other than You.”",
+        "note": "Said by one who feels a bad omen; as for good optimism (fa'l), the Prophet ﷺ liked it"
+      },
+      "hsn13": {
+        "t": "None has the right to be worshipped except Allah.",
+        "narr": "Zaynab bint Jahsh (may Allah be pleased with her)",
+        "fadl": "The Prophet ﷺ came in to her in a state of fright, saying: “None has the right to be worshipped except Allah; woe to the Arabs from an evil that has drawn near.”",
+        "note": "Said when frightened"
+      },
+      "mrd01": {
+        "t": "No harm; (it is) a purification, if Allah wills.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both)",
+        "note": "The Prophet ﷺ said this whenever he visited a sick person"
+      },
+      "mrd02": {
+        "t": "I ask Allah the Magnificent, Lord of the Magnificent Throne, to cure you.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both)",
+        "fadl": "“Whoever visits a sick person whose appointed time has not come and says seven times in his presence: ‘I ask Allah the Magnificent, Lord of the Magnificent Throne, to cure you,’ Allah will cure him of that illness.”"
+      },
+      "mrd03": {
+        "t": "When a man visits his (sick) Muslim brother, he walks among the harvest of Paradise until he sits down, and when he sits, mercy envelops him. If it is in the morning, seventy thousand angels pray for him until the evening, and if it is in the evening, seventy thousand angels pray for him until the morning.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of visiting the sick, not a dhikr to be recited"
+      },
+      "mrd04": {
+        "t": "O Allah, forgive me, have mercy on me, and join me with the highest companionship.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "Said by the Prophet ﷺ in his final illness while leaning against Aishah"
+      },
+      "mrd05": {
+        "t": "None has the right to be worshipped except Allah; indeed, death has its agonies.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "At the time of his death, the Prophet ﷺ would put his hands in water, wipe his face with them and say this"
+      },
+      "mrd06": {
+        "t": "None has the right to be worshipped except Allah, and Allah is the greatest. None has the right to be worshipped except Allah, alone. None has the right to be worshipped except Allah, alone, without partner. None has the right to be worshipped except Allah; to Him belongs all sovereignty and all praise. None has the right to be worshipped except Allah, and there is no might nor power except with Allah.",
+        "narr": "Abu Sa‘id al-Khudri and Abu Hurayrah (may Allah be pleased with them both)",
+        "fadl": "“Whoever says them during his illness and then dies, the Fire will not consume him.”"
+      },
+      "mrd07": {
+        "t": "In the name of Allah.",
+        "narr": "‘Uthman ibn Abi al-‘As al-Thaqafi (may Allah be pleased with him)",
+        "note": "Place your hand on the part of the body that hurts and say “Bismillah” three times, then “I seek refuge in Allah and His power…” seven times"
+      },
+      "mrd08": {
+        "t": "I seek refuge in Allah and His power from the evil of what I feel and what I fear.",
+        "narr": "‘Uthman ibn Abi al-‘As al-Thaqafi (may Allah be pleased with him)",
+        "note": "Place your hand on the part of the body that hurts and say “Bismillah” three times, then “I seek refuge in Allah and His power…” seven times"
+      },
+      "mrd09": {
+        "t": "If one of you sees something of his brother, of himself or of his wealth that pleases him, let him supplicate for blessing (barakah) for it, for the evil eye is real.",
+        "narr": "‘Amir ibn Rabi‘ah and Sahl ibn Hunayf (may Allah be pleased with them both), via Abu Umamah ibn Sahl",
+        "note": "Prophetic guidance: whoever fears afflicting something with the evil eye should ask Allah to bless it"
+      },
+      "mrd10": {
+        "t": "I commend you both to the protection of Allah’s perfect words from every devil and every poisonous creature, and from every harmful eye.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both)",
+        "fadl": "“Your father (Ibrahim) used to seek protection with these for Isma‘il and Ishaq.”",
+        "note": "The Prophet ﷺ used it for al-Hasan and al-Husayn; adjust the pronoun to the number of children"
+      },
+      "hom01": {
+        "t": "In the name of Allah, I place my trust in Allah, and there is no might nor power except with Allah.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "fadl": "“It is said to him then: You have been guided, sufficed and protected; and the devils move away from him.”",
+        "note": "When leaving the house"
+      },
+      "hom02": {
+        "t": "O Allah, I seek refuge in You lest I go astray or be led astray, lest I slip or be made to slip, lest I wrong others or be wronged, lest I behave foolishly or be treated foolishly.",
+        "narr": "Umm Salamah (may Allah be pleased with her)",
+        "note": "When the Prophet ﷺ left his house, he would raise his gaze to the sky and say it"
+      },
+      "hom03": {
+        "t": "In the name of Allah we enter, in the name of Allah we leave, and upon Allah our Lord we place our trust.",
+        "narr": "Abu Malik al-Ash'ari (may Allah be pleased with him)",
+        "note": "Then greet your family with salam. Ibn Baz graded its chain hasan (Tuhfat al-Akhyar), while al-Albani graded it weak due to a break in the chain. Established in Sahih Muslim (2018): “When a man enters his house and mentions Allah on entering and when eating, the devil says: No lodging for you and no dinner.”"
+      },
+      "hom04": {
+        "t": "In the name of Allah. O Allah, I seek refuge with You from evil and evil ones (the male and female devils).",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "Said before entering. The basmalah at the beginning is narrated by Sa'id ibn Mansur, as cited in Fath al-Bari, and is supported by Ali's hadith in al-Tirmidhi (606)"
+      },
+      "hom05": {
+        "t": "I ask Your forgiveness.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "On leaving the toilet"
+      },
+      "hom06": {
+        "t": "In the name of Allah.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“There is no ablution for the one who does not mention the name of Allah over it.”",
+        "note": "Before ablution"
+      },
+      "hom07": {
+        "t": "I bear witness that none has the right to be worshipped except Allah alone, without partner, and I bear witness that Muhammad is His servant and Messenger.",
+        "narr": "Umar ibn al-Khattab (may Allah be pleased with him)",
+        "fadl": "“None of you performs ablution thoroughly and then says: … except that the eight gates of Paradise are opened for him, and he may enter by whichever he wishes.”",
+        "note": "After completing ablution"
+      },
+      "hom08": {
+        "t": "O Allah, make me among those who repent often and make me among those who purify themselves.",
+        "narr": "Umar ibn al-Khattab (may Allah be pleased with him)",
+        "note": "Said after the two testimonies following ablution"
+      },
+      "hom09": {
+        "t": "How perfect You are, O Allah, and with Your praise. I bear witness that none has the right to be worshipped except You. I seek Your forgiveness and turn to You in repentance.",
+        "narr": "Abu Sa'id al-Khudri (may Allah be pleased with him)",
+        "fadl": "“… it will be written on a parchment and sealed with a seal that will not be broken until the Day of Resurrection.”",
+        "note": "After ablution. It is narrated both from the Prophet ﷺ and as Abu Sa'id's own words; al-Albani graded it sahih, the latter having the ruling of a prophetic report"
+      },
+      "lbs01": {
+        "t": "All praise is for Allah who has clothed me with this garment and provided it for me, without any might or power on my part.",
+        "narr": "Mu'adh ibn Anas al-Juhani (may Allah be pleased with him)",
+        "fadl": "“… his past sins will be forgiven.”",
+        "note": "When getting dressed"
+      },
+      "lbs02": {
+        "t": "O Allah, to You belongs all praise. You have clothed me with it. I ask You for its good and the good for which it was made, and I seek refuge with You from its evil and the evil for which it was made.",
+        "narr": "Abu Sa'id al-Khudri (may Allah be pleased with him)",
+        "note": "When the Prophet ﷺ put on a new garment, he would name it — a turban, a shirt or a cloak — and then say this"
+      },
+      "lbs03": {
+        "t": "May you wear it out, and may Allah the Exalted replace it (with another).",
+        "narr": "The Companions of the Prophet ﷺ (reported by Abu Nadrah)",
+        "note": "When one of the Companions put on a new garment, this was said to him; it is a supplication for long life"
+      },
+      "lbs04": {
+        "t": "Wear new clothes, live a praiseworthy life, and die a martyr.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ said it to Umar when he saw him wearing a shirt"
+      },
+      "lbs05": {
+        "t": "In the name of Allah.",
+        "narr": "Ali ibn Abi Talib and Anas ibn Malik (may Allah be pleased with them)",
+        "fadl": "“The screen between the eyes of the jinn and the private parts of the children of Adam, when one of them enters the toilet, is that he says: In the name of Allah.”",
+        "note": "When undressing. Al-Tabarani's wording in al-Awsat from Anas has: “when one of them takes off his garment”; al-Albani graded it sahih (Sahih al-Jami')"
+      },
+      "ftm01": {
+        "t": "In the name of Allah.",
+        "narr": "Umar ibn Abi Salamah and Aishah (may Allah be pleased with them)",
+        "fadl": "“O boy, mention the name of Allah, eat with your right hand, and eat from what is in front of you.”",
+        "note": "Before eating"
+      },
+      "ftm02": {
+        "t": "In the name of Allah at its beginning and its end.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "fadl": "“When one of you eats, let him say: In the name of Allah. If he forgets at the beginning, let him say: In the name of Allah at its beginning and its end.”",
+        "note": "If you forgot to say Bismillah at the start of the meal"
+      },
+      "ftm03": {
+        "t": "O Allah, bless it for us and feed us better than it.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with him)",
+        "note": "For whoever Allah has given food"
+      },
+      "ftm04": {
+        "t": "O Allah, bless it for us and give us more of it.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with him)",
+        "note": "For whoever Allah has given milk to drink"
+      },
+      "ftm05": {
+        "t": "All praise is for Allah who has fed me this and provided it for me, without any might or power on my part.",
+        "narr": "Mu'adh ibn Anas al-Juhani (may Allah be pleased with him)",
+        "fadl": "“… his past sins will be forgiven.”",
+        "note": "After finishing the meal"
+      },
+      "ftm06": {
+        "t": "All praise is for Allah, abundant, good and blessed praise; praise that is never enough, never abandoned, and never dispensed with, our Lord.",
+        "narr": "Abu Umamah al-Bahili (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ would say it when his table was cleared away"
+      },
+      "ftm07": {
+        "t": "O Allah, bless them in what You have provided them, forgive them and have mercy on them.",
+        "narr": "Abdullah ibn Busr (may Allah be pleased with him)",
+        "note": "The guest's supplication for the host"
+      },
+      "ftm08": {
+        "t": "O Allah, feed the one who fed me, and give drink to the one who gave me drink.",
+        "narr": "al-Miqdad ibn al-Aswad (may Allah be pleased with him)"
+      },
+      "ftm09": {
+        "t": "O Allah, bless our fruit for us, bless our city for us, bless our sa' for us, and bless our mudd for us.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "On seeing the first fruit of the season; then give it to the youngest child present. The sa' and the mudd are measures of volume"
+      },
+      "sfr01": {
+        "t": "In the name of Allah, and all praise is for Allah. How perfect He is, the One Who has placed this (transport) at our service, and we ourselves would not have been capable of that, and to our Lord is our final return. All praise is for Allah, all praise is for Allah, all praise is for Allah. Allah is the greatest, Allah is the greatest, Allah is the greatest. How perfect You are, O Allah; verily I have wronged my soul, so forgive me, for surely none forgives sins except You.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "fadl": "“Indeed your Lord is pleased with His servant when he says: ‘Forgive me my sins’ — (Allah says:) he knows that none forgives sins but Me.”",
+        "note": "Say “Bismillah” when putting your foot in the stirrup (or getting in), “al-hamdu lillah” once seated, then complete the rest"
+      },
+      "sfr02": {
+        "t": "Allah is the greatest, Allah is the greatest, Allah is the greatest. How perfect He is, the One Who has placed this (transport) at our service, and we ourselves would not have been capable of that, and to our Lord is our final return. O Allah, we ask You on this journey of ours for righteousness (birr) and piety (taqwa), and for deeds which please You. O Allah, make this journey of ours easy for us and shorten its distance for us. O Allah, You are the Companion on the journey and the Successor (guardian) over the family. O Allah, I seek refuge in You from the hardships of travel, from a distressing sight, and from an evil outcome in wealth and family.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "note": "The Prophet ﷺ said it when mounted and setting out on a journey. On returning he said the same and added: “We return, repenting, worshipping, and praising our Lord.”"
+      },
+      "sfr03": {
+        "t": "O Allah, Lord of the seven heavens and all that they shade, Lord of the seven earths and all that they carry, Lord of the devils and all whom they misguide, Lord of the winds and all that they scatter. I ask You for the good of this town, the good of its people and the good of what is in it, and I seek refuge in You from its evil, the evil of its people and the evil of what is in it.",
+        "narr": "Suhayb al-Rumi (may Allah be pleased with him)",
+        "note": "Said on seeing the town or city you intend to enter"
+      },
+      "sfr04": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise. He gives life and causes death, and He is Ever-Living and does not die. In His hand is all good, and He is over all things competent.",
+        "narr": "Umar ibn al-Khattab (may Allah be pleased with him)",
+        "fadl": "“Whoever enters the market and says: … Allah records for him a million good deeds, erases from him a million bad deeds, and raises him a million degrees.”",
+        "note": "On entering a market"
+      },
+      "sfr05": {
+        "t": "In the name of Allah.",
+        "narr": "A Companion who was riding behind the Prophet ﷺ (may Allah be pleased with him)",
+        "fadl": "“Do not say: ‘May the devil perish,’ for if you say that he swells until he is like a house and says: ‘By my power.’ Rather say: ‘Bismillah,’ for if you say that he shrinks until he is like a fly.”",
+        "note": "When your mount (or vehicle) stumbles"
+      },
+      "sfr06": {
+        "t": "I entrust you to Allah, Whose trusts are never lost.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "Said by the traveller to those he leaves behind. Ibn Majah’s wording addresses one person: “astawdi‘uka Allah…” (I entrust you [singular] …)"
+      },
+      "sfr07": {
+        "t": "I entrust to Allah your religion, your trustworthiness, and the final outcomes of your deeds.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "note": "Said by the one staying behind when bidding farewell to a traveller"
+      },
+      "sfr08": {
+        "t": "May Allah provide you with taqwa (piety), forgive your sins, and make good easy for you wherever you are.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ said it to a man who told him: “I intend to travel, so give me provision (advice).”"
+      },
+      "sfr09": {
+        "t": "Allah is the greatest.",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "note": "When going uphill on a journey. Jabir said: “When we went up (a height) we would say Allahu akbar, and when we went down we would say subhan Allah.”"
+      },
+      "sfr10": {
+        "t": "How perfect Allah is (Glory be to Allah).",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "note": "When going downhill on a journey. Jabir said: “When we went up (a height) we would say Allahu akbar, and when we went down we would say subhan Allah.”"
+      },
+      "sfr11": {
+        "t": "May a listener (bear witness and) make known our praise of Allah and His excellent favours upon us. Our Lord, be our Companion (and protect us) and bestow Your bounty upon us — seeking refuge in Allah from the Fire.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ said it when travelling at the time of sahar (the last part of the night, just before dawn)"
+      },
+      "sfr12": {
+        "t": "I seek refuge in the perfect words of Allah from the evil of what He has created.",
+        "narr": "Khawlah bint Hakim al-Sulamiyyah (may Allah be pleased with her)",
+        "fadl": "“Whoever stops at a place and says: ‘I seek refuge in the perfect words of Allah from the evil of what He has created,’ nothing will harm him until he departs from that place.”",
+        "note": "When stopping at a place, on a journey or otherwise"
+      },
+      "sfr13": {
+        "t": "Allah is the greatest, Allah is the greatest, Allah is the greatest. None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise, and He is over all things competent. We return, repenting, worshipping, and praising our Lord. Allah fulfilled His promise, aided His servant, and alone defeated the confederates.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "note": "On returning from a journey: say Allahu akbar three times at every elevated place, then say the rest"
+      },
+      "mtr01": {
+        "t": "O Allah, I ask You for its good, and I seek refuge in You from its evil.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“The wind is from the mercy (rawh) of Allah; it brings mercy and it brings punishment. When you see it, do not curse it, but ask Allah for its good and seek refuge in Allah from its evil.”",
+        "note": "When the wind blows"
+      },
+      "mtr02": {
+        "t": "O Allah, I ask You for its good, the good within it and the good it was sent with, and I seek refuge in You from its evil, the evil within it and the evil it was sent with.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ said it when the wind blew strongly"
+      },
+      "mtr03": {
+        "t": "How perfect is He Whom the thunder glorifies with His praise, as do the angels out of fear of Him.",
+        "narr": "Abdullah ibn al-Zubayr (may Allah be pleased with them both), from his practice (mawquf)",
+        "note": "When he heard thunder, he would stop talking and say this"
+      },
+      "mtr04": {
+        "t": "O Allah, give us rain that relieves, that is wholesome and fertile, beneficial and not harmful, soon and not delayed.",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "note": "When asking for rain (istisqa’)"
+      },
+      "mtr05": {
+        "t": "O Allah, send us rain; O Allah, send us rain; O Allah, send us rain.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ said it with raised hands during the Friday sermon when drought was complained of"
+      },
+      "mtr06": {
+        "t": "O Allah, give water to Your servants and Your livestock, spread Your mercy, and revive Your dead land.",
+        "narr": "Abdullah ibn ‘Amr ibn al-‘As (may Allah be pleased with them both)",
+        "note": "The Prophet ﷺ said it when praying for rain"
+      },
+      "mtr07": {
+        "t": "O Allah, (make it) a beneficial downpour.",
+        "narr": "Aishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ said it when he saw rain"
+      },
+      "mtr08": {
+        "t": "We have been given rain by the grace and mercy of Allah.",
+        "narr": "Zayd ibn Khalid al-Juhani (may Allah be pleased with him)",
+        "fadl": "Allah said: “This morning some of My servants became believers in Me and some disbelievers. As for the one who said: ‘We have been given rain by the grace and mercy of Allah,’ he is a believer in Me and a disbeliever in the stars.”",
+        "note": "After it has rained"
+      },
+      "mtr09": {
+        "t": "O Allah, (let it fall) around us and not upon us. O Allah, (let it fall) on the hillocks and the high ground, the valley beds, and the places where trees grow.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "When rain becomes excessive and harm is feared"
+      },
+      "haj01": {
+        "t": "Here I am, O Allah, here I am. Here I am, You have no partner, here I am. Verily all praise and blessings are Yours, and all sovereignty. You have no partner.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "note": "The Talbiyah of the pilgrim in ihram for Hajj or ‘Umrah; men raise their voices with it"
+      },
+      "haj02": {
+        "t": "Allah is the greatest.",
+        "narr": "Abdullah ibn Abbas (may Allah be pleased with them both)",
+        "note": "The Prophet ﷺ circled the Ka‘bah on a camel; every time he came to the Corner (the Black Stone) he pointed to it with something he held and said Allahu akbar"
+      },
+      "haj03": {
+        "t": "Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.",
+        "narr": "Abdullah ibn al-Sa’ib (may Allah be pleased with him)",
+        "note": "Between the Yemeni Corner and the Black Stone during tawaf (al-Baqarah 2:201)"
+      },
+      "haj04": {
+        "t": "Indeed, al-Safa and al-Marwah are among the symbols of Allah. I begin with what Allah began with.",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "note": "When the Prophet ﷺ drew near to al-Safa he recited the verse (al-Baqarah 2:158) and said: “I begin with what Allah began with,” and began with al-Safa"
+      },
+      "haj05": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise, and He is over all things competent. None has the right to be worshipped except Allah alone; He fulfilled His promise, aided His servant, and alone defeated the confederates.",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "note": "On al-Safa, and likewise on al-Marwah: climb until the Ka‘bah is visible, face the qiblah, declare Allah’s oneness and greatness (Allahu akbar), and say this three times, supplicating in between"
+      },
+      "haj06": {
+        "t": "None has the right to be worshipped except Allah, alone, without partner. To Him belongs all sovereignty and all praise, and He is over all things competent.",
+        "narr": "Abdullah ibn ‘Amr ibn al-‘As (may Allah be pleased with them both)",
+        "fadl": "“The best supplication is the supplication on the Day of ‘Arafah, and the best of what I and the prophets before me have said is: ‘None has the right to be worshipped except Allah, alone, without partner…’”",
+        "note": "On the Day of ‘Arafah"
+      },
+      "haj07": {
+        "t": "Allah is the greatest; none has the right to be worshipped except Allah.",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "fadl": "“The Prophet ﷺ rode al-Qaswa’ until he reached al-Mash‘ar al-Haram. He faced the qiblah and supplicated to Allah, declared His greatness (takbir), said La ilaha illallah (tahlil) and declared His oneness, and remained standing until the sky was very bright; then he moved on before sunrise.”",
+        "note": "At al-Mash‘ar al-Haram in Muzdalifah after Fajr: face the qiblah and keep supplicating, saying Allahu akbar and La ilaha illallah, until it is very bright"
+      },
+      "haj08": {
+        "t": "Allah is the greatest.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "note": "Say Allahu akbar with each pebble at the three Jamarat. After the first and second, step forward, stand facing the qiblah with raised hands and supplicate. At Jamrat al-‘Aqabah, throw, saying Allahu akbar with each pebble, then leave without standing there"
+      },
+      "ist01": {
+        "t": "O Allah, I seek Your guidance (in choosing) by Your knowledge, and I seek ability by Your power, and I ask You of Your immense bounty; for You are able and I am not, You know and I do not, and You are the Knower of the unseen. O Allah, if You know that this matter is good for me in my religion, my livelihood and the outcome of my affairs, then decree it for me, make it easy for me, then bless me in it. And if You know that this matter is bad for me in my religion, my livelihood and the outcome of my affairs, then turn it away from me and turn me away from it, and decree for me what is good wherever it may be, then make me content with it.",
+        "narr": "Jabir ibn Abdullah (may Allah be pleased with them both)",
+        "fadl": "“The Messenger of Allah ﷺ used to teach us istikharah in all matters, just as he taught us a surah of the Quran. He would say: ‘When one of you intends to do something, let him pray two rak‘ahs other than the obligatory prayer, then say: …’”",
+        "note": "Pray two voluntary rak‘ahs, then make this supplication, naming your need at “this matter”. In both places the narrator was unsure whether he said “and the outcome of my affairs” or “in my immediate and later affairs”. One who seeks the Creator’s guidance, consults the believers and is careful in his affair will not regret it; Allah says: “And consult them in the matter; then when you have decided, put your trust in Allah” (Al ‘Imran 3:159)"
+      },
+      "ist02": {
+        "t": "O Allah, guide me among those You have guided, grant me well-being among those You have granted well-being, take me into Your care among those You have taken into Your care, bless me in what You have given, and protect me from the evil of what You have decreed; for You decree and none can decree over You. Indeed, the one You befriend is never humiliated, and the one You take as an enemy is never honoured. Blessed are You, our Lord, and Exalted.",
+        "narr": "al-Hasan ibn ‘Ali (may Allah be pleased with them both)",
+        "note": "In the qunut of Witr; the Prophet ﷺ taught it to al-Hasan ibn ‘Ali. The phrase “the one You take as an enemy is never honoured” is in Abu Dawud’s narration"
+      },
+      "ist03": {
+        "t": "O Allah, I seek refuge in Your pleasure from Your anger, and in Your pardon from Your punishment, and I seek refuge in You from You. I cannot enumerate Your praise; You are as You have praised Yourself.",
+        "narr": "Ali ibn Abi Talib (may Allah be pleased with him)",
+        "note": "The Prophet ﷺ used to say it at the end of his Witr"
+      },
+      "ist04": {
+        "t": "O Allah, You alone we worship, to You we pray and prostrate, and towards You we strive and hasten. We hope for Your mercy and fear Your punishment; indeed Your punishment will overtake the disbelievers. O Allah, we seek Your help and Your forgiveness, we praise You with all good and do not deny You; we believe in You, submit to You, and disown whoever disbelieves in You.",
+        "narr": "Umar ibn al-Khattab (may Allah be pleased with him), from his practice (mawquf)",
+        "note": "From the qunut of Umar ibn al-Khattab; al-Albani graded its chain sahih as Umar’s practice (Irwa’ al-Ghalil 2/170)"
+      },
+      "jnz01": {
+        "t": "None has the right to be worshipped except Allah.",
+        "narr": "Mu‘adh ibn Jabal (may Allah be pleased with him)",
+        "fadl": "“Whoever’s last words are ‘La ilaha illallah’ will enter Paradise.”",
+        "note": "Gently prompt the dying person to say it. In Sahih Muslim (916): “Prompt your dying ones to say La ilaha illallah.”"
+      },
+      "jnz02": {
+        "t": "To Allah we belong and to Him we shall return. O Allah, reward me in my affliction and replace it for me with something better.",
+        "narr": "Umm Salamah (may Allah be pleased with her)",
+        "fadl": "“No Muslim is struck by a calamity and says what Allah has commanded: ‘To Allah we belong and to Him we shall return; O Allah, reward me in my affliction and replace it for me with something better,’ except that Allah replaces it for him with something better.”"
+      },
+      "jnz03": {
+        "t": "O Allah, forgive so-and-so, raise his rank among the rightly guided, be a successor (guardian) for those he leaves behind, and forgive us and him, O Lord of the worlds. Make his grave spacious for him and illuminate it for him.",
+        "narr": "Umm Salamah (may Allah be pleased with her)",
+        "note": "Mention the deceased by name in place of “so-and-so”. The Prophet ﷺ said it for Abu Salamah after closing his eyes"
+      },
+      "jnz04": {
+        "t": "O Allah, forgive him and have mercy on him, keep him safe and pardon him. Honour his reception and make his entrance wide. Wash him with water, snow and hail, and cleanse him of sins as You cleanse a white garment of dirt. Give him a home better than his home, a family better than his family, and a spouse better than his spouse. Admit him into Paradise, and protect him from the punishment of the grave and the punishment of the Fire.",
+        "narr": "‘Awf ibn Malik al-Ashja‘i (may Allah be pleased with him)",
+        "fadl": "‘Awf said: “…until I wished that I were that deceased person.”",
+        "note": "In the funeral prayer. In Muslim’s narration: “from the punishment of the grave — or from the punishment of the Fire —”"
+      },
+      "jnz05": {
+        "t": "O Allah, forgive our living and our dead, those present and those absent, our young and our old, our males and our females. O Allah, whomever of us You keep alive, keep him alive upon Islam, and whomever of us You take, take him upon faith. O Allah, do not deprive us of his reward, and do not let us go astray after him.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "In the funeral prayer"
+      },
+      "jnz06": {
+        "t": "O Allah, so-and-so son of so-and-so is in Your care and under Your protection, so protect him from the trial of the grave and the punishment of the Fire. You are the One Who fulfils promises and the Truth. So forgive him and have mercy on him; indeed You are the Oft-Forgiving, the Most Merciful.",
+        "narr": "Wathilah ibn al-Asqa‘ (may Allah be pleased with him)",
+        "note": "In the funeral prayer; mention the deceased in place of “so-and-so son of so-and-so”"
+      },
+      "jnz07": {
+        "t": "O Allah, Your servant, the son of Your maidservant, is in need of Your mercy, and You have no need to punish him. If he did good, then increase his good deeds, and if he did wrong, then overlook his wrongs.",
+        "narr": "Yazid ibn Rukanah (may Allah be pleased with him)",
+        "note": "In the funeral prayer. Graded sahih by al-Hakim, with al-Dhahabi agreeing; see al-Albani, Ahkam al-Jana’iz p. 125"
+      },
+      "jnz08": {
+        "t": "O Allah, protect him from the punishment of the grave.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him), from his practice when praying over a child",
+        "note": "In the funeral prayer for a child. It is also good to say what the scholars mention (see Ibn Qudamah’s al-Mughni 3/416 and Ibn Baz): “O Allah, make him a forerunner and a stored treasure for his parents, and an intercessor whose intercession is accepted. O Allah, through him make their scales heavy and their reward great. Join him with the righteous believers, place him in the care of Ibrahim, and by Your mercy protect him from the punishment of Hellfire. Give him a home better than his home and a family better than his family. O Allah, forgive those who preceded us, our little ones who died before us, and those who preceded us in faith.”"
+      },
+      "jnz09": {
+        "t": "O Allah, make him for us a forerunner, one who has gone ahead, and a (source of) reward.",
+        "narr": "al-Hasan al-Basri (may Allah have mercy on him), from his practice",
+        "note": "Al-Hasan would recite al-Fatihah over a child and say this. Al-Bukhari reports it without a chain (mu‘allaq) in the Book of Funerals, chapter on reciting al-Fatihah in the funeral prayer (before hadith 1335); ‘Abd al-Razzaq reports it with a chain"
+      },
+      "jnz10": {
+        "t": "Verily to Allah belongs what He took, and to Him belongs what He gave, and everything with Him has an appointed term; so let her be patient and hope for (Allah’s) reward.",
+        "narr": "Usamah ibn Zayd (may Allah be pleased with them both)",
+        "note": "The Prophet ﷺ sent this message to his daughter when her son was dying; adjust “let her be patient…” to the person addressed. It is also good to say: “May Allah make your reward great, grant you good solace, and forgive your deceased” (mentioned by al-Nawawi in al-Adhkar; not a hadith of the Prophet ﷺ)"
+      },
+      "jnz11": {
+        "t": "In the name of Allah, and according to the Sunnah of the Messenger of Allah.",
+        "narr": "Abdullah ibn Umar (may Allah be pleased with them both)",
+        "note": "When placing the deceased in the grave"
+      },
+      "jnz12": {
+        "t": "O Allah, forgive him. O Allah, make him steadfast.",
+        "narr": "‘Uthman ibn ‘Affan (may Allah be pleased with him)",
+        "fadl": "When the Prophet ﷺ finished burying the dead, he would stand by the grave and say: “Seek forgiveness for your brother and ask that he be made steadfast, for he is now being questioned.”",
+        "note": "After the burial is complete"
+      },
+      "jnz13": {
+        "t": "Peace be upon you, O inhabitants of these dwellings, from among the believers and the Muslims. We shall, if Allah wills, join you. May Allah have mercy on those of us who have gone ahead and those who come later. I ask Allah for well-being for us and for you.",
+        "narr": "Buraydah ibn al-Husayb and Aishah (may Allah be pleased with them both)",
+        "note": "When visiting graves. The phrase “May Allah have mercy on those of us who have gone ahead…” is from Aishah’s hadith (Muslim 974)"
+      },
+      "dly01": {
+        "t": "All praise is for Allah.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“When one of you sneezes, let him say: All praise is for Allah. And let his brother or companion say to him: May Allah have mercy on you. When he says to him ‘May Allah have mercy on you,’ let him say: May Allah guide you and set your affairs right.”",
+        "note": "Said by the one who sneezes"
+      },
+      "dly02": {
+        "t": "May Allah have mercy on you.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“When one of you sneezes, let him say: All praise is for Allah. And let his brother or companion say to him: May Allah have mercy on you. When he says to him ‘May Allah have mercy on you,’ let him say: May Allah guide you and set your affairs right.”",
+        "note": "Said by the one who hears the sneezer praise Allah"
+      },
+      "dly03": {
+        "t": "May Allah guide you and set your affairs right.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“When one of you sneezes, let him say: All praise is for Allah. And let his brother or companion say to him: May Allah have mercy on you. When he says to him ‘May Allah have mercy on you,’ let him say: May Allah guide you and set your affairs right.”",
+        "note": "The sneezer's reply to the one who said “May Allah have mercy on you”"
+      },
+      "dly04": {
+        "t": "May Allah guide you and set your affairs right.",
+        "narr": "Abu Musa al-Ash'ari (may Allah be pleased with him)",
+        "fadl": "The Jews used to sneeze in the presence of the Prophet ﷺ hoping he would say to them “May Allah have mercy on you,” but he would say: “May Allah guide you and set your affairs right.”",
+        "note": "Said to a non-Muslim who sneezes and praises Allah"
+      },
+      "dly05": {
+        "t": "May Allah bless [your spouse] for you, and bless you, and bring you both together in goodness.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "Said to congratulate someone who has married"
+      },
+      "dly06": {
+        "t": "O Allah, I ask You for her good and the good of the nature You have created her with, and I seek refuge in You from her evil and the evil of the nature You have created her with.",
+        "narr": "'Abdullah ibn 'Amr (may Allah be pleased with them both)",
+        "fadl": "“When one of you marries a woman or acquires a servant, let him say: … And when he buys a camel, let him take hold of the top of its hump and say the same.”",
+        "note": "Said by the groom on the wedding night, and likewise when buying a riding animal"
+      },
+      "dly07": {
+        "t": "In the name of Allah. O Allah, keep Satan away from us and keep Satan away from what You provide us with.",
+        "narr": "'Abdullah ibn 'Abbas (may Allah be pleased with them both)",
+        "fadl": "“For if a child is decreed for them from that [union], Satan will never harm it.”",
+        "note": "Said before intimacy with one's spouse"
+      },
+      "dly08": {
+        "t": "I seek refuge in Allah from Satan the outcast.",
+        "narr": "Sulayman ibn Surad (may Allah be pleased with him)",
+        "fadl": "“I know a word which, if he said it, what he feels would leave him: if he said, I seek refuge in Allah from Satan the outcast.”",
+        "note": "Said when angry"
+      },
+      "dly09": {
+        "t": "All praise is for Allah who has spared me from what He has afflicted you with, and has favoured me greatly over much of what He has created.",
+        "narr": "Abu Hurayrah and 'Umar ibn al-Khattab (may Allah be pleased with them)",
+        "fadl": "“Whoever sees someone afflicted and says: All praise is for Allah who has spared me from what He has afflicted you with and has favoured me greatly over much of what He has created — that affliction will not befall him.”",
+        "note": "Scholars said: say it quietly so the afflicted person does not hear it and is not hurt"
+      },
+      "dly10": {
+        "t": "My Lord, forgive me and accept my repentance; indeed You are the Accepter of repentance, the Most Forgiving.",
+        "narr": "'Abdullah ibn 'Umar (may Allah be pleased with them both)",
+        "fadl": "It would be counted that the Messenger of Allah ﷺ said in a single sitting, a hundred times before getting up: “My Lord, forgive me and accept my repentance; indeed You are the Accepter of repentance, the Most Forgiving.”",
+        "note": "The wording is al-Tirmidhi's; Abu Dawud and Ibn Majah have “the Accepter of repentance, the Most Merciful”"
+      },
+      "dly11": {
+        "t": "Glory be to You, O Allah, and praise be to You. I bear witness that none has the right to be worshipped except You. I seek Your forgiveness and turn to You in repentance.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "fadl": "“Whoever sits in a gathering in which there is much idle talk, and before getting up says: Glory be to You, O Allah, and praise be to You; I bear witness that none has the right to be worshipped except You; I seek Your forgiveness and turn to You in repentance — he will be forgiven what happened in that gathering.”",
+        "note": "Expiation of the gathering: said before getting up from it"
+      },
+      "dly12": {
+        "t": "And you [too].",
+        "narr": "'Abdullah ibn Sarjis (may Allah be pleased with him)",
+        "fadl": "I came to the Prophet ﷺ and ate of his food, then said: May Allah forgive you, O Messenger of Allah. He said: “And you.”",
+        "note": "Said to someone who says “May Allah forgive you.” The story is in Ahmad; its basis is in Muslim with the wording: Did the Prophet ﷺ ask forgiveness for you? He said: “Yes, and for you.”"
+      },
+      "dly13": {
+        "t": "May Allah reward you with good.",
+        "narr": "Usamah ibn Zayd (may Allah be pleased with them both)",
+        "fadl": "“Whoever has a favour done for him and says to the one who did it, ‘May Allah reward you with good,’ has done his utmost in praising him.”",
+        "note": "Said to someone who does you a favour"
+      },
+      "dly14": {
+        "t": "May He for whose sake you love me, love you.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "Said to someone who says: I love you for the sake of Allah"
+      },
+      "dly15": {
+        "t": "May Allah bless you in your family and your wealth.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "Said to someone who offers you his wealth; 'Abd al-Rahman ibn 'Awf said it to Sa'd ibn al-Rabi' (may Allah be pleased with them)"
+      },
+      "dly16": {
+        "t": "May Allah bless you in your family and your wealth. The reward for a loan is only praise and repayment.",
+        "narr": "'Abdullah ibn Abi Rabi'ah (may Allah be pleased with him)",
+        "note": "Said to the lender when repaying the loan"
+      },
+      "dly17": {
+        "t": "You will not enter Paradise until you believe, and you will not believe until you love one another. Shall I not tell you of something which, if you do it, you will love one another? Spread the greeting of peace among yourselves.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "A hadith on the virtue of spreading the greeting of peace — read it to act upon it"
+      },
+      "dly18": {
+        "t": "Three things — whoever combines them has combined faith: being just with others from yourself, offering the greeting of peace to everyone, and spending [in charity] when in need.",
+        "narr": "'Ammar ibn Yasir (may Allah be pleased with them both)",
+        "note": "A statement of 'Ammar (mawquf), cited by al-Bukhari without chain in the chapter heading before hadith 28"
+      },
+      "dly19": {
+        "t": "A man asked the Prophet ﷺ: Which [deed in] Islam is best? He said: “That you feed [others] and give the greeting of peace to those you know and those you do not know.”",
+        "narr": "'Abdullah ibn 'Amr (may Allah be pleased with them both)",
+        "note": "A hadith on the virtue of spreading the greeting of peace — read it to act upon it"
+      },
+      "dly20": {
+        "t": "Peace be upon you, and the mercy of Allah and His blessings.",
+        "narr": "'Imran ibn Husayn (may Allah be pleased with them both)",
+        "fadl": "A man came to the Prophet ﷺ and said: Peace be upon you. He said: “Ten.” Another came and said: Peace be upon you and the mercy of Allah. He said: “Twenty.” Another came and said: Peace be upon you and the mercy of Allah and His blessings. He said: “Thirty.”",
+        "note": "The complete greeting of peace (not in Hisn al-Muslim)"
+      },
+      "dly21": {
+        "t": "And upon you.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "fadl": "“When the People of the Book greet you, say: And upon you.”",
+        "note": "Reply to a non-Muslim who greets you"
+      },
+      "dly22": {
+        "t": "When you hear roosters crowing, ask Allah of His bounty, for they have seen an angel; and when you hear a donkey braying, seek refuge in Allah from Satan, for it has seen a devil.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "On hearing a rooster: ask Allah of His bounty; on hearing a donkey: seek refuge in Allah from Satan"
+      },
+      "dly23": {
+        "t": "When you hear dogs barking and donkeys braying at night, seek refuge in Allah from them, for they see what you do not see.",
+        "narr": "Jabir ibn 'Abdullah (may Allah be pleased with them both)",
+        "note": "Seek refuge in Allah on hearing dogs barking at night"
+      },
+      "dly24": {
+        "t": "O Allah, any believer whom I have insulted, make that a means of drawing him near to You on the Day of Resurrection.",
+        "narr": "Abu Hurayrah (may Allah be pleased with him)",
+        "note": "The Prophet's ﷺ supplication for one he had spoken harshly to; Muslim's narration: “make it a purification and mercy for him”"
+      },
+      "dly25": {
+        "t": "I consider so-and-so to be — and Allah is his reckoner, and I do not vouch for anyone before Allah — I consider him to be such-and-such.",
+        "narr": "Abu Bakrah (may Allah be pleased with him)",
+        "fadl": "“If one of you must praise his companion, let him say: I consider so-and-so — and Allah is his reckoner, and I do not vouch for anyone before Allah — I consider him, if he knows that of him, to be such-and-such.”",
+        "note": "Said when praising a fellow Muslim, if one knows that of him"
+      },
+      "dly26": {
+        "t": "O Allah, do not hold me accountable for what they say, forgive me for what they do not know, and make me better than what they think.",
+        "narr": "'Adi ibn Artah, from a man among the Companions of the Prophet ﷺ",
+        "note": "Said when one is praised; al-Albani authenticated its chain. The phrase “and make me better than what they think” is an addition from al-Bayhaqi's Shu'ab al-Iman via another route"
+      },
+      "dly27": {
+        "t": "All praise is for Allah, by whose favour good things are completed.",
+        "narr": "'A'ishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ said it when something pleasing came to him"
+      },
+      "dly28": {
+        "t": "All praise is for Allah in every circumstance.",
+        "narr": "'A'ishah (may Allah be pleased with her)",
+        "note": "The Prophet ﷺ said it when something displeasing came to him"
+      },
+      "dly29": {
+        "t": "Glory be to Allah.",
+        "narr": "Umm Salamah (may Allah be pleased with her)",
+        "fadl": "The Prophet ﷺ woke one night and said: “Glory be to Allah! What trials have been sent down tonight, and what treasures have been opened!”",
+        "note": "Said when amazed"
+      },
+      "dly30": {
+        "t": "Allah is the Greatest.",
+        "narr": "Abu Sa'id al-Khudri (may Allah be pleased with him)",
+        "fadl": "“I hope that you will be a quarter of the people of Paradise.” So we said: Allahu akbar.",
+        "note": "Said when amazed or on hearing good news"
+      },
+      "dly31": {
+        "t": "When something pleasing came to the Prophet ﷺ, or he was given good news, he would fall down in prostration out of gratitude to Allah, Blessed and Exalted.",
+        "narr": "Abu Bakrah (may Allah be pleased with him)",
+        "note": "Prostration of gratitude upon receiving a blessing — a practice of the Prophet ﷺ"
+      },
+      "dly32": {
+        "t": "In the name of Allah, and Allah is the Greatest. O Allah, [it is] from You and for You. O Allah, accept [it] from me.",
+        "narr": "Anas ibn Malik (may Allah be pleased with him)",
+        "note": "Said when slaughtering. “In the name of Allah, and Allah is the Greatest” is in Muslim from Anas; “O Allah, from You and for You” is in al-Bayhaqi and Abu Dawud from Jabir; “O Allah, accept from me” follows the meaning of Muslim's narration from 'A'ishah: “O Allah, accept from Muhammad and the family of Muhammad”"
+      },
+      "dly33": {
+        "t": "When night falls — or when evening comes — keep your children in, for the devils spread out at that time. When an hour of the night has passed, let them go. Close the doors and mention the name of Allah, for Satan does not open a closed door. Tie your waterskins and mention the name of Allah, and cover your vessels and mention the name of Allah, even if only by placing something across them, and put out your lamps.",
+        "narr": "Jabir ibn 'Abdullah (may Allah be pleased with them both)",
+        "note": "Comprehensive etiquette at nightfall — a hadith to know and act upon"
+      }
+    },
+    "books": {
+      "quran": "The Quran",
+      "bukhari": "Sahih al-Bukhari",
+      "muslim": "Sahih Muslim",
+      "abudawud": "Sunan Abi Dawud",
+      "tirmidhi": "Jami' al-Tirmidhi",
+      "nasai": "Sunan al-Nasa'i",
+      "nasai_kubra": "al-Sunan al-Kubra (al-Nasa'i)",
+      "ibnmajah": "Sunan Ibn Majah",
+      "ahmad": "Musnad Ahmad",
+      "malik": "Muwatta Malik",
+      "darimi": "Sunan al-Darimi",
+      "ibnhibban": "Sahih Ibn Hibban",
+      "ibnkhuzaymah": "Sahih Ibn Khuzaymah",
+      "hakim": "al-Mustadrak (al-Hakim)",
+      "tabarani": "al-Tabarani's Mu'jam",
+      "bayhaqi": "al-Bayhaqi's Sunan",
+      "ibnalsunni": "'Amal al-Yawm wal-Laylah (Ibn al-Sunni)",
+      "adabmufrad": "al-Adab al-Mufrad (al-Bukhari)",
+      "ibnabishaybah": "Musannaf Ibn Abi Shaybah",
+      "abdurrazzaq": "Musannaf 'Abd al-Razzaq",
+      "bukhari_muallaq": "Cited by al-Bukhari without a chain, before hadith",
+      "nasai_amal": "'Amal al-Yawm wal-Laylah (al-Nasa'i)",
+      "majma": "Majma' al-Zawa'id (al-Haythami, from al-Tabarani)"
+    },
+    "grades": {
+      "quran": "Quranic verse",
+      "muttafaq": "Agreed upon (al-Bukhari and Muslim)",
+      "sahih": "Sahih (authentic)",
+      "hasan": "Hasan (good)",
+      "daif": "Da'if (weak)"
+    },
+    "by": {
+      "albani": "al-Albani",
+      "arnaut": "Shu'ayb al-Arna'ut",
+      "ibnbaz": "Ibn Baz",
+      "ibnhajar": "Ibn Hajar",
+      "nawawi": "al-Nawawi",
+      "tirmidhi": "al-Tirmidhi",
+      "hakim": "al-Hakim",
+      "dhahabi": "al-Dhahabi",
+      "ibnalqayyim": "Ibn al-Qayyim"
+    }
   }
 }
