@@ -541,6 +541,17 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val exactAlarmDesc: String by lazy { s("exactAlarmDesc") ?: En.exactAlarmDesc }
     override val about: String by lazy { s("about") ?: En.about }
     override val aboutName: String by lazy { s("aboutName") ?: En.aboutName }
+    override val adhkarNow: String by lazy { s("adhkarNow") ?: En.adhkarNow }
+    override val dhikrEvidence: String by lazy { s("dhikrEvidence") ?: En.dhikrEvidence }
+    override val dhikrSource: String by lazy { s("dhikrSource") ?: En.dhikrSource }
+    override val dhikrGrade: String by lazy { s("dhikrGrade") ?: En.dhikrGrade }
+    override val dhikrNarrator: String by lazy { s("dhikrNarrator") ?: En.dhikrNarrator }
+    override val dhikrVirtue: String by lazy { s("dhikrVirtue") ?: En.dhikrVirtue }
+    override val dhikrQuranRef: String by lazy { s("dhikrQuranRef") ?: En.dhikrQuranRef }
+    override val dhikrDone: String by lazy { s("dhikrDone") ?: En.dhikrDone }
+    override val dhikrTapHint: String by lazy { s("dhikrTapHint") ?: En.dhikrTapHint }
+    override fun dhikrTimes(n: Int): String = f("dhikrTimes", "n" to n) ?: En.dhikrTimes(n)
+    override fun dhikrItems(n: Int): String = f("dhikrItems", "n" to n) ?: En.dhikrItems(n)
     override val moreLanguages: String by lazy { s("moreLanguages") ?: En.moreLanguages }
     override val langPackHint: String by lazy { s("langPackHint") ?: En.langPackHint }
     override val update: String by lazy { s("update") ?: En.update }

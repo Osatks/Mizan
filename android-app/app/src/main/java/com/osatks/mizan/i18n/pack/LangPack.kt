@@ -22,6 +22,8 @@ class LangPack(
     val strings: Map<String, Any?>,
     /** نص الدليل بالإنجليزية ← ترجمته */
     val evidence: Map<String, String>,
+    /** ترجمة الأذكار (بصيغة assets/adhkar/<code>.json)، إن وُجدت */
+    val adhkar: Map<String, Any?>? = null,
 ) {
     companion object {
         /** أعلى إصدار من الصيغة يفهمه هذا التطبيق؛ الحزم الأحدث تُتجاهل حتى يُحدَّث */
@@ -53,6 +55,7 @@ class LangPack(
                 tafsirFallback = (o["tafsirFallback"] as? List<String>).orEmpty(),
                 strings = o["strings"] as? Map<String, Any?> ?: emptyMap(),
                 evidence = (o["evidence"] as? Map<String, Any?>).orEmpty().mapNotNull { (k, v) -> (v as? String)?.let { k to it } }.toMap(),
+                adhkar = o["adhkar"] as? Map<String, Any?>,
             )
         }
     }

@@ -90,7 +90,8 @@ class PackTest {
         }
     }
 
-    private val vars = Regex("""\{(\w+)[},]""")
+    /** متغيرات القالب ({name} أو {n, plural…})، لا صيغ الجمع نفسها مثل one {once} */
+    private val vars = Regex("""(?<!(?:zero|one|two|few|many|other|=\d|=\d\d) )\{(\w+)[},]""")
 
     private fun checkValue(where: String, en: Any?, tr: Any?) {
         when (en) {

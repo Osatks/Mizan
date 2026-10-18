@@ -36,6 +36,7 @@
   "addHeirs": "Quyidagi roʻyxatdan merosxoʻrlarni qoʻshing",
   "adhanAlert": "Azon eslatmasi",
   "adhanAlertDesc": "Har bir namoz vaqti kirganda bildirishnoma",
+  "adhkarNow": "Hozir",
   "adilCase": "Odila masala",
   "ageGregorian": "Yoshingiz (milodiy)",
   "ageSubtitle": "Hijriy va milodiy yillarda",
@@ -227,6 +228,10 @@
   "delete": "Oʻchirish",
   "deleteTafsirQ": "“{name}” ushbu qurilmadan oʻchirilsinmi?",
   "deviceLanguage": "Qurilma tili",
+  "dhikrDone": "Bu zikrlarni tugatdingiz. Alloh qabul qilsin",
+  "dhikrEvidence": "Dalil",
+  "dhikrGrade": "Hadis darajasi",
+  "dhikrItems": "{n, plural, one {# zikr} other {# zikr}}",
   "dhikrLabels": [
    "Subhanalloh",
    "Alhamdulillah",
@@ -249,6 +254,12 @@
    "Kuch-quvvat faqat Alloh bilandir",
    "Allohim, Muhammadga salovot yoʻllagin"
   ],
+  "dhikrNarrator": "Roviy",
+  "dhikrQuranRef": "Qurʼoni Karimdan",
+  "dhikrSource": "Manba",
+  "dhikrTapHint": "Sanash uchun zikrga, manba va darajasini koʻrish uchun «Dalil»ga bosing",
+  "dhikrTimes": "{n, plural, one {# marta} other {# marta}}",
+  "dhikrVirtue": "Fazilati",
   "directions": [
    "shimol",
    "shimoli-sharq",
@@ -882,7 +893,8 @@
    "tasbih": "zikr tasbeh hisoblagich sanagich duo",
    "fitr": "fitr fitra sadaqa soʻ hayit",
    "age": "tugʻilgan kun yosh yillar",
-   "fidya": "fidya kafforat qasam roʻza taom toʻydirish"
+   "fidya": "fidya kafforat qasam roʻza taom toʻydirish",
+   "adhkar": "zikr zikrlar duo hisnul muslim tong kech uyqu ramazon azkor"
   },
   "tools": {
    "zakat": {
@@ -924,6 +936,10 @@
    "fidya": {
     "name": "Fidya va kafforat",
     "desc": "Qoldirilgan roʻzalar va buzilgan qasamlar"
+   },
+   "adhkar": {
+    "name": "Zikrlar",
+    "desc": "«Musulmon qoʻrgʻoni» va kundalik zikrlar, dalillari bilan"
    }
   },
   "toolsTitle": "Vositalar",

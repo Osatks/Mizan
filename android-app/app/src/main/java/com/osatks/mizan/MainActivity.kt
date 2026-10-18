@@ -83,6 +83,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         AppSettings.init(this)
         QuranData.init(this)
+        com.osatks.mizan.adhkar.Adhkar.init(this)
         com.osatks.mizan.quran.TafsirLibrary.init(this)
         // إن أُغلق التطبيق أثناء القراءة في وضع التركيز يُعاد «عدم الإزعاج» كما كان
         com.osatks.mizan.ui.quran.QuietReading.restore(this)
@@ -112,7 +113,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide")
+private val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -168,6 +169,7 @@ fun MizanApp(startRoute: String? = null) {
                         }
                     }
                     screen("tasbih") { TasbihScreen() }
+                    screen("adhkar") { com.osatks.mizan.ui.screens.AdhkarScreen(back) }
                     screen("settings") { SettingsScreen(open = { nav.navigate(it) }) }
                     screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
                     screen("guide") { com.osatks.mizan.ui.screens.Onboarding(back) }

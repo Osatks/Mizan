@@ -1,5 +1,6 @@
 package com.osatks.mizan.i18n
 
+import com.osatks.mizan.i18n.pack.Template
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
 
@@ -60,6 +61,7 @@ object En : Strings {
         "hijri" to Named("Hijri Date", "Convert dates, Umm al-Qura calendar"),
         "events" to Named("Islamic Events", "Ramadan, the two Eids and Arafah"),
         "tasbih" to Named("Tasbih", "Dhikr counter with ready adhkar"),
+        "adhkar" to Named("Adhkar", "Fortress of the Muslim and daily adhkar, with evidence"),
         "fitr" to Named("Zakat al-Fitr", "By the sa' or by value"),
         "age" to Named("Age Calculator", "In Hijri and Gregorian years"),
         "fidya" to Named("Fidya & Kaffarah", "Missed fasts and broken oaths"),
@@ -72,6 +74,7 @@ object En : Strings {
         "hijri" to "calendar date convert islamic umm al-qura",
         "events" to "ramadan eid arafah ashura holidays",
         "tasbih" to "dhikr zikr counter beads adhkar",
+        "adhkar" to "adhkar azkar dhikr dua supplication hisn fortress morning evening sleep ramadan",
         "fitr" to "fitrah fitra sa eid",
         "age" to "birthday birth years",
         "fidya" to "fidyah kaffara expiation oath fasting feeding",
@@ -672,6 +675,17 @@ object En : Strings {
     override val exactAlarmDesc = "Allow exact alarms so the adhan alert arrives on time"
     override val about = "About"
     override val aboutName = "Mizan — Muslim tools"
+    override val adhkarNow = "Now"
+    override val dhikrEvidence = "Evidence"
+    override val dhikrSource = "Source"
+    override val dhikrGrade = "Grade"
+    override val dhikrNarrator = "Narrator"
+    override val dhikrVirtue = "Virtue"
+    override val dhikrQuranRef = "From the Holy Quran"
+    override val dhikrDone = "You completed these adhkar. May Allah accept it from you"
+    override val dhikrTapHint = "Tap a dhikr to count it, and Evidence to see its source and grade"
+    override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {once} other {# times}}", mapOf("n" to n), "en")
+    override fun dhikrItems(n: Int) = Template.format("{n, plural, one {# dhikr} other {# adhkar}}", mapOf("n" to n), "en")
     override val moreLanguages = "Download more languages"
     override val langPackHint = "Languages are downloaded from the Mizan website together with their Quran translation, then work offline."
     override val update = "Update"

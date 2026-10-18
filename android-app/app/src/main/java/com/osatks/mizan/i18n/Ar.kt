@@ -1,5 +1,6 @@
 package com.osatks.mizan.i18n
 
+import com.osatks.mizan.i18n.pack.Template
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
 import com.osatks.mizan.quran.QuranMeta
@@ -68,6 +69,7 @@ object Ar : Strings {
         "hijri" to Named("التاريخ الهجري", "تحويل وتقويم أم القرى"),
         "events" to Named("المناسبات", "رمضان والعيدان وعرفة"),
         "tasbih" to Named("المسبحة", "عدّاد ذكر مع أذكار جاهزة"),
+        "adhkar" to Named("الأذكار", "حصن المسلم وأذكار اليوم والليلة بأدلتها"),
         "fitr" to Named("زكاة الفطر", "بالصاع أو بالقيمة"),
         "age" to Named("حاسبة العمر", "بالهجري والميلادي"),
         "fidya" to Named("الفدية والكفارة", "الصيام واليمين"),
@@ -80,6 +82,7 @@ object Ar : Strings {
         "hijri" to "تاريخ هجري ميلادي تقويم تحويل أم القرى",
         "events" to "رمضان عيد عرفة عاشوراء مناسبة",
         "tasbih" to "تسبيح ذكر أذكار سبحة عداد",
+        "adhkar" to "أذكار اذكار حصن المسلم الصباح المساء النوم دعاء أدعية رمضان",
         "fitr" to "فطرة فطر صاع عيد",
         "age" to "عمر ميلاد سن",
         "fidya" to "فدية كفارة يمين صيام إطعام",
@@ -655,6 +658,17 @@ object Ar : Strings {
     override val exactAlarmDesc = "اسمح للتطبيق بالمنبهات الدقيقة لضبط وقت الأذان"
     override val about = "عن التطبيق"
     override val aboutName = "ميزان — أدوات المسلم"
+    override val adhkarNow = "وقتها الآن"
+    override val dhikrEvidence = "الدليل"
+    override val dhikrSource = "المصدر"
+    override val dhikrGrade = "درجة الحديث"
+    override val dhikrNarrator = "الراوي"
+    override val dhikrVirtue = "الفضل"
+    override val dhikrQuranRef = "من القرآن الكريم"
+    override val dhikrDone = "أتممت هذه الأذكار، تقبّل الله منك"
+    override val dhikrTapHint = "اضغط على الذكر لتعدّ، وعلى ﴿الدليل﴾ لترى مصدره ودرجته"
+    override fun dhikrTimes(n: Int) = Template.format("{n, plural, =1 {مرة واحدة} =2 {مرتان} few {# مرات} other {# مرة}}", mapOf("n" to n), "ar")
+    override fun dhikrItems(n: Int) = Template.format("{n, plural, =1 {ذكر واحد} =2 {ذكران} few {# أذكار} other {# ذكرًا}}", mapOf("n" to n), "ar")
     override val moreLanguages = "تنزيل لغات أخرى"
     override val langPackHint = "تُنزَّل اللغات من موقع ميزان مع ترجمة معاني القرآن، ثم تعمل دون إنترنت."
     override val update = "تحديث"

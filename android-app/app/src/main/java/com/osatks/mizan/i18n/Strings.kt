@@ -539,6 +539,18 @@ interface Strings {
     val exactAlarmDesc: String
     val about: String
     val aboutName: String
+    // ---------- Adhkar ----------
+    val adhkarNow: String              // badge on the section suggested for this time of day: "Now"
+    val dhikrEvidence: String          // button + sheet title: "Evidence"
+    val dhikrSource: String            // "Source" (book and hadith number)
+    val dhikrGrade: String             // "Grade" of the hadith
+    val dhikrNarrator: String          // "Narrator"
+    val dhikrVirtue: String            // "Virtue"
+    val dhikrQuranRef: String          // "From the Holy Quran"
+    val dhikrDone: String              // shown when a section is completed
+    val dhikrTapHint: String           // tap to count, tap Evidence for the source
+    fun dhikrTimes(n: Int): String     // "3 times" (repeat count)
+    fun dhikrItems(n: Int): String     // "24 adhkar" (section size)
     val moreLanguages: String          // section in the language sheet: "Download more languages"
     val langPackHint: String           // languages come from the Mizan website, then work offline with their Quran translation
     val update: String                 // button: "Update"

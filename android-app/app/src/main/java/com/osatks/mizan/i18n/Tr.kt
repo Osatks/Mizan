@@ -1,5 +1,6 @@
 package com.osatks.mizan.i18n
 
+import com.osatks.mizan.i18n.pack.Template
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
 
@@ -61,6 +62,7 @@ object Tr : Strings {
         "hijri" to Named("Hicri Tarih", "Tarih çevirme, Ümmü'l-Kurâ takvimi"),
         "events" to Named("Dinî Günler", "Ramazan, iki bayram ve Arefe"),
         "tasbih" to Named("Tespih", "Hazır zikirlerle zikir sayacı"),
+        "adhkar" to Named("Zikirler", "Hısnu’l-Müslim ve günlük zikirler, delilleriyle"),
         "fitr" to Named("Fitre", "Sâ' ölçüsüyle veya bedel olarak"),
         "age" to Named("Yaş Hesaplama", "Hicri ve Miladi yıllarla"),
         "fidya" to Named("Fidye ve Kefaret", "Tutulamayan oruçlar ve bozulan yeminler"),
@@ -73,6 +75,7 @@ object Tr : Strings {
         "hijri" to "takvim tarih çevir cevir hicri miladi ümmülkura ummulkura",
         "events" to "ramazan bayram arefe aşure asure kandil dini günler gunler",
         "tasbih" to "tespih tesbih zikir zikirmatik sayaç sayac tesbihat",
+        "adhkar" to "zikir zikirler dua hisnul müslim sabah akşam uyku ramazan ezkar",
         "fitr" to "fitre fıtır fitir sadaka sa bayram",
         "age" to "yaş yas doğum dogum günü gunu yıl yil",
         "fidya" to "fidye kefaret keffaret yemin oruç oruc doyurma",
@@ -673,6 +676,17 @@ object Tr : Strings {
     override val exactAlarmDesc = "Ezan bildiriminin zamanında gelmesi için tam alarmlara izin verin"
     override val about = "Hakkında"
     override val aboutName = "Mizan — Müslümanın araçları"
+    override val adhkarNow = "Şimdi"
+    override val dhikrEvidence = "Delil"
+    override val dhikrSource = "Kaynak"
+    override val dhikrGrade = "Hadisin derecesi"
+    override val dhikrNarrator = "Râvi"
+    override val dhikrVirtue = "Fazileti"
+    override val dhikrQuranRef = "Kur’an-ı Kerim’den"
+    override val dhikrDone = "Bu zikirleri tamamladınız. Allah kabul etsin"
+    override val dhikrTapHint = "Saymak için zikre, kaynağını ve derecesini görmek için “Delil”e dokunun"
+    override fun dhikrTimes(n: Int) = Template.format("{n, plural, other {# kez}}", mapOf("n" to n), "tr")
+    override fun dhikrItems(n: Int) = Template.format("{n, plural, other {# zikir}}", mapOf("n" to n), "tr")
     override val moreLanguages = "Başka diller indir"
     override val langPackHint = "Diller, Kur’an mealleriyle birlikte Mizan web sitesinden indirilir ve sonra internetsiz çalışır."
     override val update = "Güncelle"

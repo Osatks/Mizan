@@ -88,6 +88,7 @@ object LanguagePacks {
         // نصوص ترجمة المعاني بخط آخر تُحوَّل عند قراءتها
         all.forEach { p -> p.quran?.let { q -> p.quranTranslit()?.let { QuranTranslit.map[q.id] = it } } }
         Lang.register(all)
+        com.osatks.mizan.adhkar.Adhkar.clearTranslations()
         Lang.packs.map { it.code }.filter { it !in all.map { p -> p.code } }.forEach(Lang::unregister)
     }
 

@@ -256,7 +256,7 @@ private fun ProofItem(p: Proof, lang: Lang, quran: Array<String>?, translation: 
 
 /** الاقتباس (آية أو حديث) بخط جانبي ذهبي */
 @Composable
-private fun Quote(content: @Composable () -> Unit) {
+internal fun Quote(content: @Composable () -> Unit) {
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).clip(RoundedCornerShape(12.dp)).background(Gold.copy(alpha = .08f))) {
         Box(Modifier.width(3.dp).fillMaxHeight().background(Gold))
         Box(Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 8.dp)) { content() }

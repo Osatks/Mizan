@@ -1,5 +1,6 @@
 package com.osatks.mizan.i18n
 
+import com.osatks.mizan.i18n.pack.Template
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
 
@@ -61,6 +62,7 @@ object Ur : Strings {
         "hijri" to Named("ہجری تاریخ", "تاریخ کی تبدیلی، ام القریٰ کیلنڈر"),
         "events" to Named("اسلامی ایام", "رمضان، عیدین اور یوم عرفہ"),
         "tasbih" to Named("تسبیح", "تیار اذکار کے ساتھ ذکر کاؤنٹر"),
+        "adhkar" to Named("اذکار", "حصن المسلم اور دن رات کے اذکار، دلائل کے ساتھ"),
         "fitr" to Named("صدقۂ فطر", "صاع کے حساب سے یا قیمت سے"),
         "age" to Named("عمر کیلکولیٹر", "ہجری اور عیسوی سالوں میں"),
         "fidya" to Named("فدیہ و کفارہ", "چھوٹے روزے اور ٹوٹی قسمیں"),
@@ -73,6 +75,7 @@ object Ur : Strings {
         "hijri" to "ہجری عیسوی تاریخ کیلنڈر تقویم تبدیلی اسلامی ام القری چاند hijri",
         "events" to "رمضان عید عرفہ عاشورہ محرم تہوار ایام شب قدر ramzan eid",
         "tasbih" to "تسبیح ذکر اذکار کاؤنٹر گنتی وظیفہ tasbeeh zikr",
+        "adhkar" to "اذکار ذکر دعا دعائیں حصن المسلم صبح شام سونا رمضان azkar",
         "fitr" to "فطرہ فطرانہ صدقہ فطر صاع عید fitrana",
         "age" to "عمر سالگرہ پیدائش سال umar",
         "fidya" to "فدیہ کفارہ قسم روزہ روزے کھانا مسکین fidya kaffara",
@@ -673,6 +676,17 @@ object Ur : Strings {
     override val exactAlarmDesc = "عین وقت کے الارم کی اجازت دیں تاکہ اذان کی اطلاع بروقت آئے"
     override val about = "ایپ کے بارے میں"
     override val aboutName = "میزان — مسلمانوں کے لیے ٹولز"
+    override val adhkarNow = "ابھی کا وقت"
+    override val dhikrEvidence = "دلیل"
+    override val dhikrSource = "ماخذ"
+    override val dhikrGrade = "حدیث کا درجہ"
+    override val dhikrNarrator = "راوی"
+    override val dhikrVirtue = "فضیلت"
+    override val dhikrQuranRef = "قرآن کریم سے"
+    override val dhikrDone = "آپ نے یہ اذکار مکمل کر لیے، اللہ قبول فرمائے"
+    override val dhikrTapHint = "گننے کے لیے ذکر پر، اور ماخذ و درجہ دیکھنے کے لیے «دلیل» پر ٹیپ کریں"
+    override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {ایک بار} other {# بار}}", mapOf("n" to n), "ur")
+    override fun dhikrItems(n: Int) = Template.format("{n, plural, other {# اذکار}}", mapOf("n" to n), "ur")
     override val moreLanguages = "مزید زبانیں ڈاؤن لوڈ کریں"
     override val langPackHint = "زبانیں قرآن کے ترجمے سمیت میزان کی ویب سائٹ سے ڈاؤن لوڈ ہوتی ہیں، پھر انٹرنیٹ کے بغیر چلتی ہیں۔"
     override val update = "اپ ڈیٹ"

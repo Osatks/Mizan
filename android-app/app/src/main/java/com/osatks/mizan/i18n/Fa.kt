@@ -1,5 +1,6 @@
 package com.osatks.mizan.i18n
 
+import com.osatks.mizan.i18n.pack.Template
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
 
@@ -61,6 +62,7 @@ object Fa : Strings {
         "hijri" to Named("تاریخ هجری قمری", "تبدیل تاریخ، تقویم ام‌القری"),
         "events" to Named("مناسبت‌های اسلامی", "رمضان، عیدین و روز عرفه"),
         "tasbih" to Named("تسبیح", "شمارشگر ذکر با اذکار آماده"),
+        "adhkar" to Named("اذکار", "حصن المسلم و اذکار شبانه‌روز، با دلیل"),
         "fitr" to Named("زکات فطره", "به صاع یا به ارزش نقدی"),
         "age" to Named("محاسبه‌گر سن", "به سال قمری و میلادی"),
         "fidya" to Named("فدیه و کفاره", "روزه‌های ازدست‌رفته و قسم"),
@@ -73,6 +75,7 @@ object Fa : Strings {
         "hijri" to "تقویم تاریخ هجری قمری میلادی تبدیل ام‌القری امالقری",
         "events" to "رمضان عید فطر قربان اضحی عرفه عاشورا مناسبت تعطیلات",
         "tasbih" to "تسبیح ذکر اذکار تسبیحات شمارشگر شمارنده",
+        "adhkar" to "اذکار ذکر دعا حصن المسلم صبح شام خواب رمضان",
         "fitr" to "فطره فطریه فطر صاع عید",
         "age" to "سن عمر تولد سالگرد",
         "fidya" to "فدیه کفاره قسم سوگند یمین روزه اطعام",
@@ -673,6 +676,17 @@ object Fa : Strings {
     override val exactAlarmDesc = "اجازه هشدار دقیق بدهید تا اعلان اذان سر وقت برسد"
     override val about = "درباره"
     override val aboutName = "میزان — ابزارهای مسلمان"
+    override val adhkarNow = "اکنون"
+    override val dhikrEvidence = "دلیل"
+    override val dhikrSource = "منبع"
+    override val dhikrGrade = "درجهٔ حدیث"
+    override val dhikrNarrator = "راوی"
+    override val dhikrVirtue = "فضیلت"
+    override val dhikrQuranRef = "از قرآن کریم"
+    override val dhikrDone = "این اذکار را کامل کردید؛ خداوند از شما بپذیرد"
+    override val dhikrTapHint = "برای شمردن روی ذکر، و برای دیدن منبع و درجه روی «دلیل» بزنید"
+    override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {یک بار} other {# بار}}", mapOf("n" to n), "fa")
+    override fun dhikrItems(n: Int) = Template.format("{n, plural, other {# ذکر}}", mapOf("n" to n), "fa")
     override val moreLanguages = "دریافت زبان‌های دیگر"
     override val langPackHint = "زبان‌ها همراه ترجمهٔ قرآن از وب‌سایت میزان دریافت می‌شوند و سپس بدون اینترنت کار می‌کنند."
     override val update = "به‌روزرسانی"

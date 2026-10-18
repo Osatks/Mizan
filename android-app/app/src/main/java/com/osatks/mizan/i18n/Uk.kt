@@ -1,5 +1,6 @@
 package com.osatks.mizan.i18n
 
+import com.osatks.mizan.i18n.pack.Template
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
 
@@ -80,6 +81,7 @@ object Uk : Strings {
         "hijri" to Named("Дата за хіджрою", "Переведення дат, календар Умм аль-Кура"),
         "events" to Named("Ісламські дати", "Рамадан, обидва Іди та день Арафа"),
         "tasbih" to Named("Тасбіх", "Лічильник зікрів із готовими формулами"),
+        "adhkar" to Named("Азкари", "«Фортеця мусульманина» і щоденні азкари з доказами"),
         "fitr" to Named("Закят аль-Фітр", "Мірою са' або грошима"),
         "age" to Named("Калькулятор віку", "У роках за хіджрою та григоріанських"),
         "fidya" to Named("Фідья і каффара", "Пропущений піст і порушені клятви"),
@@ -92,6 +94,7 @@ object Uk : Strings {
         "hijri" to "календар дата хіджра хіджрі ісламський переведення конвертер умм аль-кура",
         "events" to "рамадан рамазан ід ураза курбан байрам свято арафа ашура кадр",
         "tasbih" to "зікр зікри азкари вервиця чотки лічильник тасбіх",
+        "adhkar" to "азкари зікр дуа молитва фортеця мусульманина ранок вечір сон рамадан",
         "fitr" to "фітр фітра закят садака ураза байрам ід са",
         "age" to "вік день народження роки років",
         "fidya" to "фідья фідія каффара кафара спокута клятва піст годування",
@@ -692,6 +695,17 @@ object Uk : Strings {
     override val exactAlarmDesc = "Дозвольте точні будильники, щоб сповіщення про азан надходило вчасно"
     override val about = "Про застосунок"
     override val aboutName = "Мізан — інструменти мусульманина"
+    override val adhkarNow = "Зараз"
+    override val dhikrEvidence = "Доказ"
+    override val dhikrSource = "Джерело"
+    override val dhikrGrade = "Ступінь хадису"
+    override val dhikrNarrator = "Передавач"
+    override val dhikrVirtue = "Чеснота"
+    override val dhikrQuranRef = "Зі Священного Корану"
+    override val dhikrDone = "Ви завершили ці азкари. Нехай Аллаг прийме від вас"
+    override val dhikrTapHint = "Торкніться зікру, щоб рахувати, і «Доказ», щоб побачити джерело та ступінь"
+    override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {# раз} few {# рази} many {# разів} other {# рази}}", mapOf("n" to n), "uk")
+    override fun dhikrItems(n: Int) = Template.format("{n, plural, one {# зікр} few {# зікри} many {# зікрів} other {# зікру}}", mapOf("n" to n), "uk")
     override val moreLanguages = "Завантажити інші мови"
     override val langPackHint = "Мови завантажуються з сайту Mizan разом із перекладом Корану, а потім працюють без інтернету."
     override val update = "Оновити"

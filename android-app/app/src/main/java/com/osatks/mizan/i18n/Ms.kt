@@ -1,5 +1,6 @@
 package com.osatks.mizan.i18n
 
+import com.osatks.mizan.i18n.pack.Template
 import com.osatks.mizan.core.InhNote
 import com.osatks.mizan.core.ShareType
 
@@ -61,6 +62,7 @@ object Ms : Strings {
         "hijri" to Named("Tarikh Hijrah", "Tukar tarikh, kalendar Umm al-Qura"),
         "events" to Named("Hari Kebesaran Islam", "Ramadan, dua Hari Raya dan Arafah"),
         "tasbih" to Named("Tasbih", "Pengira zikir dengan zikir sedia ada"),
+        "adhkar" to Named("Zikir & Doa", "Hisnul Muslim dan zikir harian, berserta dalil"),
         "fitr" to Named("Zakat Fitrah", "Mengikut gantang (sa') atau nilai wang"),
         "age" to Named("Kalkulator Umur", "Dalam tahun Hijrah dan Masihi"),
         "fidya" to Named("Fidyah & Kafarah", "Puasa yang ditinggalkan dan sumpah yang dilanggar"),
@@ -73,6 +75,7 @@ object Ms : Strings {
         "hijri" to "hijrah hijriah hijri takwim kalendar tarikh tukar islam masihi umm al-qura",
         "events" to "ramadan raya aidilfitri aidiladha arafah asyura muharam maal hijrah cuti",
         "tasbih" to "zikir tasbih pembilang pengira biji wirid",
+        "adhkar" to "zikir doa hisnul muslim pagi petang tidur ramadan azkar",
         "fitr" to "fitrah fitri gantang beras raya",
         "age" to "umur usia hari jadi lahir tahun",
         "fidya" to "fidyah fidya kafarah kaffarah sumpah puasa qada denda beri makan",
@@ -673,6 +676,17 @@ object Ms : Strings {
     override val exactAlarmDesc = "Benarkan penggera tepat supaya peringatan azan tiba tepat pada waktunya"
     override val about = "Perihal"
     override val aboutName = "Mizan — Alatan Muslim"
+    override val adhkarNow = "Sekarang"
+    override val dhikrEvidence = "Dalil"
+    override val dhikrSource = "Sumber"
+    override val dhikrGrade = "Darjat hadis"
+    override val dhikrNarrator = "Perawi"
+    override val dhikrVirtue = "Kelebihan"
+    override val dhikrQuranRef = "Daripada al-Quran"
+    override val dhikrDone = "Anda telah menyempurnakan zikir ini. Semoga Allah menerimanya"
+    override val dhikrTapHint = "Ketik zikir untuk mengira, dan “Dalil” untuk melihat sumber dan darjatnya"
+    override fun dhikrTimes(n: Int) = Template.format("{n, plural, other {# kali}}", mapOf("n" to n), "ms")
+    override fun dhikrItems(n: Int) = Template.format("{n, plural, other {# zikir}}", mapOf("n" to n), "ms")
     override val moreLanguages = "Muat turun bahasa lain"
     override val langPackHint = "Bahasa dimuat turun dari laman web Mizan bersama terjemahan al-Quran, kemudian berfungsi tanpa internet."
     override val update = "Kemas kini"

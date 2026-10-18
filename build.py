@@ -419,8 +419,12 @@ def publish_language_packs():
         packs[pack["code"]] = (f, pack)  # حزمة الموقع تحل محل المضمّنة بالرمز نفسه
     index = []
     for code, (f, pack) in sorted(packs.items()):
-        size = f.stat().st_size
-        shutil.copy2(f, out / f"{code}.json")
+        # ترجمة الأذكار المضمّنة في التطبيق تُرفق بالحزمة المنشورة
+        adhkar = app / "adhkar" / f"{code}.json"
+        if adhkar.exists() and "adhkar" not in pack:
+            pack["adhkar"] = json.loads(adhkar.read_text(encoding="utf-8"))
+        (out / f"{code}.json").write_text(json.dumps(pack, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        size = (out / f"{code}.json").stat().st_size
         q = pack.get("quran")
         if q:
             qf = next((c for c in (site / q["file"], app / "tafsir" / f"{q['id']}.txt") if c.exists()), None)
