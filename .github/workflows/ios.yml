@@ -4,8 +4,9 @@ name: iOS App
 # (Sideloadly أو AltStore بحساب Apple مجاني). الواجهات والمنطق من وحدة Kotlin المشتركة مع أندرويد.
 on:
   workflow_dispatch:
+  # فروع التطوير أيضاً: التشغيل اليدوي لا يتاح لملف جديد حتى يصل إلى main
   push:
-    branches: [main]
+    branches: [main, "claude/**"]
     paths:
       - "android-app/shared/**"
       - "iosApp/**"
