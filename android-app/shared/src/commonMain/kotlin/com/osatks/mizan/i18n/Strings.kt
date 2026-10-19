@@ -440,6 +440,10 @@ interface Strings {
     val stopRecitation: String          // "Stop recitation"
     val repeatAyah: String              // "Repeat each ayah"
     val listenFromHere: String          // "Listen from this ayah" (tafsir sheet)
+    val listen: String                  // "Listen" (ayah actions bar)
+    val save: String                    // "Save" (bookmark an ayah)
+    val saved: String                   // "Saved"
+    val ayahActionsHint: String         // first-time hint for the long-press ayah bar
     val audioNote: String               // streaming source + offline cache
     val audioError: String              // "Couldn't play the recitation. Check your internet connection."
     val hifzMode: String                // "Memorization" (hide ayahs)

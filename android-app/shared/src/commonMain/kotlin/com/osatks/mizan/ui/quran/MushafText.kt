@@ -323,12 +323,13 @@ private fun baseline(top: Float, h: Float, size: Float) = top + h / 2 + size * 0
 
 /**
  * نص صفحة المصحف مرسوماً دفعة واحدة على Canvas: أخف بكثير من عنصر لكل كلمة، فيبقى تقليب الصفحات سلساً.
- * الآية المختارة تُظلَّل بشريط متصل يتلاشى بين آية وأخرى، والضغط على أي كلمة يفتح تفسير آيتها.
+ * الآية المختارة تُظلَّل بشريط متصل يتلاشى بين آية وأخرى، والضغط على أي كلمة يفتح تفسير آيتها،
+ * والضغط المطوّل يُظهر خيارات الآية.
  */
 @Composable
 fun MushafCanvas(
     page: Int, text: Array<String>, selected: Int, onTap: (Int) -> Unit, modifier: Modifier = Modifier,
-    hifz: Boolean = false, revealed: Set<Int> = emptySet(),
+    hifz: Boolean = false, revealed: Set<Int> = emptySet(), onLongPress: ((Int) -> Unit)? = null,
 ) {
     val p = mushafPalette()
     val density = LocalDensity.current
@@ -339,6 +340,7 @@ fun MushafCanvas(
         QuranMeta.pageRange(page).joinToString(" ") { QuranData.withoutBismillah(text, it) + " (" + QuranMeta.locate(it).second + ")" }
     }
     val tapState = rememberUpdatedState(onTap)
+    val longState = rememberUpdatedState(onLongPress)
 
     BoxWithConstraints(modifier) {
         val w = constraints.maxWidth.toFloat()
@@ -414,7 +416,9 @@ fun MushafCanvas(
                                     val i = l.hit(pos.x, pos.y)
                                     if (i >= 0) { pressed = i; tryAwaitRelease(); pressed = -1 }
                                 },
-                                onTap = { pos -> val i = l.hit(pos.x, pos.y); if (i >= 0) tapState.value(i) }
+                                onTap = { pos -> val i = l.hit(pos.x, pos.y); if (i >= 0) tapState.value(i) },
+                                // الضغط المطوّل: شريط خيارات الآية (التفسير والاستماع والحفظ والنسخ والمشاركة)
+                                onLongPress = { pos -> val i = l.hit(pos.x, pos.y); if (i >= 0) longState.value?.invoke(i) },
                             )
                         }
                 )

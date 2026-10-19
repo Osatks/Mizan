@@ -101,6 +101,10 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import com.osatks.mizan.ui.BackHandler
+import androidx.compose.foundation.combinedClickable
+import com.osatks.mizan.core.AppSettings
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.displayCutout
@@ -146,7 +150,11 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val scope = rememberCoroutineScope()
     val count = QuranMeta.COUNTS[listSurah - 1]
 
-    fun open(i: Int) { selIdx = i; sheetIdx = i; QuranPrefs.updateLast(i) }
+    // شريط خيارات الآية (بالضغط المطوّل)
+    var actionIdx by remember { mutableStateOf<Int?>(null) }
+    val haptic = LocalHapticFeedback.current
+    fun open(i: Int) { actionIdx = null; selIdx = i; sheetIdx = i; QuranPrefs.updateLast(i) }
+    fun longPress(i: Int) { selIdx = i; actionIdx = i; haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
     fun listItemOf(ayah: Int) = ayah // العنصر 0 هو الترويسة
     fun firstListIndex() = QuranMeta.index(listSurah, list.firstVisibleItemIndex.coerceIn(1, count))
     fun currentIndex() = if (mode == "mushaf") QuranMeta.pageRange(pager.currentPage + 1).first else firstListIndex()
@@ -196,6 +204,13 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         wasReached = portionReached
     }
     var hifzHint by remember { mutableStateOf(false) }
+    // تلميح الضغط المطوّل: يظهر في أول ثلاث مرات تُفتح فيها السورة
+    var ayahHint by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        val seen = AppSettings.getInt("ayah_hint")
+        if (seen < 3) { AppSettings.putInt("ayah_hint", seen + 1); delay(1200); ayahHint = true; delay(5000); ayahHint = false }
+    }
+    LaunchedEffect(pager.currentPage, listSurah) { actionIdx = null }
     LaunchedEffect(hifzHint) { if (hifzHint) { delay(4500); hifzHint = false } }
     LaunchedEffect(focus, mode) {
         if (focus && mode == "list") {
@@ -340,6 +355,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                             MushafPage(
                                 p + 1, t, selIdx, bottom + playerRoom, onFrameTap = { if (focus) exitPing++ },
                                 hifz = hifzOn, revealed = revealed, onEdge = if (focus) ::turn else null,
+                                onLongPress = { longPress(it) },
                             ) { tapAyah(it) }
                         }
                     }
@@ -365,7 +381,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                     items(count, key = { "a${listSurah}_${it + 1}" }) { i ->
                         val a = i + 1
                         val idx = QuranMeta.index(listSurah, a)
-                        AyahItem(listSurah, a, t, trText, translation?.lang?.rtl ?: false, selIdx == idx, size, last = a == count) { open(idx) }
+                        AyahItem(listSurah, a, t, trText, translation?.lang?.rtl ?: false, selIdx == idx, size, last = a == count, onLongPress = { longPress(idx) }) { open(idx) }
                     }
                     item(key = "nav") { SurahNav(listSurah) { n -> listSurah = n; scope.launch { list.scrollToItem(0) } } }
                 }
@@ -404,7 +420,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             exit = fadeOut(tween(Motion.MEDIUM)),
         ) { HintPill(s.hifzHint) }
         AnimatedVisibility(
-            showControls,
+            showControls && actionIdx == null,
             enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it },
             exit = fadeOut(tween(Motion.MEDIUM)) + slideOutVertically(tween(Motion.MEDIUM)) { it },
         ) {
@@ -430,6 +446,53 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     ) {
         MiniPlayer(onPlay = { playOrPause() }, onStop = { Recitation.stop() })
     }
+    val t = text
+    // تلميح لأول مرات: الضغط المطوّل على الآية يُظهر خياراتها
+    AnimatedVisibility(
+        ayahHint && actionIdx == null && sheetIdx == null,
+        Modifier.align(Alignment.BottomCenter).padding(start = 24.dp, end = 24.dp, bottom = bottom + playerRoom + 24.dp),
+        enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it / 2 },
+        exit = fadeOut(tween(Motion.MEDIUM)),
+    ) { HintPill(s.ayahActionsHint) }
+    // شريط خيارات الآية
+    var barIdx by remember { mutableIntStateOf(0) }
+    actionIdx?.let { barIdx = it }
+    BackHandler(enabled = actionIdx != null) { actionIdx = null }
+    AnimatedVisibility(
+        actionIdx != null && t != null,
+        Modifier.align(Alignment.BottomCenter).padding(start = 10.dp, end = 10.dp, bottom = bottom + playerRoom + 10.dp),
+        enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it },
+        exit = fadeOut(tween(Motion.SHORT)) + slideOutVertically(tween(Motion.MEDIUM)) { it },
+    ) {
+        if (t != null) AyahActionBar(
+            barIdx, t,
+            onTafsir = { open(barIdx) },
+            onListen = { actionIdx = null; startRange(barIdx, at = true) },
+            onClose = { actionIdx = null },
+        )
+    }
+    // التفسير في لوحة داخل الشاشة نفسها، فلا تتغير الصفحة خلفها
+    var panelIdx by remember { mutableIntStateOf(0) }
+    sheetIdx?.let { panelIdx = it }
+    TafsirPanel(sheetIdx != null && t != null, onDismiss = { sheetIdx = null }) {
+        if (t != null) {
+            val (sn, an) = QuranMeta.locate(panelIdx)
+            TafsirContent(
+                sn, an, t,
+                onAyah = { a ->
+                    val i = QuranMeta.index(sn, a)
+                    sheetIdx = i; selIdx = i
+                    QuranPrefs.updateLast(i)
+                    scope.launch {
+                        if (mode == "mushaf") pager.animateScrollToPage(QuranMeta.pageOf(i) - 1)
+                        else if (sn == listSurah) list.animateScrollToItem(listItemOf(a))
+                    }
+                },
+                onLibrary = { sheetIdx = null; openLibrary() },
+                onListen = { a -> sheetIdx = null; startRange(QuranMeta.index(sn, a), at = true) },
+            )
+        }
+    }
     }
     }
 
@@ -451,26 +514,6 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     if (displaySheet) ReadingSheet({ displaySheet = false }) { DisplayOptions(showTextSize = mode != "mushaf") }
 
-    val current = sheetIdx
-    val t = text
-    if (current != null && t != null) {
-        val (sn, an) = QuranMeta.locate(current)
-        TafsirSheet(
-            sn, an, t,
-            onAyah = { a ->
-                val i = QuranMeta.index(sn, a)
-                sheetIdx = i; selIdx = i
-                QuranPrefs.updateLast(i)
-                scope.launch {
-                    if (mode == "mushaf") pager.animateScrollToPage(QuranMeta.pageOf(i) - 1)
-                    else if (sn == listSurah) list.animateScrollToItem(listItemOf(a))
-                }
-            },
-            onDismiss = { sheetIdx = null },
-            onLibrary = { sheetIdx = null; openLibrary() },
-            onListen = { a -> sheetIdx = null; startRange(QuranMeta.index(sn, a), at = true) },
-        )
-    }
 }
 
 /**
@@ -480,7 +523,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
 @Composable
 internal fun MushafPage(
     page: Int, text: Array<String>, selected: Int, bottomInset: androidx.compose.ui.unit.Dp, onFrameTap: () -> Unit,
-    hifz: Boolean = false, revealed: Set<Int> = emptySet(), onEdge: ((Int) -> Unit)? = null, onTap: (Int) -> Unit,
+    hifz: Boolean = false, revealed: Set<Int> = emptySet(), onEdge: ((Int) -> Unit)? = null,
+    onLongPress: ((Int) -> Unit)? = null, onTap: (Int) -> Unit,
 ) {
     val p = mushafPalette()
     val first = QuranMeta.pageRange(page).first
@@ -520,7 +564,7 @@ internal fun MushafPage(
             )
         }
         Spacer(Modifier.fillMaxWidth().height(10.dp).drawBehind { drawRule(size.height / 2, 0f, size.width, p) })
-        MushafCanvas(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth().padding(top = 8.dp, bottom = 2.dp), hifz, revealed)
+        MushafCanvas(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth().padding(top = 8.dp, bottom = 2.dp), hifz, revealed, onLongPress)
     }
     // رقم الصفحة في وسط خطَّي الإطار السفليين
     PageMedallion(page, read, Modifier.align(Alignment.BottomCenter).padding(bottom = MEDALLION_CENTER - MEDALLION_SIZE / 2))
@@ -560,7 +604,7 @@ private suspend fun PointerInputScope.edgeTaps(onEdge: (Int) -> Unit) = awaitEac
 @Composable
 private fun AyahItem(
     surah: Int, ayah: Int, text: Array<String>, translation: Array<String>?, trRtl: Boolean,
-    selected: Boolean, size: Int, last: Boolean, onTap: () -> Unit,
+    selected: Boolean, size: Int, last: Boolean, onLongPress: () -> Unit = {}, onTap: () -> Unit,
 ) {
     val p = mushafPalette()
     val index = QuranMeta.index(surah, ayah)
@@ -574,7 +618,7 @@ private fun AyahItem(
     }
     Column {
         Column(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(bg).clickable(onClick = onTap)
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(bg).combinedClickable(onLongClick = onLongPress, onClick = onTap)
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {

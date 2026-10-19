@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 2,
+ "version": 3,
  "currency": "KZT",
  "quran": {
   "id": "kk.altai",
@@ -474,6 +474,10 @@
   "latLng": "Ендік / бойлық",
   "listSeparator": ", ",
   "listenFromHere": "Осы аяттан бастап тыңдау",
+  "listen": "Тыңдау",
+  "save": "Сақтау",
+  "saved": "Сақталды",
+  "ayahActionsHint": "Тәпсір, тыңдау, сақтау, көшіру не бөлісу үшін аятты басып тұрыңыз",
   "livestockDue": "Малдан төленетін зекет",
   "livestockKind": {
    "shah": "қой немесе ешкі",

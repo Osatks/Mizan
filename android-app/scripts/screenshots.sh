@@ -51,6 +51,13 @@ adb shell cmd uimode night no || true
 sleep 2
 shot quran          14-quran
 shot "surah/18"     15-surah-kahf
+# الضغط المطوّل على آية: شريط خياراتها، ثم التفسير في لوحته
+adb shell input swipe 540 1250 540 1250 900
+sleep 2
+adb exec-out screencap -p > "$OUT/19-ayah-actions.png"; echo "captured 19-ayah-actions"
+adb shell input tap 540 1250
+sleep 3
+adb exec-out screencap -p > "$OUT/19b-tafsir-panel.png"; echo "captured 19b-tafsir-panel"
 shot quran          16-quran-en en
 
 # ألوان التطبيق

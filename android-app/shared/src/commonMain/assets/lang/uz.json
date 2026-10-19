@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 2,
+ "version": 3,
  "currency": "UZS",
  "quran": {
   "id": "uz.sodik",
@@ -485,6 +485,10 @@
   "latLng": "Kenglik / uzunlik",
   "listSeparator": ", ",
   "listenFromHere": "Shu oyatdan tinglash",
+  "listen": "Tinglash",
+  "save": "Saqlash",
+  "saved": "Saqlangan",
+  "ayahActionsHint": "Tafsir, tinglash, saqlash, nusxalash yoki ulashish uchun oyatni bosib turing",
   "livestockDue": "Chorva zakoti",
   "livestockKind": {
    "shah": "qoʻy yoki echki",

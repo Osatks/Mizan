@@ -446,6 +446,10 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val stopRecitation: String by lazy { s("stopRecitation") ?: En.stopRecitation }
     override val repeatAyah: String by lazy { s("repeatAyah") ?: En.repeatAyah }
     override val listenFromHere: String by lazy { s("listenFromHere") ?: En.listenFromHere }
+    override val listen: String by lazy { s("listen") ?: En.listen }
+    override val save: String by lazy { s("save") ?: En.save }
+    override val saved: String by lazy { s("saved") ?: En.saved }
+    override val ayahActionsHint: String by lazy { s("ayahActionsHint") ?: En.ayahActionsHint }
     override val audioNote: String by lazy { s("audioNote") ?: En.audioNote }
     override val audioError: String by lazy { s("audioError") ?: En.audioError }
     override val hifzMode: String by lazy { s("hifzMode") ?: En.hifzMode }
