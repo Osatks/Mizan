@@ -123,7 +123,7 @@ import androidx.compose.foundation.layout.width
 /**
  * صفحة السورة. عرض المصحف: صفحات مصحف المدينة (604) تُقلَّب يميناً ويساراً، في رأسها السورة والجزء والحزب
  * وفي أسفلها رقم الصفحة، وكل آية تنتهي بعلامة \u06DD برقمها. عرض آية آية: بطاقة لكل آية مع ترجمة المعاني.
- * الضغط على أي آية يفتح تفسيرها. الصفحة التي يبقى عليها القارئ ثلاث ثوانٍ تُحسب مقروءة في الختمة.
+ * الضغط المطوّل على أي آية يُظهر خياراتها: التفسير والاستماع والحفظ والنسخ والمشاركة. الصفحة التي يبقى عليها القارئ ثلاث ثوانٍ تُحسب مقروءة في الختمة.
  * ومعها التلاوة آية آية، ولون الورق والسطوع للقراءة الليلية، وفي وضع التركيز: تقليب الصفحات بلمس طرفيها،
  * وإخفاء الآيات للحفظ.
  */
@@ -277,7 +277,10 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     fun playOrPause() { if (Recitation.active) Recitation.toggle() else startRange() }
     fun turn(d: Int) { scope.launch { pager.animateScrollToPage((pager.currentPage + d).coerceIn(0, QuranMeta.PAGES.size - 1)) } }
-    fun tapAyah(i: Int) { if (hifzOn && i !in revealed) revealed = revealed + i else open(i) }
+    // اللمس لا يفتح شيئاً حتى لا يشوّش القراءة: يُغلق شريط الخيارات إن كان ظاهراً، ويكشف الآية في الحفظ
+    fun tapAyah(i: Int) { if (actionIdx != null) actionIdx = null else if (hifzOn && i !in revealed) revealed = revealed + i }
+    // الاستماع: تُفتح إعدادات التلاوة لتبدأ من الآية المختارة
+    fun listenFrom(i: Int) { actionIdx = null; sheetIdx = null; selIdx = i; audioSheet = true }
 
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     // المشغّل الصغير خارج وضع التركيز يأخذ مكانه أسفل الصفحة فلا يغطي سطورها
@@ -381,7 +384,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                     items(count, key = { "a${listSurah}_${it + 1}" }) { i ->
                         val a = i + 1
                         val idx = QuranMeta.index(listSurah, a)
-                        AyahItem(listSurah, a, t, trText, translation?.lang?.rtl ?: false, selIdx == idx, size, last = a == count, onLongPress = { longPress(idx) }) { open(idx) }
+                        AyahItem(listSurah, a, t, trText, translation?.lang?.rtl ?: false, selIdx == idx, size, last = a == count, onLongPress = { longPress(idx) }) { tapAyah(idx) }
                     }
                     item(key = "nav") { SurahNav(listSurah) { n -> listSurah = n; scope.launch { list.scrollToItem(0) } } }
                 }
@@ -467,14 +470,24 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         if (t != null) AyahActionBar(
             barIdx, t,
             onTafsir = { open(barIdx) },
-            onListen = { actionIdx = null; startRange(barIdx, at = true) },
+            onListen = { listenFrom(barIdx) },
             onClose = { actionIdx = null },
         )
     }
+    // إعدادات التلاوة والعرض في لوحات داخل الشاشة أيضاً
+    ReadingPanel(audioSheet, onDismiss = { audioSheet = false }, paper = false) {
+        AudioOptions(
+            onChanged = { if (Recitation.active) startRange(Recitation.current.coerceAtLeast(0), at = true) },
+            onStop = { Recitation.stop(); audioSheet = false },
+            from = playFrom(),
+            onPlay = { startRange(); audioSheet = false },
+        )
+    }
+    ReadingPanel(displaySheet, onDismiss = { displaySheet = false }, paper = false) { DisplayOptions(showTextSize = mode != "mushaf") }
     // التفسير في لوحة داخل الشاشة نفسها، فلا تتغير الصفحة خلفها
     var panelIdx by remember { mutableIntStateOf(0) }
     sheetIdx?.let { panelIdx = it }
-    TafsirPanel(sheetIdx != null && t != null, onDismiss = { sheetIdx = null }) {
+    ReadingPanel(sheetIdx != null && t != null, onDismiss = { sheetIdx = null }) {
         if (t != null) {
             val (sn, an) = QuranMeta.locate(panelIdx)
             TafsirContent(
@@ -489,7 +502,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                     }
                 },
                 onLibrary = { sheetIdx = null; openLibrary() },
-                onListen = { a -> sheetIdx = null; startRange(QuranMeta.index(sn, a), at = true) },
+                onListen = { a -> listenFrom(QuranMeta.index(sn, a)) },
             )
         }
     }
@@ -504,15 +517,6 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         confirmButton = { TextButton(onClick = { askSilence = false; QuietReading.requestAccess() }) { Text(s.allow) } },
         dismissButton = { TextButton(onClick = { askSilence = false; QuietReading.markAsked() }) { Text(s.notNow) } },
     )
-    if (audioSheet) ReadingSheet({ audioSheet = false }) {
-        AudioOptions(
-            onChanged = { if (Recitation.active) startRange(Recitation.current.coerceAtLeast(0), at = true) },
-            onStop = { Recitation.stop(); audioSheet = false },
-            from = playFrom(),
-            onPlay = { startRange(); audioSheet = false },
-        )
-    }
-    if (displaySheet) ReadingSheet({ displaySheet = false }) { DisplayOptions(showTextSize = mode != "mushaf") }
 
 }
 

@@ -138,11 +138,11 @@ private fun androidx.compose.foundation.layout.RowScope.Action(
 }
 
 /**
- * التفسير في لوحة داخل شاشة القراءة نفسها (لا نافذة منفصلة)، فتبقى الصفحة خلفها ثابتة كما هي.
- * تُغلق بلمس الخلفية أو بسحبها إلى الأسفل أو بزر الرجوع.
+ * لوحة داخل شاشة القراءة نفسها (لا نافذة منفصلة) للتفسير وإعدادات التلاوة والعرض، فتبقى الصفحة خلفها ثابتة كما هي.
+ * تُغلق بلمس الخلفية أو بسحبها إلى الأسفل أو بزر الرجوع. [paper]: بلون ورق المصحف (للتفسير).
  */
 @Composable
-internal fun BoxScope.TafsirPanel(visible: Boolean, onDismiss: () -> Unit, content: @Composable () -> Unit) {
+internal fun BoxScope.ReadingPanel(visible: Boolean, onDismiss: () -> Unit, paper: Boolean = true, content: @Composable () -> Unit) {
     BackHandler(enabled = visible) { onDismiss() }
     AnimatedVisibility(visible, Modifier.matchParentSize(), enter = fadeIn(tween(Motion.MEDIUM)), exit = fadeOut(tween(Motion.MEDIUM))) {
         Box(
@@ -163,7 +163,7 @@ internal fun BoxScope.TafsirPanel(visible: Boolean, onDismiss: () -> Unit, conte
             Modifier.fillMaxWidth().heightIn(max = 640.dp).offset { IntOffset(0, drag.value.roundToInt()) }
                 // تمنع لمسات اللوحة من الوصول إلى الخلفية
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
-            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), color = mushafPalette().paper, shadowElevation = 16.dp,
+            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), color = if (paper) mushafPalette().paper else MaterialTheme.colorScheme.surfaceContainerLow, shadowElevation = 16.dp,
         ) {
             Column(Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
                 // مقبض السحب

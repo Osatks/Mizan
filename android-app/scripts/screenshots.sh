@@ -26,6 +26,14 @@ shot() {
   echo "captured $2 ($(adb shell dumpsys window | grep -m1 mCurrentFocus | tr -d '\r'))"
 }
 
+# يضغط وسط أول عنصر يحمل هذا النص (من شجرة الوصول)
+tap_text() {
+  adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
+  b=$(adb exec-out cat /sdcard/ui.xml | grep -o "text=\"$1\"[^>]*bounds=\"[^\"]*\"" | head -1 | grep -o 'bounds="[^"]*"' | grep -o '[0-9]\+')
+  set -- $b
+  [ $# -eq 4 ] && adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))
+}
+
 adb shell cmd uimode night no || true
 shot home        01-home
 shot prayer      02-prayer
@@ -55,9 +63,15 @@ shot "surah/18"     15-surah-kahf
 adb shell input swipe 540 1250 540 1250 900
 sleep 2
 adb exec-out screencap -p > "$OUT/19-ayah-actions.png"; echo "captured 19-ayah-actions"
-adb shell input tap 540 1250
+tap_text "التفسير"
 sleep 3
 adb exec-out screencap -p > "$OUT/19b-tafsir-panel.png"; echo "captured 19b-tafsir-panel"
+# «استماع» من الشريط يفتح إعدادات التلاوة
+adb shell input keyevent KEYCODE_BACK; sleep 1
+adb shell input swipe 540 1250 540 1250 900; sleep 2
+tap_text "استماع"
+sleep 3
+adb exec-out screencap -p > "$OUT/19c-listen-options.png"; echo "captured 19c-listen-options"
 shot quran          16-quran-en en
 
 # ألوان التطبيق

@@ -237,12 +237,6 @@ private fun BarDivider() {
 
 // ---------- الأوراق ----------
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun ReadingSheet(onDismiss: () -> Unit, content: @Composable () -> Unit) {
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) { content() }
-}
-
 @Composable
 private fun SheetTitle(icon: ImageVector, title: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
