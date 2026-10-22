@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mizan-75v.pages.dev/sitemap.xml
+Sitemap: https://mizan-al-muslem.com/sitemap.xml

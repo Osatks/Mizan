@@ -136,9 +136,9 @@
   * Tools (أدوات)
   * Lifestyle (نمط حياة)
 * **بيانات التواصل (Store Listing Contact Details):**
-  * البريد الإلكتروني: `contact@mizan-tools.com`
-  * الموقع الإلكتروني: `https://mizan-75v.pages.dev`
-  * رابط سياسة الخصوصية: `https://mizan-75v.pages.dev/privacy-policy/`
+  * البريد الإلكتروني: `mizanalmuslimhilal@gmail.com`
+  * الموقع الإلكتروني: `https://mizan-al-muslem.com`
+  * رابط سياسة الخصوصية: `https://mizan-al-muslem.com/privacy-policy/`
 
 ---
 
@@ -157,7 +157,7 @@
 عند إكمال استبيانات كونسول مطوري Google Play، اختر الإجابات التالية بدقة:
 
 ### 1) سياسة الخصوصية (Privacy Policy)
-* الرابط: `https://mizan-75v.pages.dev/privacy-policy/`
+* الرابط: `https://mizan-al-muslem.com/privacy-policy/`
 
 ### 2) الوصول إلى التطبيق (App Access)
 * الخيار: **All functionality is available without special access restrictions** (جميع الميزات متاحة بدون قيود وصول أو حسابات أو تسجيل دخول).

@@ -28,7 +28,7 @@ data class RemotePack(val code: String, val native: String, val english: String,
  * تُنزَّل الحزمة ومعها ترجمة المعاني (إن وُجدت)، ولا تُثبَّت إلا إذا اكتمل الاثنان.
  */
 object LanguagePacks {
-    const val BASE = "https://mizan-75v.pages.dev/lang/"
+    const val BASE = "https://mizan-al-muslem.com/lang/"
 
     private var root: String? = null
     private var assets: ((String) -> ByteArray?)? = null
