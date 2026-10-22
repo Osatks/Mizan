@@ -35,7 +35,7 @@ jobs:
         run: |
           n=$(git rev-list --count HEAD)
           echo "build=$n" >> "$GITHUB_OUTPUT"
-          echo "name=2.1.$n" >> "$GITHUB_OUTPUT"
+          echo "name=2.2.$(( n > 53 ? n - 53 : 1 ))" >> "$GITHUB_OUTPUT"
 
       # اختبارات الكود المشترك (JVM) قبل البناء
       - name: Shared unit tests

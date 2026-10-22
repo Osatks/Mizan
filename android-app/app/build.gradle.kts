@@ -28,7 +28,8 @@ android {
         targetSdk = 36
         // أعلى من أرقام النسخ السابقة (رقم تشغيل GitHub + 10) حتى يُثبَّت التحديث فوقها
         versionCode = 201 + buildNumber
-        versionName = "2.1.$buildNumber"
+        val patch = (buildNumber - 53).coerceAtLeast(1)
+        versionName = "2.2.$patch"
     }
 
     signingConfigs {
