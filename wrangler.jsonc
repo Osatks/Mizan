@@ -4,6 +4,16 @@
   "build": {
     "command": ""
   },
+  "routes": [
+    {
+      "pattern": "mizan-al-muslem.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.mizan-al-muslem.com",
+      "custom_domain": true
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
