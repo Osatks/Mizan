@@ -1,6 +1,9 @@
 {
   "name": "mizan",
   "compatibility_date": "2026-10-22",
+  "build": {
+    "command": ""
+  },
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
