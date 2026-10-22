@@ -5,7 +5,11 @@ plugins {
 }
 
 // مفتاح التوقيع يُمرَّر من أسرار GitHub (انظر README)، ولا يُحفظ في المستودع
-val keystorePath: String? = System.getenv("MIZAN_KEYSTORE")
+val localKeystore = rootProject.file("mizan-upload-key.jks")
+val keystorePath: String? = System.getenv("MIZAN_KEYSTORE") ?: if (localKeystore.exists()) localKeystore.absolutePath else null
+val storePasswordEnv = System.getenv("MIZAN_STORE_PASSWORD") ?: "mizan2026"
+val keyAliasEnv = System.getenv("MIZAN_KEY_ALIAS") ?: "mizan"
+val keyPasswordEnv = System.getenv("MIZAN_KEY_PASSWORD") ?: "mizan2026"
 val hasReleaseKey = keystorePath != null && file(keystorePath).exists()
 
 // رقم الإصدار يزيد مع كل commit تلقائياً، فكل نسخة جديدة تحمل رقماً أعلى (محلياً وفي GitHub)
@@ -16,14 +20,14 @@ val buildNumber: Int = runCatching {
 
 android {
     namespace = "com.osatks.mizan"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.osatks.mizan"
+        applicationId = "com.mizan.almuslim"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         // أعلى من أرقام النسخ السابقة (رقم تشغيل GitHub + 10) حتى يُثبَّت التحديث فوقها
-        versionCode = 200 + buildNumber
+        versionCode = 201 + buildNumber
         versionName = "2.1.$buildNumber"
     }
 
@@ -31,9 +35,9 @@ android {
         if (hasReleaseKey) {
             create("release") {
                 storeFile = file(keystorePath!!)
-                storePassword = System.getenv("MIZAN_STORE_PASSWORD")
-                keyAlias = System.getenv("MIZAN_KEY_ALIAS")
-                keyPassword = System.getenv("MIZAN_KEY_PASSWORD")
+                storePassword = storePasswordEnv
+                keyAlias = keyAliasEnv
+                keyPassword = keyPasswordEnv
             }
         }
     }

@@ -25,3 +25,8 @@ iosApp/*.ipa
 android-app/*/build/
 android-app/build/
 android-app/.kotlin/
+
+KEYSTORE_INFO.txt
+*.aab
+*.jks
+*.keystore

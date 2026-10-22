@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "com.osatks.mizan",
+        "package_name": "com.mizan.almuslim",
         "sha256_cert_fingerprints": ["58:38:5D:BC:76:94:10:94:48:9E:D3:59:35:49:5E:DD:69:65:DF:7A:5B:04:A4:55:2A:3A:D5:DD:68:8D:4F:67"]
       }
     }]

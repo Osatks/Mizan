@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # يلتقط صوراً لشاشات التطبيق على المحاكي (يُشغَّل من GitHub Actions)
 set -u
-PKG=com.osatks.mizan
+PKG=com.mizan.almuslim
 # اسم الملف يحمل رقم الإصدار (mizan-2.1.N-debug.apk)
 APK=$(ls android-app/app/build/outputs/apk/debug/*.apk | head -1)
 OUT=screenshots

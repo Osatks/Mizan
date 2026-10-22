@@ -47,7 +47,7 @@ kotlin {
 
 android {
     namespace = "com.osatks.mizan.shared"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig { minSdk = 26 }
     // نصوص المصحف والتفاسير والأذكار وحزم اللغات: مجلد واحد يُضمَّن في أندرويد وفي حزمة iOS
     sourceSets["main"].assets.srcDirs("src/commonMain/assets")
