@@ -100,24 +100,6 @@ for lang in en fr tr ur id ms fa bn ru de es uk uz kk; do
   n=$((n+3))
 done
 
-# صور المتجر بالإنجليزية: كل الشاشات المعروضة، والتفسير من شريط خيارات الآية
-adb shell cmd uimode night no || true
-sleep 2
-shot home        80-en-home        en
-shot prayer      81-en-prayer      en
-shot qibla       82-en-qibla       en
-shot zakat       83-en-zakat       en
-shot inheritance 84-en-inheritance en
-shot adhkar      85-en-adhkar      en
-shot quran       86-en-quran       en
-shot "surah/18"  87-en-surah-kahf  en
-adb shell input swipe 540 1250 540 1250 900
-sleep 2
-adb exec-out screencap -p > "$OUT/88-en-ayah-actions.png"; echo "captured 88-en-ayah-actions"
-tap_text "Tafsir"
-sleep 3
-adb exec-out screencap -p > "$OUT/89-en-tafsir-panel.png"; echo "captured 89-en-tafsir-panel"
-
 ls -la "$OUT"
 adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
 adb logcat -d > "$OUT/logcat.txt" || true
