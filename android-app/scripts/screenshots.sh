@@ -18,7 +18,8 @@ adb shell settings put secure immersive_mode_confirmations confirmed || true
 # shot <route> <name> [lang] [accent]: اللغة الافتراضية للقطات هي العربية، واللون الزمردي
 shot() {
   # المسار بين علامتي اقتباس: صدفة الجهاز تقطع النص عند "&"
-  adb shell am start -W -S -n $PKG/.MainActivity --es route "'$1'" --es lang "${3:-ar}" --es accent "${4:-emerald}" --ez demo true > /dev/null
+  # معرّف التطبيق com.mizan.almuslim لكن صنف النشاط بقي في com.osatks.mizan، فنكتب اسمه كاملاً
+  adb shell am start -W -S -n $PKG/com.osatks.mizan.MainActivity --es route "'$1'" --es lang "${3:-ar}" --es accent "${4:-emerald}" --ez demo true > /dev/null
   sleep "${WAIT:-8}"
   adb exec-out screencap -p > "$OUT/$2.png"
   # نصوص الشاشة من شجرة الوصول: تبيّن أي شاشة ظهرت فعلاً
@@ -98,6 +99,24 @@ for lang in en fr tr ur id ms fa bn ru de es uk uz kk; do
   shot tasbih   "$((n+2))-$lang-tasbih" "$lang"
   n=$((n+3))
 done
+
+# صور المتجر بالإنجليزية: كل الشاشات المعروضة، والتفسير من شريط خيارات الآية
+adb shell cmd uimode night no || true
+sleep 2
+shot home        80-en-home        en
+shot prayer      81-en-prayer      en
+shot qibla       82-en-qibla       en
+shot zakat       83-en-zakat       en
+shot inheritance 84-en-inheritance en
+shot adhkar      85-en-adhkar      en
+shot quran       86-en-quran       en
+shot "surah/18"  87-en-surah-kahf  en
+adb shell input swipe 540 1250 540 1250 900
+sleep 2
+adb exec-out screencap -p > "$OUT/88-en-ayah-actions.png"; echo "captured 88-en-ayah-actions"
+tap_text "Tafsir"
+sleep 3
+adb exec-out screencap -p > "$OUT/89-en-tafsir-panel.png"; echo "captured 89-en-tafsir-panel"
 
 ls -la "$OUT"
 adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
