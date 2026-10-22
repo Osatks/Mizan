@@ -10,6 +10,7 @@
 لا يحتاج أي مكتبات خارجية.
 """
 import html
+import math
 import sys
 import json
 import re
@@ -54,6 +55,140 @@ TOOLS = [
     {"key": "fidya", "path": "/fidya-kaffarah/", "name": "حاسبة الفدية والكفارة", "icon": "hand",
      "desc": "احسب فدية الصيام وكفارة اليمين وكفارة الإفطار المتعمد."},
 ]
+
+# ---------------------------------------------------------------------------
+# ألوان التطبيق (منقولة من android-app/.../ui/theme/Theme.kt)
+# كل لون يغيّر درجة (hue) الألوان الخضراء فقط ويحفظ إضاءتها في OKLCH، فيبقى التباين
+# كما هو. الذهبي والكريمي والأحمر ثابتة. تُولَّد الألوان هنا وتُحقن في style.css.
+# ---------------------------------------------------------------------------
+ACCENTS = [  # (key, hue, chroma, الاسم كما في التطبيق)
+    ("emerald", 172, 1.0, "زمردي"),
+    ("teal", 212, 1.25, "فيروزي"),
+    ("blue", 255, 1.45, "أزرق"),
+    ("purple", 300, 1.5, "بنفسجي"),
+    ("pink", 350, 1.6, "وردي"),
+    ("maroon", 20, 1.45, "عنابي"),
+    ("orange", 50, 1.5, "برتقالي"),
+    ("honey", 80, 1.45, "عسلي"),
+    ("brown", 60, 0.75, "بني"),
+    ("graphite", 255, 0.15, "رمادي"),
+]
+
+# ألوان الموقع الأساسية (الزمردي) — مطابقة لـ LightColors / DarkColors في التطبيق
+PALETTE_LIGHT = {
+    "--bg": "#f8f5ee", "--bg-alt": "#f1ece0", "--surface": "#ffffff", "--surface-2": "#fbf9f4",
+    "--text": "#1d2b27", "--text-soft": "#4f5e59", "--muted": "#7a8783", "--border": "#e5dfd0",
+    "--primary": "#0d5c4b", "--primary-strong": "#08463a", "--primary-soft": "#e3efe9",
+    "--primary-bright": "#1a8a6f", "--on-primary": "#ffffff",
+    "--hero-1": "#0b4a3d", "--hero-2": "#0f6a55",
+}
+PALETTE_DARK = {
+    "--bg": "#0e1715", "--bg-alt": "#121e1b", "--surface": "#16231f", "--surface-2": "#1a2925",
+    "--text": "#e8efec", "--text-soft": "#b5c3be", "--muted": "#8a9a95", "--border": "#263a34",
+    "--primary": "#3fb595", "--primary-strong": "#6fd0b3", "--primary-soft": "#183a31",
+    "--primary-bright": "#1a8a6f", "--on-primary": "#07231c",
+    "--hero-1": "#082e26", "--hero-2": "#0c4538",
+}
+BRAND_GREEN, BRAND_GREEN_DEEP = "#0f6a55", "#08463a"
+
+
+def _lin(c):
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def _gam(c):
+    return 12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055
+
+
+def _cbrt(x):
+    return math.copysign(abs(x) ** (1 / 3), x)
+
+
+def _to_oklch(hex_color):
+    r, g, b = (_lin(int(hex_color[i:i + 2], 16) / 255) for i in (1, 3, 5))
+    l = _cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+    m = _cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+    s = _cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+    L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s
+    A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s
+    B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+    h = math.degrees(math.atan2(B, A)) % 360
+    return L, math.hypot(A, B), h
+
+
+def _oklch_linear(L, c, h):
+    a, b = c * math.cos(math.radians(h)), c * math.sin(math.radians(h))
+    l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
+    m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
+    s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3
+    return (4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+            -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+            -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s)
+
+
+def _oklch_hex(L, c, h):
+    """لون من OKLCH؛ إن خرج عن نطاق sRGB يُخفَّض التشبّع حتى يدخل، فتبقى الإضاءة والدرجة."""
+    def ok(v):
+        return all(-1e-4 <= x <= 1.0001 for x in v)
+    rgb = _oklch_linear(L, c, h)
+    if not ok(rgb):
+        lo, hi = 0.0, c
+        for _ in range(20):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if ok(_oklch_linear(L, mid, h)) else (lo, mid)
+        rgb = _oklch_linear(L, lo, h)
+    return "#" + "".join(f"{round(_gam(min(1, max(0, x))) * 255):02x}" for x in rgb)
+
+
+def recolor(hex_color, hue, chroma):
+    """يحوّل لوناً أخضر إلى درجة اللون المختار؛ الألوان الأخرى تبقى كما هي (Color.recolor في التطبيق)."""
+    L, c, h = _to_oklch(hex_color)
+    if c < 0.004 or not (140 <= h <= 210):
+        return hex_color
+    return _oklch_hex(L, c * chroma, hue)
+
+
+def accent_css():
+    """كتل CSS لكل لون: فاتح، وداكن (يدوي وتلقائي حسب النظام)."""
+    out = ["/* ألوان التطبيق — مولّدة من build.py (ACCENTS) */"]
+    for key, hue, chroma, _ in ACCENTS[1:]:
+        def block(pal):
+            return "".join(f"{k}:{recolor(v, hue, chroma)};" for k, v in pal.items()
+                           if recolor(v, hue, chroma) != v)
+        light, dark = block(PALETTE_LIGHT), block(PALETTE_DARK)
+        out.append(f':root[data-accent="{key}"]{{{light}}}')
+        out.append(f':root[data-theme="dark"][data-accent="{key}"]{{{dark}}}')
+        out.append(f'@media (prefers-color-scheme: dark){{:root:not([data-theme="light"])[data-accent="{key}"]{{{dark}}}}}')
+    return "\n".join(out)
+
+
+def appearance_sheet():
+    """ورقة «المظهر»: الوضع (تلقائي/فاتح/داكن) وعشرة ألوان في صفين، كما في إعدادات التطبيق."""
+    modes = [("system", "تلقائي"), ("light", "فاتح"), ("dark", "داكن")]
+    seg = "".join(f'<button type="button" role="radio" aria-checked="false" data-mode="{k}">{n}</button>'
+                  for k, n in modes)
+    check = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" '
+             'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>')
+    sw = "".join(
+        f'<button type="button" class="sw" role="radio" aria-checked="false" data-accent="{k}" '
+        f'data-name="{n}" aria-label="{n}" title="{n}" '
+        f'style="--a:{recolor(BRAND_GREEN, h, c) if k != "emerald" else BRAND_GREEN};'
+        f'--b:{recolor(BRAND_GREEN_DEEP, h, c) if k != "emerald" else BRAND_GREEN_DEEP}">{check}</button>'
+        for k, h, c, n in ACCENTS)
+    return ('<div class="appearance" id="appearance" hidden>'
+            '<div class="ap-scrim" data-ap-close></div>'
+            '<section class="ap-sheet" role="dialog" aria-modal="true" aria-labelledby="ap-title">'
+            '<span class="ap-grab" aria-hidden="true"></span>'
+            '<div class="ap-head"><h2 id="ap-title">المظهر</h2>'
+            '<button type="button" class="icon-btn ap-x" data-ap-close aria-label="إغلاق">'
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">'
+            '<path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'
+            f'<div class="segmented ap-mode" role="radiogroup" aria-label="الوضع">{seg}</div>'
+            '<p class="ap-label">لون التطبيق · <b data-accent-name>زمردي</b></p>'
+            f'<div class="ap-swatches" role="radiogroup" aria-label="لون التطبيق">{sw}</div>'
+            '<p class="ap-note">نفس ألوان تطبيق ميزان للهواتف، ويُحفظ اختيارك على هذا الجهاز.</p>'
+            '</section></div>')
+
 
 ICONS = {
     "coins": '<circle cx="9" cy="9" r="6"/><path d="M15.5 9.5a6 6 0 1 1-6 6"/><path d="M9 6v6M7 8h4"/>',
@@ -129,7 +264,7 @@ def tools_grid(exclude=None, limit=None):
     cards = []
     for t in items:
         cards.append(
-            f'<a class="tool-card" href="{t["path"]}">'
+            f'<a class="tool-card" href="{t["path"]}" data-tool="{t["key"]}">'
             f'<span class="tool-ico">{icon(t["icon"])}</span>'
             f'<span class="tool-name">{esc(t["name"])}</span>'
             f'<span class="tool-desc">{esc(t["desc"])}</span>'
@@ -190,7 +325,7 @@ def tabbar(active):
     for key, href, label, svg in TABS:
         on = key == active or (key == "tools" and active in tool_keys | {"articles"})
         cur = ' aria-current="page"' if on else ""
-        out.append(f'<a href="{href}"{cur}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+        out.append(f'<a href="{href}" data-tab="{key}"{cur}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
                    f'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{svg}</svg>'
                    f'<span>{label}</span></a>')
     return '<nav class="app-tabbar" aria-label="تنقل التطبيق">' + "".join(out) + "</nav>"
@@ -224,6 +359,8 @@ def build():
     if DIST.exists():
         shutil.rmtree(DIST)
     shutil.copytree(SRC / "assets", DIST / "assets")
+    css = DIST / "assets" / "css" / "style.css"
+    css.write_text(css.read_text(encoding="utf-8").replace("/*__ACCENTS__*/", accent_css()), encoding="utf-8")
     template = (SRC / "templates" / "base.html").read_text(encoding="utf-8")
 
     pages = []
@@ -325,6 +462,7 @@ def build():
             "{{site_tagline}}": esc(CONFIG["site_tagline"]),
             "{{nav}}": nav_html(meta.get("nav", "")),
             "{{tabbar}}": tabbar(meta.get("nav", "")),
+            "{{appearance}}": appearance_sheet(),
             "{{hero}}": hero,
             "{{body_class}}": esc(meta.get("body_class", meta.get("type", "page"))),
             "{{head_extra}}": head_extra,

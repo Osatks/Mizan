@@ -51,7 +51,7 @@
     { k: "pcous", n: "ابن العم لأب", max: 30 },
   ];
   const NAME = Object.fromEntries(HEIRS.filter((h) => h.k).map((h) => [h.k, h.n]));
-  const COLORS = ["#0d5c4b", "#b88a1e", "#2f7fb5", "#b4412f", "#7a52b3", "#2e9e74", "#d07a2b", "#4b6b8a", "#a0527a", "#5c8f2e"];
+  const COLORS = ["var(--primary)", "var(--gold)", "#2f7fb5", "#b4412f", "#7a52b3", "#2e9e74", "#d07a2b", "#4b6b8a", "#a0527a", "#5c8f2e"];
 
   /* ---------- المحرك ---------- */
   function solve(c, gender) {

@@ -55,7 +55,6 @@
 
   /** يحوّل تاريخاً هجرياً إلى ميلادي (Date محلي) أو null إن كان اليوم غير موجود */
   function fromHijri(y, m, d) {
-    // تقدير أولي ثم تصحيح بالبحث
     const approx = tabularToJD(y, m, d) - 2440587.5;
     let t = new Date(approx * 86400000);
     let guess = new Date(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
@@ -102,16 +101,172 @@
     } catch (e) {}
   }
 
-  window.Mizan = { store, fmt, money, num, toHijri, fromHijri, hijriMonthLength, hijriStr, gregStr, HIJRI_MONTHS, GREG_MONTHS, WEEKDAYS, toast, share };
+  /* ---------- أرقام متدحرجة (مطابقة لـ RollingText في التطبيق) ---------- */
+  const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const NUM_RE = /^[0-9.,:%°\s+\-]+$/;
+  let inRoll = false;
 
-  /* ---------- الواجهة ---------- */
+  function roll(el, nextText) {
+    if (!el || inRoll) return;
+    const prev = el._rollPrev;
+    const next = String(nextText != null ? nextText : el.textContent || "");
+    if (prev === next) return;
+    el._rollPrev = next;
+    if (prev == null || reducedMotion() || !next || !NUM_RE.test(next) || !NUM_RE.test(prev)) {
+      if (prev != null && !reducedMotion()) { el.classList.remove("swap"); void el.offsetWidth; el.classList.add("swap"); }
+      return;
+    }
+    inRoll = true;
+    try {
+      const n = next.length, pLen = prev.length;
+      const wrap = document.createElement("span");
+      wrap.className = "roll";
+      for (let i = 0; i < n; i++) {
+        const ch = next[i];
+        const pi = pLen - (n - i); // مطابقة الخانات من اليمين (الآحاد مع الآحاد)
+        const pch = pi >= 0 ? prev[pi] : "";
+        const s = document.createElement("span");
+        const inner = document.createElement("i");
+        inner.textContent = ch;
+        if (pch && pch !== ch && /\d/.test(ch) && /\d/.test(pch)) {
+          const up = ch > pch || (pch === "9" && ch === "0");
+          s.className = "rd " + (up ? "up" : "dn");
+          s.setAttribute("data-p", pch);
+        } else {
+          s.className = "rd";
+        }
+        s.appendChild(inner);
+        wrap.appendChild(s);
+      }
+      el.textContent = "";
+      el.appendChild(wrap);
+    } finally {
+      inRoll = false;
+    }
+  }
+
+  window.Mizan = { store, fmt, money, num, toHijri, fromHijri, hijriMonthLength, hijriStr, gregStr, HIJRI_MONTHS, GREG_MONTHS, WEEKDAYS, toast, share, roll };
+
+  /* ---------- المظهر ولون التطبيق (مطابق لـ Theme.kt و SettingsScreen.kt) ---------- */
   const root = document.documentElement;
-  document.querySelector(".theme-toggle")?.addEventListener("click", () => {
-    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-    root.dataset.theme = dark ? "light" : "dark";
-    try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+  const ap = document.getElementById("appearance");
+  const apBtn = document.querySelector(".ap-open, .theme-toggle");
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+
+  function syncThemeColor() {
+    if (!metaTheme) return;
+    const c = getComputedStyle(root).getPropertyValue("--hero-1").trim();
+    if (c) metaTheme.setAttribute("content", c);
+  }
+
+  function currentMode() {
+    try {
+      const t = localStorage.getItem("theme");
+      return t === "light" || t === "dark" ? t : "system";
+    } catch (e) { return "system"; }
+  }
+
+  function currentAccent() {
+    try { return localStorage.getItem("accent") || root.dataset.accent || "emerald"; }
+    catch (e) { return root.dataset.accent || "emerald"; }
+  }
+
+  function syncAppearanceUI() {
+    if (!ap) return;
+    const mode = currentMode();
+    const acc = currentAccent();
+    ap.querySelectorAll("[data-mode]").forEach((b) => {
+      const on = b.dataset.mode === mode;
+      b.setAttribute("aria-checked", on);
+      b.classList.toggle("active", on);
+    });
+    let activeName = "زمردي";
+    ap.querySelectorAll(".sw[data-accent]").forEach((b) => {
+      const on = b.dataset.accent === acc;
+      b.setAttribute("aria-checked", on);
+      if (on && b.dataset.name) activeName = b.dataset.name;
+    });
+    const nameEl = ap.querySelector("[data-accent-name]");
+    if (nameEl) nameEl.textContent = activeName;
+    syncThemeColor();
+  }
+
+  function animateThemeChange(originEl, mutateFn) {
+    if (document.startViewTransition && !reducedMotion() && originEl) {
+      const r = originEl.getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const maxR = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      root.classList.add("theme-vt");
+      const vt = document.startViewTransition(() => { mutateFn(); syncAppearanceUI(); });
+      vt.ready.then(() => {
+        root.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxR}px at ${x}px ${y}px)`] },
+          { duration: 420, easing: "cubic-bezier(.2, 0, 0, 1)", pseudoElement: "::view-transition-new(root)" }
+        );
+      }).catch(() => {});
+      vt.finished.finally(() => root.classList.remove("theme-vt"));
+      return;
+    }
+    root.classList.add("theme-anim");
+    mutateFn();
+    syncAppearanceUI();
+    clearTimeout(root._ta);
+    root._ta = setTimeout(() => root.classList.remove("theme-anim"), 360);
+  }
+
+  function openAppearance() {
+    if (!ap) return;
+    syncAppearanceUI();
+    ap.hidden = false;
+    requestAnimationFrame(() => ap.classList.add("open"));
+  }
+
+  function closeAppearance() {
+    if (!ap || ap.hidden) return;
+    ap.classList.remove("open");
+    setTimeout(() => { if (!ap.classList.contains("open")) ap.hidden = true; }, 320);
+  }
+
+  apBtn?.addEventListener("click", (e) => {
+    if (e.shiftKey || !ap) {
+      const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      animateThemeChange(apBtn, () => {
+        root.dataset.theme = dark ? "light" : "dark";
+        try { localStorage.setItem("theme", root.dataset.theme); } catch (err) {}
+      });
+      return;
+    }
+    if (ap.classList.contains("open")) closeAppearance(); else openAppearance();
   });
 
+  ap?.addEventListener("click", (e) => {
+    if (e.target.closest("[data-ap-close]")) { closeAppearance(); return; }
+    const mb = e.target.closest("[data-mode]");
+    if (mb) {
+      const m = mb.dataset.mode;
+      navigator.vibrate?.(8);
+      animateThemeChange(mb, () => {
+        if (m === "system") { delete root.dataset.theme; try { localStorage.removeItem("theme"); } catch (err) {} }
+        else { root.dataset.theme = m; try { localStorage.setItem("theme", m); } catch (err) {} }
+      });
+      return;
+    }
+    const sw = e.target.closest(".sw[data-accent]");
+    if (sw) {
+      const a = sw.dataset.accent;
+      navigator.vibrate?.(10);
+      sw.classList.remove("picked"); void sw.offsetWidth; sw.classList.add("picked");
+      animateThemeChange(sw, () => {
+        if (a === "emerald") { delete root.dataset.accent; try { localStorage.removeItem("accent"); } catch (err) {} }
+        else { root.dataset.accent = a; try { localStorage.setItem("accent", a); } catch (err) {} }
+      });
+    }
+  });
+
+  syncAppearanceUI();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", syncThemeColor);
+
+  /* ---------- القوائم والتنقل ---------- */
   const menuBtn = document.querySelector(".menu-toggle");
   menuBtn?.addEventListener("click", () => {
     const open = document.body.classList.toggle("nav-open");
@@ -129,20 +284,101 @@
     if (more && !more.contains(e.target)) { more.classList.remove("open"); moreBtn?.setAttribute("aria-expanded", "false"); }
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { more?.classList.remove("open"); document.body.classList.remove("nav-open"); }
+    if (e.key === "Escape") { more?.classList.remove("open"); document.body.classList.remove("nav-open"); closeAppearance(); }
+  });
+
+  // اهتزاز خفيف عند لمس شريط التبويبات السفلي أو الشرائح
+  document.querySelector(".app-tabbar")?.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (a && a.getAttribute("aria-current") !== "page") navigator.vibrate?.(8);
+  });
+
+  // انتقالات الصفحات المشتركة (Shared Card -> Hero كما في Motion.kt و App.kt)
+  document.addEventListener("click", (e) => {
+    const card = e.target.closest(".tool-card[href]");
+    if (card) {
+      document.querySelectorAll(".tool-card").forEach((c) => (c.style.viewTransitionName = ""));
+      card.style.viewTransitionName = "tool-hero";
+      try { sessionStorage.setItem("mizan:vt", "card:" + (card.dataset.tool || card.getAttribute("href"))); } catch (err) {}
+      return;
+    }
+    const tab = e.target.closest(".app-tabbar a[href]");
+    if (tab) {
+      try { sessionStorage.setItem("mizan:vt", "tab"); } catch (err) {}
+      return;
+    }
+    const back = e.target.closest(".breadcrumb a[href], .brand[href]");
+    if (back) {
+      try { sessionStorage.setItem("mizan:vt", "back"); } catch (err) {}
+    }
+  });
+
+  addEventListener("pageswap", (e) => {
+    if (!e.viewTransition) return;
+    try {
+      const vt = sessionStorage.getItem("mizan:vt") || "";
+      root.classList.toggle("vt-tab", vt === "tab");
+      root.classList.toggle("vt-back", vt === "back");
+    } catch (err) {}
+  });
+
+  addEventListener("pagereveal", (e) => {
+    if (!e.viewTransition) return;
+    try {
+      const vt = sessionStorage.getItem("mizan:vt") || "";
+      sessionStorage.removeItem("mizan:vt");
+      root.classList.toggle("vt-tab", vt === "tab");
+      root.classList.toggle("vt-back", vt === "back" || (location.pathname === "/" && !vt));
+      if (location.pathname === "/" && vt.startsWith("card:")) {
+        const key = vt.slice(5);
+        const card = document.querySelector(`.tool-card[data-tool="${key}"], .tool-card[href="${key}"]`);
+        if (card) card.style.viewTransitionName = "tool-hero";
+      }
+      e.viewTransition.finished.finally(() => {
+        root.classList.remove("vt-tab", "vt-back");
+        document.querySelectorAll(".tool-card").forEach((c) => (c.style.viewTransitionName = ""));
+      });
+    } catch (err) {}
   });
 
   const toTop = document.querySelector(".to-top");
   addEventListener("scroll", () => toTop?.classList.toggle("show", scrollY > 600), { passive: true });
   toTop?.addEventListener("click", () => scrollTo({ top: 0 }));
 
-  // ظهور تدريجي للعناصر
-  const revealEls = document.querySelectorAll(".tool-card, .article-card, .prose.card, .feature, .faq");
-  if ("IntersectionObserver" in window) {
+  /* ---------- ظهور متتابع لعناصر الصفحة (RevealState في Motion.kt) ---------- */
+  // العناصر المرئية خلال أول 450ms تظهر متتابعة بفارق 40ms (حتى 10 عناصر)، وما يظهر لاحقاً بالتمرير يظهر فوراً
+  const pageStart = performance.now();
+  let revealIdx = 0;
+  const revealEls = document.querySelectorAll(".tool-card, .article-card, .prose.card, .feature, .faq, .tool-layout > .card");
+  if ("IntersectionObserver" in window && !reducedMotion()) {
     const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
-    }, { rootMargin: "0px 0px -40px 0px" });
+      const initial = performance.now() - pageStart < 450;
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        const el = en.target;
+        if (initial && revealIdx < 10) {
+          el.style.setProperty("--d", `${revealIdx * 40}ms`);
+          revealIdx++;
+        } else {
+          el.classList.add("quick");
+        }
+        el.classList.add("in");
+        io.unobserve(el);
+      });
+    }, { rootMargin: "0px 0px -32px 0px" });
     revealEls.forEach((el) => { el.classList.add("reveal"); io.observe(el); });
+  } else {
+    revealEls.forEach((el) => el.classList.add("in"));
+  }
+
+  /* ---------- مراقبة الأرقام المتدحرجة في الأدوات والعدّادات ---------- */
+  const rollTargets = document.querySelectorAll(".tasbih-btn .count, .prayer-next .countdown, .tile b");
+  if ("MutationObserver" in window && rollTargets.length && !reducedMotion()) {
+    rollTargets.forEach((el) => {
+      el._rollPrev = el.textContent || "";
+      const mo = new MutationObserver(() => { if (!inRoll) roll(el, el.textContent); });
+      mo.observe(el, { childList: true, characterData: true });
+    });
   }
 
   // نموذج الاتصال: يفتح برنامج البريد
@@ -189,6 +425,7 @@
   document.addEventListener("click", (e) => {
     const b = e.target.closest(".stepper [data-step]");
     if (!b) return;
+    navigator.vibrate?.(6);
     const inp = b.parentElement.querySelector("input");
     const min = inp.min === "" ? -Infinity : +inp.min, max = inp.max === "" ? Infinity : +inp.max;
     inp.value = Math.min(max, Math.max(min, (parseInt(inp.value, 10) || 0) + +b.dataset.step));
