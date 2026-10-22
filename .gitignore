@@ -30,3 +30,6 @@ KEYSTORE_INFO.txt
 *.aab
 *.jks
 *.keystore
+
+translations.csv
+translations.zip
