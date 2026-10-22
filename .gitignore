@@ -33,3 +33,5 @@ KEYSTORE_INFO.txt
 
 translations.csv
 translations.zip
+
+google-play/*.apk
