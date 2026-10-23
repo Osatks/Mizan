@@ -35,70 +35,24 @@ tap_text() {
   [ $# -eq 4 ] && adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))
 }
 
+# فرع التقاط فقط: شاشات صور المتجر بالروسية (لا يُدمج)
 adb shell cmd uimode night no || true
-shot home        01-home
-shot prayer      02-prayer
-shot qibla       03-qibla
-shot tasbih      04-tasbih
-shot zakat       05-zakat
-shot inheritance 06-inheritance
-shot hijri       07-hijri
-shot events      08-events
-shot age         09-age
-shot settings    10-settings
-shot adhkar      17-adhkar
-shot "surah/2?ayah=255&from=focus" 18-focus-mode
-
-adb shell cmd uimode night yes || true
-sleep 2
-shot home        11-home-dark
-shot prayer      12-prayer-dark
-shot inheritance 13-inheritance-dark
-
-# القرآن الكريم: الفهرس وصفحة سورة
-adb shell cmd uimode night no || true
-sleep 2
-shot quran          14-quran
-shot "surah/18"     15-surah-kahf
+shot home        01-ru-home        ru
+shot prayer      02-ru-prayer      ru
+shot qibla       03-ru-qibla       ru
+shot tasbih      04-ru-tasbih      ru
+shot zakat       05-ru-zakat       ru
+shot inheritance 06-ru-inheritance ru
+shot quran       14-ru-quran       ru
+shot adhkar      17-ru-adhkar      ru
+shot "surah/18"  15-ru-surah-kahf  ru
 # الضغط المطوّل على آية: شريط خياراتها، ثم التفسير في لوحته
 adb shell input swipe 540 1250 540 1250 900
 sleep 2
-adb exec-out screencap -p > "$OUT/19-ayah-actions.png"; echo "captured 19-ayah-actions"
-tap_text "التفسير"
+adb exec-out screencap -p > "$OUT/19-ru-ayah-actions.png"; echo "captured 19-ru-ayah-actions"
+tap_text "Тафсир"
 sleep 3
-adb exec-out screencap -p > "$OUT/19b-tafsir-panel.png"; echo "captured 19b-tafsir-panel"
-# «استماع» من الشريط يفتح إعدادات التلاوة
-adb shell input keyevent KEYCODE_BACK; sleep 1
-adb shell input swipe 540 1250 540 1250 900; sleep 2
-tap_text "استماع"
-sleep 3
-adb exec-out screencap -p > "$OUT/19c-listen-options.png"; echo "captured 19c-listen-options"
-shot quran          16-quran-en en
-
-# ألوان التطبيق
-adb shell cmd uimode night no || true
-sleep 2
-shot settings 70-accent-settings ar pink
-shot home     71-accent-pink     ar pink
-shot home     72-accent-purple   ar purple
-shot home     73-accent-blue     ar blue
-shot home     74-accent-honey    ar honey
-shot tasbih   75-accent-maroon   ar maroon
-adb shell cmd uimode night yes || true
-sleep 2
-shot prayer   76-accent-purple-dark ar purple
-shot home     77-accent-teal-dark   ar teal
-
-# لغات أخرى: الرئيسية والمواقيت والمسبحة
-adb shell cmd uimode night no || true
-sleep 2
-n=20
-for lang in en fr tr ur id ms fa bn ru de es uk uz kk; do
-  shot home     "$n-$lang-home" "$lang"
-  shot prayer   "$((n+1))-$lang-prayer" "$lang"
-  shot tasbih   "$((n+2))-$lang-tasbih" "$lang"
-  n=$((n+3))
-done
+adb exec-out screencap -p > "$OUT/19b-ru-tafsir-panel.png"; echo "captured 19b-ru-tafsir-panel"
 
 ls -la "$OUT"
 adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
