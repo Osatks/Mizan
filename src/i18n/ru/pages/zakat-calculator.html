@@ -1,0 +1,115 @@
+<!--META
+{"title": "Калькулятор закята 2026: точный расчёт закята с денег, золота и акций", "h1": "Калькулятор закята", "description": "Бесплатный и точный калькулятор закята: рассчитайте закят с наличных денег, банковских счетов, золота, серебра, акций и торговых товаров с мгновенным расчётом нисаба и вычетом долгов.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "Калькулятор закята", "lead": "Введите своё имущество и текущую цену золота — и сразу узнаете, достигло ли оно нисаба и сколько закята вы должны выплатить.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">Данные о вашем имуществе</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">Очистить данные</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">Валюта</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">Саудовский риял</option><option value="&#1583;.&#1573;">Дирхам ОАЭ</option><option value="&#1583;.&#1603;">Кувейтский динар</option>
+          <option value="&#1585;.&#1602;">Катарский риал</option><option value="&#1583;.&#1576;">Бахрейнский динар</option><option value="&#1585;.&#1593;">Оманский риал</option>
+          <option value="&#1580;.&#1605;">Египетский фунт</option><option value="&#1583;.&#1571;">Иорданский динар</option><option value="&#1583;.&#1593;">Иракский динар</option>
+          <option value="&#1583;.&#1605;">Марокканский дирхам</option><option value="&#1583;.&#1580;">Алжирский динар</option><option value="&#1583;.&#1578;">Тунисский динар</option>
+          <option value="&#1604;.&#1604;">Ливанский фунт</option><option value="&#1604;.&#1587;">Сирийский фунт</option><option value="&#1585;.&#1610;">Йеменский риал</option>
+          <option value="&#1580;.&#1587;">Суданский фунт</option><option value="&#1583;.&#1604;">Ливийский динар</option><option value="$">Доллар США</option><option value="€">Евро</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">Нисаб для денег</label>
+        <select id="zk-basis">
+          <option value="gold">Нисаб золота (85 грамм)</option>
+          <option value="silver">Нисаб серебра (595 грамм)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Цены на сегодня</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">Цена грамма золота 999 пробы (24 карата)</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="Например: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">Узнайте в ювелирном магазине или на надёжном сайте котировок вашей страны.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">Цена грамма серебра (необязательно)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="Например: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">Нужна, если вы выбрали нисаб серебра или у вас есть серебро.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> Деньги и остатки на счетах</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">Наличные на руках</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">Остатки на банковских счетах и в кошельках</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">Долги вам, которые ожидаемо вернут</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">Прочие средства (кассы взаимопомощи, прибыль…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> Золото и серебро (в граммах)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">Золото 24 карата (999)</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-g22">Золото 22 карата (916)</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-g21">Золото 21 карат (875)</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-g18">Золото 18 карат (750)</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-silver">Чистое серебро</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> Учитывать в расчёте носимые украшения (мнение ханафитов, более осторожное)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">Из них носимые украшения (граммы, в пересчёте на 21 карат)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">г</span></div>
+        <span class="hint">Этот вес будет исключён из расчёта согласно мнению большинства, что с украшений, предназначенных для ношения, закят не выплачивается.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Инвестиции и торговля</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">Акции для торговли (рыночная стоимость)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">Акции для долгосрочных инвестиций (облагаемая закятом база)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Ваша доля в облагаемых закятом активах компании, если она вам известна.</span></div>
+        <div class="field"><label for="zk-goods">Торговые товары (стоимость товара)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> Вычеты</p>
+      <div class="field"><label for="zk-debts">Ваши текущие долги (подлежащие оплате в этом году)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Только платежи, подлежащие оплате в течение года (хауля), а не весь долгосрочный кредит.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Причитающийся закят</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">Введите цену золота и своё имущество</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>Всё облагаемое закятом имущество</span><span id="zk-total">0</span></li>
+      <li><span>Вычтенные долги</span><span id="zk-debts-out">0</span></li>
+      <li><span>Чистая облагаемая база</span><span id="zk-net">0</span></li>
+      <li><span>Размер нисаба</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">Отношение базы к нисабу</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">Поделиться результатом</button>
+      <button type="button" class="btn ghost" onclick="print()">Печать</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Ваши данные хранятся только на вашем устройстве. Размер закята — 2,5% от чистой базы, если она достигла нисаба и прошёл лунный год (хауль).</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

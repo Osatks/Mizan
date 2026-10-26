@@ -1,0 +1,74 @@
+<!--META
+{"title": "Fitre Hesaplayıcı: Kişi başı miktar kilogram ve değer olarak ne kadar?", "h1": "Fitre Hesaplayıcı", "description": "Tüm aile fertleriniz için fitreyi (fıtır sadakası) kilogram cinsinden pirinç, buğday veya hurma olarak ya da nakit değer olarak hesaplayın; hükümleri, veriliş vakti ve kimlere verileceğinin açıklamasıyla.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Fitre", "lead": "Aile fertlerinizin sayısını ve yiyecek türünü veya değeri belirleyin; gereken fitre miktarını hemen öğrenin.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Aile bilgileri</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Fitresini verdiğiniz kişi sayısı (kendiniz dahil)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Azalt">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Artır">+</button>
+        </div>
+        <span class="hint">Kendinizi, eşinizi, çocuklarınızı ve nafakası size düşen kişileri kapsar.</span>
+      </div>
+      <div class="field">
+        <span class="label">Ödeme şekli</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Yiyecek (sa')</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Nakit değer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Yiyecek türü ve sa' miktarı</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Yiyecek türü</label>
+          <select id="fr-type">
+            <option value="2.5">Pirinç — yaklaşık 2,5 kg</option>
+            <option value="3">Pirinç (ihtiyatlı olan) — 3 kg</option>
+            <option value="2.04">Buğday — yaklaşık 2,04 kg</option>
+            <option value="2.5">Hurma — yaklaşık 2,5 kg</option>
+            <option value="2.2">Arpa — yaklaşık 2,2 kg</option>
+            <option value="custom">Başka bir miktar…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Sa'ın kilogram cinsinden ağırlığı</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">kg</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Kilogram fiyatı (isteğe bağlı)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">/ kg</span></div>
+          <span class="hint">Yaklaşık satın alma maliyetini öğrenmek için.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Nakit değer</p>
+      <div class="field">
+        <label for="fr-value">Kişi başı fitre değeri</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="Örnek: 35"><span class="unit">/ kişi</span></div>
+        <span class="hint">Ülkenizdeki fetva kurumu veya resmî makam her yıl açıklar. Değerin verilmesi Hanefîlerin görüşüdür; cumhur ise yiyecek verilmesi görüşündedir.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Fitre miktarı</div>
+      <div class="big-number" id="fr-total">2.5 <small>kg</small></div>
+      <span class="badge ok" id="fr-sub">bir kişi için</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Veriliş vakti:</strong> Bayram namazından öncedir; bir veya iki gün önce verilmesi caizdir, mazeretsiz olarak bayram namazından sonraya bırakılması caiz değildir.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Paylaş</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

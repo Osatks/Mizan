@@ -1,0 +1,74 @@
+<!--META
+{"title": "Fitr zakoti kalkulyatori: har bir kishi uchun qancha — kilogramm va pulda", "h1": "Fitr zakoti kalkulyatori", "description": "Oilangizning barcha aʼzolari uchun fitr zakotini guruch, bugʻdoy yoki xurmo kilogrammida yoki pul qiymatida hisoblang; uning hukmlari, berilish vaqti va haqdorlari tushuntiriladi.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Fitr zakoti", "lead": "Oila aʼzolaringiz soni va taom turi yoki qiymatini belgilang — vojib fitr zakoti miqdorini darhol bilib olasiz.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Oila maʼlumotlari</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Zakot beriladigan kishilar soni (oʻzingiz bilan)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Kamaytirish">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Koʻpaytirish">+</button>
+        </div>
+        <span class="hint">Oʻzingiz, ayolingiz, farzandlaringiz va nafaqasi sizga vojib boʻlganlar kiradi.</span>
+      </div>
+      <div class="field">
+        <span class="label">Berish usuli</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Taom (soʻ)</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Pul qiymati</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Taom turi va soʻ miqdori</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Taom turi</label>
+          <select id="fr-type">
+            <option value="2.5">Guruch — taxminan 2.5 kg</option>
+            <option value="3">Guruch (ehtiyotliroq) — 3 kg</option>
+            <option value="2.04">Bugʻdoy — taxminan 2.04 kg</option>
+            <option value="2.5">Xurmo — taxminan 2.5 kg</option>
+            <option value="2.2">Arpa — taxminan 2.2 kg</option>
+            <option value="custom">Boshqa miqdor…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Soʻning vazni (kilogrammda)</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">kg</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Bir kilogramm narxi (ixtiyoriy)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">1 kg uchun</span></div>
+          <span class="hint">Xarid qilishning taxminiy narxini bilish uchun.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Pul qiymati</p>
+      <div class="field">
+        <label for="fr-value">Bir kishi uchun fitr zakoti qiymati</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="Masalan: 35"><span class="unit">bir kishi uchun</span></div>
+        <span class="hint">Uni har yili mamlakatingizdagi fatvo idorasi yoki rasmiy tashkilot eʼlon qiladi. Qiymatini pulda berish hanafiylarning qarashi, jumhur esa taom berish tarafdori.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Fitr zakoti miqdori</div>
+      <div class="big-number" id="fr-total">2.5 <small>kg</small></div>
+      <span class="badge ok" id="fr-sub">bir kishi uchun</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Berish vaqti:</strong> hayit namozidan oldin; bir yoki ikki kun oldin berish joiz, uzrsiz hayit namozidan keyinga qoldirish joiz emas.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Ulashish</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->
