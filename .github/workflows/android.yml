@@ -1,11 +1,7 @@
 name: Android App
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "android-app/**"
-      - ".github/workflows/android.yml"
+  # يدوي فقط (Actions ← Run workflow): دقائق GitHub Actions محدودة، وبناء macOS يُحسب بعشرة أضعاف
   workflow_dispatch:
 
 permissions:

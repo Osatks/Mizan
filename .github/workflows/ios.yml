@@ -3,14 +3,8 @@ name: iOS App
 # نسخة تطوير لـ iOS: تُبنى على macOS بلا توقيع (ملف .ipa)، ويوقّعها المستخدم بحسابه عند التثبيت
 # (Sideloadly أو AltStore بحساب Apple مجاني). الواجهات والمنطق من وحدة Kotlin المشتركة مع أندرويد.
 on:
+  # يدوي فقط (Actions ← Run workflow): دقائق GitHub Actions محدودة، وبناء macOS يُحسب بعشرة أضعاف
   workflow_dispatch:
-  # فروع التطوير أيضاً: التشغيل اليدوي لا يتاح لملف جديد حتى يصل إلى main
-  push:
-    branches: [main, "claude/**"]
-    paths:
-      - "android-app/shared/**"
-      - "iosApp/**"
-      - ".github/workflows/ios.yml"
 
 jobs:
   build:

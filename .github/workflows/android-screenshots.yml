@@ -1,12 +1,8 @@
 name: Android Screenshots
 
 on:
+  # يدوي فقط (Actions ← Run workflow): دقائق GitHub Actions محدودة، وبناء macOS يُحسب بعشرة أضعاف
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/android-screenshots.yml"
-      - "android-app/scripts/screenshots.sh"
 
 permissions:
   contents: read
