@@ -783,3 +783,12 @@ a.store-badge:focus-visible { outline: 3px solid #f1cf72; outline-offset: 3px; }
   .store-badge { min-width: 0; flex: 1 1 100%; justify-content: center; }
 }
 .app-home-cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+
+/* شريط التطبيق لزوار Android */
+.app-banner { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
+.app-banner img { width: 40px; height: 40px; border-radius: 10px; flex: none; }
+.app-banner div { flex: 1; min-width: 0; line-height: 1.35; }
+.app-banner b { display: block; font-size: .95rem; }
+.app-banner small { color: var(--muted); font-size: .8rem; }
+.app-banner .btn { flex: none; }
+.app-banner .close { flex: none; border: 0; background: none; color: var(--muted); font-size: 1.4rem; line-height: 1; padding: 4px 6px; cursor: pointer; }
