@@ -3,8 +3,9 @@
   "site_tagline": "أدوات المسلم",
   "site_url": "https://mizan-al-muslem.com",
   "contact_email": "mizanalmuslimhilal@gmail.com",
-  "adsense_client": "",
+  "adsense_client": "ca-pub-8813422423179554",
   "google_analytics_id": "",
   "lang": "ar",
-  "default_image": "/assets/img/og-image.png"
+  "default_image": "/assets/img/og-image.png",
+  "play_url": "https://play.google.com/store/apps/details?id=com.mizan.almuslim"
 }

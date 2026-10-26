@@ -349,7 +349,7 @@
   // العناصر المرئية خلال أول 450ms تظهر متتابعة بفارق 40ms (حتى 10 عناصر)، وما يظهر لاحقاً بالتمرير يظهر فوراً
   const pageStart = performance.now();
   let revealIdx = 0;
-  const revealEls = document.querySelectorAll(".tool-card, .article-card, .prose.card, .feature, .faq, .tool-layout > .card");
+  const revealEls = document.querySelectorAll(".tool-card, .article-card, .prose.card, .feature, .faq, .tool-layout > .card, .app-feature, .platform");
   if ("IntersectionObserver" in window && !reducedMotion()) {
     const io = new IntersectionObserver((entries) => {
       const initial = performance.now() - pageStart < 450;
