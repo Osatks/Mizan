@@ -15,7 +15,10 @@
   if (saved.basis) $("zk-basis").value = saved.basis;
   if (saved.jewelry === false) $("zk-jewelry").checked = false;
 
-  function cur() { return $("zk-currency").value; }
+  // رمز العملة: العربي في الصفحات العربية، ورمزه الدولي في بقية اللغات
+  const ISO = { "ر.س": "SAR", "د.إ": "AED", "د.ك": "KWD", "ر.ق": "QAR", "د.ب": "BHD", "ر.ع": "OMR", "ج.م": "EGP", "د.أ": "JOD", "د.ع": "IQD",
+    "د.م": "MAD", "د.ج": "DZD", "د.ت": "TND", "ل.ل": "LBP", "ل.س": "SYP", "ر.ي": "YER", "ج.س": "SDG", "د.ل": "LYD" };
+  function cur() { const v = $("zk-currency").value; return document.documentElement.lang === "ar" ? v : ISO[v] || v; }
 
   function calc() {
     document.querySelectorAll("[data-cur]").forEach((el) => (el.textContent = cur()));
