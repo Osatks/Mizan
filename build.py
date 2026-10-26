@@ -356,12 +356,36 @@ def breadcrumb(meta):
     return crumbs, ld
 
 
+def fingerprint_assets():
+    """يضيف بصمة المحتوى إلى أسماء ملفات CSS وJS (style.css ← style.3df49246.css).
+
+    المتصفح يحتفظ بالملفات الثابتة أسبوعًا، وعامل الخدمة يخزّنها، فلو بقي الاسم نفسه بعد تحديث
+    لظهرت الصفحات الجديدة بتنسيق قديم. باسم جديد لكل محتوى جديد لا تُستعمل نسخة قديمة أبدًا.
+    """
+    import hashlib
+    mapping = {}
+    for f in sorted((DIST / "assets").rglob("*")):
+        if f.is_file() and f.suffix in (".css", ".js"):
+            h = hashlib.sha1(f.read_bytes()).hexdigest()[:8]
+            new = f.with_name(f"{f.stem}.{h}{f.suffix}")
+            f.rename(new)
+            mapping["/" + f.relative_to(DIST).as_posix()] = "/" + new.relative_to(DIST).as_posix()
+    return mapping
+
+
+def apply_fingerprints(text, mapping):
+    for old, new in mapping.items():
+        text = text.replace(f'"{old}"', f'"{new}"')
+    return text
+
+
 def build():
     if DIST.exists():
         shutil.rmtree(DIST)
     shutil.copytree(SRC / "assets", DIST / "assets")
     css = DIST / "assets" / "css" / "style.css"
     css.write_text(css.read_text(encoding="utf-8").replace("/*__ACCENTS__*/", accent_css()), encoding="utf-8")
+    assets = fingerprint_assets()
     template = (SRC / "templates" / "base.html").read_text(encoding="utf-8")
 
     pages = []
@@ -486,7 +510,7 @@ def build():
         rel = meta.get("output") or (meta["path"].strip("/") + "/index.html" if meta["path"] != "/" else "index.html")
         dest = DIST / rel.lstrip("/")
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(out, encoding="utf-8")
+        dest.write_text(apply_fingerprints(out, assets), encoding="utf-8")
         if not meta.get("noindex"):
             sitemap.append((url, meta.get("updated", meta.get("date", date.today().isoformat())),
                             "1.0" if meta["path"] == "/" else ("0.9" if meta.get("type") == "tool" else "0.7")))
