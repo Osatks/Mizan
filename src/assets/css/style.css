@@ -821,3 +821,26 @@ a.store-badge:focus-visible { outline: 3px solid #f1cf72; outline-offset: 3px; }
 .verse-tr { display: block; font-family: var(--font); font-size: .98rem; line-height: 1.7; color: var(--text-soft); margin-top: 8px; }
 :root[dir="ltr"] .tool-card:hover .tool-go { transform: translateX(4px); }
 :root[dir="ltr"] .store-badge span, :root[dir="ltr"] .store-badge small { direction: ltr; }
+/* الرأس في اللغات ذات الكلمات الأطول: زر التثبيت بأيقونة فقط وقائمة أضيق */
+@media (max-width: 1440px) and (min-width: 481px) {
+  :root:not([lang="ar"]) .install-btn span { display: none; }
+  :root:not([lang="ar"]) .install-btn { padding: 0; width: 42px; height: 42px; justify-content: center; }
+}
+@media (min-width: 961px) {
+  :root:not([lang="ar"]) .header-inner { gap: 12px; }
+  :root:not([lang="ar"]) .main-nav { gap: 0; min-width: 0; }
+  :root:not([lang="ar"]) .main-nav > a, :root:not([lang="ar"]) .nav-more-btn { padding: 8px 9px; font-size: .9rem; }
+}
+@media (max-width: 1100px) and (min-width: 961px) {
+  .header-inner { gap: 10px; }
+  .main-nav > a, .nav-more-btn { padding: 8px 8px; font-size: .9rem; }
+}
+@media (max-width: 1100px) and (min-width: 481px) {
+  .install-btn span { display: none; }
+  .install-btn { padding: 0; width: 42px; height: 42px; justify-content: center; }
+}
+/* على الجوال: يتقلص اسم الموقع ووصفه بدل أن يدفع أزرار الرأس خارج الشاشة */
+.brand { min-width: 0; flex: 0 1 auto; }
+.brand-text { min-width: 0; }
+.brand-text small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 420px) { :root:not([lang="ar"]) .brand-text small { display: none; } }
