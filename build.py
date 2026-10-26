@@ -295,6 +295,7 @@ def nav_html(active):
         ("prayer", "/prayer-times/", "مواقيت الصلاة"),
         ("hijri", "/hijri-converter/", "التاريخ الهجري"),
         ("articles", "/articles/", "مقالات"),
+        ("app", "/app/", "التطبيق"),
     ]
     out = []
     for key, href, label in links:
@@ -380,7 +381,8 @@ def build():
                     .replace("{{articles_latest}}", articles_list(articles, 3))
                     .replace("{{site_name}}", esc(CONFIG["site_name"]))
                     .replace("{{contact_email}}", esc(CONFIG["contact_email"]))
-                    .replace("{{site_url}}", esc(CONFIG["site_url"])))
+                    .replace("{{site_url}}", esc(CONFIG["site_url"]))
+                    .replace("{{play_url}}", esc(CONFIG["play_url"])))
 
         if meta.get("type") == "tool":
             body += ('<section class="related"><h2>أدوات أخرى قد تفيدك</h2>'
@@ -405,6 +407,13 @@ def build():
             ld.append({"@context": "https://schema.org", "@type": "WebApplication",
                        "name": meta["h1"], "url": url, "applicationCategory": "UtilitiesApplication",
                        "operatingSystem": "Any", "inLanguage": "ar",
+                       "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
+        if meta.get("type") == "app":
+            ld.append({"@context": "https://schema.org", "@type": "MobileApplication",
+                       "name": CONFIG["site_name"], "url": url, "operatingSystem": "Android 8.0+",
+                       "applicationCategory": "LifestyleApplication", "inLanguage": "ar",
+                       "installUrl": CONFIG["play_url"], "downloadUrl": CONFIG["play_url"],
+                       "image": CONFIG["site_url"] + "/assets/img/icon-512.png",
                        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
         if meta.get("type") == "article":
             ld.append({"@context": "https://schema.org", "@type": "Article",

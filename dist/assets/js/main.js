@@ -349,7 +349,7 @@
   // العناصر المرئية خلال أول 450ms تظهر متتابعة بفارق 40ms (حتى 10 عناصر)، وما يظهر لاحقاً بالتمرير يظهر فوراً
   const pageStart = performance.now();
   let revealIdx = 0;
-  const revealEls = document.querySelectorAll(".tool-card, .article-card, .prose.card, .feature, .faq, .tool-layout > .card");
+  const revealEls = document.querySelectorAll(".tool-card, .article-card, .prose.card, .feature, .faq, .tool-layout > .card, .app-feature, .platform");
   if ("IntersectionObserver" in window && !reducedMotion()) {
     const io = new IntersectionObserver((entries) => {
       const initial = performance.now() - pageStart < 450;
@@ -436,5 +436,29 @@
   document.querySelectorAll("[data-today-hijri]").forEach((el) => { el.textContent = hijriStr(toHijri(new Date())); });
   document.querySelectorAll("[data-today-greg]").forEach((el) => {
     const d = new Date(); el.textContent = WEEKDAYS[d.getDay()] + " " + gregStr(d);
+  });
+})();
+
+// زوار Android: شريط صغير يدلّهم على التطبيق في Google Play (يُخفى 30 يومًا بعد إغلاقه)
+(function () {
+  if (!/Android/i.test(navigator.userAgent)) return;
+  // للتطبيق الحقيقي نسخة على Google Play، فلا داعي لزر تثبيت الموقع كتطبيق ويب
+  document.querySelectorAll(".install-btn").forEach(function (b) { b.remove(); });
+  if (location.pathname.indexOf("/app") === 0) return;
+  if (matchMedia("(display-mode: standalone)").matches) return;
+  var key = "app-banner-closed";
+  try { if (Date.now() - Number(localStorage.getItem(key) || 0) < 30 * 864e5) return; } catch (e) {}
+  var header = document.querySelector(".site-header");
+  if (!header) return;
+  var bar = document.createElement("div");
+  bar.className = "app-banner";
+  bar.innerHTML = '<img src="/assets/img/icon-192.png" alt="">' +
+    '<div><b>تطبيق ميزان</b><small>مجاني على Google Play</small></div>' +
+    '<a class="btn sm" href="https://play.google.com/store/apps/details?id=com.mizan.almuslim" target="_blank" rel="noopener">تثبيت</a>' +
+    '<button type="button" class="close" aria-label="إغلاق">×</button>';
+  header.after(bar);
+  bar.querySelector(".close").addEventListener("click", function () {
+    bar.remove();
+    try { localStorage.setItem(key, String(Date.now())); } catch (e) {}
   });
 })();
