@@ -1,0 +1,33 @@
+<!--META
+{"title": "Kontakt – schreib dem Mizan-Team", "h1": "Kontakt", "description": "Kontaktiere das Mizan-Team, um einen Fehler auf der Website oder in der App zu melden, eine Anmerkung zum Mushaf, zu den Adhkar oder den Übersetzungen zu machen, ein neues Tool vorzuschlagen oder allgemeine Fragen zu stellen.", "path": "/contact/", "type": "page", "nav": "", "breadcrumb": "Kontakt", "lead": "Wir freuen uns über deine Anmerkungen, Vorschläge und Korrekturen zur Website und zur App."}
+-->
+<section class="prose card">
+  <h2>Wir sind für dich da</h2>
+  <p>Bei {{site_name}} freuen wir uns über alle eure Nachrichten – sei es eine Frage zur Funktionsweise eines Tools auf der Website oder in der Smartphone-App (Android und iOS), die Meldung eines Fehlers in einem Rechenergebnis, eine Anmerkung zur Darstellung des Mushaf, der Tafsir-Werke und Adhkar oder zu den Übersetzungen in 15 Sprachen oder ein Vorschlag für eine neue Funktion. Eure Rückmeldungen helfen uns, „Mizan“ weiterzuentwickeln und noch genauer und sorgfältiger zu machen.</p>
+
+  <h2>E-Mail</h2>
+  <p>Du kannst uns direkt schreiben an: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+  <p>Oder nutze das Formular unten: Es öffnet das E-Mail-Programm auf deinem Gerät mit einer vorbereiteten Nachricht, die deinen Text enthält, sodass du sie selbst absenden kannst. Das Formular sendet keine Daten an unsere Server.</p>
+
+  <h3>Tipps für eine klarere Nachricht</h3>
+  <ul>
+    <li>Bei der Meldung eines Fehlers in einem Rechner: Nenne den Namen des Tools, deine Eingaben, das angezeigte Ergebnis und das erwartete Ergebnis, wenn möglich mit Quelle.</li>
+    <li>Bei einer Anmerkung zur Smartphone-App: Nenne deinen Gerätetyp (Android oder iOS), die gewählte Anzeigesprache und den Bildschirm, auf dem das Problem auftrat.</li>
+    <li>Bei der Korrektur religiöser Inhalte oder einer Übersetzung: Füge die Nummer von Sure und Vers bzw. die Dhikr-Kategorie und den Beleg oder die Fiqh-Quelle bei, auf die du dich stützt.</li>
+    <li>Bei Gebetszeiten: Nenne deine Stadt, die gewählte Berechnungsmethode und den lokalen Gebetskalender, mit dem du vergleichst.</li>
+  </ul>
+
+  <h2>Antwortzeit</h2>
+  <p>Wir bemühen uns, alle Nachrichten innerhalb von drei bis fünf Werktagen zu beantworten. Meldungen, die eine religiöse Prüfung oder ein Software-Update erfordern, können länger dauern; wir informieren dich, sobald der Fehler korrigiert ist, so Allah will.</p>
+
+  <div class="note"><strong>Wichtiger Hinweis:</strong> {{site_name}} ist eine Plattform für islamische Tools und Nachschlagewerke und erteilt keine Fatwas zu persönlichen Angelegenheiten. Wenn du eine besondere Frage zu Erbe, Zakat oder anderem hast, wende dich bitte an einen vertrauenswürdigen Gelehrten, das Fatwa-Amt oder das zuständige Scharia-Gericht in deinem Land.</div>
+</section>
+
+<form class="contact-form card" id="contact-form" novalidate>
+  <div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" required></div>
+  <div class="field"><label for="cf-email">Deine E-Mail-Adresse</label><input id="cf-email" name="email" type="email" required></div>
+  <div class="field"><label for="cf-subject">Betreff</label><select id="cf-subject" name="subject"><option>Allgemeine Anfrage</option><option>Anmerkung zur Smartphone-App (Android / iOS)</option><option>Fehler in einem Tool oder Rechner melden</option><option>Anmerkung zu Mushaf, Tafsir oder Adhkar</option><option>Anmerkung zu den Übersetzungen</option><option>Neues Tool oder neue Funktion vorschlagen</option><option>Werbung und Zusammenarbeit</option></select></div>
+  <div class="field"><label for="cf-msg">Nachricht</label><textarea id="cf-msg" name="message" rows="6" required></textarea></div>
+  <button class="btn" type="submit">Nachricht senden</button>
+  <p class="form-status" role="status"></p>
+</form>

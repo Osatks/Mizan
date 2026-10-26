@@ -1,0 +1,44 @@
+<!--META
+{"title": "Калькулятор возраста по хиджре и григорианскому календарю (годы, месяцы, дни)", "h1": "Калькулятор возраста", "description": "Рассчитайте свой возраст по хиджре и григорианскому календарю в годах, месяцах и днях, узнайте день недели своего рождения, дату по хиджре, число прожитых дней и сколько осталось до следующего дня рождения.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Калькулятор возраста", "lead": "Введите дату рождения по хиджре или по григорианскому календарю и узнайте свой точный возраст по обоим календарям и интересную статистику о своей жизни.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Дата рождения</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Григорианский</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">Хиджра</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">День</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Месяц</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Год</label><input id="age-y" type="number" inputmode="numeric" placeholder="Например: 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Рассчитать возраст на дату (григорианскую)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Оставьте сегодняшнюю дату или измените её, чтобы узнать свой возраст на определённую дату.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Статистика о вашем возрасте</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Ваш возраст по григорианскому календарю</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Ваш возраст по хиджре</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Поделиться</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

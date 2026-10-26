@@ -1,0 +1,62 @@
+<!--META
+{"title": "Mizan | Alat Muslim: Al-Quran, Zakat, Faraid dan Waktu Solat", "h1": "Mizan", "description": "Platform alat Islam percuma dan tepat serta aplikasi telefon pintar: al-Quran dengan tafsir dan bacaan, zikir yang disahkan, kalkulator zakat, kalkulator faraid, waktu solat dan arah kiblat.", "path": "/", "type": "home", "nav": "home", "custom_hero": true, "date": "2026-10-22", "scripts": ["home.js"]}
+-->
+<!--HERO-->
+<section class="home-hero">
+  <div class="container">
+    <span class="eyebrow">✦ Alat Islam percuma dan tepat di web dan telefon</span>
+    <h1>Semua yang diperlukan oleh seorang Muslim untuk <span>ibadah dan pengiraan syarak</span> di satu tempat</h1>
+    <p>Kira zakat anda, bahagikan harta pusaka mengikut ilmu faraid, ketahui waktu solat, arah kiblat dan tarikh Hijrah, bersama aplikasi Mizan untuk telefon yang menghimpunkan Mushaf al-Quran dengan tafsir dan bacaan serta ensiklopedia zikir dalam 15 bahasa.</p>
+    <div class="hero-search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="tool-search" placeholder="Cari alat… contohnya: zakat, faraid, solat, Hijrah" aria-label="Cari alat" autocomplete="off">
+    </div>
+    <div class="hero-today">
+      <span class="pill">Hari ini: <b data-today-hijri></b></span>
+      <span class="pill" data-today-greg></span>
+      <span class="pill" id="hero-next-event" hidden></span>
+    </div>
+  </div>
+</section>
+<!--/HERO-->
+<section id="tools" aria-labelledby="tools-title">
+  <h2 id="tools-title" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Alat</h2>
+  {{tools_grid}}
+  <p class="no-results card">Tiada alat dengan nama ini. Cuba perkataan lain, atau <a href="/contact/">cadangkan alat baharu kepada kami</a>.</p>
+</section>
+
+<div class="section-title"><h2>Aplikasi Mizan untuk telefon pintar</h2><a href="/app/">Muat turun aplikasi →</a></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>Mushaf al-Quran dan tafsir</h3><p>Halaman mushaf berhias emas dengan Rasm Uthmani. Tekan lama pada mana-mana ayat untuk membaca tafsirnya, mendengarnya, menyimpannya atau berkongsinya, bersama mod fokus dan penjejakan khatam.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="15" r="2"/><circle cx="6" cy="8" r="2"/><circle cx="6" cy="15" r="2"/><path d="M12 19v3"/><circle cx="12" cy="18" r="1.5"/></svg></span><div><h3>334 zikir berserta dalil dan takhrij</h3><p>24 bahagian zikir pagi dan petang, zikir solat, doa-doa daripada al-Quran dan Hisnul Muslim, dengan keterangan sumber, perawi dan darjat hadis serta pembilang interaktif.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v3"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M4 22V12h16v10"/><path d="M10 22v-5a2 2 0 0 1 4 0v5"/><path d="M2 22h20"/></svg></span><div><h3>Peringatan solat dan 5 widget</h3><p>Waktu solat dan peringatan azan yang berfungsi tanpa internet, bersama 5 widget untuk skrin utama (waktu solat, solat seterusnya, ayat hari ini, tarikh Hijrah dan khatam).</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></span><div><h3>15 bahasa dunia dan tanpa iklan</h3><p>Antara muka serta terjemahan makna al-Quran, zikir dan dalil syarak dalam 15 bahasa, dengan 10 warna antara muka; berfungsi 100% tanpa internet dan tanpa iklan.</p></div></div>
+  </div>
+  <div class="app-home-cta">
+    <a class="btn" href="/app/">Muat turun aplikasi Mizan secara percuma</a>
+    <span class="muted">Tersedia di Google Play · iPhone akan datang</span>
+  </div>
+</section>
+
+<div class="section-title"><h2>Mengapa Mizan?</h2></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>Berasaskan dalil dan ketepatan syarak</h3><p>Kaedah pengiraan dibina atas pendapat muktamad jumhur fuqaha, disertakan dalil syarak dan penjelasan tentang perkara khilaf.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h3>Privasi sepenuhnya</h3><p>Semua pengiraan dan bacaan dilakukan secara setempat pada peranti anda, dan kami tidak menghantar angka atau lokasi anda ke mana-mana pelayan.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><div><h3>Pantas dan berfungsi tanpa internet</h3><p>Keputusan serta-merta semasa anda menaip, dengan antara muka yang jelas dalam 15 bahasa yang berfungsi pada telefon dan komputer, juga tanpa sambungan rangkaian.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/><path d="M12 8v4l3 2"/></svg></span><div><h3>Sentiasa percuma</h3><p>Semua alat, mushaf, tafsir dan zikir tersedia secara percuma tanpa pendaftaran atau langganan.</p></div></div>
+  </div>
+</section>
+
+<!--AR-ONLY--><div class="section-title"><h2>أحدث المقالات</h2><a href="/articles/">كل المقالات ←</a></div>
+{{articles_latest}}
+<!--/AR-ONLY-->
+
+<section class="prose card">
+  <h2>Tentang laman web dan aplikasi Mizan</h2>
+  <p>«Mizan» ialah sistem Islam yang lengkap di web dan telefon pintar (Android di Google Play, dan iPhone akan datang) yang direka untuk menemani seorang Muslim dalam ibadah hariannya dan menjawab persoalan syarak serta praktikalnya: membaca al-Quran dengan Rasm Uthmani, merenungi tafsirnya dan mendengar bacaannya, menjaga zikir pagi, petang dan selepas solat dengan sanad yang sahih, serta mengetahui berapakah zakat harta saya tahun ini? Bagaimanakah harta pusaka dibahagikan antara waris mengikut faraid? Bilakah masuk waktu solat di bandar saya? Dan di manakah arah kiblat dari tempat saya sekarang?</p>
+  <p><a href="/zakat-calculator/">Kalkulator zakat</a> berasaskan nisab emas dan perak serta menerima lima jenis harta, iaitu wang tunai, emas, perak, saham dan barang dagangan, dengan menolak hutang yang sudah sampai tempoh dan menerangkan dalil-dalil syarak. Manakala <a href="/inheritance-calculator/">kalkulator faraid</a> menggunakan kaedah ilmu faraid, iaitu bahagian tetap (furud), 'asabah, hijab, 'aul dan radd, berserta huraian ayat-ayat pusaka dan langkah-langkah pembahagian, serta memaparkan asal masalah dan bahagian setiap waris dalam bentuk pecahan, peratusan dan jumlah.</p>
+  <p>Alat <a href="/prayer-times/">waktu solat</a> mengira waktu dengan persamaan astronomi yang tepat serta membolehkan anda memilih kaedah pengiraan yang diguna pakai di negara anda, manakala alat <a href="/qibla-direction/">arah kiblat</a> menyediakan kompas interaktif pada telefon. <a href="/hijri-converter/">Penukar tarikh</a> pula berasaskan kalendar Umm al-Qura yang digunakan secara rasmi di Arab Saudi.</p>
+  <div class="note"><p>Keputusan semua alat adalah sebagai panduan untuk membantu pemahaman dan anggaran; bagi persoalan khusus atau rumit, sila rujuk kepada ahli ilmu dan pihak berkuasa rasmi yang berkenaan.</p></div>
+</section>

@@ -1,0 +1,40 @@
+<!--META
+{"title": "Hozirgi joylashuvingizdan qibla yoʻnalishi: elektron qibla kompasi", "h1": "Qibla yoʻnalishi", "description": "Telefondagi interaktiv qibla kompasi yordamida dunyoning istalgan joyidan qibla yoʻnalishini aniq belgilang; shimoldan qibla burchagi va muazzam Kaʼbagacha masofa bilan.", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "Qibla yoʻnalishi", "lead": "Qibla burchagini bilish uchun joylashuvingizdan foydalaning yoki shahringizni tanlang; telefonda esa oltin rang strelka yonguncha telefoningizni buring.", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">N</span><span class="cardinal e">E</span><span class="cardinal s">S</span><span class="cardinal w">W</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="Kaʼba"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">Kompas telefoningiz yoʻnalishi bilan birga aylanishi uchun telefonda «Kompasni yoqish»ni bosing</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 Kompasni yoqish</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 Joylashuvimdan foydalanish</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Geografik shimoldan qibla burchagi</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">Yoki shaharni tanlang</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>Joylashuvingiz</span><span id="qb-loc">—</span></li>
+      <li><span>Kaʼbagacha masofa</span><span id="qb-dist">—</span></li>
+      <li><span>Telefonning joriy yoʻnalishi</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>Telefoningizni qurilmalar va metallardan uzoqroq tuting; agar koʻrsatkich beqaror boʻlsa, kompasni kalibrlash uchun telefonni 8 raqami shaklida harakatlantiring.</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

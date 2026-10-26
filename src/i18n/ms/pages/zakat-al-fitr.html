@@ -1,0 +1,74 @@
+<!--META
+{"title": "Kalkulator Zakat Fitrah: Berapa kadarnya bagi setiap orang dalam kilogram dan nilai wang", "h1": "Kalkulator Zakat Fitrah", "description": "Kira zakat fitrah untuk semua ahli keluarga anda dalam kilogram beras, gandum atau kurma, atau dalam nilai wang, berserta penjelasan hukum-hakamnya, waktu mengeluarkannya dan golongan yang berhak menerimanya.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Zakat Fitrah", "lead": "Tentukan bilangan ahli keluarga anda dan jenis makanan atau nilai wang, dan ketahui serta-merta kadar zakat fitrah yang wajib.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Butiran keluarga</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Bilangan orang yang dizakatkan (termasuk diri anda)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Kurangkan">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Tambah">+</button>
+        </div>
+        <span class="hint">Termasuk diri anda, isteri, anak-anak dan sesiapa yang wajib anda tanggung nafkahnya.</span>
+      </div>
+      <div class="field">
+        <span class="label">Cara mengeluarkan</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Makanan (gantang/sa')</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Nilai wang</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Jenis makanan dan kadar segantang (sa')</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Jenis makanan</label>
+          <select id="fr-type">
+            <option value="2.5">Beras — kira-kira 2.5 kg</option>
+            <option value="3">Beras (lebih berhati-hati) — 3 kg</option>
+            <option value="2.04">Gandum — kira-kira 2.04 kg</option>
+            <option value="2.5">Kurma — kira-kira 2.5 kg</option>
+            <option value="2.2">Barli — kira-kira 2.2 kg</option>
+            <option value="custom">Kadar lain…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Berat segantang (sa') dalam kilogram</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">kg</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Harga sekilogram (pilihan)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">sekilo</span></div>
+          <span class="hint">Untuk mengetahui anggaran kos pembelian.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Nilai wang</p>
+      <div class="field">
+        <label for="fr-value">Nilai zakat fitrah bagi setiap orang</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="Contoh: 35"><span class="unit">seorang</span></div>
+        <span class="hint">Diumumkan setiap tahun oleh jabatan mufti atau pihak berkuasa rasmi di negara anda. Mengeluarkan nilai wang ialah pendapat mazhab Hanafi, manakala jumhur berpendapat zakat fitrah dikeluarkan dalam bentuk makanan.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Kadar zakat fitrah</div>
+      <div class="big-number" id="fr-total">2.5 <small>kg</small></div>
+      <span class="badge ok" id="fr-sub">bagi seorang</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Waktu mengeluarkan:</strong> sebelum solat Hari Raya, dan harus mendahulukannya sehari atau dua hari; tidak harus melewatkannya selepas solat Hari Raya tanpa uzur.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Kongsi</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

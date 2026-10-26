@@ -1,0 +1,51 @@
+<!--META
+{"title": "Convertisseur de date hégirienne et grégorienne selon le calendrier Umm al-Qura", "h1": "Convertisseur de date hégirienne", "description": "Convertissez instantanément une date hégirienne en date grégorienne et une date grégorienne en date hégirienne selon le calendrier Umm al-Qura, avec un calendrier mensuel double affichant les deux dates et le jour actuel.", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "Date hégirienne", "lead": "Une conversion instantanée et précise entre les deux calendriers, avec un calendrier mensuel affichant l’hégirien et le grégorien côte à côte.", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Convertir une date</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">Grégorien → Hégirien</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">Hégirien → Grégorien</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">Jour</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">Mois</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">Année</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">Jour</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">Mois</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">Année</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">Date du jour</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">Copier le résultat</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">Date hégirienne correspondante</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="Mois précédent">←</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="Mois suivant">→</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">Le grand chiffre est le jour hégirien, le petit est le jour grégorien. Appuyez sur n’importe quel jour pour le convertir.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

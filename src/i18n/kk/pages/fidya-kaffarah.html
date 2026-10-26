@@ -1,0 +1,67 @@
+<!--META
+{"title": "Ораза фидиясы, ант кәффараты және Рамазанда оразаны бұзу кәффараты калькуляторы", "h1": "Фидия және кәффарат калькуляторы", "description": "Науқас пен қарт адамға арналған ораза фидиясын, он міскінді тамақтандыру арқылы ант кәффаратын және Рамазан күндізгі жыныстық қатынас кәффаратын килограммен немесе құнымен есептеңіз, екі ай оразасының аяқталу күнімен бірге.", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "Фидия және кәффарат", "lead": "Фидия немесе кәффарат түрін таңдап, деректерді енгізіңіз — тамақтандыру мөлшерін килограммен және шамамен құнын білесіз.", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">Ораза фидиясы</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">Ант кәффараты</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">Рамазандағы жыныстық қатынас кәффараты</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">Ораза ұстауға тұрақты түрде шамасы келмейтін адам үшін, мысалы, қарт кісі немесе айығуға үміт жоқ науқас: әр күн үшін бір міскінді тамақтандыру.</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">Күндер саны</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="Азайту">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="Көбейту">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 күн</button><button type="button" class="chip" data-days="30">30 күн</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">Антын бұзған адам үшін: он міскінді тамақтандыру немесе киіндіру, не бір құлды азат ету; бұған шамасы жетпесе, үш күн ораза ұстау.</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">Кәффараттар саны (әртүрлі анттар)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="Азайту">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="Көбейту">+</button></div>
+        <span class="hint">Кәффарат өтелмей тұрып бір нәрсеге қайта-қайта ант берілсе, ғалымдардың басым көпшілігі бойынша бір ғана кәффарат міндетті.</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">Ретімен: құл азат ету; шамасы жетпесе, екі ай қатарынан ораза ұстау; оған да шамасы келмесе, алпыс міскінді тамақтандыру.</p>
+      <div class="field">
+        <label for="fd-start">Екі ай оразасын бастау күні (аяқталу күнін есептеу үшін)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">Әр міскінге берілетін тамақ мөлшері</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">Мөлшер</label>
+          <select id="fd-measure">
+            <option value="0.75">Мудд — шамамен 0.75 кг (мәликилер мен шафиғилер)</option>
+            <option value="1.5">Жарты са' — шамамен 1.5 кг (қазіргі пәтуалар)</option>
+            <option value="custom">Басқа мөлшер…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">Мөлшер килограммен</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">кг</span></div></div>
+        <div class="field"><label for="fd-price">Бір килограмм бағасы немесе бір ас құны (міндетті емес)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">Баға түрі</label><select id="fd-price-type"><option value="kg">Бір килограмм бағасы</option><option value="meal">Толық бір ас құны</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">Берілуі тиіс мөлшер</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

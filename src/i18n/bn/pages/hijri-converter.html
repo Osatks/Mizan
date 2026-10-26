@@ -1,0 +1,51 @@
+<!--META
+{"title": "উম্মুল কুরা ক্যালেন্ডার অনুযায়ী হিজরি ও খ্রিস্টীয় তারিখ রূপান্তরকারী", "h1": "হিজরি তারিখ রূপান্তরকারী", "description": "উম্মুল কুরা ক্যালেন্ডার অনুযায়ী তাৎক্ষণিকভাবে হিজরি থেকে খ্রিস্টীয় এবং খ্রিস্টীয় থেকে হিজরি তারিখ রূপান্তর করুন, সঙ্গে দ্বৈত মাসিক ক্যালেন্ডার, যা উভয় তারিখ ও আজকের দিন একসঙ্গে দেখায়।", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "হিজরি তারিখ", "lead": "দুই তারিখের মধ্যে তাৎক্ষণিক ও নির্ভুল রূপান্তর, সঙ্গে মাসিক ক্যালেন্ডার, যা হিজরি ও খ্রিস্টীয় তারিখ পাশাপাশি দেখায়।", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>তারিখ রূপান্তর</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">খ্রিস্টীয় → হিজরি</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">হিজরি → খ্রিস্টীয়</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">দিন</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">মাস</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">বছর</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">দিন</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">মাস</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">বছর</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">আজকের তারিখ</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">ফলাফল কপি করুন</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">সংশ্লিষ্ট হিজরি তারিখ</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="আগের মাস">←</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="পরের মাস">→</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">বড় সংখ্যাটি হিজরি দিন এবং ছোটটি খ্রিস্টীয় দিন। রূপান্তর করতে যেকোনো দিনে চাপ দিন।</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

@@ -1,0 +1,57 @@
+<!--META
+{"title": "اوقات دقیق نماز امروز برای شهر شما همراه با شمارش معکوس", "h1": "اوقات شرعی نماز", "description": "اوقات دقیق نماز امروز برای هر شهری در جهان: صبح، طلوع آفتاب، ظهر، عصر، مغرب و عشاء، همراه با شمارش معکوس تا نماز بعدی، جدول ماهانه و روش‌های محاسبه متعدد.", "path": "/prayer-times/", "type": "tool", "nav": "prayer", "breadcrumb": "اوقات شرعی نماز", "lead": "شهر خود را انتخاب کنید یا از موقعیت فعلی‌تان استفاده کنید تا اوقات دقیق نماز و زمان باقی‌مانده تا نماز بعدی را ببینید.", "date": "2026-10-15", "scripts": ["praytimes.js", "prayer.js"]}
+-->
+<div class="tool-layout" id="prayer-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2 id="pt-city-title">اوقات شرعی نماز</h2>
+      <button type="button" class="btn sm" id="pt-gps">📍 استفاده از موقعیت من</button>
+    </div>
+    <div class="field"><label for="pt-city">شهر</label><select id="pt-city"></select></div>
+    <details class="settings-panel">
+      <summary>⚙️ تنظیمات محاسبه</summary>
+      <div class="form-grid">
+        <div class="field"><label for="pt-method">روش محاسبه</label><select id="pt-method"></select></div>
+        <div class="field"><label for="pt-asr">مذهب محاسبه عصر</label><select id="pt-asr"><option value="std">جمهور (سایه هر چیز به اندازه خودش)</option><option value="hanafi">حنفی (سایه هر چیز دو برابر خودش)</option></select></div>
+        <div class="field"><label for="pt-fmt">قالب زمان</label><select id="pt-fmt"><option value="12">12 ساعته</option><option value="24">24 ساعته</option></select></div>
+      </div>
+    </details>
+    <p class="loc-line" id="pt-loc" style="margin:14px 0 0"></p>
+
+    <div class="cal-nav" style="margin-top:22px">
+      <button type="button" class="icon-btn" id="pt-prev" aria-label="روز قبل">→</button>
+      <h3 id="pt-date" style="font-size:1.1rem;text-align:center"></h3>
+      <button type="button" class="icon-btn" id="pt-next" aria-label="روز بعد">←</button>
+    </div>
+    <ul class="prayer-list" id="pt-list"></ul>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="pt-today">امروز</button>
+      <button type="button" class="btn ghost sm" id="pt-month-btn">نمایش جدول ماه</button>
+    </div>
+  </section>
+
+  <aside class="result-card">
+    <div class="prayer-next pattern-bg" aria-live="polite">
+      <div class="label">نماز بعدی</div>
+      <div class="name" id="pt-next-name">—</div>
+      <div class="countdown" id="pt-countdown">--:--:--</div>
+      <div id="pt-next-time" style="opacity:.85"></div>
+    </div>
+    <div class="card">
+      <ul class="stat-list">
+        <li><span>تاریخ هجری قمری</span><span data-today-hijri></span></li>
+        <li><span>نیمه شب شرعی</span><span id="pt-midnight">—</span></li>
+        <li><span>ثلث آخر شب</span><span id="pt-lastthird">—</span></li>
+        <li><span>جهت قبله</span><span id="pt-qibla">—</span></li>
+      </ul>
+      <p class="muted" style="font-size:.85rem;margin:12px 0 0">ممکن است اوقات به دلیل احتیاط معمول در کشور شما یک یا دو دقیقه با تقویم رسمی تفاوت داشته باشد.</p>
+    </div>
+  </aside>
+</div>
+
+<section class="card" id="pt-month" hidden>
+  <div class="tool-head"><h2 id="pt-month-title">جدول ماه</h2><button type="button" class="btn ghost sm" onclick="print()">چاپ جدول</button></div>
+  <div class="table-wrap"><table><thead><tr><th>روز</th><th>تاریخ</th><th>هجری</th><th>صبح</th><th>طلوع</th><th>ظهر</th><th>عصر</th><th>مغرب</th><th>عشاء</th></tr></thead><tbody id="pt-month-body"></tbody></table></div>
+</section>
+
+<!--INCLUDE content/prayer.html-->

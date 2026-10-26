@@ -1,0 +1,24 @@
+<!--META
+{"title": "How Long Until Ramadan and Eid? Countdown to Islamic Events", "h1": "Islamic Events", "description": "A live countdown to Ramadan, Eid al-Fitr, the Day of Arafah, Eid al-Adha, the Hijri New Year, Ashura and the White Days, with their expected Hijri and Gregorian dates.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Islamic Events", "lead": "Find out how many days are left until Ramadan, the two Eids and the most important Islamic seasons, with the expected Gregorian date of each occasion.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Countdown to</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>days</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>hours</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>minutes</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>seconds</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Share the countdown</button></div>
+  </section>
+
+  <div class="section-title"><h2>Upcoming events</h2><span class="muted" style="font-size:.9rem">Tap any event to show its countdown</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Dates are calculated according to the Umm al-Qura calendar and may differ by a day depending on the crescent sighting adopted in your country.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

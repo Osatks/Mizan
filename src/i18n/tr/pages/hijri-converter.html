@@ -1,0 +1,51 @@
+<!--META
+{"title": "Ümmü'l-Kurâ Takvimine Göre Hicrî-Miladî Tarih Çevirici", "h1": "Hicrî Tarih Çevirici", "description": "Ümmü'l-Kurâ takvimine göre tarihi hicrîden miladîye ve miladîden hicrîye anında çevirin; iki tarihi ve bugünü birlikte gösteren çift aylık takvimle.", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "Hicrî Takvim", "lead": "İki takvim arasında anında ve hassas çeviri; hicrî ve miladî tarihleri yan yana gösteren aylık takvimle.", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Tarih çevirisi</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">Miladî → Hicrî</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">Hicrî → Miladî</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">Gün</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">Ay</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">Yıl</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">Gün</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">Ay</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">Yıl</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">Bugünün tarihi</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">Sonucu kopyala</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">Karşılık gelen hicrî tarih</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="Önceki ay">←</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="Sonraki ay">→</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">Büyük rakam hicrî günü, küçük rakam miladî günü gösterir. Çevirmek için herhangi bir güne dokunun.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

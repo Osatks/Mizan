@@ -1,0 +1,24 @@
+<!--META
+{"title": "Combien de temps avant le Ramadan et l’Aïd ? Compte à rebours des événements islamiques", "h1": "Fêtes et événements islamiques", "description": "Compte à rebours en direct jusqu’au mois de Ramadan, l’Aïd al-Fitr, le jour de ‘Arafa, l’Aïd al-Adha, le Nouvel An hégirien, ‘Achoura et les jours blancs, avec leurs dates hégiriennes et grégoriennes prévues.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Fêtes et événements islamiques", "lead": "Découvrez combien de jours il reste avant le Ramadan, les deux Aïds et les principales saisons islamiques, avec la date grégorienne prévue de chaque événement.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Compte à rebours jusqu’à</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>jours</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>heures</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>minutes</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>secondes</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Partager le compte à rebours</button></div>
+  </section>
+
+  <div class="section-title"><h2>Événements à venir</h2><span class="muted" style="font-size:.9rem">Appuyez sur un événement pour afficher son compte à rebours</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Les dates sont calculées selon le calendrier Umm al-Qura et peuvent différer d’un jour selon l’observation du croissant retenue dans votre pays.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

@@ -1,0 +1,89 @@
+<!--META
+{"title": "Gizlilik Politikası", "h1": "Gizlilik Politikası", "description": "Mizan sitesi ve uygulaması (com.mizan.almuslim) için gizlilik politikası: gizliliğinizi nasıl koruduğumuz, internetsiz çalışma, yerel izinler, yerel depolama ve çerezler.", "path": "/privacy-policy/", "type": "page", "nav": "", "breadcrumb": "Gizlilik Politikası", "lead": "Son güncelleme: 22 Ekim 2026"}
+-->
+<section class="prose card">
+  <p><strong>Son güncelleme: 22 Ekim 2026</strong></p>
+  <p>{{site_name}} olarak (aşağıda «Mizan», «site», «uygulama» veya «biz» olarak anılacaktır) gizliliğinize saygı duyuyor ve onu tam olarak korumayı taahhüt ediyoruz. Bu Gizlilik Politikası hem web sitesi ({{site_url}}) hem de Android ve iOS için resmî akıllı telefon uygulaması <strong>«Mizan: Kur'an ve Namaz Vakitleri»</strong> (paket kimliği: <code>com.mizan.almuslim</code>) için geçerlidir. Siteyi veya uygulamayı kullanarak bu politikada açıklanan uygulamaları kabul etmiş olursunuz.</p>
+
+  <h2>1. Temel ilkemiz: cihazınızda yerel işleme</h2>
+  <p>{{site_name}}'ın tüm araçları ve hizmetleri — Mushaf-ı Şerif, tefsirler ve zikirler, zekât ve fitre hesaplayıcı, miras hesaplayıcı, hicrî tarih çevirici, yaş hesaplayıcı, namaz vakitleri, kıble yönü, elektronik tesbih ve fidye ve kefaret hesaplayıcı dahil — tamamen cihazınızda veya tarayıcınızın içinde yerel olarak çalışacak şekilde tasarlanmıştır. Rakamlar, mali tutarlar, mirasçı adları, tarihler ve Kur'an ile zikir okuma geçmişiniz sunucularımıza gönderilmez; bunları saklamaz ve asla görmeyiz. Siteyi veya uygulamayı kullanmak için hesap oluşturmanız veya oturum açmanız gerekmez.</p>
+
+  <h2>2. Akıllı telefon uygulamasının gizliliği (Android &amp; iOS — <code>com.mizan.almuslim</code>)</h2>
+  <p>{{site_name}} akıllı telefon uygulaması en yüksek gizlilik ve güvenlik standartlarına bağlıdır:</p>
+  <ul>
+    <li><strong>Reklam ve izlemeden tamamen arınmış:</strong> Telefon uygulaması hiçbir ticari reklam içermez; herhangi bir analiz yazılımı veya harici izleme paketi barındırmaz (Zero Ads &amp; Zero Tracking SDKs).</li>
+    <li><strong>Hiçbir kişisel veriyi toplamıyor veya paylaşmıyoruz:</strong> Uygulama, hiçbir kişisel veya hassas veriyi toplamaz, aktarmaz, satmaz veya üçüncü taraflarla paylaşmaz.</li>
+    <li><strong>İnternetsiz çalışma (Offline-First):</strong> Osmanlı hattıyla Mushaf-ı Şerif, et-Tefsîru'l-Müyesser ve Celâleyn tefsiri, 334 zikir, tüm hesaplayıcılar, namaz vakitleri ve kıble yönü internet bağlantısına ihtiyaç duymadan çalışır.</li>
+  </ul>
+
+  <h3>Telefon uygulamasının izinleri ve nasıl kullanıldıkları</h3>
+  <p>Telefon uygulaması, belirli özellikleri yalnızca cihazınızda yerel olarak çalıştırmak için aşağıdaki isteğe bağlı izinleri isteyebilir:</p>
+  <ul>
+    <li><strong>Coğrafi konum (<code>ACCESS_COARSE_LOCATION</code> ve <code>ACCESS_FINE_LOCATION</code>):</strong> Yalnızca cihaz içinde, namaz vakitlerini astronomik olarak hesaplamak ve kıble açısını belirlemek için kullanılan isteğe bağlı bir izindir. Konum koordinatlarınız hiçbir harici sunucuya gönderilmez ve cihazınızın dışında saklanmaz; gömülü şehir listesinden şehrinizi elle seçerek bu izne gerek duymayabilirsiniz.</li>
+    <li><strong>Bildirimler ve tam zamanlı alarmlar (<code>POST_NOTIFICATIONS</code>, <code>SCHEDULE_EXACT_ALARM</code> ve <code>RECEIVE_BOOT_COMPLETED</code>):</strong> Yalnızca yerel olarak, namaz vaktinin girişi ve ezan bildirimlerini göndermek ve cihaz yeniden başlatıldığında veya saat dilimi değiştiğinde alarmları otomatik olarak yeniden planlamak için kullanılır.</li>
+    <li><strong>Pusula ve hareket sensörü:</strong> Etkileşimli kıble pusulasını Kâbe-i Müşerrefe'ye doğru döndürmek için cihazda yerel olarak okunur; hiçbir ölçüm kaydedilmez veya gönderilmez.</li>
+  </ul>
+
+  <h3>Uygulama içinde isteğe bağlı internet bağlantısı</h3>
+  <p>Telefon uygulaması veri toplamak için arka planda otomatik olarak internete bağlanmaz; yalnızca kullanıcı aşağıdaki isteğe bağlı hizmetlerden birini bizzat istediğinde doğrudan bağlantı kurar:</p>
+  <ul>
+    <li><strong>Kur'an-ı Kerim'in sesli tilavetleri:</strong> Âyetlerin tilavetini dinlemeyi seçtiğinizde, uygulama istenen âyetlerin ses dosyalarını getirir ve daha sonra çevrimdışı dinlemek için cihazdaki önbelleğe kaydeder.</li>
+    <li><strong>Ek tefsir kütüphanesi:</strong> Cihazınızda saklayıp internetsiz kullanmak üzere ek tefsir kitapları (İbn Kesîr, Taberî veya Sa'dî tefsiri gibi) indirmek istediğinizde.</li>
+    <li><strong>Ek dil paketleri:</strong> Dil menüsünü açıp resmî siteden (<code>{{site_url}}/lang/</code>) bir dil paketini ve Kur'an mealini indirdiğinizde veya güncellediğinizde.</li>
+  </ul>
+
+  <h2>3. Topladığımız bilgiler</h2>
+  <h3>Gönüllü olarak verdiğiniz bilgiler</h3>
+  <p>Doğrudan hiçbir kişisel bilgi toplamayız. Bize e-postayla veya (cihazınızdaki e-posta programını açan) iletişim formuyla yazarsanız, adınızı, e-posta adresinizi ve mesajınızın içeriğini alırız; bunları yalnızca size yanıt vermek için kullanır, hiç kimseyle paylaşmaz ve pazarlama amacıyla kullanmayız.</p>
+  <h3>Web sitesinde gezinirken otomatik olarak toplanan bilgiler</h3>
+  <p>Yalnızca web sitesini tarayıcı üzerinden kullandığınızda (telefon uygulamasında değil), sitede kullandığımız üçüncü taraf hizmetler (reklamlar ve analiz) aracılığıyla bazı teknik bilgiler otomatik olarak toplanabilir: tarayıcı türü ve işletim sistemi, dil, ziyaret ettiğiniz sayfalar ve ziyaret süresi, yönlendiren site, IP adresi ve çerez kimlikleri gibi. Bu bilgiler aşağıda belirtilen tarafların politikalarına göre işlenir.</p>
+
+  <h2>4. Cihazınızda yerel depolama</h2>
+  <p>Ayarlarınızı ve ilerlemenizi yalnızca cihazınızda yerel olarak saklamak için yerel depolama özelliğini (tarayıcıda <code>localStorage</code>, telefon uygulamasında <code>SharedPreferences</code> / <code>NSUserDefaults</code>) kullanırız. Bunlar şunları içerir:</p>
+  <ul>
+    <li>Seçilen görünüm (açık veya koyu mod), tercih edilen arayüz rengi ve görüntüleme dili.</li>
+    <li>Namaz vakitlerinin gösterimi için şehir, astronomik hesaplama yöntemi ve fıkhî mezhep ile ezan bildirimi ayarları.</li>
+    <li>Mushaf-ı Şerif'te son okunan yer, kaydedilen âyetler (yer imleri), hatim takibi, günlük okuma serisi, yazı boyutu ve seçilen tefsirler.</li>
+    <li>Elektronik tesbihteki tesbih sayısı ve günlük zikir sayaçlarındaki ilerlemeniz.</li>
+  </ul>
+  <p>Bu veriler yalnızca cihazınızda kalır ve bize gönderilmez; tarayıcı ayarlarından site verilerini veya telefon ayarlarından uygulama verilerini silerek istediğiniz zaman bunları silebilirsiniz.</p>
+
+  <h2>5. Tarayıcıda coğrafi konum</h2>
+  <p>Web sitesindeki namaz vakitleri ve kıble yönü araçları, açık izniniz istendikten sonra isteğe bağlı olarak tarayıcınızın konum belirleme özelliğini kullanmanıza imkân tanır. İzin verdiğinizde koordinatlar yalnızca cihazınızın içinde vakitleri ve kıble yönünü hesaplamak için kullanılır; sunucularımıza gönderilmez ve orada saklanmaz. İzni reddedip şehrinizi elle seçebilirsiniz.</p>
+
+  <h2>6. Web sitesinde çerezler</h2>
+  <p>Çerezler, siteleri ziyaret ettiğinizde tarayıcınızda saklanan küçük metin dosyalarıdır. Telefon uygulaması hiçbir çerez kullanmaz; {{site_name}} sitesinin kendisi de sizi izlemek için çerez yerleştirmez. Ancak yalnızca web sitesinde kullanabileceğimiz üçüncü taraf hizmetler (Google AdSense ve Google Analytics gibi), reklam göstermek, performanslarını ölçmek ve site kullanımını analiz etmek için çerez yerleştirebilir veya okuyabilir. Çerezleri tarayıcı ayarlarınızdan yönetebilir veya silebilirsiniz.</p>
+
+  <h2>7. Web sitesinde Google AdSense reklamları</h2>
+  <p>Yalnızca web sitesi (telefon uygulaması değil), barındırma maliyetlerini karşılamak ve araçları ücretsiz tutmak için Google AdSense hizmeti aracılığıyla reklam gösterir. Bu çerçevede şunları açıklarız:</p>
+  <ul>
+    <li>Google dahil üçüncü taraf sağlayıcılar, kullanıcının bu siteye veya internetteki diğer sitelere yaptığı önceki ziyaretlere dayalı reklamlar göstermek için çerezler kullanır.</li>
+    <li>Google'ın reklam çerezlerini kullanması, kendisinin ve iş ortaklarının kullanıcılara siteye yaptıkları ziyaretlere dayalı reklamlar göstermesini sağlar.</li>
+    <li>Kullanıcılar, <a href="https://www.google.com/settings/ads" rel="nofollow noopener" target="_blank">Google Reklam Ayarları</a> sayfasını veya <a href="https://www.aboutads.info" rel="nofollow noopener" target="_blank">www.aboutads.info</a> adresini ziyaret ederek kişiselleştirilmiş reklamları kapatabilir.</li>
+  </ul>
+  <p>Google'ın iş ortaklarının sitelerini kullandığınızda verileri nasıl kullandığı hakkında daha fazla bilgi için lütfen şu sayfaya bakın: <a href="https://policies.google.com/technologies/ads" rel="nofollow noopener" target="_blank">Google çerezleri reklamlarda nasıl kullanır</a>.</p>
+
+  <h2>8. Web sitesinde Google Analytics hizmeti</h2>
+  <p>Ziyaretçilerin site sayfalarını nasıl kullandığını, araçları ve içeriği geliştirmemize yardımcı olan toplu istatistikler hâlinde anlamak için web sitesinde Google Analytics hizmetini kullanabiliriz. <a href="https://tools.google.com/dlpage/gaoptout" rel="nofollow noopener" target="_blank">Google Analytics Devre Dışı Bırakma Tarayıcı Eklentisi</a> ile Google Analytics'in verilerinizi toplamasını engelleyebilirsiniz. Daha fazla bilgi için <a href="https://policies.google.com/privacy" rel="nofollow noopener" target="_blank">Google Gizlilik Politikası</a>'na bakın.</p>
+
+  <h2>9. Avrupa Ekonomik Alanı, Birleşik Krallık ve İsviçre'deki kullanıcılar için onay</h2>
+  <p>Web sitesini Avrupa Ekonomik Alanı, Birleşik Krallık veya İsviçre'den ziyaret ediyorsanız, kişiselleştirilmiş reklam ve analiz amacıyla zorunlu olmayan çerezleri kullanmadan önce Google onaylı bir onay yönetim platformu (CMP) aracılığıyla onayınızı isteriz. Telefon uygulaması ise hiçbir ülkede kişisel veri toplamaz ve reklam göstermez.</p>
+
+  <h2>10. Çocukların gizliliği</h2>
+  <p>{{site_name}}'ın içeriği ve araçları her yaştan kullanıcı için güvenli ve uygundur; on üç yaşından küçük çocuklar dahil hiçbir kullanıcıdan bilerek kişisel bilgi toplamayız. Bir çocuğun bize e-postayla kişisel bilgi gönderdiğini öğrenirseniz, derhal silinmesi için lütfen bizimle iletişime geçin.</p>
+
+  <h2>11. Diğer sitelere bağlantılar</h2>
+  <p>Site, başvuru veya reklam amacıyla dış sitelere bağlantılar içerebilir. Bu sitelerin gizlilik uygulamalarından veya içeriğinden sorumlu değiliz; kendi gizlilik politikalarını incelemenizi tavsiye ederiz.</p>
+
+  <h2>12. Bilgi güvenliği</h2>
+  <p>Site ve dil paketleri ile tefsirlerin indirildiği tüm bağlantılar şifreli ve güvenli bir bağlantı (HTTPS) üzerinden sunulur; hesaplama ve okuma verileriniz zaten cihazınızdan hiç çıkmadığı için bizim tarafımızdan sızma riski pratikte yoktur.</p>
+
+  <h2>13. Haklarınız ve verilerin silinmesi</h2>
+  <p>Kullanıcı hesapları oluşturmadığımız ve sunucularımızda hiçbir kişisel veri tutmadığımız için tüm yerel verileriniz cihazınızda tamamen sizin kontrolünüzdedir; tarayıcı verilerini veya uygulama verilerini silerek ya da uygulamayı cihazınızdan kaldırarak istediğiniz zaman bunları silebilir veya daha önce bize gönderdiğiniz herhangi bir e-postanın silinmesi için bize yazabilirsiniz.</p>
+
+  <h2>14. Bu politikadaki değişiklikler</h2>
+  <p>Gizlilik Politikası'nı, site veya uygulamadaki yeni özellikleri ya da yasal gereklilikleri yansıtmak için zaman zaman güncelleyebiliriz. Her değişikliği, en üstteki «Son güncelleme» tarihini güncelleyerek bu sayfada yayımlayacağız.</p>
+
+  <h2>15. Bize ulaşın</h2>
+  <p>Bu Gizlilik Politikası veya {{site_name}} uygulaması (<code>com.mizan.almuslim</code>) ile ilgili her türlü soru için lütfen <a href="mailto:{{contact_email}}">{{contact_email}}</a> e-posta adresinden veya <a href="/contact/">İletişim</a> sayfasından bize yazın.</p>
+</section>

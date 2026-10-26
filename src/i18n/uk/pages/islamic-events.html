@@ -1,0 +1,24 @@
+<!--META
+{"title": "Скільки лишилося до Рамадану та Свята? Зворотний відлік до ісламських подій", "h1": "Ісламські події", "description": "Живий зворотний відлік до місяця Рамадан, Ід аль-Фітр, дня Арафа, Ід аль-Адха, Нового року за хіджрою, Ашури та Білих днів, з їхніми очікуваними датами за хіджрою та григоріанським календарем.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Ісламські події", "lead": "Дізнайтеся, скільки днів лишилося до Рамадану, двох Свят і найважливіших ісламських сезонів, з очікуваною григоріанською датою кожної події.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Зворотний відлік до</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>днів</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>годин</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>хвилин</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>секунд</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Поділитися зворотним відліком</button></div>
+  </section>
+
+  <div class="section-title"><h2>Найближчі події</h2><span class="muted" style="font-size:.9rem">Натисніть на будь-яку подію, щоб побачити її зворотний відлік</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Дати обчислено за календарем Умм аль-Кура; вони можуть відрізнятися на один день залежно від спостереження молодика, прийнятого у вашій країні.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

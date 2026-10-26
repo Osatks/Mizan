@@ -1,0 +1,61 @@
+<!--META
+{"title": "Islamischer Erbrechner: Nachlassteilung nach der Faraid-Wissenschaft", "h1": "Erbrechner", "description": "Genauer islamischer Erbrechner: Gib die Erben und den Wert des Nachlasses ein und erfahre den Anteil jedes Erben als Bruch, Prozentsatz und Betrag – mit Angabe von Ausschluss (Hadschb), Grundnenner der Aufgabe, 'Awl und Radd.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Erbrechner", "lead": "Wähle das Geschlecht des Verstorbenen, gib den Wert des Nachlasses und die lebenden Erben ein, und du erhältst eine detaillierte Aufteilung nach den Regeln der Faraid-Wissenschaft.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Verstorbener und Nachlass</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Neue Aufgabe beginnen</button>
+      </div>
+      <div class="field">
+        <span class="label">Geschlecht des Verstorbenen</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Männlich</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Weiblich</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Gesamter Nachlass</label><input id="inh-estate" inputmode="decimal" placeholder="z. B. 600000"></div>
+        <div class="field"><label for="inh-funeral">Kosten für Vorbereitung und Bestattung</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Schulden des Verstorbenen</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Vermächtnis (an Nicht-Erben)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Höchstens ein Drittel des Rests nach Schulden, außer mit Zustimmung der Erben.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Teilbarer Nettonachlass</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Zusammenfassung der Aufgabe</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Erben hinzufügen</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Wähle die Erben aus der Liste, um die Aufteilung anzuzeigen.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Beim Tod lebende Erben</h2><span class="muted" style="font-size:.9rem">Tippe auf +, um einen Erben hinzuzufügen</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Aufteilung im Detail</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Teilen</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Drucken</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Erbe</th><th>Anzahl</th><th>Erbart</th><th>Anteil</th><th>Teile</th><th>Prozent</th><th>Betrag</th><th>Pro Person</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Dieses Ergebnis dient der Orientierung und beruht auf der Lehre der Mehrheit der Gelehrten; es ersetzt nicht die Konsultation des Scharia-Gerichts oder eines auf Faraid spezialisierten Gelehrten, insbesondere bei umstrittenen Fragen, Vermächtnissen oder Erben aus den Dhawu l-Arham (entfernten Blutsverwandten).</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

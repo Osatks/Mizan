@@ -1,0 +1,61 @@
+<!--META
+{"title": "محاسبه‌گر میراث شرعی: تقسیم ترکه بر اساس علم فرائض", "h1": "محاسبه‌گر میراث", "description": "محاسبه‌گر دقیق میراث شرعی: وارثان و ارزش ترکه را وارد کنید تا سهم هر وارث را به صورت کسر، درصد و مبلغ، همراه با بیان حجب، اصل مسئله، عول و رد بدانید.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "محاسبه‌گر میراث", "lead": "جنسیت متوفی را انتخاب کنید، ارزش ترکه و وارثان زنده را وارد کنید تا تقسیمی مفصل بر اساس قواعد علم فرائض دریافت کنید.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>متوفی و ترکه</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">شروع مسئله جدید</button>
+      </div>
+      <div class="field">
+        <span class="label">جنسیت متوفی</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">مرد</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">زن</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">کل ترکه</label><input id="inh-estate" inputmode="decimal" placeholder="مثال: 600000"></div>
+        <div class="field"><label for="inh-funeral">هزینه‌های تجهیز و دفن</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">بدهی‌های متوفی</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">وصیت (برای غیر وارث)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">جز با اجازه وارثان، از یک‌سوم باقی‌مانده پس از دیون بیشتر نمی‌شود.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>خالص ترکه قابل تقسیم</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">خلاصه مسئله</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">وارثان را اضافه کنید</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>برای نمایش تقسیم، وارثان را از فهرست انتخاب کنید.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>وارثان زنده در هنگام وفات</h2><span class="muted" style="font-size:.9rem">برای افزودن وارث + را بزنید</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>جزئیات تقسیم</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">اشتراک‌گذاری</button>
+        <button type="button" class="btn ghost sm" onclick="print()">چاپ</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>وارث</th><th>تعداد</th><th>نوع ارث</th><th>سهم</th><th>سهام</th><th>درصد</th><th>مبلغ</th><th>برای هر نفر</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>این نتیجه جنبه راهنما دارد و بر مذهب جمهور بنا شده است و از مراجعه به دادگاه شرعی یا عالم متخصص در فرائض بی‌نیاز نمی‌کند، به‌ویژه در مسائلی که اختلاف، وصیت یا وارثانی از ذوی‌الارحام در آن‌ها وجود دارد.</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

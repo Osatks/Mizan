@@ -1,0 +1,57 @@
+<!--META
+{"title": "Қалаңыздағы бүгінгі дәл намаз уақыттары және кері санақ", "h1": "Намаз уақыттары", "description": "Әлемнің кез келген қаласы үшін бүгінгі дәл намаз уақыттары: таң, күннің шығуы, бесін, екінті, ақшам және құптан; келесі намазға кері санақ, айлық кесте және бірнеше есептеу әдісі.", "path": "/prayer-times/", "type": "tool", "nav": "prayer", "breadcrumb": "Намаз уақыттары", "lead": "Дәл намаз уақыттарын және келесі намазға дейін қалған уақытты көру үшін қалаңызды таңдаңыз немесе қазіргі орналасқан жеріңізді пайдаланыңыз.", "date": "2026-10-15", "scripts": ["praytimes.js", "prayer.js"]}
+-->
+<div class="tool-layout" id="prayer-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2 id="pt-city-title">Намаз уақыттары</h2>
+      <button type="button" class="btn sm" id="pt-gps">📍 Орналасқан жерімді пайдалану</button>
+    </div>
+    <div class="field"><label for="pt-city">Қала</label><select id="pt-city"></select></div>
+    <details class="settings-panel">
+      <summary>⚙️ Есептеу баптаулары</summary>
+      <div class="form-grid">
+        <div class="field"><label for="pt-method">Есептеу әдісі</label><select id="pt-method"></select></div>
+        <div class="field"><label for="pt-asr">Екінтіні есептеу мәзһабы</label><select id="pt-asr"><option value="std">Көпшілік (зат көлеңкесі өзіндей)</option><option value="hanafi">Ханафи (зат көлеңкесі өзінен екі есе)</option></select></div>
+        <div class="field"><label for="pt-fmt">Уақыт пішімі</label><select id="pt-fmt"><option value="12">12 сағаттық</option><option value="24">24 сағаттық</option></select></div>
+      </div>
+    </details>
+    <p class="loc-line" id="pt-loc" style="margin:14px 0 0"></p>
+
+    <div class="cal-nav" style="margin-top:22px">
+      <button type="button" class="icon-btn" id="pt-prev" aria-label="Алдыңғы күн">←</button>
+      <h3 id="pt-date" style="font-size:1.1rem;text-align:center"></h3>
+      <button type="button" class="icon-btn" id="pt-next" aria-label="Келесі күн">→</button>
+    </div>
+    <ul class="prayer-list" id="pt-list"></ul>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="pt-today">Бүгін</button>
+      <button type="button" class="btn ghost sm" id="pt-month-btn">Айлық кестені көрсету</button>
+    </div>
+  </section>
+
+  <aside class="result-card">
+    <div class="prayer-next pattern-bg" aria-live="polite">
+      <div class="label">Келесі намаз</div>
+      <div class="name" id="pt-next-name">—</div>
+      <div class="countdown" id="pt-countdown">--:--:--</div>
+      <div id="pt-next-time" style="opacity:.85"></div>
+    </div>
+    <div class="card">
+      <ul class="stat-list">
+        <li><span>Хижра күні</span><span data-today-hijri></span></li>
+        <li><span>Шариғи түн ортасы</span><span id="pt-midnight">—</span></li>
+        <li><span>Түннің соңғы үштен бірі</span><span id="pt-lastthird">—</span></li>
+        <li><span>Құбыла бағыты</span><span id="pt-qibla">—</span></li>
+      </ul>
+      <p class="muted" style="font-size:.85rem;margin:12px 0 0">Жергілікті қабылданған сақтық уақытына байланысты уақыттар еліңіздің ресми күнтізбесінен бір-екі минутқа өзгеше болуы мүмкін.</p>
+    </div>
+  </aside>
+</div>
+
+<section class="card" id="pt-month" hidden>
+  <div class="tool-head"><h2 id="pt-month-title">Айлық кесте</h2><button type="button" class="btn ghost sm" onclick="print()">Кестені басып шығару</button></div>
+  <div class="table-wrap"><table><thead><tr><th>Күн</th><th>Күні</th><th>Хижра</th><th>Таң</th><th>Күн шығуы</th><th>Бесін</th><th>Екінті</th><th>Ақшам</th><th>Құптан</th></tr></thead><tbody id="pt-month-body"></tbody></table></div>
+</section>
+
+<!--INCLUDE content/prayer.html-->

@@ -1,0 +1,115 @@
+<!--META
+{"title": "Zakat-Rechner 2026: Zakat auf Geld, Gold und Aktien genau berechnen", "h1": "Zakat-Rechner", "description": "Kostenloser und genauer Zakat-Rechner: Berechne die Zakat auf Bargeld, Bankguthaben, Gold, Silber, Aktien und Handelswaren mit sofortiger Nisab-Berechnung und Abzug von Schulden.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "Zakat-Rechner", "lead": "Gib dein Vermögen und den aktuellen Goldpreis ein und erfahre sofort, ob du den Nisab erreicht hast und wie viel Zakat du schuldest.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">Angaben zu deinem Vermögen</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">Daten löschen</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">Währung</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">Saudi-Riyal</option><option value="&#1583;.&#1573;">VAE-Dirham</option><option value="&#1583;.&#1603;">Kuwait-Dinar</option>
+          <option value="&#1585;.&#1602;">Katar-Riyal</option><option value="&#1583;.&#1576;">Bahrain-Dinar</option><option value="&#1585;.&#1593;">Omanischer Rial</option>
+          <option value="&#1580;.&#1605;">Ägyptisches Pfund</option><option value="&#1583;.&#1571;">Jordanischer Dinar</option><option value="&#1583;.&#1593;">Irakischer Dinar</option>
+          <option value="&#1583;.&#1605;">Marokkanischer Dirham</option><option value="&#1583;.&#1580;">Algerischer Dinar</option><option value="&#1583;.&#1578;">Tunesischer Dinar</option>
+          <option value="&#1604;.&#1604;">Libanesisches Pfund</option><option value="&#1604;.&#1587;">Syrisches Pfund</option><option value="&#1585;.&#1610;">Jemen-Rial</option>
+          <option value="&#1580;.&#1587;">Sudanesisches Pfund</option><option value="&#1583;.&#1604;">Libyscher Dinar</option><option value="$">US-Dollar</option><option value="€">Euro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">Maßgeblicher Nisab für Geld</label>
+        <select id="zk-basis">
+          <option value="gold">Gold-Nisab (85 Gramm)</option>
+          <option value="silver">Silber-Nisab (595 Gramm)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Heutige Preise</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">Preis pro Gramm Gold (24 Karat)</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="z. B. 420"><span class="unit" data-cur></span></div>
+          <span class="hint">Von einem Goldhändler oder einer vertrauenswürdigen Preisseite in deinem Land.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">Preis pro Gramm Silber (optional)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="z. B. 5"><span class="unit" data-cur></span></div>
+          <span class="hint">Erforderlich, wenn du den Silber-Nisab gewählt hast oder Silber besitzt.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> Bargeld und Guthaben</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">Bargeld</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">Bankguthaben und Wallets</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">Forderungen, deren Rückzahlung zu erwarten ist</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">Sonstiges Vermögen (Spargemeinschaften, Gewinne …)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> Gold und Silber (in Gramm)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">Gold 24 Karat</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-g22">Gold 22 Karat</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-g21">Gold 21 Karat</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-g18">Gold 18 Karat</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-silver">Reines Silber</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> Getragenen Schmuck in die Berechnung einbeziehen (Ansicht der Hanafiten, die vorsichtigere)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">Davon getragener Schmuck (Gramm, in 21-Karat-Äquivalent)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">g</span></div>
+        <span class="hint">Dieses Gewicht wird nach der Ansicht der Mehrheit, wonach auf zum Gebrauch bestimmten Schmuck keine Zakat anfällt, aus der Berechnung ausgenommen.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Investitionen und Handel</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">Aktien zum Handeln (Marktwert)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">Aktien als langfristige Anlage (zakatpflichtige Basis)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Dein Anteil an den zakatpflichtigen Vermögenswerten des Unternehmens, falls bekannt.</span></div>
+        <div class="field"><label for="zk-goods">Handelswaren (Warenwert)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> Abzüge</p>
+      <div class="field"><label for="zk-debts">Fällige Schulden (in diesem Jahr zu zahlen)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Nur die innerhalb des Hawl fälligen Raten, nicht der gesamte langfristige Kredit.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Geschuldete Zakat</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">Gib den Goldpreis und dein Vermögen ein</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>Gesamtes zakatpflichtiges Vermögen</span><span id="zk-total">0</span></li>
+      <li><span>Abgezogene Schulden</span><span id="zk-debts-out">0</span></li>
+      <li><span>Zakatpflichtige Nettobasis</span><span id="zk-net">0</span></li>
+      <li><span>Wert des Nisab</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">Anteil der Basis am Nisab</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">Ergebnis teilen</button>
+      <button type="button" class="btn ghost" onclick="print()">Drucken</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Deine Daten werden nur auf deinem Gerät gespeichert. Die Zakat beträgt 2,5 % der Nettobasis, wenn diese den Nisab erreicht und ein volles Hidschri-Jahr (Hawl) darüber vergangen ist.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

@@ -1,0 +1,33 @@
+<!--META
+{"title": "İletişim - Mizan ekibiyle iletişime geçin", "h1": "İletişim", "description": "Sitede veya uygulamada bir hatayı bildirmek, Mushaf, zikirler ve çevirilerle ilgili bir görüş iletmek, yeni bir araç önermek veya genel sorularınız için Mizan ekibiyle iletişime geçin.", "path": "/contact/", "type": "page", "nav": "", "breadcrumb": "İletişim", "lead": "Site ve uygulama hakkındaki görüşlerinizi, önerilerinizi ve düzeltmelerinizi duymaktan memnuniyet duyarız."}
+-->
+<section class="prose card">
+  <h2>Size yardımcı olmak için buradayız</h2>
+  <p>{{site_name}} olarak tüm mesajlarınızı memnuniyetle karşılıyoruz: sitedeki veya akıllı telefon uygulamasındaki (Android ve iOS) bir aracın nasıl çalıştığına dair bir soru, bir hesap sonucundaki hatanın bildirimi, Mushaf, tefsirler, zikirler veya 15 dilin çevirilerinin gösterimiyle ilgili bir görüş ya da yeni bir özellik önerisi olabilir. «Mizan»ı geliştirmemize, doğruluğunu ve kalitesini artırmamıza yardımcı olan şey sizin geri bildirimlerinizdir.</p>
+
+  <h2>E-posta</h2>
+  <p>Bize doğrudan şu adresten yazabilirsiniz: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+  <p>Veya aşağıdaki formu kullanın; cihazınızdaki e-posta programı, yazdıklarınızı içeren hazır bir mesajla açılır ve onu kendiniz gönderirsiniz. Form, sunucularımıza hiçbir veri göndermez.</p>
+
+  <h3>Daha açık bir mesaj için ipuçları</h3>
+  <ul>
+    <li>Bir hesaplayıcıdaki hatayı bildirirken: aracın adını, kullandığınız girdileri, çıkan sonucu ve mümkünse kaynağıyla birlikte beklenen sonucu belirtin.</li>
+    <li>Telefon uygulamasıyla ilgili bir sorunu bildirirken: cihaz türünüzü (Android veya iOS), seçili görüntüleme dilini ve sorunun göründüğü ekranı belirtin.</li>
+    <li>Dinî bir içeriği veya çeviriyi düzeltirken: sure ve âyet numarasını veya zikir bölümünü ve dayandığınız delili ya da fıkhî kaynağı ekleyin.</li>
+    <li>Namaz vakitlerinde: şehrinizi, seçili hesaplama yöntemini ve karşılaştırdığınız yerel takvimi belirtin.</li>
+  </ul>
+
+  <h2>Yanıt süresi</h2>
+  <p>Tüm mesajlara üç ila beş iş günü içinde yanıt vermeye çalışıyoruz. Dinî inceleme veya yazılım güncellemesi gerektiren bildirimler daha uzun sürebilir; hata düzeltildiğinde inşallah size haber vereceğiz.</p>
+
+  <div class="note"><strong>Önemli uyarı:</strong> {{site_name}} bir İslami araç ve başvuru platformudur; kişisel meselelerde fetva vermeyiz. Miras, zekât veya başka bir konuda size özel bir meseleniz varsa, lütfen güvenilir bir âlime, ülkenizdeki fetva kurumuna veya yetkili mahkemeye başvurun.</div>
+</section>
+
+<form class="contact-form card" id="contact-form" novalidate>
+  <div class="field"><label for="cf-name">Ad</label><input id="cf-name" name="name" required></div>
+  <div class="field"><label for="cf-email">E-posta adresiniz</label><input id="cf-email" name="email" type="email" required></div>
+  <div class="field"><label for="cf-subject">Konu</label><select id="cf-subject" name="subject"><option>Genel soru</option><option>Telefon uygulamasıyla ilgili görüş (Android / iOS)</option><option>Bir araçta veya hesaplayıcıda hata bildirimi</option><option>Mushaf, tefsir veya zikirlerle ilgili görüş</option><option>Dil çevirileriyle ilgili görüş</option><option>Yeni araç veya özellik önerisi</option><option>Reklam ve iş birliği</option></select></div>
+  <div class="field"><label for="cf-msg">Mesaj</label><textarea id="cf-msg" name="message" rows="6" required></textarea></div>
+  <button class="btn" type="submit">Mesajı gönder</button>
+  <p class="form-status" role="status"></p>
+</form>

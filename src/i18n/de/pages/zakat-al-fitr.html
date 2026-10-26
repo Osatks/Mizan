@@ -1,0 +1,74 @@
+<!--META
+{"title": "Zakat-al-Fitr-Rechner: Wie viel pro Person in Kilogramm und als Geldwert", "h1": "Zakat-al-Fitr-Rechner", "description": "Berechne die Zakat al-Fitr für alle Mitglieder deiner Familie in Kilogramm Reis, Weizen oder Datteln oder als Geldwert – mit Erläuterung ihrer Bestimmungen, des Zeitpunkts der Entrichtung und der Berechtigten.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Zakat al-Fitr", "lead": "Gib die Zahl deiner Familienmitglieder und die Art des Lebensmittels oder den Geldwert an und erfahre sofort die Höhe der pflichtigen Zakat al-Fitr.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Angaben zur Familie</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Anzahl der Personen, für die du entrichtest (dich eingeschlossen)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Verringern">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Erhöhen">+</button>
+        </div>
+        <span class="hint">Umfasst dich selbst, deine Ehefrau, deine Kinder und alle, für deren Unterhalt du aufkommen musst.</span>
+      </div>
+      <div class="field">
+        <span class="label">Art der Entrichtung</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Lebensmittel (Sa')</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Geldwert</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Art des Lebensmittels und Menge des Sa'</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Art des Lebensmittels</label>
+          <select id="fr-type">
+            <option value="2.5">Reis – ca. 2,5 kg</option>
+            <option value="3">Reis (vorsichtiger) – 3 kg</option>
+            <option value="2.04">Weizen – ca. 2,04 kg</option>
+            <option value="2.5">Datteln – ca. 2,5 kg</option>
+            <option value="2.2">Gerste – ca. 2,2 kg</option>
+            <option value="custom">Andere Menge …</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Gewicht des Sa' in Kilogramm</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">kg</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Preis pro Kilogramm (optional)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">pro kg</span></div>
+          <span class="hint">Um die ungefähren Kaufkosten zu erfahren.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Geldwert</p>
+      <div class="field">
+        <label for="fr-value">Wert der Zakat al-Fitr pro Person</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="z. B. 35"><span class="unit">pro Person</span></div>
+        <span class="hint">Wird jedes Jahr vom Fatwa-Amt oder der offiziellen Stelle in deinem Land bekanntgegeben. Die Entrichtung des Geldwerts ist die Ansicht der Hanafiten; die Mehrheit der Gelehrten vertritt die Entrichtung in Lebensmitteln.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Höhe der Zakat al-Fitr</div>
+      <div class="big-number" id="fr-total">2.5 <small>kg</small></div>
+      <span class="badge ok" id="fr-sub">für eine Person</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Zeitpunkt der Entrichtung:</strong> Vor dem Eid-Gebet; es ist erlaubt, sie ein oder zwei Tage früher zu entrichten, aber nicht erlaubt, sie ohne Entschuldigung über das Eid-Gebet hinaus aufzuschieben.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Teilen</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

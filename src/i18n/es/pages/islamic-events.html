@@ -1,0 +1,24 @@
+<!--META
+{"title": "¿Cuánto falta para Ramadán y el Eid? Cuenta atrás de las fechas islámicas", "h1": "Fechas islámicas", "description": "Cuenta atrás en directo para el mes de Ramadán, Eid al-Fitr, el día de Arafat, Eid al-Adha, el Año Nuevo hiyri, Ashura y los Días Blancos, con sus fechas hiyri y gregorianas previstas.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Fechas islámicas", "lead": "Descubre cuántos días faltan para Ramadán, los dos Eids y las principales temporadas islámicas, con la fecha gregoriana prevista de cada una.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Cuenta atrás para</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>días</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>horas</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>minutos</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>segundos</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Compartir la cuenta atrás</button></div>
+  </section>
+
+  <div class="section-title"><h2>Próximas fechas</h2><span class="muted" style="font-size:.9rem">Pulsa cualquier fecha para ver su cuenta atrás</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Las fechas se calculan según el calendario Umm al-Qura y pueden variar un día según el avistamiento de la luna creciente adoptado en tu país.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

@@ -1,0 +1,61 @@
+<!--META
+{"title": "Шаріатський калькулятор спадщини: поділ спадщини за наукою фараід", "h1": "Калькулятор спадщини", "description": "Точний шаріатський калькулятор спадщини: введіть спадкоємців і вартість спадщини, щоб дізнатися частку кожного спадкоємця дробом, відсотком і сумою з поясненням хаджбу, основи задачі, аулю та радду.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Калькулятор спадщини", "lead": "Оберіть стать померлого, введіть вартість спадщини та живих спадкоємців — і отримаєте детальний поділ за правилами науки фараід.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Померлий і спадщина</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Почати нову задачу</button>
+      </div>
+      <div class="field">
+        <span class="label">Стать померлого</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Чоловік</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Жінка</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Загальна спадщина</label><input id="inh-estate" inputmode="decimal" placeholder="Напр.: 600000"></div>
+        <div class="field"><label for="inh-funeral">Витрати на підготовку тіла й поховання</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Борги померлого</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Заповіт (не спадкоємцеві)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Не більше третини залишку після боргів, хіба що зі згоди спадкоємців.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Чиста спадщина для поділу</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Підсумок задачі</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Додайте спадкоємців</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Оберіть спадкоємців зі списку, щоб побачити поділ.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Спадкоємці, живі на момент смерті</h2><span class="muted" style="font-size:.9rem">Натисніть +, щоб додати спадкоємця</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Деталі поділу</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Поділитися</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Друк</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Спадкоємець</th><th>Кількість</th><th>Вид спадкування</th><th>Частка</th><th>Долі</th><th>Відсоток</th><th>Сума</th><th>На одного</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Цей результат є орієнтовним і ґрунтується на позиції більшості вчених; він не замінює звернення до шаріатського суду чи вченого, який спеціалізується на фараід, особливо в питаннях, де є розбіжності, заповіти або спадкоємці з числа зав аль-архам (далеких родичів).</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

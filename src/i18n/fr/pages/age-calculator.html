@@ -1,0 +1,44 @@
+<!--META
+{"title": "Calculateur d’âge hégirien et grégorien précis (années, mois et jours)", "h1": "Calculateur d’âge", "description": "Calculez votre âge dans les calendriers hégirien et grégorien en années, mois et jours, découvrez le jour de votre naissance, sa date hégirienne, le nombre de jours vécus et le temps restant avant votre prochain anniversaire.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Calculateur d’âge", "lead": "Saisissez votre date de naissance en hégirien ou en grégorien et découvrez votre âge exact dans les deux calendriers, ainsi que des statistiques amusantes sur votre vie.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Date de naissance</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Grégorien</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">Hégirien</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">Jour</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Mois</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Année</label><input id="age-y" type="number" inputmode="numeric" placeholder="ex. : 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Calculer l’âge à la date (grégorienne)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Laissez la date du jour, ou modifiez-la pour connaître votre âge à une date précise.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Statistiques sur votre âge</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Votre âge selon le calendrier grégorien</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Votre âge selon le calendrier hégirien</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Partager</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

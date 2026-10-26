@@ -1,0 +1,67 @@
+<!--META
+{"title": "রোজার ফিদইয়া, কসমের কাফফারা ও রমজানে রোজা ভাঙার কাফফারা ক্যালকুলেটর", "h1": "ফিদইয়া ও কাফফারা ক্যালকুলেটর", "description": "অসুস্থ ও বয়োবৃদ্ধের রোজার ফিদইয়া, দশজন মিসকিনকে খাওয়ানোর মাধ্যমে কসমের কাফফারা এবং রমজানের দিনে সহবাসের কাফফারা হিসাব করুন — কিলোগ্রাম বা মূল্যে, সঙ্গে দুই মাসের রোজা শেষ হওয়ার তারিখ।", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "ফিদইয়া ও কাফফারা", "lead": "ফিদইয়া বা কাফফারার ধরন বেছে নিন এবং তথ্য দিন, তাহলে কিলোগ্রামে খাদ্যের পরিমাণ ও এর আনুমানিক মূল্য জানতে পারবেন।", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">রোজার ফিদইয়া</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">কসমের কাফফারা</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">রমজানে সহবাসের কাফফারা</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">যে ব্যক্তি স্থায়ীভাবে রোজা রাখতে অক্ষম, যেমন বয়োবৃদ্ধ এবং এমন অসুস্থ যার আরোগ্যের আশা নেই: প্রতিদিনের বদলে একজন মিসকিনকে খাওয়ানো।</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">দিনের সংখ্যা</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="কমান">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="বাড়ান">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 দিন</button><button type="button" class="chip" data-days="30">30 দিন</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">যে কসম ভঙ্গ করেছে: দশজন মিসকিনকে খাওয়ানো, অথবা তাদের বস্ত্র দান, অথবা একজন দাস মুক্ত করা; আর যদি তা না পায় তবে তিন দিন রোজা রাখা।</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">কাফফারার সংখ্যা (ভিন্ন ভিন্ন কসম)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="কমান">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="বাড়ান">+</button></div>
+        <span class="hint">কাফফারা দেওয়ার আগে একই বিষয়ে বারবার কসম করলে অধিকাংশ আলেমের মতে একটি কাফফারাই যথেষ্ট।</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">ক্রমানুসারে: একজন দাস মুক্ত করা; তা না পেলে একটানা দুই মাস রোজা রাখা; তাতেও সক্ষম না হলে ষাটজন মিসকিনকে খাওয়ানো।</p>
+      <div class="field">
+        <label for="fd-start">দুই মাসের রোজা শুরুর তারিখ (শেষ হওয়ার তারিখ হিসাবের জন্য)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">প্রত্যেক মিসকিনের খাদ্যের পরিমাণ</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">পরিমাণ</label>
+          <select id="fd-measure">
+            <option value="0.75">এক মুদ — প্রায় 0.75 কেজি (মালিকি ও শাফেয়ি মাজহাব)</option>
+            <option value="1.5">অর্ধ সা' — প্রায় 1.5 কেজি (সমকালীন ফতোয়া)</option>
+            <option value="custom">অন্য পরিমাণ…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">কিলোগ্রামে পরিমাণ</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">কেজি</span></div></div>
+        <div class="field"><label for="fd-price">প্রতি কিলোগ্রামের দাম বা এক বেলা খাবারের মূল্য (ঐচ্ছিক)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">দামের ধরন</label><select id="fd-price-type"><option value="kg">প্রতি কিলোগ্রামের দাম</option><option value="meal">এক বেলা পূর্ণ খাবারের মূল্য</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">যা আদায় করা ওয়াজিব</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

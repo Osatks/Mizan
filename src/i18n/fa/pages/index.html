@@ -1,0 +1,62 @@
+<!--META
+{"title": "میزان | ابزارهای مسلمان: قرآن کریم، زکات، میراث و اوقات شرعی نماز", "h1": "میزان", "description": "پلتفرم و ابزارهای اسلامی رایگان و دقیق و اپلیکیشن موبایل: قرآن کریم با تفسیر و تلاوت، اذکار مستند، محاسبه‌گر زکات، محاسبه‌گر میراث، اوقات شرعی نماز و جهت قبله.", "path": "/", "type": "home", "nav": "home", "custom_hero": true, "date": "2026-10-22", "scripts": ["home.js"]}
+-->
+<!--HERO-->
+<section class="home-hero">
+  <div class="container">
+    <span class="eyebrow">✦ ابزارهای اسلامی رایگان و دقیق در وب و گوشی</span>
+    <h1>هر آنچه مسلمان از <span>عبادات و محاسبات شرعی</span> نیاز دارد، در یک جا</h1>
+    <p>زکات خود را محاسبه کنید، ترکه را بر اساس علم فرائض تقسیم کنید، اوقات نماز، جهت قبله و تاریخ هجری قمری را بدانید؛ همراه با اپلیکیشن موبایل میزان که قرآن کریم را با تفسیر و تلاوت و دانشنامه اذکار به 15 زبان در خود دارد.</p>
+    <div class="hero-search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="tool-search" placeholder="جستجوی ابزار… مثلاً: زکات، میراث، نماز، هجری" aria-label="جستجوی ابزار" autocomplete="off">
+    </div>
+    <div class="hero-today">
+      <span class="pill">امروز: <b data-today-hijri></b></span>
+      <span class="pill" data-today-greg></span>
+      <span class="pill" id="hero-next-event" hidden></span>
+    </div>
+  </div>
+</section>
+<!--/HERO-->
+<section id="tools" aria-labelledby="tools-title">
+  <h2 id="tools-title" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">ابزارها</h2>
+  {{tools_grid}}
+  <p class="no-results card">ابزاری با این نام پیدا نکردیم. کلمه دیگری را امتحان کنید، یا <a href="/contact/">ابزار جدیدی به ما پیشنهاد دهید</a>.</p>
+</section>
+
+<div class="section-title"><h2>اپلیکیشن میزان برای گوشی‌های هوشمند</h2><a href="/app/">دانلود اپلیکیشن ←</a></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>قرآن کریم و تفسیر</h3><p>صفحات مصحف زرین با رسم‌الخط عثمانی. روی هر آیه انگشت خود را نگه دارید تا تفسیرش را ببینید، به آن گوش دهید، نشانه‌گذاری‌اش کنید یا به اشتراک بگذارید؛ همراه با حالت تمرکز و پیگیری ختم قرآن.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="15" r="2"/><circle cx="6" cy="8" r="2"/><circle cx="6" cy="15" r="2"/><path d="M12 19v3"/><circle cx="12" cy="18" r="1.5"/></svg></span><div><h3>334 ذکر با دلیل و تخریج</h3><p>24 بخش از اذکار صبح و شام، نماز، دعاهای قرآنی و حصن المسلم، با ذکر منبع، راوی و درجه حدیث و شمارنده تعاملی.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v3"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M4 22V12h16v10"/><path d="M10 22v-5a2 2 0 0 1 4 0v5"/><path d="M2 22h20"/></svg></span><div><h3>اعلان‌های نماز و 5 ویجت</h3><p>اوقات نماز و اعلان اذان که بدون اینترنت کار می‌کنند، همراه با 5 ویجت برای صفحه اصلی (اوقات نماز، نماز بعدی، آیه روز، تاریخ هجری و ختم قرآن).</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></span><div><h3>15 زبان جهانی و بدون تبلیغات</h3><p>رابط کاربری و ترجمه معانی قرآن، اذکار و ادله شرعی به 15 زبان، همراه با 10 رنگ برای رابط کاربری؛ 100% بدون اینترنت و بدون تبلیغات کار می‌کند.</p></div></div>
+  </div>
+  <div class="app-home-cta">
+    <a class="btn" href="/app/">اپلیکیشن میزان را رایگان دانلود کنید</a>
+    <span class="muted">موجود در Google Play · نسخه iPhone به‌زودی</span>
+  </div>
+</section>
+
+<div class="section-title"><h2>چرا میزان؟</h2></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>مستند و دقیق از نظر شرعی</h3><p>قواعد محاسبه بر اساس قول معتمد نزد جمهور فقها بنا شده‌اند، همراه با دلیل شرعی و بیان موارد اختلاف.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h3>حریم خصوصی کامل</h3><p>همه محاسبات و خوانش‌ها به صورت محلی روی دستگاه شما انجام می‌شوند و ما اعداد یا موقعیت شما را به هیچ سروری ارسال نمی‌کنیم.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><div><h3>سریع و بدون نیاز به اینترنت</h3><p>نتایج فوری هنگام تایپ، با رابط کاربری روشن به 15 زبان که روی گوشی و رایانه و بدون اتصال به شبکه کار می‌کند.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/><path d="M12 8v4l3 2"/></svg></span><div><h3>همیشه رایگان</h3><p>همه ابزارها، قرآن، تفاسیر و اذکار بدون ثبت‌نام یا اشتراک و به‌صورت رایگان در دسترس‌اند.</p></div></div>
+  </div>
+</section>
+
+<!--AR-ONLY--><div class="section-title"><h2>أحدث المقالات</h2><a href="/articles/">كل المقالات ←</a></div>
+{{articles_latest}}
+<!--/AR-ONLY-->
+
+<section class="prose card">
+  <h2>درباره وب‌سایت و اپلیکیشن میزان</h2>
+  <p>«میزان» مجموعه‌ای اسلامی و جامع در وب و گوشی‌های هوشمند است (Android در Google Play و iPhone به‌زودی) که طراحی شده تا در عبادت روزانه همراه مسلمان باشد و به پرسش‌های شرعی و عملی او پاسخ دهد: خواندن قرآن کریم با رسم‌الخط عثمانی، تدبر در تفسیر آن و گوش دادن به تلاوتش، مداومت بر اذکار صبح و شام و نماز با اسناد صحیح، و دانستن اینکه زکات مال من امسال چقدر است؟ ترکه چگونه بر اساس فرائض میان وارثان تقسیم می‌شود؟ وقت نماز در شهر من چه زمانی فرا می‌رسد؟ و جهت قبله از جایی که الان هستم کجاست؟</p>
+  <p><a href="/zakat-calculator/">محاسبه‌گر زکات</a> بر نصاب طلا و نقره تکیه دارد و پنج نوع مال یعنی پول نقد، طلا، نقره، سهام و کالاهای تجاری را می‌پذیرد، بدهی‌های سررسیدشده را کسر می‌کند و ادله شرعی را بیان می‌کند. اما <a href="/inheritance-calculator/">محاسبه‌گر میراث</a> قواعد علم فرائض یعنی فروض، تعصیب، حجب، عول و رد را اجرا می‌کند، همراه با شرح آیات میراث و مراحل تقسیم، و اصل مسئله و سهم هر وارث را به صورت کسر، درصد و مبلغ نشان می‌دهد.</p>
+  <p>ابزار <a href="/prayer-times/">اوقات شرعی نماز</a> اوقات را با معادلات دقیق نجومی محاسبه می‌کند و امکان انتخاب روش محاسبه معتبر در کشورتان را فراهم می‌آورد، و ابزار <a href="/qibla-direction/">جهت قبله</a> نیز قطب‌نمای تعاملی روی گوشی ارائه می‌دهد. <a href="/hijri-converter/">مبدل تاریخ</a> نیز بر تقویم ام‌القری تکیه دارد که در عربستان سعودی به‌طور رسمی معتبر است.</p>
+  <div class="note"><p>نتایج همه ابزارها جنبه راهنما دارند و به فهم و برآورد کمک می‌کنند؛ در مسائل خاص یا پیچیده باید به اهل علم و مراجع رسمی ذی‌صلاح مراجعه شود.</p></div>
+</section>

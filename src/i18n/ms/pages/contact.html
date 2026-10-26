@@ -1,0 +1,33 @@
+<!--META
+{"title": "Hubungi Kami - Berhubung dengan pasukan Mizan", "h1": "Hubungi Kami", "description": "Hubungi pasukan Mizan untuk melaporkan ralat di laman web atau aplikasi, memberi pandangan tentang mushaf, zikir dan terjemahan, mencadangkan alat baharu, atau untuk pertanyaan umum.", "path": "/contact/", "type": "page", "nav": "", "breadcrumb": "Hubungi Kami", "lead": "Kami gembira mendengar pandangan, cadangan dan pembetulan anda tentang laman web dan aplikasi."}
+-->
+<section class="prose card">
+  <h2>Kami sedia membantu anda</h2>
+  <p>Di {{site_name}}, kami mengalu-alukan semua mesej anda, sama ada pertanyaan tentang cara sesuatu alat berfungsi di laman web atau dalam aplikasi telefon pintar (Android dan iOS), laporan tentang ralat dalam keputusan pengiraan, pandangan tentang paparan mushaf, tafsir dan zikir atau terjemahan dalam 15 bahasa, atau cadangan untuk ciri baharu. Pandangan anda ialah perkara yang membantu kami membangunkan «Mizan» dan meningkatkan ketepatan serta kemantapannya.</p>
+
+  <h2>E-mel</h2>
+  <p>Anda boleh menghubungi kami secara terus di: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+  <p>Atau gunakan borang di bawah, dan program e-mel pada peranti anda akan dibuka dengan mesej sedia yang mengandungi apa yang anda tulis, untuk anda hantar sendiri. Borang ini tidak menghantar sebarang data ke pelayan kami.</p>
+
+  <h3>Tips untuk mesej yang lebih jelas</h3>
+  <ul>
+    <li>Apabila melaporkan ralat dalam kalkulator: nyatakan nama alat, input yang anda gunakan, keputusan yang dipaparkan, dan keputusan yang dijangka berserta sumbernya jika boleh.</li>
+    <li>Apabila melaporkan sesuatu dalam aplikasi telefon: nyatakan jenis peranti anda (Android atau iOS), bahasa paparan yang dipilih, dan skrin tempat masalah itu muncul.</li>
+    <li>Apabila membetulkan kandungan syarak atau terjemahan: sertakan nombor surah dan ayat, atau bahagian zikir dan dalil, atau rujukan fiqh yang anda sandarkan.</li>
+    <li>Bagi waktu solat: nyatakan bandar anda, kaedah pengiraan yang dipilih dan kalendar tempatan yang anda bandingkan.</li>
+  </ul>
+
+  <h2>Tempoh jawapan</h2>
+  <p>Kami berusaha membalas semua mesej dalam tempoh tiga hingga lima hari bekerja. Laporan yang memerlukan semakan syarak atau kemas kini perisian mungkin mengambil masa lebih lama, dan kami akan memaklumkan anda apabila ralat itu dibetulkan, insya-Allah.</p>
+
+  <div class="note"><strong>Peringatan penting:</strong> {{site_name}} ialah platform alat dan rujukan Islam, dan kami tidak mengeluarkan fatwa dalam masalah peribadi. Jika anda mempunyai masalah khusus tentang pusaka, zakat atau selainnya, sila rujuk kepada alim yang dipercayai, jabatan mufti atau mahkamah syariah yang berkenaan di negara anda.</div>
+</section>
+
+<form class="contact-form card" id="contact-form" novalidate>
+  <div class="field"><label for="cf-name">Nama</label><input id="cf-name" name="name" required></div>
+  <div class="field"><label for="cf-email">E-mel anda</label><input id="cf-email" name="email" type="email" required></div>
+  <div class="field"><label for="cf-subject">Perkara</label><select id="cf-subject" name="subject"><option>Pertanyaan umum</option><option>Maklum balas tentang aplikasi telefon (Android / iOS)</option><option>Melaporkan ralat dalam alat atau kalkulator</option><option>Maklum balas tentang mushaf, tafsir atau zikir</option><option>Maklum balas tentang terjemahan bahasa</option><option>Cadangan alat atau ciri baharu</option><option>Pengiklanan dan kerjasama</option></select></div>
+  <div class="field"><label for="cf-msg">Mesej</label><textarea id="cf-msg" name="message" rows="6" required></textarea></div>
+  <button class="btn" type="submit">Hantar mesej</button>
+  <p class="form-status" role="status"></p>
+</form>

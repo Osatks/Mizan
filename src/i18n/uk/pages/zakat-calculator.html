@@ -1,0 +1,115 @@
+<!--META
+{"title": "Калькулятор закяту 2026: точно обчисліть закят із грошей, золота та акцій", "h1": "Калькулятор закяту", "description": "Безкоштовний і точний калькулятор закяту: обчисліть закят із готівки, банківських рахунків, золота, срібла, акцій і торгових товарів з миттєвим розрахунком нісабу та відрахуванням боргів.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "Калькулятор закяту", "lead": "Введіть своє майно та поточну ціну золота — і одразу дізнаєтеся, чи досягло воно нісабу і скільки закяту ви маєте сплатити.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">Дані про ваше майно</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">Очистити дані</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">Валюта</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">Саудівський ріял</option><option value="&#1583;.&#1573;">Дирхам ОАЕ</option><option value="&#1583;.&#1603;">Кувейтський динар</option>
+          <option value="&#1585;.&#1602;">Катарський ріял</option><option value="&#1583;.&#1576;">Бахрейнський динар</option><option value="&#1585;.&#1593;">Оманський ріал</option>
+          <option value="&#1580;.&#1605;">Єгипетський фунт</option><option value="&#1583;.&#1571;">Йорданський динар</option><option value="&#1583;.&#1593;">Іракський динар</option>
+          <option value="&#1583;.&#1605;">Марокканський дирхам</option><option value="&#1583;.&#1580;">Алжирський динар</option><option value="&#1583;.&#1578;">Туніський динар</option>
+          <option value="&#1604;.&#1604;">Ліванський фунт</option><option value="&#1604;.&#1587;">Сирійський фунт</option><option value="&#1585;.&#1610;">Єменський ріал</option>
+          <option value="&#1580;.&#1587;">Суданський фунт</option><option value="&#1583;.&#1604;">Лівійський динар</option><option value="$">Долар США</option><option value="€">Євро</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">Нісаб для грошей</label>
+        <select id="zk-basis">
+          <option value="gold">Нісаб золота (85 грамів)</option>
+          <option value="silver">Нісаб срібла (595 грамів)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Сьогоднішні ціни</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">Ціна грама золота 24 карати</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="Напр.: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">Дізнайтеся в ювелірній крамниці або на надійному сайті з цінами у вашій країні.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">Ціна грама срібла (необов’язково)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="Напр.: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">Потрібна, якщо ви обрали нісаб срібла або маєте срібло.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> Гроші та залишки</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">Готівка на руках</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">Залишки на банківських рахунках і гаманцях</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">Борги вам, які очікується повернути</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">Інші кошти (каси взаємодопомоги, прибутки…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> Золото та срібло (у грамах)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">Золото 24 карати</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-g22">Золото 22 карати</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-g21">Золото 21 карат</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-g18">Золото 18 каратів</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+        <div class="field"><label for="zk-silver">Чисте срібло</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">г</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> Враховувати прикраси, які носять (думка ханафітів і обережніший підхід)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">З них прикраси, які носять (у грамах, еквівалент 21 карата)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">г</span></div>
+        <span class="hint">Цю вагу буде виключено з розрахунку відповідно до думки більшості вчених, що з прикрас, призначених для носіння, закят не сплачується.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Інвестиції та торгівля</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">Акції для торгівлі (ринкова вартість)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">Акції для довгострокових інвестицій (база закяту)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Ваша частка в закятних активах компанії, якщо вона вам відома.</span></div>
+        <div class="field"><label for="zk-goods">Торгові товари (вартість товару)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> Що віднімається</p>
+      <div class="field"><label for="zk-debts">Ваші борги, що настали (до сплати цього року)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Лише платежі, що припадають на період хауля, а не вся сума довгострокового кредиту.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Належний закят</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">Введіть ціну золота та своє майно</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>Усього закятного майна</span><span id="zk-total">0</span></li>
+      <li><span>Відраховані борги</span><span id="zk-debts-out">0</span></li>
+      <li><span>Чиста база закяту</span><span id="zk-net">0</span></li>
+      <li><span>Вартість нісабу</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">Відношення бази до нісабу</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">Поділитися результатом</button>
+      <button type="button" class="btn ghost" onclick="print()">Друк</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Ваші дані зберігаються лише на вашому пристрої. Розмір закяту — 2.5% від чистої бази, якщо вона досягла нісабу і минув повний місячний рік (хауль).</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

@@ -1,0 +1,24 @@
+<!--META
+{"title": "Wie lange noch bis Ramadan und Eid? Countdown zu den islamischen Anlässen", "h1": "Islamische Anlässe", "description": "Live-Countdown bis zum Monat Ramadan, Eid al-Fitr, Tag von Arafa, Eid al-Adha, islamischen Neujahr, Aschura und den Weißen Tagen – mit ihren erwarteten Hidschri- und gregorianischen Daten.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Islamische Anlässe", "lead": "Erfahre, wie viele Tage noch bis Ramadan, zu den beiden Eid-Festen und den wichtigsten islamischen Zeiten verbleiben – mit dem erwarteten gregorianischen Datum jedes Anlasses.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Countdown bis</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>Tage</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>Stunden</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>Minuten</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>Sekunden</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Countdown teilen</button></div>
+  </section>
+
+  <div class="section-title"><h2>Kommende Anlässe</h2><span class="muted" style="font-size:.9rem">Tippe auf einen Anlass, um seinen Countdown anzuzeigen</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Die Daten sind nach dem Umm-al-Qura-Kalender berechnet und können je nach der in deinem Land maßgeblichen Mondsichtung um einen Tag abweichen.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

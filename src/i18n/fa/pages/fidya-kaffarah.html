@@ -1,0 +1,67 @@
+<!--META
+{"title": "محاسبه‌گر فدیه روزه، کفاره سوگند و کفاره افطار در رمضان", "h1": "محاسبه‌گر فدیه و کفاره", "description": "فدیه روزه برای بیمار و سالمند، کفاره سوگند با اطعام ده مسکین و کفاره جماع در روز ماه رمضان را بر حسب کیلوگرم یا مبلغ، همراه با تاریخ پایان روزه دو ماه محاسبه کنید.", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "فدیه و کفاره", "lead": "نوع فدیه یا کفاره را انتخاب کنید و اطلاعات را وارد کنید تا مقدار اطعام بر حسب کیلوگرم و مبلغ تقریبی آن را بدانید.", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">فدیه روزه</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">کفاره سوگند</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">کفاره جماع در رمضان</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">برای کسی که به‌طور دائم از روزه گرفتن ناتوان است، مانند سالمند و بیماری که امید بهبودش نمی‌رود: اطعام یک مسکین به ازای هر روز.</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">تعداد روزها</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="کاهش">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="افزایش">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 روز</button><button type="button" class="chip" data-days="30">30 روز</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">برای کسی که سوگندش را شکسته است: اطعام ده مسکین یا پوشاندن آنان یا آزاد کردن یک برده، و اگر نیافت، سه روز روزه.</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">تعداد کفاره‌ها (سوگندهای مختلف)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="کاهش">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="افزایش">+</button></div>
+        <span class="hint">اگر سوگند بر یک چیز پیش از کفاره دادن تکرار شود، نزد جمهور فقها یک کفاره بر او واجب است.</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">به ترتیب: آزاد کردن یک برده، اگر نیافت دو ماه روزه پیاپی، و اگر نتوانست اطعام شصت مسکین.</p>
+      <div class="field">
+        <label for="fd-start">تاریخ شروع روزه دو ماه (برای محاسبه تاریخ پایان)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">مقدار اطعام برای هر مسکین</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">مقدار</label>
+          <select id="fd-measure">
+            <option value="0.75">یک مُد — حدود 0.75 کیلوگرم (مالکیه و شافعیه)</option>
+            <option value="1.5">نیم صاع — حدود 1.5 کیلوگرم (فتاوای معاصر)</option>
+            <option value="custom">مقدار دیگر…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">مقدار بر حسب کیلوگرم</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">کیلوگرم</span></div></div>
+        <div class="field"><label for="fd-price">قیمت هر کیلوگرم یا هزینه یک وعده غذا (اختیاری)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">نوع قیمت</label><select id="fd-price-type"><option value="kg">قیمت هر کیلوگرم</option><option value="meal">هزینه یک وعده کامل</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">مقدار واجب پرداخت</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

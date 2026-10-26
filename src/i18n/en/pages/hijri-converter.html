@@ -1,0 +1,51 @@
+<!--META
+{"title": "Hijri and Gregorian Date Converter (Umm al-Qura Calendar)", "h1": "Hijri Date Converter", "description": "Convert dates from Hijri to Gregorian and from Gregorian to Hijri instantly according to the Umm al-Qura calendar, with a dual monthly calendar showing both dates together and today's date.", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "Hijri Date", "lead": "Instant and accurate conversion between the two calendars, with a monthly calendar showing Hijri and Gregorian side by side.", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Date conversion</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">Gregorian → Hijri</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">Hijri → Gregorian</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">Day</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">Month</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">Year</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">Day</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">Month</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">Year</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">Today's date</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">Copy result</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">Corresponding Hijri date</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="Previous month">←</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="Next month">→</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">The large number is the Hijri day and the small one is the Gregorian day. Tap any day to convert it.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

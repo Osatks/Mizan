@@ -1,0 +1,74 @@
+<!--META
+{"title": "محاسبه‌گر زکات فطر: مقدار آن برای هر نفر به کیلو و مبلغ", "h1": "محاسبه‌گر زکات فطر", "description": "زکات فطر همه اعضای خانواده خود را بر حسب کیلوگرم برنج، گندم یا خرما، یا به صورت مبلغ نقدی محاسبه کنید، همراه با شرح احکام، وقت پرداخت و مستحقان آن.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "زکات فطر", "lead": "تعداد اعضای خانواده و نوع غذا یا مبلغ را مشخص کنید و فوراً مقدار زکات فطر واجب را بدانید.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>اطلاعات خانواده</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">تعداد کسانی که برایشان می‌پردازید (با خودتان)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="کاهش">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="افزایش">+</button>
+        </div>
+        <span class="hint">شامل خودتان، همسر، فرزندان و کسانی است که نفقه‌شان بر شما واجب است.</span>
+      </div>
+      <div class="field">
+        <span class="label">روش پرداخت</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">غذا (صاع)</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">مبلغ نقدی</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">نوع غذا و مقدار صاع</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">نوع غذا</label>
+          <select id="fr-type">
+            <option value="2.5">برنج — تقریباً 2.5 کیلوگرم</option>
+            <option value="3">برنج (احتیاط) — 3 کیلوگرم</option>
+            <option value="2.04">گندم — تقریباً 2.04 کیلوگرم</option>
+            <option value="2.5">خرما — تقریباً 2.5 کیلوگرم</option>
+            <option value="2.2">جو — تقریباً 2.2 کیلوگرم</option>
+            <option value="custom">مقدار دیگر…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">وزن صاع بر حسب کیلوگرم</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">کیلوگرم</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">قیمت هر کیلوگرم (اختیاری)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">برای هر کیلو</span></div>
+          <span class="hint">برای دانستن هزینه تقریبی خرید.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">مبلغ نقدی</p>
+      <div class="field">
+        <label for="fr-value">مبلغ زکات فطر برای هر نفر</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="مثال: 35"><span class="unit">برای هر نفر</span></div>
+        <span class="hint">دارالافتاء یا مرجع رسمی کشورتان هر سال آن را اعلام می‌کند. پرداخت مبلغ قول حنفیه است و جمهور بر پرداخت غذا هستند.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">مقدار زکات فطر</div>
+      <div class="big-number" id="fr-total">2.5 <small>کیلوگرم</small></div>
+      <span class="badge ok" id="fr-sub">برای یک نفر</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>وقت پرداخت:</strong> پیش از نماز عید؛ جلو انداختن آن یک یا دو روز جایز است و تأخیر آن از نماز عید بدون عذر جایز نیست.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">اشتراک‌گذاری</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

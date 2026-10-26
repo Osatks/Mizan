@@ -1,0 +1,67 @@
+<!--META
+{"title": "Calculadora de la fidya del ayuno, la kaffarah del juramento y la kaffarah por romper el ayuno de Ramadán", "h1": "Calculadora de fidya y kaffarah", "description": "Calcula la fidya del ayuno para el enfermo y el anciano, la kaffarah del juramento alimentando a diez pobres y la kaffarah por mantener relaciones durante el día en Ramadán, en kilogramos o en valor, con la fecha de fin del ayuno de los dos meses.", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "Fidya y kaffarah", "lead": "Elige el tipo de fidya o kaffarah e introduce los datos para saber la cantidad de alimento en kilogramos y su valor aproximado.", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">Fidya del ayuno</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">Kaffarah del juramento</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">Kaffarah por relaciones en Ramadán</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">Para quien no puede ayunar de forma permanente, como el anciano y el enfermo sin esperanza de curación: alimentar a un pobre por cada día.</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">Número de días</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="Disminuir">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="Aumentar">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 días</button><button type="button" class="chip" data-days="30">30 días</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">Para quien rompe su juramento: alimentar a diez pobres, vestirlos o liberar a un esclavo; y si no puede, ayunar tres días.</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">Número de kaffarahs (juramentos distintos)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="Disminuir">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="Aumentar">+</button></div>
+        <span class="hint">Si el juramento sobre una misma cosa se repitió antes de expiarlo, según la mayoría de los sabios basta con una sola kaffarah.</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">Por orden: liberar a un esclavo; si no puede, ayunar dos meses consecutivos; y si no es capaz, alimentar a sesenta pobres.</p>
+      <div class="field">
+        <label for="fd-start">Fecha de inicio del ayuno de los dos meses (para calcular la fecha de fin)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">Cantidad de alimento por cada pobre</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">Cantidad</label>
+          <select id="fd-measure">
+            <option value="0.75">Un mudd — unos 0.75 kg (malikíes y shafiíes)</option>
+            <option value="1.5">Medio sa' — unos 1.5 kg (fatwas contemporáneas)</option>
+            <option value="custom">Otra cantidad…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">Cantidad en kilogramos</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">kg</span></div></div>
+        <div class="field"><label for="fd-price">Precio del kilogramo o valor de la comida (opcional)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">Tipo de precio</label><select id="fd-price-type"><option value="kg">Precio por kilogramo</option><option value="meal">Valor de una comida completa</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">Lo que debes entregar</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

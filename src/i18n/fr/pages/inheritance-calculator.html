@@ -1,0 +1,61 @@
+<!--META
+{"title": "Calculateur d’héritage islamique : partage de la succession selon la science des fara’id", "h1": "Calculateur d’héritage", "description": "Un calculateur d’héritage islamique précis : saisissez les héritiers et la valeur de la succession pour connaître la part de chaque héritier en fraction, en pourcentage et en montant, avec l’exclusion (hajb), la base du problème, le ‘awl et le radd.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Calculateur d’héritage", "lead": "Choisissez le sexe du défunt, saisissez la valeur de la succession et les héritiers vivants, et vous obtiendrez un partage détaillé selon les règles de la science des fara’id.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Le défunt et la succession</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Nouveau cas</button>
+      </div>
+      <div class="field">
+        <span class="label">Sexe du défunt</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Homme</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Femme</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Succession totale</label><input id="inh-estate" inputmode="decimal" placeholder="ex. : 600000"></div>
+        <div class="field"><label for="inh-funeral">Frais de préparation et d’inhumation</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Dettes du défunt</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Legs (wasiyya, à un non-héritier)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Il ne peut dépasser le tiers du reste après les dettes, sauf accord des héritiers.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Succession nette à partager</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Résumé du cas</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Ajoutez les héritiers</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Choisissez les héritiers dans la liste pour afficher le partage.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Héritiers vivants au moment du décès</h2><span class="muted" style="font-size:.9rem">Appuyez sur + pour ajouter un héritier</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Détail du partage</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Partager</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Imprimer</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Héritier</th><th>Nombre</th><th>Type d’héritage</th><th>Part</th><th>Parts (sihâm)</th><th>Pourcentage</th><th>Montant</th><th>Par personne</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Ce résultat est indicatif et fondé sur l’avis de la majorité des savants ; il ne dispense pas de consulter le tribunal religieux ou un savant spécialisé en fara’id, notamment dans les cas comportant une divergence, des legs ou des héritiers parmi les dhawu al-arham (parents utérins).</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

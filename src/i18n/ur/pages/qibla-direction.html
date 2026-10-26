@@ -1,0 +1,40 @@
+<!--META
+{"title": "ابھی اپنے مقام سے قبلہ کی سمت: الیکٹرانک قبلہ نما", "h1": "قبلہ کی سمت", "description": "موبائل پر انٹرایکٹو قبلہ نما کے ذریعے دنیا کے کسی بھی مقام سے قبلہ کی درست سمت معلوم کریں، شمال سے قبلہ کے زاویے اور کعبہ مشرفہ تک فاصلے کے ساتھ۔", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "قبلہ کی سمت", "lead": "قبلہ کا زاویہ جاننے کے لیے اپنا مقام استعمال کریں یا اپنا شہر منتخب کریں، اور موبائل پر فون کو گھمائیں یہاں تک کہ سنہری تیر روشن ہو جائے۔", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">ش</span><span class="cardinal e">مش</span><span class="cardinal s">ج</span><span class="cardinal w">مغ</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="کعبہ"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">موبائل پر «قطب نما فعال کریں» دبائیں تاکہ قطب نما آپ کے فون کی سمت کے ساتھ گھومے</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 قطب نما فعال کریں</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 میرا مقام استعمال کریں</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">جغرافیائی شمال سے قبلہ کا زاویہ</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">یا کوئی شہر منتخب کریں</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>آپ کا مقام</span><span id="qb-loc">—</span></li>
+      <li><span>کعبہ تک فاصلہ</span><span id="qb-dist">—</span></li>
+      <li><span>فون کی موجودہ سمت</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>اپنے فون کو برقی آلات اور دھاتوں سے دور رکھیں، اور اگر ریڈنگ غیر مستحکم لگے تو قطب نما کی درستی کے لیے فون کو انگریزی ہندسے 8 کی شکل میں گھمائیں۔</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

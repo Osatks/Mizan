@@ -1,0 +1,44 @@
+<!--META
+{"title": "محاسبه‌گر دقیق سن به هجری قمری و میلادی (سال، ماه و روز)", "h1": "محاسبه‌گر سن", "description": "سن خود را در دو تقویم هجری قمری و میلادی بر حسب سال، ماه و روز محاسبه کنید و روز تولد، تاریخ هجری آن، تعداد روزهایی که زیسته‌اید و زمان باقی‌مانده تا تولد بعدی‌تان را بدانید.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "محاسبه‌گر سن", "lead": "تاریخ تولد خود را به هجری قمری یا میلادی وارد کنید و سن دقیق خود را در هر دو تقویم همراه با آمارهای جالبی درباره زندگی‌تان بدانید.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>تاریخ تولد</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">میلادی</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">هجری قمری</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">روز</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">ماه</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">سال</label><input id="age-y" type="number" inputmode="numeric" placeholder="مثال: 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">محاسبه سن در تاریخ (میلادی)</label>
+      <input id="age-at" type="date">
+      <span class="hint">آن را روی تاریخ امروز بگذارید، یا برای دانستن سن خود در تاریخی معین تغییرش دهید.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">آمارهایی درباره سن شما</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">سن شما در تقویم میلادی</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">سن شما در تقویم هجری قمری</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">اشتراک‌گذاری</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

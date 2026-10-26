@@ -1,0 +1,74 @@
+<!--META
+{"title": "Calculateur de zakat al-fitr : combien par personne en kilos et en valeur", "h1": "Calculateur de zakat al-fitr", "description": "Calculez la zakat al-fitr pour tous les membres de votre famille en kilogrammes de riz, de blé ou de dattes, ou en valeur monétaire, avec l’explication de ses règles, du moment de son versement et de ses bénéficiaires.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Zakat al-fitr", "lead": "Indiquez le nombre de membres de votre famille et le type de nourriture ou la valeur, et découvrez instantanément le montant de la zakat al-fitr due.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Données de la famille</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Nombre de personnes pour qui vous la versez (vous compris)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Diminuer">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Augmenter">+</button>
+        </div>
+        <span class="hint">Cela comprend vous-même, votre épouse, vos enfants et les personnes dont l’entretien vous incombe.</span>
+      </div>
+      <div class="field">
+        <span class="label">Mode de versement</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Nourriture (sâ‘)</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Valeur monétaire</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Type de nourriture et poids du sâ‘</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Type de nourriture</label>
+          <select id="fr-type">
+            <option value="2.5">Riz — environ 2,5 kg</option>
+            <option value="3">Riz (par précaution) — 3 kg</option>
+            <option value="2.04">Blé — environ 2,04 kg</option>
+            <option value="2.5">Dattes — environ 2,5 kg</option>
+            <option value="2.2">Orge — environ 2,2 kg</option>
+            <option value="custom">Autre quantité…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Poids du sâ‘ en kilogrammes</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">kg</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Prix du kilogramme (facultatif)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">le kilo</span></div>
+          <span class="hint">Pour connaître le coût approximatif de l’achat.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Valeur monétaire</p>
+      <div class="field">
+        <label for="fr-value">Valeur de la zakat al-fitr par personne</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="ex. : 35"><span class="unit">par personne</span></div>
+        <span class="hint">Elle est annoncée chaque année par l’institution de fatwa ou l’autorité officielle de votre pays. Le versement en valeur est l’avis des hanafites ; la majorité des savants préconise de la verser en nourriture.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Montant de la zakat al-fitr</div>
+      <div class="big-number" id="fr-total">2.5 <small>kg</small></div>
+      <span class="badge ok" id="fr-sub">pour une personne</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Moment du versement :</strong> avant la prière de l’Aïd ; il est permis de l’avancer d’un ou deux jours, mais il n’est pas permis de la retarder après la prière de l’Aïd sans excuse.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Partager</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->
