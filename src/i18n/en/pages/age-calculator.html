@@ -1,0 +1,44 @@
+<!--META
+{"title": "Accurate Hijri and Gregorian Age Calculator (Years, Months and Days)", "h1": "Age Calculator", "description": "Calculate your age in both the Hijri and Gregorian calendars in years, months and days, and find the weekday you were born, your Hijri birth date, the number of days you have lived and the time left until your next birthday.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Age Calculator", "lead": "Enter your date of birth in Hijri or Gregorian and find your exact age in both calendars, plus interesting statistics about your life.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Date of birth</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Gregorian</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">Hijri</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">Day</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Month</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Year</label><input id="age-y" type="number" inputmode="numeric" placeholder="e.g. 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Calculate age on date (Gregorian)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Leave it as today's date, or change it to find your age on a specific date.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Statistics about your age</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Your age in the Gregorian calendar</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Your age in the Hijri calendar</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Share</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

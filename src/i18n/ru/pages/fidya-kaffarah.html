@@ -1,0 +1,67 @@
+<!--META
+{"title": "Калькулятор фидьи за пост, каффары за клятву и каффары за нарушение поста в Рамадан", "h1": "Калькулятор фидьи и каффары", "description": "Рассчитайте фидью за пост для больного и пожилого, каффару за клятву — кормление десяти бедняков, и каффару за половую близость днём в Рамадан — в килограммах или в деньгах, с датой окончания поста двух месяцев.", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "Фидья и каффара", "lead": "Выберите вид фидьи или каффары и введите данные, чтобы узнать объём кормления в килограммах и его примерную стоимость.", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">Фидья за пост</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">Каффара за клятву</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">Каффара за близость в Рамадан</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">Для того, кто постоянно не способен поститься, например, пожилого человека или больного без надежды на выздоровление: кормление одного бедняка за каждый день.</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">Количество дней</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="Уменьшить">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="Увеличить">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 дней</button><button type="button" class="chip" data-days="30">30 дней</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">Для того, кто нарушил свою клятву: накормить десять бедняков, или одеть их, или освободить раба; а кто не найдёт — пост три дня.</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">Количество каффар (разных клятв)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="Уменьшить">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="Увеличить">+</button></div>
+        <span class="hint">Если клятва об одном и том же повторялась до искупления, то, по мнению большинства, на нём одна каффара.</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">По порядку: освобождение раба; а кто не найдёт — пост два месяца подряд; а кто не сможет — кормление шестидесяти бедняков.</p>
+      <div class="field">
+        <label for="fd-start">Дата начала поста двух месяцев (для расчёта даты окончания)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">Объём кормления на каждого бедняка</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">Мера</label>
+          <select id="fd-measure">
+            <option value="0.75">Мудд — около 0,75 кг (маликиты и шафииты)</option>
+            <option value="1.5">Полса‘ — около 1,5 кг (современные фетвы)</option>
+            <option value="custom">Другая мера…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">Мера в килограммах</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">кг</span></div></div>
+        <div class="field"><label for="fd-price">Цена килограмма или стоимость обеда (необязательно)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">Тип цены</label><select id="fd-price-type"><option value="kg">Цена за килограмм</option><option value="meal">Стоимость полной порции еды</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">Необходимо выплатить</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

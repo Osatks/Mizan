@@ -1,0 +1,115 @@
+<!--META
+{"title": "যাকাত ক্যালকুলেটর 2026: সম্পদ, স্বর্ণ ও শেয়ারের যাকাত নির্ভুলভাবে হিসাব করুন", "h1": "যাকাত ক্যালকুলেটর", "description": "বিনামূল্যের নির্ভুল যাকাত ক্যালকুলেটর: নগদ অর্থ, ব্যাংক অ্যাকাউন্ট, স্বর্ণ, রৌপ্য, শেয়ার ও ব্যবসায়িক পণ্যের যাকাত হিসাব করুন — সঙ্গে তাৎক্ষণিক নিসাব হিসাব ও ঋণ বিয়োগ।", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "যাকাত ক্যালকুলেটর", "lead": "আপনার সম্পদ ও স্বর্ণের বর্তমান দাম লিখুন, তাৎক্ষণিকভাবে জানতে পারবেন নিসাব পূর্ণ হয়েছে কি না এবং আপনার প্রদেয় যাকাত কত।", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">আপনার সম্পদের তথ্য</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">তথ্য মুছুন</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">মুদ্রা</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">সৌদি রিয়াল</option><option value="&#1583;.&#1573;">আমিরাতি দিরহাম</option><option value="&#1583;.&#1603;">কুয়েতি দিনার</option>
+          <option value="&#1585;.&#1602;">কাতারি রিয়াল</option><option value="&#1583;.&#1576;">বাহরাইনি দিনার</option><option value="&#1585;.&#1593;">ওমানি রিয়াল</option>
+          <option value="&#1580;.&#1605;">মিশরীয় পাউন্ড</option><option value="&#1583;.&#1571;">জর্ডানি দিনার</option><option value="&#1583;.&#1593;">ইরাকি দিনার</option>
+          <option value="&#1583;.&#1605;">মরক্কান দিরহাম</option><option value="&#1583;.&#1580;">আলজেরীয় দিনার</option><option value="&#1583;.&#1578;">তিউনিসীয় দিনার</option>
+          <option value="&#1604;.&#1604;">লেবানিজ পাউন্ড</option><option value="&#1604;.&#1587;">সিরীয় পাউন্ড</option><option value="&#1585;.&#1610;">ইয়েমেনি রিয়াল</option>
+          <option value="&#1580;.&#1587;">সুদানি পাউন্ড</option><option value="&#1583;.&#1604;">লিবীয় দিনার</option><option value="$">মার্কিন ডলার</option><option value="€">ইউরো</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">নগদ অর্থের জন্য গৃহীত নিসাব</label>
+        <select id="zk-basis">
+          <option value="gold">স্বর্ণের নিসাব (85 গ্রাম)</option>
+          <option value="silver">রৌপ্যের নিসাব (595 গ্রাম)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> আজকের দাম</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">24 ক্যারেট স্বর্ণের প্রতি গ্রামের দাম</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="উদাহরণ: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">আপনার দেশের কোনো স্বর্ণের দোকান বা নির্ভরযোগ্য দামের ওয়েবসাইট থেকে।</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">রৌপ্যের প্রতি গ্রামের দাম (ঐচ্ছিক)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="উদাহরণ: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">রৌপ্যের নিসাব বেছে নিলে বা আপনার রৌপ্য থাকলে প্রয়োজন।</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> নগদ অর্থ ও ব্যালান্স</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">হাতে থাকা নগদ</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">ব্যাংক ও ওয়ালেটের ব্যালান্স</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">আদায়ের আশা আছে এমন পাওনা</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">অন্যান্য সম্পদ (সমিতি, মুনাফা…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> স্বর্ণ ও রৌপ্য (গ্রামে)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">24 ক্যারেট স্বর্ণ</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">গ্রাম</span></div></div>
+        <div class="field"><label for="zk-g22">22 ক্যারেট স্বর্ণ</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">গ্রাম</span></div></div>
+        <div class="field"><label for="zk-g21">21 ক্যারেট স্বর্ণ</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">গ্রাম</span></div></div>
+        <div class="field"><label for="zk-g18">18 ক্যারেট স্বর্ণ</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">গ্রাম</span></div></div>
+        <div class="field"><label for="zk-silver">খাঁটি রৌপ্য</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">গ্রাম</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> ব্যবহৃত সাজসজ্জার অলংকার হিসাবে অন্তর্ভুক্ত করুন (হানাফি মত, এবং অধিক সতর্কতাপূর্ণ)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">এর মধ্যে ব্যবহৃত সাজসজ্জার অলংকার (গ্রাম, 21 ক্যারেটের সমতুল্য)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">গ্রাম</span></div>
+        <span class="hint">ব্যবহারের জন্য রাখা অলংকারে যাকাত নেই — অধিকাংশ আলেমের এই মত অনুযায়ী এই ওজন হিসাব থেকে বাদ দেওয়া হবে।</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> বিনিয়োগ ও ব্যবসা</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">ট্রেডিংয়ের শেয়ার (বাজারমূল্য)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">দীর্ঘমেয়াদি বিনিয়োগের শেয়ার (যাকাতযোগ্য অংশ)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">জানা থাকলে কোম্পানির যাকাতযোগ্য সম্পদে আপনার অংশ।</span></div>
+        <div class="field"><label for="zk-goods">ব্যবসায়িক পণ্য (মালের মূল্য)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> যা বাদ যাবে</p>
+      <div class="field"><label for="zk-debts">আপনার ওপর পরিশোধযোগ্য ঋণ (এ বছর প্রদেয়)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">শুধু এই বছরের (হাওলের) মধ্যে প্রদেয় কিস্তিগুলো, দীর্ঘমেয়াদি পুরো ঋণ নয়।</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">প্রদেয় যাকাত</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">স্বর্ণের দাম ও আপনার সম্পদ লিখুন</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>মোট যাকাতযোগ্য সম্পদ</span><span id="zk-total">0</span></li>
+      <li><span>বাদ দেওয়া ঋণ</span><span id="zk-debts-out">0</span></li>
+      <li><span>নিট যাকাতযোগ্য সম্পদ</span><span id="zk-net">0</span></li>
+      <li><span>নিসাবের মূল্য</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">নিসাবের তুলনায় সম্পদের অনুপাত</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">ফলাফল শেয়ার করুন</button>
+      <button type="button" class="btn ghost" onclick="print()">প্রিন্ট করুন</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">আপনার তথ্য শুধু আপনার ডিভাইসেই সংরক্ষিত থাকে। নিট যাকাতযোগ্য সম্পদ নিসাবে পৌঁছালে এবং তার ওপর এক হিজরি বছর (হাওল) অতিক্রান্ত হলে যাকাতের পরিমাণ এর 2.5%।</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

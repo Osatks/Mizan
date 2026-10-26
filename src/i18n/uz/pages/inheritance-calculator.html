@@ -1,0 +1,61 @@
+<!--META
+{"title": "Shariy meros kalkulyatori: merosni farooiz ilmi boʻyicha taqsimlash", "h1": "Meros kalkulyatori", "description": "Aniq shariy meros kalkulyatori: merosxoʻrlar va meros qiymatini kiriting — har bir merosxoʻr ulushini kasr, foiz va summada, hajb, masala asli, avl va radd bayoni bilan bilib oling.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Meros kalkulyatori", "lead": "Marhumning jinsini tanlang, meros qiymati va tirik merosxoʻrlarni kiriting — farooiz ilmi qoidalari boʻyicha batafsil taqsimotni olasiz.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Marhum va meros</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Yangi masala boshlash</button>
+      </div>
+      <div class="field">
+        <span class="label">Marhumning jinsi</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Erkak</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Ayol</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Merosning umumiy qiymati</label><input id="inh-estate" inputmode="decimal" placeholder="Masalan: 600000"></div>
+        <div class="field"><label for="inh-funeral">Kafanlash va dafn xarajatlari</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Marhumning qarzlari</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Vasiyat (merosxoʻr boʻlmaganga)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Merosxoʻrlar ruxsat bermasa, qarzlardan keyin qolgan mulkning uchdan biridan oshmaydi.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Taqsimlanadigan sof meros</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Masala xulosasi</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Merosxoʻrlarni qoʻshing</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Taqsimotni koʻrish uchun roʻyxatdan merosxoʻrlarni tanlang.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Vafot paytida tirik boʻlgan merosxoʻrlar</h2><span class="muted" style="font-size:.9rem">Merosxoʻr qoʻshish uchun + ni bosing</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Taqsimot tafsiloti</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Ulashish</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Chop etish</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Merosxoʻr</th><th>Soni</th><th>Meros turi</th><th>Ulush</th><th>Sahmlar</th><th>Foiz</th><th>Summa</th><th>Har biriga</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Bu natija jumhur mazhabiga asoslangan yoʻl-yoʻriq boʻlib, shariy sudga yoki farooiz boʻyicha mutaxassis olimga murojaat qilishning oʻrnini bosmaydi, ayniqsa ixtilofli, vasiyatli yoki zavil-arhom merosxoʻrlari bor masalalarda.</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

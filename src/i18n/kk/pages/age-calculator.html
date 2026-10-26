@@ -1,0 +1,44 @@
+<!--META
+{"title": "Хижра және милади күнтізбесі бойынша дәл жас калькуляторы (жыл, ай, күн)", "h1": "Жас калькуляторы", "description": "Жасыңызды хижра және милади күнтізбелері бойынша жылмен, аймен және күнмен есептеңіз; туған күніңіздің апта күнін, хижра күнін, өмір сүрген күндеріңіздің санын және келесі туған күніңізге дейін қалған уақытты біліңіз.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Жас калькуляторы", "lead": "Туған күніңізді хижра немесе милади күнтізбесі бойынша енгізіп, екі күнтізбе бойынша нақты жасыңызды және өміріңіз туралы қызықты статистиканы біліңіз.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Туған күні</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Милади</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">Хижра</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">Күн</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Ай</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Жыл</label><input id="age-y" type="number" inputmode="numeric" placeholder="Мысалы: 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Жасты мына күнге есептеу (милади)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Бүгінгі күнді қалдырыңыз немесе белгілі бір күндегі жасыңызды білу үшін өзгертіңіз.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Жасыңыз туралы статистика</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Милади күнтізбесі бойынша жасыңыз</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Хижра күнтізбесі бойынша жасыңыз</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Бөлісу</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

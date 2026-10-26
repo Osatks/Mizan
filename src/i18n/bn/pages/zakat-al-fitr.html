@@ -1,0 +1,74 @@
+<!--META
+{"title": "যাকাতুল ফিতর ক্যালকুলেটর: জনপ্রতি কত — কেজি ও মূল্যে", "h1": "যাকাতুল ফিতর ক্যালকুলেটর", "description": "চাল, গম বা খেজুরের কিলোগ্রামে অথবা নগদ মূল্যে পরিবারের সব সদস্যের যাকাতুল ফিতর (ফিতরা) হিসাব করুন, সঙ্গে এর বিধান, আদায়ের সময় ও প্রাপকদের ব্যাখ্যা।", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "যাকাতুল ফিতর", "lead": "আপনার পরিবারের সদস্য সংখ্যা এবং খাদ্যের ধরন বা মূল্য নির্ধারণ করুন, তাৎক্ষণিকভাবে জেনে নিন ওয়াজিব যাকাতুল ফিতরের পরিমাণ।", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>পরিবারের তথ্য</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">যাদের পক্ষ থেকে আদায় করবেন তাদের সংখ্যা (নিজেসহ)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="কমান">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="বাড়ান">+</button>
+        </div>
+        <span class="hint">আপনি নিজে, আপনার স্ত্রী, সন্তান এবং যাদের ভরণপোষণ আপনার ওপর ওয়াজিব তারা অন্তর্ভুক্ত।</span>
+      </div>
+      <div class="field">
+        <span class="label">আদায়ের পদ্ধতি</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">খাদ্য (সা')</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">নগদ মূল্য</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">খাদ্যের ধরন ও সা'-এর পরিমাণ</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">খাদ্যের ধরন</label>
+          <select id="fr-type">
+            <option value="2.5">চাল — প্রায় 2.5 কেজি</option>
+            <option value="3">চাল (অধিক সতর্কতাপূর্ণ) — 3 কেজি</option>
+            <option value="2.04">গম — প্রায় 2.04 কেজি</option>
+            <option value="2.5">খেজুর — প্রায় 2.5 কেজি</option>
+            <option value="2.2">যব — প্রায় 2.2 কেজি</option>
+            <option value="custom">অন্য পরিমাণ…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">কিলোগ্রামে সা'-এর ওজন</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">কেজি</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">প্রতি কিলোগ্রামের দাম (ঐচ্ছিক)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">প্রতি কেজি</span></div>
+          <span class="hint">কেনার আনুমানিক খরচ জানার জন্য।</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">নগদ মূল্য</p>
+      <div class="field">
+        <label for="fr-value">জনপ্রতি যাকাতুল ফিতরের মূল্য</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="উদাহরণ: 35"><span class="unit">জনপ্রতি</span></div>
+        <span class="hint">প্রতি বছর আপনার দেশের ফতোয়া বিভাগ বা সরকারি কর্তৃপক্ষ এটি ঘোষণা করে। মূল্য দিয়ে আদায় করা হানাফি মাজহাবের মত; আর অধিকাংশ আলেমের মতে খাদ্য দিয়ে আদায় করতে হবে।</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">যাকাতুল ফিতরের পরিমাণ</div>
+      <div class="big-number" id="fr-total">2.5 <small>কেজি</small></div>
+      <span class="badge ok" id="fr-sub">একজনের পক্ষ থেকে</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>আদায়ের সময়:</strong> ঈদের নামাজের আগে; এক বা দুই দিন আগে আদায় করাও জায়েজ, তবে ওজর ছাড়া ঈদের নামাজের পর পর্যন্ত বিলম্ব করা জায়েজ নয়।</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">শেয়ার করুন</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

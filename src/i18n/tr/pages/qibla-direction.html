@@ -1,0 +1,40 @@
+<!--META
+{"title": "Bulunduğunuz Yerden Kıble Yönü: Elektronik Kıble Pusulası", "h1": "Kıble Yönü", "description": "Mobilde etkileşimli kıble pusulasıyla dünyanın her yerinden kıble yönünü hassas biçimde belirleyin; kuzeyden kıble açısı ve Kâbe-i Müşerrefe'ye olan mesafeyle.", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "Kıble Yönü", "lead": "Kıble açısını öğrenmek için konumunuzu kullanın veya şehrinizi seçin; mobilde altın ok parlayana kadar telefonunuzu çevirin.", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">K</span><span class="cardinal e">D</span><span class="cardinal s">G</span><span class="cardinal w">B</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="Kâbe"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">Pusulanın telefonunuzun yönüyle dönmesi için mobilde «Pusulayı etkinleştir»e dokunun</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 Pusulayı etkinleştir</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 Konumumu kullan</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Coğrafi kuzeyden kıble açısı</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">veya bir şehir seçin</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>Konumunuz</span><span id="qb-loc">—</span></li>
+      <li><span>Kâbe'ye mesafe</span><span id="qb-dist">—</span></li>
+      <li><span>Telefonun şu anki yönü</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>Telefonunuzu elektronik cihazlardan ve metallerden uzak tutun; ölçüm kararsız görünürse pusulayı kalibre etmek için telefonu 8 rakamı çizecek şekilde hareket ettirin.</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

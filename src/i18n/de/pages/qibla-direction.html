@@ -1,0 +1,40 @@
+<!--META
+{"title": "Qibla-Richtung von deinem Standort: digitaler Qibla-Kompass", "h1": "Qibla-Richtung", "description": "Bestimme die Qibla-Richtung genau von jedem Ort der Welt mit dem interaktiven Qibla-Kompass auf dem Smartphone – mit dem Qibla-Winkel ab Norden und der Entfernung zur ehrwürdigen Kaaba.", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "Qibla-Richtung", "lead": "Nutze deinen Standort oder wähle deine Stadt, um den Qibla-Winkel zu erfahren; auf dem Smartphone drehst du dein Gerät, bis der goldene Pfeil aufleuchtet.", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">N</span><span class="cardinal e">O</span><span class="cardinal s">S</span><span class="cardinal w">W</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="Kaaba"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">Tippe auf dem Smartphone auf „Kompass aktivieren“, damit sich der Kompass mit der Ausrichtung deines Geräts dreht</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 Kompass aktivieren</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 Meinen Standort nutzen</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Qibla-Winkel ab geografischem Norden</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">Oder wähle eine Stadt</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>Dein Standort</span><span id="qb-loc">—</span></li>
+      <li><span>Entfernung zur Kaaba</span><span id="qb-dist">—</span></li>
+      <li><span>Aktuelle Ausrichtung des Geräts</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>Halte dein Smartphone fern von Geräten und Metallen; wirkt die Anzeige unruhig, bewege das Gerät in Form einer 8, um den Kompass zu kalibrieren.</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

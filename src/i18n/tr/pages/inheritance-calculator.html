@@ -1,0 +1,61 @@
+<!--META
+{"title": "Dinî Miras Hesaplayıcı: Terekeyi Ferâiz İlmine Göre Paylaştırma", "h1": "Miras Hesaplayıcı", "description": "Hassas dinî miras hesaplayıcı: mirasçıları ve tereke değerini girin; her mirasçının payını kesir, yüzde ve tutar olarak, hacb, meselenin aslı, avl ve redd açıklamalarıyla öğrenin.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Miras Hesaplayıcı", "lead": "Vefat edenin cinsiyetini seçin, tereke değerini ve hayattaki mirasçıları girin; ferâiz ilminin kurallarına göre ayrıntılı bir taksim elde edin.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Vefat eden ve tereke</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Yeni mesele başlat</button>
+      </div>
+      <div class="field">
+        <span class="label">Vefat edenin cinsiyeti</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Erkek</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Kadın</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Toplam tereke</label><input id="inh-estate" inputmode="decimal" placeholder="Örnek: 600000"></div>
+        <div class="field"><label for="inh-funeral">Teçhiz ve defin masrafları</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Vefat edenin borçları</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Vasiyet (mirasçı olmayana)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Mirasçıların izni olmadıkça borçlardan sonra kalanın üçte birini aşamaz.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Taksim edilebilir net tereke</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Mesele özeti</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Mirasçı ekleyin</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Taksimi görmek için listeden mirasçıları seçin.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Vefat anında hayatta olan mirasçılar</h2><span class="muted" style="font-size:.9rem">Mirasçı eklemek için + düğmesine basın</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Taksimin ayrıntısı</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Paylaş</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Yazdır</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Mirasçı</th><th>Sayı</th><th>Miras türü</th><th>Pay</th><th>Sehim</th><th>Yüzde</th><th>Tutar</th><th>Kişi başı</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Bu sonuç cumhurun görüşüne dayanan yol gösterici bir sonuçtur; özellikle ihtilaf bulunan, vasiyet içeren veya zevi'l-erhâm mirasçıların bulunduğu meselelerde yetkili mahkemeye veya ferâiz alanında uzman bir âlime başvurmanın yerini tutmaz.</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

@@ -1,0 +1,74 @@
+<!--META
+{"title": "Калькулятор закята аль-фитр: сколько с каждого человека в килограммах и деньгах", "h1": "Калькулятор закята аль-фитр", "description": "Рассчитайте закят аль-фитр за всех членов семьи в килограммах риса, пшеницы или фиников либо в денежном эквиваленте, с разъяснением его норм, времени выплаты и получателей.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Закят аль-фитр", "lead": "Укажите число членов семьи и вид продукта или стоимость — и сразу узнайте размер обязательного закята аль-фитр.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Данные семьи</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">За скольких человек вы платите (включая себя)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Уменьшить">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Увеличить">+</button>
+        </div>
+        <span class="hint">Включая вас, вашу жену, детей и тех, кого вы обязаны содержать.</span>
+      </div>
+      <div class="field">
+        <span class="label">Способ выплаты</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Продукты (са‘)</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Деньгами</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Вид продукта и вес са‘</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Вид продукта</label>
+          <select id="fr-type">
+            <option value="2.5">Рис — около 2,5 кг</option>
+            <option value="3">Рис (с запасом) — 3 кг</option>
+            <option value="2.04">Пшеница — около 2,04 кг</option>
+            <option value="2.5">Финики — около 2,5 кг</option>
+            <option value="2.2">Ячмень — около 2,2 кг</option>
+            <option value="custom">Другая мера…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Вес са‘ в килограммах</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">кг</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Цена за килограмм (необязательно)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">за кг</span></div>
+          <span class="hint">Чтобы узнать примерную стоимость покупки.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Денежный эквивалент</p>
+      <div class="field">
+        <label for="fr-value">Размер закята аль-фитр с человека</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="Например: 35"><span class="unit">с человека</span></div>
+        <span class="hint">Ежегодно объявляется муфтиятом или официальным органом вашей страны. Выплата деньгами — мнение ханафитов, а большинство учёных считают, что выплачивать нужно продуктами.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Размер закята аль-фитр</div>
+      <div class="big-number" id="fr-total">2.5 <small>кг</small></div>
+      <span class="badge ok" id="fr-sub">за одного человека</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Время выплаты:</strong> до праздничного намаза; допустимо выплатить за день или два до него, но откладывать на время после праздничного намаза без уважительной причины нельзя.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Поделиться</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

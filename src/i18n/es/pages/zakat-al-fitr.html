@@ -1,0 +1,74 @@
+<!--META
+{"title": "Calculadora de zakat al-fitr: cuánto es por persona en kilos y en valor", "h1": "Calculadora de zakat al-fitr", "description": "Calcula el zakat al-fitr de todos los miembros de tu familia en kilogramos de arroz, trigo o dátiles, o en valor monetario, con la explicación de sus normas, el momento de entregarlo y quiénes tienen derecho a recibirlo.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Zakat al-fitr", "lead": "Indica el número de miembros de tu familia y el tipo de alimento o el valor, y conoce al instante la cantidad de zakat al-fitr obligatoria.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Datos de la familia</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Número de personas por las que pagas (incluido tú)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Disminuir">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Aumentar">+</button>
+        </div>
+        <span class="hint">Incluye a ti mismo, a tu esposa, a tus hijos y a quienes tienes la obligación de mantener.</span>
+      </div>
+      <div class="field">
+        <span class="label">Forma de pago</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Alimento (sa')</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Valor monetario</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Tipo de alimento y cantidad del sa'</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Tipo de alimento</label>
+          <select id="fr-type">
+            <option value="2.5">Arroz — unos 2.5 kg</option>
+            <option value="3">Arroz (por precaución) — 3 kg</option>
+            <option value="2.04">Trigo — unos 2.04 kg</option>
+            <option value="2.5">Dátiles — unos 2.5 kg</option>
+            <option value="2.2">Cebada — unos 2.2 kg</option>
+            <option value="custom">Otra cantidad…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Peso del sa' en kilogramos</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">kg</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Precio del kilogramo (opcional)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">/kg</span></div>
+          <span class="hint">Para conocer el coste aproximado de la compra.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Valor monetario</p>
+      <div class="field">
+        <label for="fr-value">Valor del zakat al-fitr por persona</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="Ejemplo: 35"><span class="unit">/persona</span></div>
+        <span class="hint">Lo anuncia cada año el organismo de fatwa o la autoridad oficial de tu país. Pagar en valor es la opinión de los hanafíes; la mayoría de los sabios sostiene que se entrega en alimento.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Cantidad de zakat al-fitr</div>
+      <div class="big-number" id="fr-total">2.5 <small>kg</small></div>
+      <span class="badge ok" id="fr-sub">por una persona</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Momento de entrega:</strong> antes de la oración del Eid; se permite adelantarlo uno o dos días, y no se permite retrasarlo después de la oración del Eid sin excusa.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Compartir</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

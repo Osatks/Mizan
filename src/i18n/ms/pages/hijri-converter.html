@@ -1,0 +1,51 @@
+<!--META
+{"title": "Penukar Tarikh Hijrah dan Masihi mengikut Kalendar Umm al-Qura", "h1": "Penukar Tarikh Hijrah", "description": "Tukar tarikh Hijrah kepada Masihi dan Masihi kepada Hijrah serta-merta mengikut kalendar Umm al-Qura, dengan kalendar bulanan berganda yang memaparkan kedua-dua tarikh serta hari ini.", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "Tarikh Hijrah", "lead": "Penukaran serta-merta dan tepat antara kedua-dua tarikh, dengan kalendar bulanan yang memaparkan Hijrah dan Masihi bersebelahan.", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Tukar tarikh</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">Masihi → Hijrah</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">Hijrah → Masihi</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">Hari</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">Bulan</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">Tahun</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">Hari</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">Bulan</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">Tahun</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">Tarikh hari ini</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">Salin keputusan</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">Tarikh Hijrah yang sepadan</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="Bulan sebelumnya">←</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="Bulan seterusnya">→</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">Nombor besar ialah hari Hijrah, dan nombor kecil ialah hari Masihi. Tekan mana-mana hari untuk menukarnya.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

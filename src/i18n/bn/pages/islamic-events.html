@@ -1,0 +1,24 @@
+<!--META
+{"title": "রমজান ও ঈদ আসতে আর কত দিন? ইসলামি উপলক্ষসমূহের কাউন্টডাউন", "h1": "ইসলামি উপলক্ষসমূহ", "description": "রমজান মাস, ঈদুল ফিতর, আরাফার দিন, ঈদুল আজহা, হিজরি নববর্ষ, আশুরা ও আইয়ামে বিযের সরাসরি কাউন্টডাউন, সঙ্গে প্রত্যাশিত হিজরি ও খ্রিস্টীয় তারিখ।", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "ইসলামি উপলক্ষসমূহ", "lead": "রমজান, দুই ঈদ ও গুরুত্বপূর্ণ ইসলামি মৌসুমগুলো আসতে আর কত দিন বাকি তা জানুন, সঙ্গে প্রতিটি উপলক্ষের প্রত্যাশিত খ্রিস্টীয় তারিখ।", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">কাউন্টডাউন</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>দিন</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>ঘণ্টা</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>মিনিট</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>সেকেন্ড</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">কাউন্টডাউন শেয়ার করুন</button></div>
+  </section>
+
+  <div class="section-title"><h2>আসন্ন উপলক্ষসমূহ</h2><span class="muted" style="font-size:.9rem">কোনো উপলক্ষের কাউন্টডাউন দেখতে তাতে চাপ দিন</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">তারিখগুলো উম্মুল কুরা ক্যালেন্ডার অনুযায়ী হিসাব করা; আপনার দেশে স্বীকৃত চাঁদ দেখার ভিত্তিতে এক দিন আগে-পরে হতে পারে।</p>
+</div>
+
+<!--INCLUDE content/events.html-->

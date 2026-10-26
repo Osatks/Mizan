@@ -1,0 +1,74 @@
+<!--META
+{"title": "Пітір садақасы калькуляторы: әр адамға килограммен және құнымен қанша", "h1": "Пітір садақасы калькуляторы", "description": "Отбасыңыздың барлық мүшелері үшін пітір садақасын күріш, бидай немесе құрма килограмымен не ақшалай құнымен есептеңіз; оның үкімдері, беру уақыты және алушылары түсіндіріледі.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Пітір садақасы", "lead": "Отбасы мүшелерінің санын және тамақ түрін немесе құнын көрсетіңіз — міндетті пітір садақасының мөлшерін лезде білесіз.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Отбасы деректері</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Кімдер үшін беріледі, саны (өзіңізбен қоса)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Азайту">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Көбейту">+</button>
+        </div>
+        <span class="hint">Өзіңіз, жұбайыңыз, балаларыңыз және нафақасы сізге міндетті адамдар кіреді.</span>
+      </div>
+      <div class="field">
+        <span class="label">Беру тәсілі</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Тамақ (са')</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Ақшалай құны</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Тамақ түрі және са' мөлшері</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Тамақ түрі</label>
+          <select id="fr-type">
+            <option value="2.5">Күріш — шамамен 2.5 кг</option>
+            <option value="3">Күріш (сақтық үшін) — 3 кг</option>
+            <option value="2.04">Бидай — шамамен 2.04 кг</option>
+            <option value="2.5">Құрма — шамамен 2.5 кг</option>
+            <option value="2.2">Арпа — шамамен 2.2 кг</option>
+            <option value="custom">Басқа мөлшер…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Са' салмағы килограммен</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">кг</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Бір килограмм бағасы (міндетті емес)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">/кг</span></div>
+          <span class="hint">Сатып алудың шамамен құнын білу үшін.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Ақшалай құны</p>
+      <div class="field">
+        <label for="fr-value">Бір адамға пітір садақасының құны</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="Мысалы: 35"><span class="unit">/адам</span></div>
+        <span class="hint">Оны жыл сайын еліңіздің муфтияты немесе ресми мекемесі жариялайды. Құнымен беру — ханафилердің көзқарасы, ал көпшілік ғалымдар тамақпен беруді жақтайды.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Пітір садақасының мөлшері</div>
+      <div class="big-number" id="fr-total">2.5 <small>кг</small></div>
+      <span class="badge ok" id="fr-sub">бір адам үшін</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Беру уақыты:</strong> айт намазынан бұрын; бір-екі күн ерте беруге болады, ал себепсіз айт намазынан кейінге қалдыруға болмайды.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Бөлісу</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

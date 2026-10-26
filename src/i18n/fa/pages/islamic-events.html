@@ -1,0 +1,24 @@
+<!--META
+{"title": "چقدر تا رمضان و عید مانده؟ شمارش معکوس مناسبت‌های اسلامی", "h1": "مناسبت‌های اسلامی", "description": "شمارش معکوس زنده برای ماه رمضان، عید فطر، روز عرفه، عید قربان، آغاز سال هجری قمری، عاشورا و ایام البیض، همراه با تاریخ‌های هجری قمری و میلادی پیش‌بینی‌شده آن‌ها.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "مناسبت‌های اسلامی", "lead": "بدانید چند روز تا رمضان، دو عید و مهم‌ترین مناسبت‌های اسلامی مانده است، همراه با تاریخ میلادی پیش‌بینی‌شده هر مناسبت.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">شمارش معکوس تا</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>روز</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>ساعت</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>دقیقه</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>ثانیه</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">اشتراک‌گذاری شمارش معکوس</button></div>
+  </section>
+
+  <div class="section-title"><h2>مناسبت‌های پیش رو</h2><span class="muted" style="font-size:.9rem">برای نمایش شمارش معکوس هر مناسبت روی آن بزنید</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">تاریخ‌ها بر اساس تقویم ام‌القری محاسبه شده‌اند و ممکن است بسته به رؤیت هلال معتبر در کشور شما یک روز تفاوت داشته باشند.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

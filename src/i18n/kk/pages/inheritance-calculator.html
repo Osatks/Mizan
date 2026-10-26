@@ -1,0 +1,61 @@
+<!--META
+{"title": "Шариғи мирас калькуляторы: мұраны фараиз ілімі бойынша бөлу", "h1": "Мирас калькуляторы", "description": "Дәл шариғи мирас калькуляторы: мұрагерлер мен мұра құнын енгізіп, әр мұрагердің үлесін бөлшек, пайыз және сома түрінде біліңіз; хажб, мәселенің негізі, ‘аул және радд көрсетіледі.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Мирас калькуляторы", "lead": "Марқұмның жынысын таңдап, мұра құнын және тірі мұрагерлерді енгізіңіз — фараиз ілімінің ережелері бойынша егжей-тегжейлі бөлу аласыз.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Марқұм және мұра</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Жаңа мәселе бастау</button>
+      </div>
+      <div class="field">
+        <span class="label">Марқұмның жынысы</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Ер</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Әйел</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Мұраның жалпы құны</label><input id="inh-estate" inputmode="decimal" placeholder="Мысалы: 600000"></div>
+        <div class="field"><label for="inh-funeral">Жаназа және жерлеу шығындары</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Марқұмның қарыздары</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Өсиет (мұрагер еместерге)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Мұрагерлердің рұқсатынсыз қарыздардан кейін қалғанның үштен бірінен аспайды.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Бөлуге жататын таза мұра</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Мәселенің қысқаша мазмұны</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Мұрагерлерді қосыңыз</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Бөлуді көру үшін тізімнен мұрагерлерді таңдаңыз.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Қайтыс болған сәтте тірі мұрагерлер</h2><span class="muted" style="font-size:.9rem">Мұрагер қосу үшін + басыңыз</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Бөлудің толық мәліметі</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Бөлісу</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Басып шығару</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Мұрагер</th><th>Саны</th><th>Мирас түрі</th><th>Үлесі</th><th>Сәһмдер</th><th>Пайызы</th><th>Сомасы</th><th>Бір адамға</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Бұл нәтиже ғалымдардың басым көпшілігінің мәзһабына негізделген бағдар ғана; ол шариғи сотқа немесе фараиз маманы ғалымға жүгінудің орнын баспайды, әсіресе пікір айырмашылығы, өсиеттер немесе зәуил-архам мұрагерлері бар мәселелерде.</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

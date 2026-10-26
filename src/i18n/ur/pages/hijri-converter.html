@@ -1,0 +1,51 @@
+<!--META
+{"title": "ام القریٰ کیلنڈر کے مطابق ہجری اور عیسوی تاریخ کنورٹر", "h1": "ہجری تاریخ کنورٹر", "description": "ام القریٰ کیلنڈر کے مطابق ہجری تاریخ کو عیسوی میں اور عیسوی کو ہجری میں فوراً تبدیل کریں، ایک دوہرے ماہانہ کیلنڈر کے ساتھ جو دونوں تاریخیں اور آج کا دن ایک ساتھ دکھاتا ہے۔", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "ہجری تاریخ", "lead": "دونوں تاریخوں کے درمیان فوری اور درست تبدیلی، ایک ماہانہ کیلنڈر کے ساتھ جو ہجری اور عیسوی کو ساتھ ساتھ دکھاتا ہے۔", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>تاریخ کی تبدیلی</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">عیسوی ← ہجری</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">ہجری ← عیسوی</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">دن</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">مہینہ</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">سال</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">دن</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">مہینہ</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">سال</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">آج کی تاریخ</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">نتیجہ کاپی کریں</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">مطابق ہجری تاریخ</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="پچھلا مہینہ">→</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="اگلا مہینہ">←</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">بڑا عدد ہجری دن ہے اور چھوٹا عدد عیسوی دن۔ کسی بھی دن پر ٹیپ کر کے اسے تبدیل کریں۔</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

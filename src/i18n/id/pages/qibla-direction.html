@@ -1,0 +1,40 @@
+<!--META
+{"title": "Arah Kiblat dari Lokasi Anda Sekarang: Kompas Kiblat Digital", "h1": "Arah Kiblat", "description": "Tentukan arah kiblat secara akurat dari mana pun di dunia melalui kompas kiblat interaktif di ponsel, dengan sudut kiblat dari utara dan jarak ke Ka'bah.", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "Arah Kiblat", "lead": "Gunakan lokasi Anda atau pilih kota Anda untuk mengetahui sudut kiblat; di ponsel, arahkan ponsel Anda hingga panah emas menyala.", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">U</span><span class="cardinal e">T</span><span class="cardinal s">S</span><span class="cardinal w">B</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="Ka'bah"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">Tekan "Aktifkan kompas" di ponsel untuk memutar kompas mengikuti arah ponsel Anda</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 Aktifkan kompas</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 Gunakan lokasi saya</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Sudut kiblat dari utara geografis</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">Atau pilih kota</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>Lokasi Anda</span><span id="qb-loc">—</span></li>
+      <li><span>Jarak ke Ka'bah</span><span id="qb-dist">—</span></li>
+      <li><span>Arah ponsel saat ini</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>Jauhkan ponsel Anda dari perangkat elektronik dan logam; jika pembacaan tampak tidak stabil, gerakkan ponsel membentuk angka 8 untuk mengkalibrasi kompas.</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

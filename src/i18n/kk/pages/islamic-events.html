@@ -1,0 +1,24 @@
+<!--META
+{"title": "Рамазан мен айтқа қанша қалды? Исламдық мерекелерге кері санақ", "h1": "Исламдық мерекелер", "description": "Рамазан айына, Ораза айтқа, Арафа күніне, Құрбан айтқа, хижра жаңа жылына, Ашура күніне және ақ күндерге тікелей кері санақ, олардың болжамды хижра және милади күндерімен.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Исламдық мерекелер", "lead": "Рамазанға, екі айтқа және маңызды исламдық маусымдарға қанша күн қалғанын, әр мерекенің болжамды милади күнімен біліңіз.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Кері санақ:</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>күн</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>сағат</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>минут</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>секунд</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Кері санақпен бөлісу</button></div>
+  </section>
+
+  <div class="section-title"><h2>Алдағы мерекелер</h2><span class="muted" style="font-size:.9rem">Кері санағын көру үшін кез келген мерекені басыңыз</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Күндер Умм әл-Құра күнтізбесі бойынша есептелген; еліңізде қабылданған жаңа айды көру тәртібіне байланысты бір күнге өзгеруі мүмкін.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

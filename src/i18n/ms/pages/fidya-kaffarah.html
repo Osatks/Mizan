@@ -1,0 +1,67 @@
+<!--META
+{"title": "Kalkulator Fidyah Puasa, Kaffarah Sumpah dan Kaffarah Berbuka di Bulan Ramadan", "h1": "Kalkulator Fidyah dan Kaffarah", "description": "Kira fidyah puasa bagi orang sakit dan warga emas, kaffarah sumpah dengan memberi makan sepuluh orang miskin, dan kaffarah jimak pada siang hari Ramadan, dalam kilogram atau nilai wang berserta tarikh tamat puasa dua bulan.", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "Fidyah dan Kaffarah", "lead": "Pilih jenis fidyah atau kaffarah dan masukkan butiran, untuk mengetahui kadar makanan dalam kilogram dan anggaran nilainya.", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">Fidyah puasa</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">Kaffarah sumpah</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">Kaffarah jimak di bulan Ramadan</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">Bagi orang yang tidak mampu berpuasa secara kekal seperti warga emas dan pesakit yang tiada harapan sembuh: memberi makan seorang miskin bagi setiap hari.</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">Bilangan hari</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="Kurangkan">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="Tambah">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 hari</button><button type="button" class="chip" data-days="30">30 hari</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">Bagi orang yang melanggar sumpahnya: memberi makan sepuluh orang miskin, atau memberi mereka pakaian, atau memerdekakan seorang hamba; jika tidak mampu, maka berpuasa tiga hari.</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">Bilangan kaffarah (sumpah yang berbeza)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="Kurangkan">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="Tambah">+</button></div>
+        <span class="hint">Jika sumpah diulang atas satu perkara yang sama sebelum membayar kaffarah, maka dia wajib membayar satu kaffarah sahaja menurut jumhur.</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">Mengikut tertib: memerdekakan seorang hamba; jika tidak mampu, berpuasa dua bulan berturut-turut; jika tidak mampu, memberi makan enam puluh orang miskin.</p>
+      <div class="field">
+        <label for="fd-start">Tarikh mula puasa dua bulan (untuk mengira tarikh tamat)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">Kadar makanan bagi setiap orang miskin</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">Kadar</label>
+          <select id="fd-measure">
+            <option value="0.75">Satu cupak (mudd) — kira-kira 0.75 kg (Maliki dan Syafie)</option>
+            <option value="1.5">Setengah gantang (sa') — kira-kira 1.5 kg (fatwa semasa)</option>
+            <option value="custom">Kadar lain…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">Kadar dalam kilogram</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">kg</span></div></div>
+        <div class="field"><label for="fd-price">Harga sekilogram atau nilai satu hidangan (pilihan)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">Jenis harga</label><select id="fd-price-type"><option value="kg">Harga sekilogram</option><option value="meal">Nilai satu hidangan lengkap</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">Yang wajib dikeluarkan</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

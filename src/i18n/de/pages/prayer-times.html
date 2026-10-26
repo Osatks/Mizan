@@ -1,0 +1,57 @@
+<!--META
+{"title": "Genaue Gebetszeiten heute für deine Stadt mit Countdown", "h1": "Gebetszeiten", "description": "Genaue Gebetszeiten heute für jede Stadt der Welt: Fadschr, Sonnenaufgang, Dhuhr, Asr, Maghrib und Ischa – mit Countdown bis zum nächsten Gebet, Monatsplan und mehreren Berechnungsmethoden.", "path": "/prayer-times/", "type": "tool", "nav": "prayer", "breadcrumb": "Gebetszeiten", "lead": "Wähle deine Stadt oder nutze deinen aktuellen Standort, um die genauen Gebetszeiten und die verbleibende Zeit bis zum nächsten Gebet anzuzeigen.", "date": "2026-10-15", "scripts": ["praytimes.js", "prayer.js"]}
+-->
+<div class="tool-layout" id="prayer-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2 id="pt-city-title">Gebetszeiten</h2>
+      <button type="button" class="btn sm" id="pt-gps">📍 Meinen Standort nutzen</button>
+    </div>
+    <div class="field"><label for="pt-city">Stadt</label><select id="pt-city"></select></div>
+    <details class="settings-panel">
+      <summary>⚙️ Berechnungseinstellungen</summary>
+      <div class="form-grid">
+        <div class="field"><label for="pt-method">Berechnungsmethode</label><select id="pt-method"></select></div>
+        <div class="field"><label for="pt-asr">Rechtsschule für die Asr-Berechnung</label><select id="pt-asr"><option value="std">Mehrheit (Schatten gleich der Objektlänge)</option><option value="hanafi">Hanafitisch (Schatten doppelt so lang wie das Objekt)</option></select></div>
+        <div class="field"><label for="pt-fmt">Zeitformat</label><select id="pt-fmt"><option value="12">12 Stunden</option><option value="24">24 Stunden</option></select></div>
+      </div>
+    </details>
+    <p class="loc-line" id="pt-loc" style="margin:14px 0 0"></p>
+
+    <div class="cal-nav" style="margin-top:22px">
+      <button type="button" class="icon-btn" id="pt-prev" aria-label="Vorheriger Tag">←</button>
+      <h3 id="pt-date" style="font-size:1.1rem;text-align:center"></h3>
+      <button type="button" class="icon-btn" id="pt-next" aria-label="Nächster Tag">→</button>
+    </div>
+    <ul class="prayer-list" id="pt-list"></ul>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="pt-today">Heute</button>
+      <button type="button" class="btn ghost sm" id="pt-month-btn">Monatsplan anzeigen</button>
+    </div>
+  </section>
+
+  <aside class="result-card">
+    <div class="prayer-next pattern-bg" aria-live="polite">
+      <div class="label">Nächstes Gebet</div>
+      <div class="name" id="pt-next-name">—</div>
+      <div class="countdown" id="pt-countdown">--:--:--</div>
+      <div id="pt-next-time" style="opacity:.85"></div>
+    </div>
+    <div class="card">
+      <ul class="stat-list">
+        <li><span>Hidschri-Datum</span><span data-today-hijri></span></li>
+        <li><span>Religiöse Mitternacht</span><span id="pt-midnight">—</span></li>
+        <li><span>Letztes Drittel der Nacht</span><span id="pt-lastthird">—</span></li>
+        <li><span>Qibla-Richtung</span><span id="pt-qibla">—</span></li>
+      </ul>
+      <p class="muted" style="font-size:.85rem;margin:12px 0 0">Die Zeiten können wegen lokal üblicher Sicherheitszuschläge um ein bis zwei Minuten vom offiziellen Kalender in deinem Land abweichen.</p>
+    </div>
+  </aside>
+</div>
+
+<section class="card" id="pt-month" hidden>
+  <div class="tool-head"><h2 id="pt-month-title">Monatsplan</h2><button type="button" class="btn ghost sm" onclick="print()">Plan drucken</button></div>
+  <div class="table-wrap"><table><thead><tr><th>Tag</th><th>Datum</th><th>Hidschri</th><th>Fadschr</th><th>Sonnenaufgang</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Ischa</th></tr></thead><tbody id="pt-month-body"></tbody></table></div>
+</section>
+
+<!--INCLUDE content/prayer.html-->

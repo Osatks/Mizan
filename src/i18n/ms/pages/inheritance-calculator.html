@@ -1,0 +1,61 @@
+<!--META
+{"title": "Kalkulator Faraid: Pembahagian Harta Pusaka mengikut Ilmu Faraid", "h1": "Kalkulator Faraid", "description": "Kalkulator faraid yang tepat: masukkan waris dan nilai harta pusaka untuk mengetahui bahagian setiap waris dalam bentuk pecahan, peratusan dan jumlah, berserta penjelasan hijab, asal masalah, 'aul dan radd.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Kalkulator Faraid", "lead": "Pilih jantina si mati, masukkan nilai harta pusaka dan waris yang masih hidup, dan anda akan mendapat pembahagian terperinci mengikut kaedah ilmu faraid.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Si mati dan harta pusaka</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Mulakan masalah baharu</button>
+      </div>
+      <div class="field">
+        <span class="label">Jantina si mati</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Lelaki</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Perempuan</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Jumlah harta pusaka</label><input id="inh-estate" inputmode="decimal" placeholder="Contoh: 600000"></div>
+        <div class="field"><label for="inh-funeral">Kos pengurusan jenazah dan pengebumian</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Hutang si mati</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Wasiat (kepada bukan waris)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Tidak melebihi satu pertiga daripada baki selepas hutang kecuali dengan persetujuan waris.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Harta pusaka bersih yang boleh dibahagikan</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Ringkasan masalah</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Tambah waris</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Pilih waris daripada senarai untuk memaparkan pembahagian.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Waris yang masih hidup semasa kematian</h2><span class="muted" style="font-size:.9rem">Tekan + untuk menambah waris</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Butiran pembahagian</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Kongsi</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Cetak</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Waris</th><th>Bilangan</th><th>Jenis pusaka</th><th>Bahagian</th><th>Saham</th><th>Peratusan</th><th>Jumlah</th><th>Setiap orang</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Keputusan ini ialah panduan berdasarkan mazhab jumhur, dan tidak menggantikan rujukan kepada mahkamah syariah atau alim yang pakar dalam faraid, terutamanya dalam masalah yang terdapat khilaf, wasiat atau waris daripada kalangan dzawil arham.</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

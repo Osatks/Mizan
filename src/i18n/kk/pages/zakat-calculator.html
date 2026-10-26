@@ -1,0 +1,115 @@
+<!--META
+{"title": "Зекет калькуляторы 2026: ақша, алтын және акциялар зекетін дәл есептеңіз", "h1": "Зекет калькуляторы", "description": "Тегін әрі дәл зекет калькуляторы: қолма-қол ақша, банк шоттары, алтын, күміс, акциялар және сауда тауарларының зекетін нисапты есептеп, қарыздарды шегере отырып лезде есептеңіз.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "Зекет калькуляторы", "lead": "Мал-мүлкіңізді және алтынның ағымдағы бағасын енгізіңіз — нисапқа жеткеніңізді және міндетті зекетіңіздің мөлшерін лезде білесіз.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">Мал-мүлкіңіз туралы деректер</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">Деректерді тазалау</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">Валюта</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">Сауд риялы</option><option value="&#1583;.&#1573;">БАӘ дирхамы</option><option value="&#1583;.&#1603;">Кувейт динары</option>
+          <option value="&#1585;.&#1602;">Катар риялы</option><option value="&#1583;.&#1576;">Бахрейн динары</option><option value="&#1585;.&#1593;">Оман риялы</option>
+          <option value="&#1580;.&#1605;">Мысыр фунты</option><option value="&#1583;.&#1571;">Иордания динары</option><option value="&#1583;.&#1593;">Ирак динары</option>
+          <option value="&#1583;.&#1605;">Марокко дирхамы</option><option value="&#1583;.&#1580;">Алжир динары</option><option value="&#1583;.&#1578;">Тунис динары</option>
+          <option value="&#1604;.&#1604;">Ливан фунты</option><option value="&#1604;.&#1587;">Сирия фунты</option><option value="&#1585;.&#1610;">Йемен риялы</option>
+          <option value="&#1580;.&#1587;">Судан фунты</option><option value="&#1583;.&#1604;">Ливия динары</option><option value="$">АҚШ доллары</option><option value="€">Еуро</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">Ақша үшін қабылданған нисап</label>
+        <select id="zk-basis">
+          <option value="gold">Алтын нисабы (85 грамм)</option>
+          <option value="silver">Күміс нисабы (595 грамм)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Бүгінгі бағалар</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">24 сынамалы алтынның бір грамм бағасы</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="Мысалы: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">Еліңіздегі зергерлік дүкеннен немесе сенімді баға сайтынан.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">Күмістің бір грамм бағасы (міндетті емес)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="Мысалы: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">Күміс нисабын таңдасаңыз немесе күмісіңіз болса қажет.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> Ақша және шоттағы қаражат</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">Қолдағы қолма-қол ақша</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">Банк шоттары мен әмияндардағы қаражат</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">Қайтарылатыны күтілетін сізге берілетін қарыздар</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">Басқа қаражат (жинақ топтары, пайда…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> Алтын мен күміс (граммен)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">24 сынамалы алтын</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">грамм</span></div></div>
+        <div class="field"><label for="zk-g22">22 сынамалы алтын</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">грамм</span></div></div>
+        <div class="field"><label for="zk-g21">21 сынамалы алтын</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">грамм</span></div></div>
+        <div class="field"><label for="zk-g18">18 сынамалы алтын</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">грамм</span></div></div>
+        <div class="field"><label for="zk-silver">Таза күміс</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">грамм</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> Тағылып жүрген әшекейлерді есепке қосу (ханафилердің көзқарасы әрі сақтыққа жақын)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">Оның ішінде тағылып жүрген әшекейлер (грамм, 21 сынамаға балама)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">грамм</span></div>
+        <span class="hint">Тағуға арналған әшекейге зекет жоқ деген көпшілік ғалымдардың көзқарасы бойынша бұл салмақ есептен шығарылады.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Инвестиция және сауда</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">Саудаға арналған акциялар (нарықтық құны)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">Ұзақ мерзімді инвестицияға арналған акциялар (зекеттік база)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Білсеңіз, компанияның зекетке жататын активтеріндегі сіздің үлесіңіз.</span></div>
+        <div class="field"><label for="zk-goods">Сауда тауарлары (тауар құны)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> Шегерілетіндер</p>
+      <div class="field"><label for="zk-debts">Мерзімі жеткен қарыздарыңыз (биыл төленуі тиіс)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Тек хауль ішінде төленетін бөліктер, ұзақ мерзімді несиенің толық сомасы емес.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Міндетті зекет</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">Алтын бағасын және мал-мүлкіңізді енгізіңіз</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>Зекетке жататын мүліктің жалпы құны</span><span id="zk-total">0</span></li>
+      <li><span>Шегерілген қарыздар</span><span id="zk-debts-out">0</span></li>
+      <li><span>Таза зекеттік база</span><span id="zk-net">0</span></li>
+      <li><span>Нисап құны</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">Базаның нисапқа қатынасы</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">Нәтижемен бөлісу</button>
+      <button type="button" class="btn ghost" onclick="print()">Басып шығару</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Деректеріңіз тек құрылғыңызда сақталады. Зекет мөлшері — база нисапқа жетіп, үстінен бір хижра жылы (хауль) өтсе, таза базаның 2.5%-ы.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

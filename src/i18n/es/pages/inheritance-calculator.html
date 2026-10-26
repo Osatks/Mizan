@@ -1,0 +1,61 @@
+<!--META
+{"title": "Calculadora de herencia islámica: reparto de la herencia según la ciencia de los faraid", "h1": "Calculadora de herencia", "description": "Calculadora de herencia islámica precisa: introduce los herederos y el valor de la herencia para saber la parte de cada heredero en fracción, porcentaje e importe, con la exclusión (hajb), la base del caso, el 'awl y el radd.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Calculadora de herencia", "lead": "Elige el sexo del fallecido, introduce el valor de la herencia y los herederos vivos, y obtendrás un reparto detallado según las reglas de la ciencia de los faraid.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>El fallecido y la herencia</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Empezar un caso nuevo</button>
+      </div>
+      <div class="field">
+        <span class="label">Sexo del fallecido</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Hombre</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Mujer</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Total de la herencia</label><input id="inh-estate" inputmode="decimal" placeholder="Ejemplo: 600000"></div>
+        <div class="field"><label for="inh-funeral">Gastos de preparación y entierro</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Deudas del fallecido</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Legado (wasiyya, a un no heredero)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">No puede superar un tercio de lo que queda tras pagar las deudas, salvo con la autorización de los herederos.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Herencia neta a repartir</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Resumen del caso</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Añade los herederos</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Elige los herederos de la lista para ver el reparto.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Herederos vivos en el momento del fallecimiento</h2><span class="muted" style="font-size:.9rem">Pulsa + para añadir un heredero</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Detalle del reparto</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Compartir</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Imprimir</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Heredero</th><th>Número</th><th>Tipo de herencia</th><th>Parte</th><th>Partes (sihām)</th><th>Porcentaje</th><th>Importe</th><th>Por persona</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Este resultado es orientativo y se basa en la opinión de la mayoría de los sabios; no sustituye la consulta al tribunal islámico o a un sabio especializado en faraid, sobre todo en los casos en los que hay diferencia de opinión, legados o herederos del grupo de los dhawu al-arham (parientes uterinos).</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

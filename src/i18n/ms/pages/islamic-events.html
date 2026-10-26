@@ -1,0 +1,24 @@
+<!--META
+{"title": "Berapa lama lagi Ramadan dan Hari Raya? Kiraan detik peristiwa Islam", "h1": "Peristiwa Islam", "description": "Kiraan detik secara langsung ke bulan Ramadan, Hari Raya Aidilfitri, Hari Arafah, Hari Raya Aidiladha, Tahun Baharu Hijrah, Asyura dan Hari-hari Putih (Ayyamul Bidh), berserta jangkaan tarikh Hijrah dan Masihinya.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Peristiwa Islam", "lead": "Ketahui berapa hari lagi ke Ramadan, dua Hari Raya dan musim-musim Islam yang penting, berserta jangkaan tarikh Masihi bagi setiap peristiwa.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Kiraan detik ke</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>hari</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>jam</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>minit</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>saat</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Kongsi kiraan detik</button></div>
+  </section>
+
+  <div class="section-title"><h2>Peristiwa akan datang</h2><span class="muted" style="font-size:.9rem">Tekan mana-mana peristiwa untuk memaparkan kiraan detiknya</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Tarikh dikira mengikut kalendar Umm al-Qura, dan mungkin berbeza sehari bergantung pada rukyah hilal yang diguna pakai di negara anda.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

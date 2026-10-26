@@ -1,0 +1,44 @@
+<!--META
+{"title": "Kalkulator Usia Hijriah dan Masehi yang Akurat (Tahun, Bulan, dan Hari)", "h1": "Kalkulator Usia", "description": "Hitung usia Anda dalam kalender Hijriah dan Masehi dalam tahun, bulan, dan hari; ketahui hari kelahiran Anda, tanggal Hijriahnya, jumlah hari yang telah Anda jalani, dan sisa hari menuju ulang tahun berikutnya.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Kalkulator Usia", "lead": "Masukkan tanggal lahir Anda dalam Hijriah atau Masehi, lalu ketahui usia tepat Anda pada kedua kalender beserta statistik menarik tentang hidup Anda.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Tanggal lahir</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Masehi</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">Hijriah</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">Hari</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Bulan</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Tahun</label><input id="age-y" type="number" inputmode="numeric" placeholder="Contoh: 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Hitung usia pada tanggal (Masehi)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Biarkan pada tanggal hari ini, atau ubah untuk mengetahui usia Anda pada tanggal tertentu.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Statistik tentang usia Anda</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Usia Anda dalam kalender Masehi</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Usia Anda dalam kalender Hijriah</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Bagikan</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

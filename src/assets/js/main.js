@@ -1,3 +1,15 @@
+/* الترجمة: النص العربي مفتاحُ الترجمة. يحقن build.py قاموس اللغة في window.MIZAN_T، ويعيد t النص العربي نفسه إن لم توجد ترجمة */
+(function () {
+  const T = window.MIZAN_T || {};
+  window.t = function (s, v) {
+    let r = Object.prototype.hasOwnProperty.call(T, s) && T[s] ? T[s] : s;
+    // «النص|سياق»: السياق يميّز المعاني المختلفة للنص العربي نفسه ولا يُعرض
+    if (r === s) r = s.replace(/\|.*$/, "");
+    if (v) r = r.replace(/\{(\w+)\}/g, (m, k) => (Object.prototype.hasOwnProperty.call(v, k) ? v[k] : m));
+    return r;
+  };
+})();
+
 /* ميزان — سكربت عام لكل الصفحات */
 (function () {
   "use strict";
@@ -9,7 +21,7 @@
     del(k) { try { localStorage.removeItem("mizan:" + k); } catch (e) {} }
   };
 
-  const nf = (opts) => new Intl.NumberFormat("ar-EG-u-nu-latn", opts);
+  const nf = (opts) => new Intl.NumberFormat(document.documentElement.dataset.locale || "ar-EG-u-nu-latn", opts);
   const fmt = (n, d = 2) => nf({ maximumFractionDigits: d, minimumFractionDigits: 0 }).format(n);
   const money = (n, cur) => fmt(n, 2) + (cur ? " " + cur : "");
   const num = (el) => {
@@ -20,9 +32,9 @@
   };
 
   /* ---------- التقويم الهجري (أم القرى عبر Intl) ---------- */
-  const HIJRI_MONTHS = ["محرم", "صفر", "ربيع الأول", "ربيع الآخر", "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان", "رمضان", "شوال", "ذو القعدة", "ذو الحجة"];
-  const GREG_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-  const WEEKDAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  const HIJRI_MONTHS = [t("محرم"), t("صفر"), t("ربيع الأول"), t("ربيع الآخر"), t("جمادى الأولى"), t("جمادى الآخرة"), t("رجب"), t("شعبان"), t("رمضان"), t("شوال"), t("ذو القعدة"), t("ذو الحجة")];
+  const GREG_MONTHS = [t("يناير"), t("فبراير"), t("مارس"), t("أبريل"), t("مايو"), t("يونيو"), t("يوليو"), t("أغسطس"), t("سبتمبر"), t("أكتوبر"), t("نوفمبر"), t("ديسمبر")];
+  const WEEKDAYS = [t("الأحد"), t("الاثنين"), t("الثلاثاء"), t("الأربعاء"), t("الخميس"), t("الجمعة"), t("السبت")];
   let hijriFmt = null;
   try {
     hijriFmt = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", { day: "numeric", month: "numeric", year: "numeric", timeZone: "UTC" });
@@ -80,8 +92,8 @@
     return Math.round((b - a) / 86400000);
   }
 
-  const hijriStr = (h) => `${h.d} ${HIJRI_MONTHS[h.m - 1]} ${h.y} هـ`;
-  const gregStr = (g) => `${g.getDate()} ${GREG_MONTHS[g.getMonth()]} ${g.getFullYear()} م`;
+  const hijriStr = (h) => t("{d} {month} {y} هـ", { d: h.d, month: HIJRI_MONTHS[h.m - 1], y: h.y });
+  const gregStr = (g) => t("{d} {month} {y} م", { d: g.getDate(), month: GREG_MONTHS[g.getMonth()], y: g.getFullYear() });
 
   function toast(msg) {
     let t = document.querySelector(".toast");
@@ -97,7 +109,7 @@
     try {
       if (navigator.share) { await navigator.share({ title, text, url }); return; }
       await navigator.clipboard.writeText(text + "\n" + url);
-      toast("تم نسخ النتيجة ✓");
+      toast(t("تم نسخ النتيجة ✓"));
     } catch (e) {}
   }
 
@@ -180,7 +192,7 @@
       b.setAttribute("aria-checked", on);
       b.classList.toggle("active", on);
     });
-    let activeName = "زمردي";
+    let activeName = t("زمردي");
     ap.querySelectorAll(".sw[data-accent]").forEach((b) => {
       const on = b.dataset.accent === acc;
       b.setAttribute("aria-checked", on);
@@ -388,7 +400,7 @@
     const status = cf.querySelector(".form-status");
     const name = cf.name.value.trim(), email = cf.email.value.trim(), msg = cf.message.value.trim();
     if (!name || !/^\S+@\S+\.\S+$/.test(email) || msg.length < 10) {
-      status.textContent = "يرجى تعبئة الاسم وبريد صحيح ورسالة لا تقل عن 10 أحرف.";
+      status.textContent = t("يرجى تعبئة الاسم وبريد صحيح ورسالة لا تقل عن 10 أحرف.");
       status.style.color = "var(--danger)";
       return;
     }
@@ -396,7 +408,7 @@
     const subject = encodeURIComponent(cf.subject.value + " - " + name);
     const body = encodeURIComponent(msg + "\n\n—\n" + name + "\n" + email);
     location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-    status.textContent = "تم فتح برنامج البريد لديك لإرسال الرسالة. شكراً لتواصلك!";
+    status.textContent = t("تم فتح برنامج البريد لديك لإرسال الرسالة. شكراً لتواصلك!");
     status.style.color = "var(--primary)";
   });
 
@@ -415,11 +427,11 @@
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") { installBtn.hidden = true; toast("تم تثبيت التطبيق ✓"); }
+    if (outcome === "accepted") { installBtn.hidden = true; toast(t("تم تثبيت التطبيق ✓")); }
     deferredPrompt = null;
   });
   addEventListener("appinstalled", () => { if (installBtn) installBtn.hidden = true; });
-  addEventListener("offline", () => toast("أنت غير متصل — التطبيق يعمل من النسخة المحفوظة"));
+  addEventListener("offline", () => toast(t("أنت غير متصل — التطبيق يعمل من النسخة المحفوظة")));
 
   // أزرار + / − في حقول العدد
   document.addEventListener("click", (e) => {
@@ -453,9 +465,9 @@
   var bar = document.createElement("div");
   bar.className = "app-banner";
   bar.innerHTML = '<img src="/assets/img/icon-192.png" alt="">' +
-    '<div><b>تطبيق ميزان</b><small>مجاني على Google Play</small></div>' +
-    '<a class="btn sm" href="https://play.google.com/store/apps/details?id=com.mizan.almuslim" target="_blank" rel="noopener">تثبيت</a>' +
-    '<button type="button" class="close" aria-label="إغلاق">×</button>';
+    '<div><b>' + t("تطبيق ميزان") + '</b><small>' + t("مجاني على Google Play") + '</small></div>' +
+    '<a class="btn sm" href="https://play.google.com/store/apps/details?id=com.mizan.almuslim" target="_blank" rel="noopener">' + t("تثبيت") + '</a>' +
+    '<button type="button" class="close" aria-label="' + t("إغلاق") + '">×</button>';
   header.after(bar);
   bar.querySelector(".close").addEventListener("click", function () {
     bar.remove();

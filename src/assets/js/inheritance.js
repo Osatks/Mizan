@@ -21,34 +21,34 @@
 
   /* ---------- تعريف الورثة ---------- */
   const HEIRS = [
-    { g: "الزوجان" },
-    { k: "husband", n: "الزوج", max: 1, only: "f" },
-    { k: "wife", n: "الزوجة", max: 4, only: "m" },
-    { g: "الأصول" },
-    { k: "father", n: "الأب", max: 1 },
-    { k: "mother", n: "الأم", max: 1 },
-    { k: "gf", n: "الجد (أبو الأب)", max: 1 },
-    { k: "gmm", n: "الجدة (أم الأم)", max: 1 },
-    { k: "gmf", n: "الجدة (أم الأب)", max: 1 },
-    { g: "الفروع" },
-    { k: "son", n: "الابن", max: 30 },
-    { k: "daughter", n: "البنت", max: 30 },
-    { k: "gson", n: "ابن الابن", max: 30 },
-    { k: "gdau", n: "بنت الابن", max: 30 },
-    { g: "الإخوة والأخوات" },
-    { k: "fb", n: "الأخ الشقيق", max: 30 },
-    { k: "fs", n: "الأخت الشقيقة", max: 30 },
-    { k: "pb", n: "الأخ لأب", max: 30 },
-    { k: "ps", n: "الأخت لأب", max: 30 },
-    { k: "mb", n: "الأخ لأم", max: 30 },
-    { k: "ms", n: "الأخت لأم", max: 30 },
-    { g: "الحواشي (العصبات البعيدة)" },
-    { k: "fnep", n: "ابن الأخ الشقيق", max: 30 },
-    { k: "pnep", n: "ابن الأخ لأب", max: 30 },
-    { k: "fun", n: "العم الشقيق", max: 30 },
-    { k: "pun", n: "العم لأب", max: 30 },
-    { k: "fcous", n: "ابن العم الشقيق", max: 30 },
-    { k: "pcous", n: "ابن العم لأب", max: 30 },
+    { g: t("الزوجان") },
+    { k: "husband", n: t("الزوج"), max: 1, only: "f" },
+    { k: "wife", n: t("الزوجة"), max: 4, only: "m" },
+    { g: t("الأصول") },
+    { k: "father", n: t("الأب"), max: 1 },
+    { k: "mother", n: t("الأم"), max: 1 },
+    { k: "gf", n: t("الجد (أبو الأب)"), max: 1 },
+    { k: "gmm", n: t("الجدة (أم الأم)"), max: 1 },
+    { k: "gmf", n: t("الجدة (أم الأب)"), max: 1 },
+    { g: t("الفروع") },
+    { k: "son", n: t("الابن"), max: 30 },
+    { k: "daughter", n: t("البنت"), max: 30 },
+    { k: "gson", n: t("ابن الابن"), max: 30 },
+    { k: "gdau", n: t("بنت الابن"), max: 30 },
+    { g: t("الإخوة والأخوات") },
+    { k: "fb", n: t("الأخ الشقيق"), max: 30 },
+    { k: "fs", n: t("الأخت الشقيقة"), max: 30 },
+    { k: "pb", n: t("الأخ لأب"), max: 30 },
+    { k: "ps", n: t("الأخت لأب"), max: 30 },
+    { k: "mb", n: t("الأخ لأم"), max: 30 },
+    { k: "ms", n: t("الأخت لأم"), max: 30 },
+    { g: t("الحواشي (العصبات البعيدة)") },
+    { k: "fnep", n: t("ابن الأخ الشقيق"), max: 30 },
+    { k: "pnep", n: t("ابن الأخ لأب"), max: 30 },
+    { k: "fun", n: t("العم الشقيق"), max: 30 },
+    { k: "pun", n: t("العم لأب"), max: 30 },
+    { k: "fcous", n: t("ابن العم الشقيق"), max: 30 },
+    { k: "pcous", n: t("ابن العم لأب"), max: 30 },
   ];
   const NAME = Object.fromEntries(HEIRS.filter((h) => h.k).map((h) => [h.k, h.n]));
   const COLORS = ["var(--primary)", "var(--gold)", "#2f7fb5", "#b4412f", "#7a52b3", "#2e9e74", "#d07a2b", "#4b6b8a", "#a0527a", "#5c8f2e"];
@@ -69,8 +69,8 @@
     // الفروع
     const son = cnt("son"), dau = cnt("daughter");
     let gson = cnt("gson"), gdau = cnt("gdau");
-    if (son) { block("gson", "الابن"); block("gdau", "الابن"); gson = 0; gdau = 0; }
-    if (!son && dau >= 2 && gdau && !gson) { block("gdau", "البنتين (استكمال الثلثين)"); gdau = 0; }
+    if (son) { block("gson", t("الابن")); block("gdau", t("الابن")); gson = 0; gdau = 0; }
+    if (!son && dau >= 2 && gdau && !gson) { block("gdau", t("البنتين (استكمال الثلثين)")); gdau = 0; }
     const maleDesc = son > 0 || gson > 0;
     const femDesc = dau > 0 || gdau > 0;
     const desc = maleDesc || femDesc;
@@ -78,10 +78,10 @@
     // الأصول
     const father = cnt("father"), mother = cnt("mother");
     let gf = cnt("gf");
-    if (father && gf) { block("gf", "الأب"); gf = 0; }
+    if (father && gf) { block("gf", t("الأب")); gf = 0; }
     let gmm = cnt("gmm"), gmf = cnt("gmf");
-    if (mother) { block("gmm", "الأم"); block("gmf", "الأم"); gmm = gmf = 0; }
-    if (father && gmf) { block("gmf", "الأب"); gmf = 0; }
+    if (mother) { block("gmm", t("الأم")); block("gmf", t("الأم")); gmm = gmf = 0; }
+    if (father && gmf) { block("gmf", t("الأب")); gmf = 0; }
 
     const sibAll = cnt("fb") + cnt("fs") + cnt("pb") + cnt("ps") + cnt("mb") + cnt("ms");
     const spouseK = gender === "m" ? "wife" : "husband";
@@ -91,33 +91,33 @@
     if (spouse) {
       if (gender === "f") { fard.husband = desc ? new F(1, 4) : new F(1, 2); }
       else { fard.wife = desc ? new F(1, 8) : new F(1, 4); }
-      label[spouseK] = "فرض";
+      label[spouseK] = t("فرض");
     }
 
     // الإخوة لأم
     const matN = cnt("mb") + cnt("ms");
     if (matN) {
-      const by = desc ? "الفرع الوارث" : father ? "الأب" : gf ? "الجد" : null;
+      const by = desc ? t("الفرع الوارث") : father ? t("الأب") : gf ? t("الجد") : null;
       if (by) { block("mb", by); block("ms", by); }
       else {
         const total = matN === 1 ? new F(1, 6) : new F(1, 3);
-        if (cnt("mb")) { fard.mb = total.mul(cnt("mb")).div(matN); label.mb = "فرض"; }
-        if (cnt("ms")) { fard.ms = total.mul(cnt("ms")).div(matN); label.ms = "فرض"; }
-        if (matN > 1) notes.push("الإخوة لأم يشتركون في الثلث بالتساوي بين الذكر والأنثى.");
+        if (cnt("mb")) { fard.mb = total.mul(cnt("mb")).div(matN); label.mb = t("فرض"); }
+        if (cnt("ms")) { fard.ms = total.mul(cnt("ms")).div(matN); label.ms = t("فرض"); }
+        if (matN > 1) notes.push(t("الإخوة لأم يشتركون في الثلث بالتساوي بين الذكر والأنثى."));
       }
     }
 
     // الإخوة الأشقاء ولأب
     let fb = cnt("fb"), fs = cnt("fs"), pb = cnt("pb"), ps = cnt("ps");
-    const sibBlocker = son ? "الابن" : gson ? "ابن الابن" : father ? "الأب" : null;
+    const sibBlocker = son ? t("الابن") : gson ? t("ابن الابن") : father ? t("الأب") : null;
     if (sibBlocker) { ["fb", "fs", "pb", "ps"].forEach((k) => block(k, sibBlocker)); fb = fs = pb = ps = 0; }
     const jaddMode = gf && (fb + fs + pb + ps) > 0;
 
     // البنات وبنات الابن
-    if (dau && !son) { fard.daughter = dau === 1 ? new F(1, 2) : new F(2, 3); label.daughter = "فرض"; }
+    if (dau && !son) { fard.daughter = dau === 1 ? new F(1, 2) : new F(2, 3); label.daughter = t("فرض"); }
     if (gdau && !gson) {
-      if (!dau) { fard.gdau = gdau === 1 ? new F(1, 2) : new F(2, 3); label.gdau = "فرض"; }
-      else if (dau === 1) { fard.gdau = new F(1, 6); label.gdau = "فرض (تكملة الثلثين)"; }
+      if (!dau) { fard.gdau = gdau === 1 ? new F(1, 2) : new F(2, 3); label.gdau = t("فرض"); }
+      else if (dau === 1) { fard.gdau = new F(1, 6); label.gdau = t("فرض (تكملة الثلثين)"); }
     }
 
     // الأم والجدات
@@ -127,41 +127,41 @@
       else if (spouse && father && present.every((k) => ["husband", "wife", "father", "mother"].includes(k) || res[k]?.blocked)) {
         umariyya = true;
         fard.mother = ONE.sub(fard[spouseK]).div(3);
-        notes.push("هذه إحدى المسألتين العُمَريّتين (الغرّاوين): للأم ثلث الباقي بعد نصيب الزوج أو الزوجة.");
+        notes.push(t("هذه إحدى المسألتين العُمَريّتين (الغرّاوين): للأم ثلث الباقي بعد نصيب الزوج أو الزوجة."));
       } else fard.mother = new F(1, 3);
-      label.mother = "فرض";
+      label.mother = t("فرض");
     }
     if (gmm || gmf) {
       const n = gmm + gmf, sixth = new F(1, 6);
-      if (gmm) { fard.gmm = sixth.div(n); label.gmm = "فرض"; }
-      if (gmf) { fard.gmf = sixth.div(n); label.gmf = "فرض"; }
-      if (n > 1) notes.push("الجدتان تشتركان في السدس.");
+      if (gmm) { fard.gmm = sixth.div(n); label.gmm = t("فرض"); }
+      if (gmf) { fard.gmf = sixth.div(n); label.gmf = t("فرض"); }
+      if (n > 1) notes.push(t("الجدتان تشتركان في السدس."));
     }
 
     // الأب والجد
     if (father) {
-      if (maleDesc) { fard.father = new F(1, 6); label.father = "فرض"; }
-      else if (femDesc) { fard.father = new F(1, 6); label.father = "فرض وتعصيب"; }
+      if (maleDesc) { fard.father = new F(1, 6); label.father = t("فرض"); }
+      else if (femDesc) { fard.father = new F(1, 6); label.father = t("فرض وتعصيب"); }
     }
     if (gf && !jaddMode) {
-      if (maleDesc) { fard.gf = new F(1, 6); label.gf = "فرض"; }
-      else if (femDesc) { fard.gf = new F(1, 6); label.gf = "فرض وتعصيب"; }
+      if (maleDesc) { fard.gf = new F(1, 6); label.gf = t("فرض"); }
+      else if (femDesc) { fard.gf = new F(1, 6); label.gf = t("فرض وتعصيب"); }
     }
 
     // الأخوات (خارج باب الجد)
     let fsAsabaGhayr = false, psAsabaGhayr = false;
     if (!jaddMode) {
       if (fs && !fb) {
-        if (femDesc) { fsAsabaGhayr = true; notes.push("الأخوات الشقيقات مع البنات عصبة مع الغير."); }
-        else { fard.fs = fs === 1 ? new F(1, 2) : new F(2, 3); label.fs = "فرض"; }
+        if (femDesc) { fsAsabaGhayr = true; notes.push(t("الأخوات الشقيقات مع البنات عصبة مع الغير.")); }
+        else { fard.fs = fs === 1 ? new F(1, 2) : new F(2, 3); label.fs = t("فرض"); }
       }
-      if (fb) { block("pb", "الأخ الشقيق"); block("ps", "الأخ الشقيق"); pb = ps = 0; }
-      else if (fsAsabaGhayr) { block("pb", "الأخت الشقيقة (عصبة مع الغير)"); block("ps", "الأخت الشقيقة (عصبة مع الغير)"); pb = ps = 0; }
+      if (fb) { block("pb", t("الأخ الشقيق")); block("ps", t("الأخ الشقيق")); pb = ps = 0; }
+      else if (fsAsabaGhayr) { block("pb", t("الأخت الشقيقة (عصبة مع الغير)")); block("ps", t("الأخت الشقيقة (عصبة مع الغير)")); pb = ps = 0; }
       if (ps && !pb) {
         if (femDesc && !fs) { psAsabaGhayr = true; }
-        else if (!fs) { fard.ps = ps === 1 ? new F(1, 2) : new F(2, 3); label.ps = "فرض"; }
-        else if (fs === 1) { fard.ps = new F(1, 6); label.ps = "فرض (تكملة الثلثين)"; }
-        else { block("ps", "الأختين الشقيقتين"); ps = 0; }
+        else if (!fs) { fard.ps = ps === 1 ? new F(1, 2) : new F(2, 3); label.ps = t("فرض"); }
+        else if (fs === 1) { fard.ps = new F(1, 6); label.ps = t("فرض (تكملة الثلثين)"); }
+        else { block("ps", t("الأختين الشقيقتين")); ps = 0; }
       }
     }
 
@@ -173,11 +173,11 @@
         onlyKeys(["husband", "mother", "gf", "fs", "ps"])) {
       const sk = fs ? "fs" : "ps";
       const out = {
-        husband: { share: new F(9, 27), type: "فرض" }, mother: { share: new F(6, 27), type: "فرض" },
-        gf: { share: new F(8, 27), type: "فرض ثم مقاسمة" }, [sk]: { share: new F(4, 27), type: "فرض ثم مقاسمة" },
+        husband: { share: new F(9, 27), type: t("فرض") }, mother: { share: new F(6, 27), type: t("فرض") },
+        gf: { share: new F(8, 27), type: t("فرض ثم مقاسمة") }, [sk]: { share: new F(4, 27), type: t("فرض ثم مقاسمة") },
       };
       Object.assign(res, out);
-      notes.push("هذه المسألة الأكدرية: يُفرض للأخت النصف وللجد السدس فتعول إلى 9، ثم يُجمع نصيبهما ويُقسم للذكر مثل حظ الأنثيين فتصح من 27.");
+      notes.push(t("هذه المسألة الأكدرية: يُفرض للأخت النصف وللجد السدس فتعول إلى 9، ثم يُجمع نصيبهما ويُقسم للذكر مثل حظ الأنثيين فتصح من 27."));
       return { res, notes, asl: 6, awl: 9, tashih: 27, radd: false };
     }
 
@@ -191,18 +191,18 @@
       let gfShare, how;
       if (!otherFard) {
         const third = new F(1, 3);
-        gfShare = max(muq, third); how = gfShare === muq ? "المقاسمة" : "ثلث المال";
+        gfShare = max(muq, third); how = gfShare === muq ? t("المقاسمة") : t("ثلث المال");
       } else {
         const sixth = new F(1, 6), thirdRem = rem.cmp(Z) > 0 ? rem.div(3) : Z;
         gfShare = max(sixth, thirdRem, muq);
-        how = gfShare === muq ? "المقاسمة" : gfShare === sixth ? "سدس المال" : "ثلث الباقي";
+        how = gfShare === muq ? t("المقاسمة") : gfShare === sixth ? t("سدس المال") : t("ثلث الباقي");
       }
-      res.gf = { share: gfShare, type: "مع الإخوة: " + how };
+      res.gf = { share: gfShare, type: t("مع الإخوة: {how}", { how }) };
       fardSum = fardSum.add(gfShare);
       let sibRem = ONE.sub(fardSum);
       if (sibRem.cmp(Z) < 0) sibRem = Z;
-      notes.push(`الجد مع الإخوة يأخذ الأحظّ له من: المقاسمة، أو ${otherFard ? "ثلث الباقي، أو سدس المال" : "ثلث المال"} — وهو قول الجمهور (المالكية والشافعية والحنابلة)، أما أبو حنيفة فيرى أن الجد يحجب الإخوة كالأب.`);
-      if (hasFull && (pb + ps)) notes.push("الإخوة لأب عُدّوا على الجد في المقاسمة (المعادّة) ثم يُرد نصيبهم للأشقاء عند الحاجة.");
+      notes.push(otherFard ? t("الجد مع الإخوة يأخذ الأحظّ له من: المقاسمة، أو ثلث الباقي، أو سدس المال — وهو قول الجمهور (المالكية والشافعية والحنابلة)، أما أبو حنيفة فيرى أن الجد يحجب الإخوة كالأب.") : t("الجد مع الإخوة يأخذ الأحظّ له من: المقاسمة، أو ثلث المال — وهو قول الجمهور (المالكية والشافعية والحنابلة)، أما أبو حنيفة فيرى أن الجد يحجب الإخوة كالأب."));
+      if (hasFull && (pb + ps)) notes.push(t("الإخوة لأب عُدّوا على الجد في المقاسمة (المعادّة) ثم يُرد نصيبهم للأشقاء عند الحاجة."));
 
       const give = (bk, sk, b, s, amount, type) => {
         const u = b * 2 + s;
@@ -211,20 +211,20 @@
         if (s) res[sk] = { share: amount.mul(s).div(u), type };
       };
       if (fb) {
-        give("fb", "fs", fb, fs, sibRem, "تعصيب");
-        if (pb) res.pb = { blocked: "الأخ الشقيق (بعد المعادّة)" };
-        if (ps) res.ps = { blocked: "الأخ الشقيق (بعد المعادّة)" };
+        give("fb", "fs", fb, fs, sibRem, t("تعصيب"));
+        if (pb) res.pb = { blocked: t("الأخ الشقيق (بعد المعادّة)") };
+        if (ps) res.ps = { blocked: t("الأخ الشقيق (بعد المعادّة)") };
       } else if (fs) {
         if (pb + ps) {
           const cap = fs === 1 ? new F(1, 2) : new F(2, 3);
           const fsGet = sibRem.cmp(cap) > 0 ? cap : sibRem;
-          res.fs = { share: fsGet, type: "تعصيب مع الجد" };
+          res.fs = { share: fsGet, type: t("تعصيب مع الجد") };
           const left = sibRem.sub(fsGet);
-          if (left.cmp(Z) > 0) give("pb", "ps", pb, ps, left, "تعصيب");
-          else { if (pb) res.pb = { blocked: "استغراق الأخت الشقيقة للباقي" }; if (ps) res.ps = { blocked: "استغراق الأخت الشقيقة للباقي" }; }
-        } else give("fb", "fs", 0, fs, sibRem, "تعصيب مع الجد");
-      } else give("pb", "ps", pb, ps, sibRem, "تعصيب مع الجد");
-      ["fnep", "pnep", "fun", "pun", "fcous", "pcous"].forEach((k) => block(k, "الجد والإخوة"));
+          if (left.cmp(Z) > 0) give("pb", "ps", pb, ps, left, t("تعصيب"));
+          else { if (pb) res.pb = { blocked: t("استغراق الأخت الشقيقة للباقي") }; if (ps) res.ps = { blocked: t("استغراق الأخت الشقيقة للباقي") }; }
+        } else give("fb", "fs", 0, fs, sibRem, t("تعصيب مع الجد"));
+      } else give("pb", "ps", pb, ps, sibRem, t("تعصيب مع الجد"));
+      ["fnep", "pnep", "fun", "pun", "fcous", "pcous"].forEach((k) => block(k, t("الجد والإخوة")));
       fardSum = Object.values(fard).reduce((a, b) => a.add(b), Z).add(gfShare).add(sibRem.cmp(Z) > 0 ? sibRem : Z);
     }
 
@@ -235,20 +235,20 @@
     let asabaTaken = jaddMode;
     if (!jaddMode) {
       const order = [
-        ["son", "daughter", "الابن"],
-        ["gson", "gdau", "ابن الابن"],
-        ["father", null, "الأب"],
-        ["gf", null, "الجد"],
-        ["fb", "fs", "الأخ الشقيق"],
-        [null, "fs", "الأخت الشقيقة", "ghayr"],
-        ["pb", "ps", "الأخ لأب"],
-        [null, "ps", "الأخت لأب", "ghayr"],
-        ["fnep", null, "ابن الأخ الشقيق"],
-        ["pnep", null, "ابن الأخ لأب"],
-        ["fun", null, "العم الشقيق"],
-        ["pun", null, "العم لأب"],
-        ["fcous", null, "ابن العم الشقيق"],
-        ["pcous", null, "ابن العم لأب"],
+        ["son", "daughter", t("الابن")],
+        ["gson", "gdau", t("ابن الابن")],
+        ["father", null, t("الأب")],
+        ["gf", null, t("الجد")],
+        ["fb", "fs", t("الأخ الشقيق")],
+        [null, "fs", t("الأخت الشقيقة"), "ghayr"],
+        ["pb", "ps", t("الأخ لأب")],
+        [null, "ps", t("الأخت لأب"), "ghayr"],
+        ["fnep", null, t("ابن الأخ الشقيق")],
+        ["pnep", null, t("ابن الأخ لأب")],
+        ["fun", null, t("العم الشقيق")],
+        ["pun", null, t("العم لأب")],
+        ["fcous", null, t("ابن العم الشقيق")],
+        ["pcous", null, t("ابن العم لأب")],
       ];
       const counts = { son, daughter: dau, gson, gdau, father, gf, fb, fs, pb, ps };
       const live = (k) => (k in counts ? counts[k] : cnt(k)) > 0 && !res[k]?.blocked;
@@ -275,22 +275,22 @@
         const mC = winner.m ? (winner.m in counts ? counts[winner.m] : cnt(winner.m)) : 0;
         const fC = winner.f && !fard[winner.f] ? (winner.f in counts ? counts[winner.f] : cnt(winner.f)) : 0;
         const u = mC * 2 + fC;
-        const tLabel = winner.m ? "تعصيب" : "تعصيب مع الغير";
+        const tLabel = winner.m ? t("تعصيب") : t("تعصيب مع الغير");
         if (winner.m) {
           const s = r.mul(mC * 2).div(u);
-          res[winner.m] = { share: (fard[winner.m] || Z).add(s), type: fard[winner.m] ? label[winner.m] : (fC ? "تعصيب بالغير" : tLabel) };
+          res[winner.m] = { share: (fard[winner.m] || Z).add(s), type: fard[winner.m] ? label[winner.m] : (fC ? t("تعصيب بالغير") : tLabel) };
           if (fard[winner.m]) delete fard[winner.m];
         }
-        if (fC) res[winner.f] = { share: r.mul(fC).div(u), type: winner.m ? "تعصيب بالغير" : tLabel };
-        if (r.isZero() && (mC || fC)) notes.push(`لم يبقَ شيء بعد أصحاب الفروض، فلا شيء للعاصب (${winner.nm}).`);
+        if (fC) res[winner.f] = { share: r.mul(fC).div(u), type: winner.m ? t("تعصيب بالغير") : tLabel };
+        if (r.isZero() && (mC || fC)) notes.push(t("لم يبقَ شيء بعد أصحاب الفروض، فلا شيء للعاصب ({name}).", { name: winner.nm }));
         if (r.isZero() && winner.m === "fb" && matN >= 2 && spouse && (mother || gmm || gmf) && !desc && !father && !gf) {
-          notes.push("هذه المسألة المُشتَرَكة (الحِماريّة): ذهب المالكية والشافعية إلى تشريك الأشقاء مع الإخوة لأم في الثلث، والنتيجة هنا على قول الحنفية والحنابلة.");
+          notes.push(t("هذه المسألة المُشتَرَكة (الحِماريّة): ذهب المالكية والشافعية إلى تشريك الأشقاء مع الإخوة لأم في الثلث، والنتيجة هنا على قول الحنفية والحنابلة."));
         }
       }
     }
 
     /* --- تجميع الفروض --- */
-    for (const k in fard) if (!res[k]) res[k] = { share: fard[k], type: label[k] || "فرض" };
+    for (const k in fard) if (!res[k]) res[k] = { share: fard[k], type: label[k] || t("فرض") };
 
     // الأصل قبل العول/الرد
     let asl = 1;
@@ -302,23 +302,23 @@
     if (total.cmp(ONE) > 0) {
       awl = total.mul(asl).v;
       for (const k in res) if (res[k].share) res[k].share = res[k].share.div(total);
-      notes.push(`زادت الفروض على أصل المسألة فعالت من ${asl} إلى ${Math.round(awl)}، ونقص نصيب كل وارث بنسبة العول.`);
+      notes.push(t("زادت الفروض على أصل المسألة فعالت من {asl} إلى {awl}، ونقص نصيب كل وارث بنسبة العول.", { asl, awl: Math.round(awl) }));
     } else if (total.cmp(ONE) < 0 && !asabaTaken) {
       const nonSpouse = Object.keys(res).filter((k) => res[k].share && k !== "husband" && k !== "wife");
       const remain = ONE.sub(total);
       if (nonSpouse.length) {
         const base = nonSpouse.reduce((a, k) => a.add(res[k].share), Z);
-        nonSpouse.forEach((k) => { res[k].share = res[k].share.add(remain.mul(res[k].share).div(base)); res[k].type += " وردّ"; });
+        nonSpouse.forEach((k) => { res[k].share = res[k].share.add(remain.mul(res[k].share).div(base)); res[k].type = t("{type} وردّ", { type: res[k].type }); });
         radd = true;
-        notes.push("لا يوجد عاصب، فرُدّ الباقي على أصحاب الفروض بنسبة فروضهم عدا الزوجين.");
+        notes.push(t("لا يوجد عاصب، فرُدّ الباقي على أصحاب الفروض بنسبة فروضهم عدا الزوجين."));
       } else if (res[spouseK]?.share) {
-        res[spouseK].share = ONE; res[spouseK].type += " وردّ";
+        res[spouseK].share = ONE; res[spouseK].type = t("{type} وردّ", { type: res[spouseK].type });
         radd = true;
-        notes.push("لم يوجد وارث غير الزوج/الزوجة: الباقي يُرد عليه عند كثير من المعاصرين وفي عدد من قوانين الأحوال الشخصية، والأصل عند المتقدمين أنه لذوي الأرحام ثم لبيت المال.");
+        notes.push(t("لم يوجد وارث غير الزوج/الزوجة: الباقي يُرد عليه عند كثير من المعاصرين وفي عدد من قوانين الأحوال الشخصية، والأصل عند المتقدمين أنه لذوي الأرحام ثم لبيت المال."));
       }
     }
     if (!Object.values(res).some((r) => r.share && !r.share.isZero())) {
-      notes.push("لا يوجد وارث من أصحاب الفروض أو العصبات؛ تنتقل التركة إلى ذوي الأرحام ثم بيت المال، ويُرجع في ذلك للمحكمة المختصة.");
+      notes.push(t("لا يوجد وارث من أصحاب الفروض أو العصبات؛ تنتقل التركة إلى ذوي الأرحام ثم بيت المال، ويُرجع في ذلك للمحكمة المختصة."));
     }
 
     // التصحيح: مقام مشترك لأنصبة الأفراد
@@ -345,9 +345,9 @@
       if (h.only && h.only !== gender) return;
       const v = counts[h.k] || 0;
       html += `<div class="heir${v ? " on" : ""}" data-k="${h.k}"><span class="hname">${h.n}</span>
-        <span class="mini-stepper"><button type="button" data-d="-1" aria-label="إنقاص ${h.n}" ${v ? "" : "disabled"}>−</button>
+        <span class="mini-stepper"><button type="button" data-d="-1" aria-label="${t("إنقاص {name}", { name: h.n })}" ${v ? "" : "disabled"}>−</button>
         <output aria-live="polite">${v}</output>
-        <button type="button" data-d="1" aria-label="إضافة ${h.n}" ${v >= h.max ? "disabled" : ""}>+</button></span></div>`;
+        <button type="button" data-d="1" aria-label="${t("إضافة {name}", { name: h.n })}" ${v >= h.max ? "disabled" : ""}>+</button></span></div>`;
     });
     $("inh-heirs").innerHTML = html + "</div>";
   }
@@ -362,7 +362,7 @@
   function render() {
     $("inh-gender").querySelectorAll("button").forEach((b) => b.setAttribute("aria-selected", b.dataset.g === gender));
     const n = net();
-    $("inh-net").textContent = M.num($("inh-estate")) ? M.fmt(n.value) + (n.capped ? " (قُصرت الوصية على الثلث)" : "") : "—";
+    $("inh-net").textContent = M.num($("inh-estate")) ? (n.capped ? t("{amount} (قُصرت الوصية على الثلث)", { amount: M.fmt(n.value) }) : M.fmt(n.value)) : "—";
 
     const c = {};
     HEIRS.forEach((h) => { if (h.k && (!h.only || h.only === gender) && counts[h.k]) c[h.k] = counts[h.k]; });
@@ -372,15 +372,15 @@
     if (!out) {
       $("inh-result").hidden = true;
       $("inh-asl").textContent = "—";
-      $("inh-kind").className = "badge gold"; $("inh-kind").textContent = "أضف الورثة";
-      $("inh-bars").innerHTML = '<div class="empty-state"><p>اختر الورثة من القائمة لعرض التقسيم.</p></div>';
+      $("inh-kind").className = "badge gold"; $("inh-kind").textContent = t("أضف الورثة");
+      $("inh-bars").innerHTML = '<div class="empty-state"><p>' + t("اختر الورثة من القائمة لعرض التقسيم.") + '</p></div>';
       return;
     }
     const { res, notes, asl, awl, tashih, radd } = out;
     $("inh-result").hidden = false;
-    $("inh-asl").innerHTML = awl ? `${asl} <small>عالت إلى ${Math.round(awl)}</small>` : `${asl} <small>أصل المسألة</small>`;
+    $("inh-asl").innerHTML = awl ? `${asl} <small>${t("عالت إلى {n}", { n: Math.round(awl) })}</small>` : `${asl} <small>${t("أصل المسألة")}</small>`;
     $("inh-kind").className = "badge " + (awl ? "no" : radd ? "gold" : "ok");
-    $("inh-kind").textContent = awl ? "مسألة عائلة" : radd ? "مسألة فيها ردّ" : "مسألة عادلة";
+    $("inh-kind").textContent = awl ? t("مسألة عائلة") : radd ? t("مسألة فيها ردّ") : t("مسألة عادلة");
 
     const rows = [], bars = [];
     let ci = 0;
@@ -388,7 +388,7 @@
       const k = h.k; if (!k || !c[k]) return;
       const r = res[k] || { blocked: "—" };
       if (r.blocked) {
-        rows.push(`<tr class="blocked"><td>${NAME[k]}</td><td>${c[k]}</td><td>محجوب بـ${r.blocked}</td><td>—</td><td>0</td><td>0%</td><td>0</td><td>0</td></tr>`);
+        rows.push(`<tr class="blocked"><td>${NAME[k]}</td><td>${c[k]}</td><td>${t("محجوب بـ{by}", { by: r.blocked })}</td><td>—</td><td>0</td><td>0%</td><td>0</td><td>0</td></tr>`);
         return;
       }
       const s = r.share, per = s.div(c[k]);
@@ -399,10 +399,10 @@
       bars.push(`<div class="share-row"><div class="top"><span>${NAME[k]}${c[k] > 1 ? " ×" + c[k] : ""}</span><b>${M.fmt(pct, 1)}%${n.value ? " · " + M.fmt(amt) : ""}</b></div><div class="bar"><i style="width:${pct}%;background:${col}"></i></div></div>`);
     });
     $("inh-tbody").innerHTML = rows.join("");
-    $("inh-bars").innerHTML = bars.join("") || '<div class="empty-state"><p>لا يوجد وارث مستحق.</p></div>';
-    $("inh-notes").innerHTML = (tashih !== asl && !awl ? `<div class="note"><p>تصح المسألة من <b>${tashih}</b> سهماً (عمود السهام).</p></div>` : awl && tashih !== Math.round(awl) ? `<div class="note"><p>تصح المسألة من <b>${tashih}</b> سهماً.</p></div>` : "") +
+    $("inh-bars").innerHTML = bars.join("") || '<div class="empty-state"><p>' + t("لا يوجد وارث مستحق.") + '</p></div>';
+    $("inh-notes").innerHTML = (tashih !== asl && !awl ? `<div class="note"><p>${t("تصح المسألة من {n} سهماً (عمود السهام).", { n: `<b>${tashih}</b>` })}</p></div>` : awl && tashih !== Math.round(awl) ? `<div class="note"><p>${t("تصح المسألة من {n} سهماً.", { n: `<b>${tashih}</b>` })}</p></div>` : "") +
       notes.map((t) => `<div class="note"><p>${t}</p></div>`).join("");
-    app._summary = HEIRS.filter((h) => h.k && c[h.k] && res[h.k]?.share).map((h) => `${NAME[h.k]}: ${res[h.k].share} (${M.fmt(res[h.k].share.v * 100, 1)}%)`).join("، ");
+    app._summary = HEIRS.filter((h) => h.k && c[h.k] && res[h.k]?.share).map((h) => `${NAME[h.k]}: ${res[h.k].share} (${M.fmt(res[h.k].share.v * 100, 1)}%)`).join(t("، "));
   }
 
   $("inh-heirs").addEventListener("click", (e) => {
@@ -422,9 +422,9 @@
   $("inh-reset").addEventListener("click", () => {
     Object.keys(counts).forEach((k) => delete counts[k]);
     ["inh-estate", "inh-funeral", "inh-debts", "inh-will"].forEach((id) => ($(id).value = ""));
-    renderHeirs(); render(); M.toast("تم بدء مسألة جديدة");
+    renderHeirs(); render(); M.toast(t("تم بدء مسألة جديدة"));
   });
-  $("inh-share").addEventListener("click", () => M.share("تقسيم التركة", "تقسيم التركة: " + (app._summary || "") + " — عبر حاسبة المواريث في موقع ميزان"));
+  $("inh-share").addEventListener("click", () => M.share(t("تقسيم التركة"), t("تقسيم التركة: {summary} — عبر حاسبة المواريث في موقع ميزان", { summary: app._summary || "" })));
 
   window.__mizanSolve = solve; // للاختبار
   renderHeirs(); render();

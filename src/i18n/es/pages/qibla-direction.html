@@ -1,0 +1,40 @@
+<!--META
+{"title": "Dirección de la qibla desde tu ubicación: brújula de la qibla en línea", "h1": "Dirección de la qibla", "description": "Encuentra con precisión la dirección de la qibla desde cualquier lugar del mundo con la brújula interactiva en el móvil, junto con el ángulo de la qibla respecto al norte y la distancia a la Noble Kaaba.", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "Dirección de la qibla", "lead": "Usa tu ubicación o elige tu ciudad para conocer el ángulo de la qibla; en el móvil, orienta el teléfono hasta que se ilumine la flecha dorada.", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">N</span><span class="cardinal e">E</span><span class="cardinal s">S</span><span class="cardinal w">O</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="La Kaaba"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">Pulsa «Activar la brújula» en el móvil para que la brújula gire con la orientación de tu teléfono</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 Activar la brújula</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 Usar mi ubicación</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Ángulo de la qibla respecto al norte geográfico</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">O elige una ciudad</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>Tu ubicación</span><span id="qb-loc">—</span></li>
+      <li><span>Distancia a la Kaaba</span><span id="qb-dist">—</span></li>
+      <li><span>Orientación actual del teléfono</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>Aleja el teléfono de aparatos electrónicos y objetos metálicos; si la lectura parece inestable, mueve el teléfono trazando un 8 para calibrar la brújula.</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

@@ -1,0 +1,115 @@
+<!--META
+{"title": "Kalkulator Zakat 2026: Kira zakat wang, emas dan saham dengan tepat", "h1": "Kalkulator Zakat", "description": "Kalkulator zakat percuma dan tepat: kira zakat wang tunai, akaun bank, emas, perak, saham dan barang dagangan dengan pengiraan nisab dan penolakan hutang serta-merta.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "Kalkulator Zakat", "lead": "Masukkan harta anda dan harga emas semasa, dan anda akan tahu serta-merta sama ada ia mencapai nisab dan berapa zakat yang wajib anda bayar.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">Butiran harta anda</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">Kosongkan data</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">Mata wang</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">Riyal Saudi</option><option value="&#1583;.&#1573;">Dirham UAE</option><option value="&#1583;.&#1603;">Dinar Kuwait</option>
+          <option value="&#1585;.&#1602;">Riyal Qatar</option><option value="&#1583;.&#1576;">Dinar Bahrain</option><option value="&#1585;.&#1593;">Rial Oman</option>
+          <option value="&#1580;.&#1605;">Paun Mesir</option><option value="&#1583;.&#1571;">Dinar Jordan</option><option value="&#1583;.&#1593;">Dinar Iraq</option>
+          <option value="&#1583;.&#1605;">Dirham Maghribi</option><option value="&#1583;.&#1580;">Dinar Algeria</option><option value="&#1583;.&#1578;">Dinar Tunisia</option>
+          <option value="&#1604;.&#1604;">Paun Lubnan</option><option value="&#1604;.&#1587;">Paun Syria</option><option value="&#1585;.&#1610;">Rial Yaman</option>
+          <option value="&#1580;.&#1587;">Paun Sudan</option><option value="&#1583;.&#1604;">Dinar Libya</option><option value="$">Dolar AS</option><option value="€">Euro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">Nisab yang diguna pakai untuk wang</label>
+        <select id="zk-basis">
+          <option value="gold">Nisab emas (85 gram)</option>
+          <option value="silver">Nisab perak (595 gram)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Harga hari ini</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">Harga segram emas 24 karat</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="Contoh: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">Daripada kedai emas atau laman harga yang dipercayai di negara anda.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">Harga segram perak (pilihan)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="Contoh: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">Diperlukan jika anda memilih nisab perak atau memiliki perak.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> Wang tunai dan baki</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">Wang tunai di tangan</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">Baki bank dan dompet digital</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">Hutang orang kepada anda yang dijangka dibayar</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">Harta lain (kutu, keuntungan…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> Emas dan perak (dalam gram)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">Emas 24 karat</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-g22">Emas 22 karat</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-g21">Emas 21 karat</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-g18">Emas 18 karat</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-silver">Perak tulen</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> Masukkan barang kemas perhiasan yang dipakai dalam pengiraan (pendapat mazhab Hanafi, dan lebih berhati-hati)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">Daripadanya, barang kemas perhiasan yang dipakai (gram, setara 21 karat)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div>
+        <span class="hint">Berat ini akan dikecualikan daripada pengiraan mengikut pendapat jumhur bahawa barang kemas yang dipakai tidak dikenakan zakat.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Pelaburan dan perniagaan</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">Saham untuk dagangan (nilai pasaran)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">Saham pelaburan jangka panjang (asas zakat)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Bahagian anda daripada aset syarikat yang dikenakan zakat jika anda mengetahuinya.</span></div>
+        <div class="field"><label for="zk-goods">Barang dagangan (nilai stok)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> Yang ditolak</p>
+      <div class="field"><label for="zk-debts">Hutang anda yang sudah sampai tempoh (perlu dibayar tahun ini)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Ansuran yang perlu dibayar dalam tempoh haul sahaja, bukan keseluruhan pinjaman jangka panjang.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Zakat yang wajib</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">Masukkan harga emas dan harta anda</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>Jumlah harta yang dikenakan zakat</span><span id="zk-total">0</span></li>
+      <li><span>Hutang yang ditolak</span><span id="zk-debts-out">0</span></li>
+      <li><span>Asas zakat bersih</span><span id="zk-net">0</span></li>
+      <li><span>Nilai nisab</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">Nisbah asas zakat berbanding nisab</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">Kongsi keputusan</button>
+      <button type="button" class="btn ghost" onclick="print()">Cetak</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Data anda disimpan pada peranti anda sahaja. Kadar zakat ialah 2.5% daripada asas zakat bersih jika mencapai nisab dan cukup haul Hijrah.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

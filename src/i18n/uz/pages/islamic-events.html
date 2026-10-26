@@ -1,0 +1,24 @@
+<!--META
+{"title": "Ramazon va hayitgacha qancha qoldi? Islomiy sanalargacha qolgan vaqt", "h1": "Islomiy sanalar", "description": "Ramazon oyi, Ramazon hayiti, Arafa kuni, Qurbon hayiti, hijriy yangi yil, Ashuro va oq kunlargacha jonli ortga sanash — ularning taxminiy hijriy va milodiy sanalari bilan.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Islomiy sanalar", "lead": "Ramazon, ikki hayit va eng muhim islomiy mavsumlargacha necha kun qolganini har bir sananing taxminiy milodiy sanasi bilan bilib oling.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Qolgan vaqt:</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>kun</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>soat</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>daqiqa</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>soniya</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Ortga sanashni ulashish</button></div>
+  </section>
+
+  <div class="section-title"><h2>Yaqinlashayotgan sanalar</h2><span class="muted" style="font-size:.9rem">Ortga sanashni koʻrish uchun istalgan sanani bosing</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Sanalar Ummul-Quro taqvimi boʻyicha hisoblangan va mamlakatingizda qabul qilingan hilol koʻrishga qarab bir kunga farq qilishi mumkin.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

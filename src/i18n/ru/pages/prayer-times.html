@@ -1,0 +1,57 @@
+<!--META
+{"title": "Точное время намаза на сегодня для вашего города с обратным отсчётом", "h1": "Время намаза", "description": "Точное время намаза на сегодня для любого города мира: фаджр, восход, зухр, аср, магриб и иша — с обратным отсчётом до следующей молитвы, месячным расписанием и несколькими методами расчёта.", "path": "/prayer-times/", "type": "tool", "nav": "prayer", "breadcrumb": "Время намаза", "lead": "Выберите свой город или используйте текущее местоположение, чтобы увидеть точное время намаза и время, оставшееся до следующей молитвы.", "date": "2026-10-15", "scripts": ["praytimes.js", "prayer.js"]}
+-->
+<div class="tool-layout" id="prayer-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2 id="pt-city-title">Время намаза</h2>
+      <button type="button" class="btn sm" id="pt-gps">📍 Моё местоположение</button>
+    </div>
+    <div class="field"><label for="pt-city">Город</label><select id="pt-city"></select></div>
+    <details class="settings-panel">
+      <summary>⚙️ Настройки расчёта</summary>
+      <div class="form-grid">
+        <div class="field"><label for="pt-method">Метод расчёта</label><select id="pt-method"></select></div>
+        <div class="field"><label for="pt-asr">Мазхаб расчёта асра</label><select id="pt-asr"><option value="std">Большинство (тень равна предмету)</option><option value="hanafi">Ханафитский (тень вдвое больше предмета)</option></select></div>
+        <div class="field"><label for="pt-fmt">Формат времени</label><select id="pt-fmt"><option value="12">12 часов</option><option value="24">24 часа</option></select></div>
+      </div>
+    </details>
+    <p class="loc-line" id="pt-loc" style="margin:14px 0 0"></p>
+
+    <div class="cal-nav" style="margin-top:22px">
+      <button type="button" class="icon-btn" id="pt-prev" aria-label="Предыдущий день">←</button>
+      <h3 id="pt-date" style="font-size:1.1rem;text-align:center"></h3>
+      <button type="button" class="icon-btn" id="pt-next" aria-label="Следующий день">→</button>
+    </div>
+    <ul class="prayer-list" id="pt-list"></ul>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="pt-today">Сегодня</button>
+      <button type="button" class="btn ghost sm" id="pt-month-btn">Расписание на месяц</button>
+    </div>
+  </section>
+
+  <aside class="result-card">
+    <div class="prayer-next pattern-bg" aria-live="polite">
+      <div class="label">Следующий намаз</div>
+      <div class="name" id="pt-next-name">—</div>
+      <div class="countdown" id="pt-countdown">--:--:--</div>
+      <div id="pt-next-time" style="opacity:.85"></div>
+    </div>
+    <div class="card">
+      <ul class="stat-list">
+        <li><span>Дата по хиджре</span><span data-today-hijri></span></li>
+        <li><span>Шариатская полночь</span><span id="pt-midnight">—</span></li>
+        <li><span>Последняя треть ночи</span><span id="pt-lastthird">—</span></li>
+        <li><span>Направление киблы</span><span id="pt-qibla">—</span></li>
+      </ul>
+      <p class="muted" style="font-size:.85rem;margin:12px 0 0">Время может отличаться на минуту-две от официального расписания вашей страны из-за принятых на местах поправок.</p>
+    </div>
+  </aside>
+</div>
+
+<section class="card" id="pt-month" hidden>
+  <div class="tool-head"><h2 id="pt-month-title">Расписание на месяц</h2><button type="button" class="btn ghost sm" onclick="print()">Печать расписания</button></div>
+  <div class="table-wrap"><table><thead><tr><th>День</th><th>Дата</th><th>Хиджра</th><th>Фаджр</th><th>Восход</th><th>Зухр</th><th>Аср</th><th>Магриб</th><th>Иша</th></tr></thead><tbody id="pt-month-body"></tbody></table></div>
+</section>
+
+<!--INCLUDE content/prayer.html-->

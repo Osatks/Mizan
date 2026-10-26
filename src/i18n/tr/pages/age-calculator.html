@@ -1,0 +1,44 @@
+<!--META
+{"title": "Hicrî ve Miladî Hassas Yaş Hesaplayıcı (Yıl, Ay ve Gün)", "h1": "Yaş Hesaplayıcı", "description": "Yaşınızı hicrî ve miladî takvime göre yıl, ay ve gün olarak hesaplayın; doğduğunuz günü, hicrî doğum tarihinizi, yaşadığınız gün sayısını ve bir sonraki doğum gününüze kalan süreyi öğrenin.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Yaş Hesaplayıcı", "lead": "Doğum tarihinizi hicrî veya miladî olarak girin; her iki takvime göre tam yaşınızı ve hayatınıza dair ilginç istatistikleri öğrenin.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Doğum tarihi</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Miladî</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">Hicrî</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">Gün</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Ay</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Yıl</label><input id="age-y" type="number" inputmode="numeric" placeholder="Örnek: 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Yaşın hesaplanacağı tarih (miladî)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Bugünün tarihinde bırakın veya belirli bir tarihteki yaşınızı öğrenmek için değiştirin.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Yaşınıza dair istatistikler</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Miladî takvime göre yaşınız</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Hicrî takvime göre yaşınız</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Paylaş</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

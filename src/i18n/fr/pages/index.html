@@ -1,0 +1,62 @@
+<!--META
+{"title": "Mizan | Outils du musulman : le noble Coran, la zakat, l’héritage et les horaires de prière", "h1": "Mizan", "description": "Une plateforme d’outils islamiques gratuits et précis et une application mobile : le noble Coran avec tafsir et récitation, des adhkar authentifiés, un calculateur de zakat, un calculateur d’héritage, les horaires de prière et la direction de la qibla.", "path": "/", "type": "home", "nav": "home", "custom_hero": true, "date": "2026-10-22", "scripts": ["home.js"]}
+-->
+<!--HERO-->
+<section class="home-hero">
+  <div class="container">
+    <span class="eyebrow">✦ Outils islamiques gratuits et précis sur le web et sur mobile</span>
+    <h1>Tout ce dont le musulman a besoin en <span>actes d’adoration et calculs religieux</span> au même endroit</h1>
+    <p>Calculez votre zakat, répartissez une succession selon la science des fara’id, consultez les horaires de prière, la direction de la qibla et la date hégirienne, avec l’application mobile Mizan qui réunit le noble Coran avec tafsir et récitation et une encyclopédie d’adhkar en 15 langues.</p>
+    <div class="hero-search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="tool-search" placeholder="Rechercher un outil… ex. : zakat, héritage, prière, hégirien" aria-label="Rechercher un outil" autocomplete="off">
+    </div>
+    <div class="hero-today">
+      <span class="pill">Aujourd’hui : <b data-today-hijri></b></span>
+      <span class="pill" data-today-greg></span>
+      <span class="pill" id="hero-next-event" hidden></span>
+    </div>
+  </div>
+</section>
+<!--/HERO-->
+<section id="tools" aria-labelledby="tools-title">
+  <h2 id="tools-title" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Outils</h2>
+  {{tools_grid}}
+  <p class="no-results card">Aucun outil ne correspond à ce nom. Essayez un autre mot, ou <a href="/contact/">proposez-nous un nouvel outil</a>.</p>
+</section>
+
+<div class="section-title"><h2>L’application mobile Mizan</h2><a href="/app/">Télécharger l’application →</a></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>Le noble Coran et le tafsir</h3><p>Des pages de Mushaf enluminées en écriture ‘uthmani. Appuyez longuement sur n’importe quel verset pour lire son tafsir, l’écouter, l’enregistrer ou le partager, avec un mode concentration et le suivi de votre khatma.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="15" r="2"/><circle cx="6" cy="8" r="2"/><circle cx="6" cy="15" r="2"/><path d="M12 19v3"/><circle cx="12" cy="18" r="1.5"/></svg></span><div><h3>334 adhkar avec preuves et références</h3><p>24 sections : adhkar du matin et du soir, de la prière, invocations coraniques et Hisn al-Muslim, avec la source, le rapporteur, le degré du hadith et un compteur interactif.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v3"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M4 22V12h16v10"/><path d="M10 22v-5a2 2 0 0 1 4 0v5"/><path d="M2 22h20"/></svg></span><div><h3>Alertes de prière et 5 widgets</h3><p>Des horaires de prière et des alertes d’adhan qui fonctionnent sans Internet, avec 5 widgets pour l’écran d’accueil (horaires, prochaine prière, verset du jour, date hégirienne et khatma).</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></span><div><h3>15 langues et sans publicité</h3><p>Interface, traductions du sens du Coran, adhkar et preuves religieuses en 15 langues, avec 10 couleurs d’interface ; l’application fonctionne à 100 % hors ligne et sans publicité.</p></div></div>
+  </div>
+  <div class="app-home-cta">
+    <a class="btn" href="/app/">Télécharger Mizan gratuitement</a>
+    <span class="muted">Disponible sur Google Play · iPhone bientôt</span>
+  </div>
+</section>
+
+<div class="section-title"><h2>Pourquoi Mizan ?</h2></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>Fondements et rigueur religieuse</h3><p>Les règles de calcul reposent sur l’avis retenu par la majorité des juristes, avec la preuve religieuse jointe et l’indication des points de divergence.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h3>Confidentialité totale</h3><p>Tous les calculs et toutes les lectures se font localement sur votre appareil ; nous n’envoyons ni vos chiffres ni votre position à aucun serveur.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><div><h3>Rapide et utilisable hors ligne</h3><p>Des résultats instantanés pendant la saisie, avec une interface claire en 15 langues qui fonctionne sur mobile et sur ordinateur, même sans connexion.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/><path d="M12 8v4l3 2"/></svg></span><div><h3>Toujours gratuit</h3><p>Tous les outils, le Mushaf, les tafsirs et les adhkar sont accessibles gratuitement, sans inscription ni abonnement.</p></div></div>
+  </div>
+</section>
+
+<!--AR-ONLY--><div class="section-title"><h2>Derniers articles</h2><a href="/articles/">Tous les articles →</a></div>
+{{articles_latest}}
+<!--/AR-ONLY-->
+
+<section class="prose card">
+  <h2>À propos du site et de l’application Mizan</h2>
+  <p>« Mizan » est un ensemble islamique complet sur le web et sur smartphone (Android sur Google Play, iPhone bientôt), conçu pour accompagner le musulman dans son adoration quotidienne et répondre à ses questions religieuses et pratiques : lire le noble Coran en écriture ‘uthmani, méditer son tafsir et écouter sa récitation, préserver les adhkar du matin, du soir et de la prière avec leurs chaînes de transmission authentiques, et savoir combien je dois de zakat sur mes biens cette année ? Comment partager une succession entre les héritiers selon les fara’id ? Quand vient l’heure de la prière dans ma ville ? Et où se trouve la qibla depuis l’endroit où je suis ?</p>
+  <p>Le <a href="/zakat-calculator/">calculateur de zakat</a> se fonde sur le nisab de l’or et de l’argent et accepte les cinq catégories de biens : liquidités, or, argent, actions et marchandises commerciales, en déduisant les dettes exigibles et en présentant les preuves religieuses. Le <a href="/inheritance-calculator/">calculateur d’héritage</a>, quant à lui, applique les règles de la science des fara’id — parts fixes (furud), ta‘sib, exclusion (hajb), ‘awl et radd — avec l’explication des versets de l’héritage et des étapes du partage, et affiche la base du problème ainsi que la part de chaque héritier en fraction, en pourcentage et en montant.</p>
+  <p>L’outil des <a href="/prayer-times/">horaires de prière</a> calcule les heures à l’aide d’équations astronomiques précises, avec la possibilité de choisir la méthode de calcul adoptée dans votre pays, et l’outil de <a href="/qibla-direction/">direction de la qibla</a> offre une boussole interactive sur le téléphone. Le <a href="/hijri-converter/">convertisseur de dates</a> s’appuie sur le calendrier Umm al-Qura, officiellement adopté en Arabie saoudite.</p>
+  <div class="note"><p>Les résultats de tous les outils sont indicatifs et aident à comprendre et à estimer ; pour les cas particuliers ou complexes, référez-vous aux savants et aux instances officielles compétentes.</p></div>
+</section>

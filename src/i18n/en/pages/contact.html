@@ -1,0 +1,33 @@
+<!--META
+{"title": "Contact Us - Get in touch with the Mizan team", "h1": "Contact Us", "description": "Contact the Mizan team to report an error on the website or in the app, a note about the Mushaf, adhkar or translations, to suggest a new tool, or for general enquiries.", "path": "/contact/", "type": "page", "nav": "", "breadcrumb": "Contact Us", "lead": "We are happy to hear your feedback, suggestions and corrections about the website and the app."}
+-->
+<section class="prose card">
+  <h2>We are here to help</h2>
+  <p>At {{site_name}} we welcome all your messages, whether it is a question about how one of the tools works on the website or in the smartphone app (Android and iOS), a report of an error in a calculation result, a note about how the Mushaf, tafsirs and adhkar are displayed or about the translations in the 15 languages, or a suggestion for a new feature. Your feedback is what helps us develop Mizan and increase its accuracy and quality.</p>
+
+  <h2>Email</h2>
+  <p>You can write to us directly at: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+  <p>Or use the form below, and the email program on your device will open with a ready-made message containing what you wrote, for you to send yourself. The form does not send any data to our servers.</p>
+
+  <h3>Tips for a clearer message</h3>
+  <ul>
+    <li>When reporting an error in a calculator: mention the name of the tool, the inputs you used, the result that appeared, and the expected result with its source if possible.</li>
+    <li>When reporting an issue in the mobile app: mention your device type (Android or iOS), the selected display language, and the screen where the problem appeared.</li>
+    <li>When correcting religious content or a translation: include the surah and verse number, or the dhikr section, and the evidence or fiqh reference you are relying on.</li>
+    <li>For prayer times: mention your city, the selected calculation method and the local timetable you are comparing with.</li>
+  </ul>
+
+  <h2>Response time</h2>
+  <p>We aim to reply to all messages within three to five working days. Reports that require religious review or a software update may take longer, and we will let you know when the error is corrected, in sha' Allah.</p>
+
+  <div class="note"><strong>Important notice:</strong> {{site_name}} is a platform of Islamic tools and references, and we do not issue fatwas on personal matters. If you have a specific question about inheritance, zakat or anything else, please refer to a trusted scholar, the fatwa authority or the competent Sharia court in your country.</div>
+</section>
+
+<form class="contact-form card" id="contact-form" novalidate>
+  <div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" required></div>
+  <div class="field"><label for="cf-email">Your email</label><input id="cf-email" name="email" type="email" required></div>
+  <div class="field"><label for="cf-subject">Subject</label><select id="cf-subject" name="subject"><option>General enquiry</option><option>Note about the mobile app (Android / iOS)</option><option>Report an error in a tool or calculator</option><option>Note about the Mushaf, tafsir or adhkar</option><option>Note about the language translations</option><option>Suggest a new tool or feature</option><option>Advertising and partnerships</option></select></div>
+  <div class="field"><label for="cf-msg">Message</label><textarea id="cf-msg" name="message" rows="6" required></textarea></div>
+  <button class="btn" type="submit">Send message</button>
+  <p class="form-status" role="status"></p>
+</form>

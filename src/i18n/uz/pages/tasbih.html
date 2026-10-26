@@ -1,0 +1,39 @@
+<!--META
+{"title": "Elektron tasbeh: natijangizni saqlaydigan hisoblagich bilan tasbeh va zikr", "h1": "Elektron tasbeh", "description": "Telefon va kompyuter uchun bepul elektron tasbeh: natijangizni saqlaydigan tasbeh hisoblagichi, tayyor zikrlar, namozdan keyingi 33-33-34 tasbeh rejimi, son toʻlganda tebranish.", "path": "/tasbih/", "type": "tool", "nav": "tasbih", "breadcrumb": "Elektron tasbeh", "lead": "Tasbeh aytish uchun doirani yoki probel tugmasini bosing. Hisobingiz qurilmangizda avtomatik saqlanadi.", "date": "2026-10-15", "scripts": ["tasbih.js"]}
+-->
+<div class="tool-layout" id="tasbih-app">
+  <section class="card tasbih-zone">
+    <div class="segmented" role="tablist" id="ts-mode" style="margin-bottom:18px">
+      <button type="button" role="tab" data-mode="free" aria-selected="true">Erkin zikr</button>
+      <button type="button" role="tab" data-mode="salah" aria-selected="false">Namozdan keyingi tasbeh</button>
+    </div>
+    <div class="dhikr-text" id="ts-text">Subhanalloh</div>
+    <button type="button" class="tasbih-btn" id="ts-btn" aria-label="Tasbeh">
+      <svg class="tasbih-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="47"/><circle class="fill" id="ts-ring" cx="50" cy="50" r="47" stroke-dasharray="295.3" stroke-dashoffset="295.3"/></svg>
+      <span><span class="count" id="ts-count">0</span><span class="of" id="ts-of">33 dan</span></span>
+    </button>
+    <div class="dhikr-chips" id="ts-chips"></div>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn ghost sm" id="ts-reset">↺ Nollash</button>
+      <button type="button" class="btn ghost sm" id="ts-undo">Bekor qilish −1</button>
+      <label class="check" style="padding:6px 12px"><input type="checkbox" id="ts-vibe" checked> Tebranish</label>
+    </div>
+  </section>
+
+  <aside class="card result-card">
+    <div class="field">
+      <label for="ts-target">Maqsadli son</label>
+      <select id="ts-target"><option value="33">33</option><option value="34">34</option><option value="100">100</option><option value="1000">1000</option><option value="0">Cheklovsiz</option></select>
+    </div>
+    <div class="tiles" style="margin-top:18px">
+      <div class="tile"><b id="ts-rounds">0</b><span>toʻliq davra</span></div>
+      <div class="tile"><b id="ts-today">0</b><span>bugungi zikr</span></div>
+      <div class="tile"><b id="ts-total">0</b><span>jami</span></div>
+    </div>
+    <h3 class="group-title" style="margin-top:20px">Bugungi qayd</h3>
+    <ul class="stat-list" id="ts-log"><li><span class="muted">Bugun hali zikr qayd etmadingiz</span></li></ul>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Maslahat: kompyuterda sanash uchun probel yoki Enter tugmasini bosing.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/tasbih.html-->

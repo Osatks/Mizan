@@ -1,0 +1,40 @@
+<!--META
+{"title": "এখন আপনার অবস্থান থেকে কিবলার দিক: ইলেকট্রনিক কিবলা কম্পাস", "h1": "কিবলার দিক", "description": "মোবাইলে ইন্টারঅ্যাকটিভ কিবলা কম্পাসের মাধ্যমে বিশ্বের যেকোনো স্থান থেকে নির্ভুলভাবে কিবলার দিক নির্ণয় করুন, সঙ্গে উত্তর দিক থেকে কিবলার কোণ এবং পবিত্র কাবা পর্যন্ত দূরত্ব।", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "কিবলার দিক", "lead": "কিবলার কোণ জানতে আপনার অবস্থান ব্যবহার করুন বা শহর বেছে নিন; মোবাইলে সোনালি তীরটি জ্বলে না ওঠা পর্যন্ত ফোন ঘুরিয়ে নিন।", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">উ</span><span class="cardinal e">পূ</span><span class="cardinal s">দ</span><span class="cardinal w">প</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="কাবা"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">ফোনের দিকের সঙ্গে কম্পাস ঘোরাতে মোবাইলে «কম্পাস চালু করুন» চাপুন</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 কম্পাস চালু করুন</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 আমার অবস্থান ব্যবহার করুন</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">ভৌগোলিক উত্তর থেকে কিবলার কোণ</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">অথবা একটি শহর বেছে নিন</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>আপনার অবস্থান</span><span id="qb-loc">—</span></li>
+      <li><span>কাবা পর্যন্ত দূরত্ব</span><span id="qb-dist">—</span></li>
+      <li><span>ফোনের বর্তমান দিক</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>ফোনটি যন্ত্রপাতি ও ধাতু থেকে দূরে রাখুন; রিডিং অস্থির মনে হলে কম্পাস ক্যালিব্রেট করতে ফোনটি 8 সংখ্যার আকারে ঘোরান।</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

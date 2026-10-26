@@ -1,0 +1,33 @@
+<!--META
+{"title": "Biz bilan bogʻlaning - Mizan jamoasiga murojaat", "h1": "Biz bilan bogʻlaning", "description": "Sayt yoki ilovadagi xato, Mushaf, zikrlar va tarjimalar boʻyicha mulohaza, yangi vosita taklifi yoki umumiy savollar uchun Mizan jamoasi bilan bogʻlaning.", "path": "/contact/", "type": "page", "nav": "", "breadcrumb": "Biz bilan bogʻlaning", "lead": "Sayt va ilova haqidagi fikr, taklif va tuzatishlaringizni eshitishdan mamnunmiz."}
+-->
+<section class="prose card">
+  <h2>Biz sizga yordam berish uchun shu yerdamiz</h2>
+  <p>{{site_name}}da barcha xatlaringizni mamnuniyat bilan qabul qilamiz: saytdagi yoki smartfon ilovasidagi (Android va iOS) biror vositaning qanday ishlashi haqidagi savol, hisob natijasidagi xato haqida xabar, Mushaf, tafsirlar va zikrlarning koʻrsatilishi yoki 15 tildagi tarjimalar boʻyicha mulohaza yoxud yangi imkoniyat taklifi boʻladimi. Aynan sizning fikrlaringiz «Mizan»ni rivojlantirish, uning aniqligi va puxtaligini oshirishga yordam beradi.</p>
+
+  <h2>Elektron pochta</h2>
+  <p>Bizga toʻgʻridan-toʻgʻri yozishingiz mumkin: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+  <p>Yoki quyidagi shakldan foydalaning: qurilmangizdagi pochta dasturi siz yozgan matn bilan tayyor xatni ochadi va uni oʻzingiz yuborasiz. Shakl bizning serverlarimizga hech qanday maʼlumot yubormaydi.</p>
+
+  <h3>Xatingiz aniqroq boʻlishi uchun maslahatlar</h3>
+  <ul>
+    <li>Kalkulyatordagi xato haqida xabar berganda: vosita nomini, kiritgan maʼlumotlaringizni, chiqqan natijani va kutilgan natijani, imkon boʻlsa, manbasi bilan koʻrsating.</li>
+    <li>Telefon ilovasi boʻyicha mulohaza bildirganda: qurilmangiz turini (Android yoki iOS), tanlangan interfeys tilini va muammo chiqqan ekranni koʻrsating.</li>
+    <li>Shariy kontent yoki tarjimani tuzatganda: sura va oyat raqamini yoki zikr boʻlimini hamda tayangan dalil yoki fiqhiy manbangizni ilova qiling.</li>
+    <li>Namoz vaqtlari boʻyicha: shahringizni, tanlangan hisoblash usulini va solishtirayotgan mahalliy taqvimingizni koʻrsating.</li>
+  </ul>
+
+  <h2>Javob muddati</h2>
+  <p>Barcha xatlarga uch-besh ish kuni ichida javob berishga harakat qilamiz. Shariy tekshiruv yoki dasturiy yangilanishni talab qiladigan xabarlar uzoqroq vaqt olishi mumkin; xato tuzatilganda, inshaalloh, sizga xabar beramiz.</p>
+
+  <div class="note"><strong>Muhim eslatma:</strong> {{site_name}} — islomiy vositalar va maʼlumotnomalar platformasi; biz shaxsiy masalalar boʻyicha fatvo bermaymiz. Agar meros, zakot yoki boshqa sohada xususiy masalangiz boʻlsa, ishonchli olimga, fatvo idorasiga yoki mamlakatingizdagi vakolatli shariy sudga murojaat qiling.</div>
+</section>
+
+<form class="contact-form card" id="contact-form" novalidate>
+  <div class="field"><label for="cf-name">Ism</label><input id="cf-name" name="name" required></div>
+  <div class="field"><label for="cf-email">Elektron pochtangiz</label><input id="cf-email" name="email" type="email" required></div>
+  <div class="field"><label for="cf-subject">Mavzu</label><select id="cf-subject" name="subject"><option>Umumiy savol</option><option>Telefon ilovasi boʻyicha mulohaza (Android / iOS)</option><option>Vosita yoki kalkulyatordagi xato haqida xabar</option><option>Mushaf, tafsir yoki zikrlar boʻyicha mulohaza</option><option>Til tarjimalari boʻyicha mulohaza</option><option>Yangi vosita yoki imkoniyat taklifi</option><option>Reklama va hamkorlik</option></select></div>
+  <div class="field"><label for="cf-msg">Xabar</label><textarea id="cf-msg" name="message" rows="6" required></textarea></div>
+  <button class="btn" type="submit">Xabarni yuborish</button>
+  <p class="form-status" role="status"></p>
+</form>

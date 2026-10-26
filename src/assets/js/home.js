@@ -22,7 +22,7 @@
   if (pill) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const h = M.toHijri(today);
-    const events = [[9, 1, "رمضان"], [10, 1, "عيد الفطر"], [12, 9, "يوم عرفة"], [12, 10, "عيد الأضحى"], [1, 1, "رأس السنة الهجرية"]];
+    const events = [[9, 1, t("رمضان")], [10, 1, t("عيد الفطر")], [12, 9, t("يوم عرفة")], [12, 10, t("عيد الأضحى")], [1, 1, t("رأس السنة الهجرية")]];
     let best = null;
     for (const [m, d, name] of events) {
       for (const y of [h.y, h.y + 1]) {
@@ -35,7 +35,7 @@
       }
     }
     if (best) {
-      pill.innerHTML = best.days === 0 ? `اليوم <b>${best.name}</b>` : `<b>${best.name}</b> بعد ${best.days} يوماً`;
+      pill.innerHTML = best.days === 0 ? t("اليوم {name}", { name: `<b>${best.name}</b>` }) : t("{name} بعد {n} يوماً", { name: `<b>${best.name}</b>`, n: best.days });
       pill.hidden = false;
       pill.style.cursor = "pointer";
       pill.addEventListener("click", () => (location.href = "/islamic-events/"));

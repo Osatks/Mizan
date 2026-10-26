@@ -1,0 +1,115 @@
+<!--META
+{"title": "Zekât Hesaplayıcı 2026: Para, altın ve hisse senedi zekâtını hassas hesaplayın", "h1": "Zekât Hesaplayıcı", "description": "Ücretsiz ve hassas zekât hesaplayıcı: nakit, banka hesapları, altın, gümüş, hisse senetleri ve ticaret mallarının zekâtını nisap hesabı ve borçların düşülmesiyle anında hesaplayın.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "Zekât Hesaplayıcı", "lead": "Mallarınızı ve güncel altın fiyatını girin; nisaba ulaşıp ulaşmadığınızı ve ödemeniz gereken zekâtı hemen öğrenin.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">Mal bilgileriniz</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">Verileri temizle</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">Para birimi</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">Suudi riyali</option><option value="&#1583;.&#1573;">BAE dirhemi</option><option value="&#1583;.&#1603;">Kuveyt dinarı</option>
+          <option value="&#1585;.&#1602;">Katar riyali</option><option value="&#1583;.&#1576;">Bahreyn dinarı</option><option value="&#1585;.&#1593;">Umman riyali</option>
+          <option value="&#1580;.&#1605;">Mısır lirası</option><option value="&#1583;.&#1571;">Ürdün dinarı</option><option value="&#1583;.&#1593;">Irak dinarı</option>
+          <option value="&#1583;.&#1605;">Fas dirhemi</option><option value="&#1583;.&#1580;">Cezayir dinarı</option><option value="&#1583;.&#1578;">Tunus dinarı</option>
+          <option value="&#1604;.&#1604;">Lübnan lirası</option><option value="&#1604;.&#1587;">Suriye lirası</option><option value="&#1585;.&#1610;">Yemen riyali</option>
+          <option value="&#1580;.&#1587;">Sudan lirası</option><option value="&#1583;.&#1604;">Libya dinarı</option><option value="$">ABD doları</option><option value="€">Euro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">Para için esas alınan nisap</label>
+        <select id="zk-basis">
+          <option value="gold">Altın nisabı (85 gram)</option>
+          <option value="silver">Gümüş nisabı (595 gram)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Bugünün fiyatları</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">24 ayar altının gram fiyatı</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="Örnek: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">Ülkenizdeki bir kuyumcudan veya güvenilir bir fiyat sitesinden.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">Gümüşün gram fiyatı (isteğe bağlı)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="Örnek: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">Gümüş nisabını seçtiyseniz veya gümüşünüz varsa gereklidir.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> Nakit ve bakiyeler</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">Eldeki nakit</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">Banka ve cüzdan bakiyeleri</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">Ödenmesi umulan alacaklarınız</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">Diğer mallar (para günleri, kârlar…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> Altın ve gümüş (gram)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">24 ayar altın</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-g22">22 ayar altın</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-g21">21 ayar altın</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-g18">18 ayar altın</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+        <div class="field"><label for="zk-silver">Saf gümüş</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> Kullanılan ziynet eşyasını hesaba kat (Hanefî görüşü ve ihtiyatlı olan)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">Bunun kullanılan ziynet eşyası olan kısmı (gram, 21 ayar karşılığı)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">gram</span></div>
+        <span class="hint">Kullanım için edinilen ziynet eşyasına zekât düşmeyeceği yönündeki cumhur görüşüne göre bu ağırlık hesaptan çıkarılır.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Yatırım ve ticaret</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">Alım satım için hisse senetleri (piyasa değeri)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">Uzun vadeli yatırım hisseleri (zekât matrahı)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Biliyorsanız şirketin zekâta tabi varlıklarındaki payınız.</span></div>
+        <div class="field"><label for="zk-goods">Ticaret malları (mal değeri)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> Düşülecekler</p>
+      <div class="field"><label for="zk-debts">Vadesi gelmiş borçlarınız (bu yıl ödenecek)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Uzun vadeli kredinin tamamı değil, yalnızca havl içinde ödenecek taksitler.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Ödenmesi gereken zekât</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">Altın fiyatını ve mallarınızı girin</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>Zekâta tabi malların toplamı</span><span id="zk-total">0</span></li>
+      <li><span>Düşülen borçlar</span><span id="zk-debts-out">0</span></li>
+      <li><span>Net zekât matrahı</span><span id="zk-net">0</span></li>
+      <li><span>Nisap değeri</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">Matrahın nisaba oranı</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">Sonucu paylaş</button>
+      <button type="button" class="btn ghost" onclick="print()">Yazdır</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Verileriniz yalnızca cihazınızda saklanır. Zekât miktarı, nisaba ulaşmış ve üzerinden bir hicrî yıl (havl) geçmişse net matrahın %2,5'idir.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

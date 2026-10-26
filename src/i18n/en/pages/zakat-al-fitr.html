@@ -1,0 +1,74 @@
+<!--META
+{"title": "Zakat al-Fitr Calculator: How Much Per Person in Kilograms and Value", "h1": "Zakat al-Fitr Calculator", "description": "Calculate Zakat al-Fitr for all members of your family in kilograms of rice, wheat or dates, or in cash value, with an explanation of its rulings, when to pay it and who is entitled to it.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Zakat al-Fitr", "lead": "Set the number of family members and the type of food or the value, and instantly find the amount of Zakat al-Fitr due.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Family details</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Number of people you pay for (including yourself)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Decrease">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Increase">+</button>
+        </div>
+        <span class="hint">Includes yourself, your wife, your children and anyone whose maintenance you are obliged to provide.</span>
+      </div>
+      <div class="field">
+        <span class="label">Method of payment</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Food (sa')</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Cash value</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Type of food and amount of the sa'</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Type of food</label>
+          <select id="fr-type">
+            <option value="2.5">Rice — about 2.5 kg</option>
+            <option value="3">Rice (more cautious) — 3 kg</option>
+            <option value="2.04">Wheat — about 2.04 kg</option>
+            <option value="2.5">Dates — about 2.5 kg</option>
+            <option value="2.2">Barley — about 2.2 kg</option>
+            <option value="custom">Another amount…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Weight of the sa' in kilograms</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">kg</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Price per kilogram (optional)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">per kg</span></div>
+          <span class="hint">To find the approximate cost of purchase.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Cash value</p>
+      <div class="field">
+        <label for="fr-value">Value of Zakat al-Fitr per person</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="e.g. 35"><span class="unit">per person</span></div>
+        <span class="hint">It is announced each year by the fatwa authority or the official body in your country. Paying the value is the Hanafi view, while the majority hold that food should be given.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Amount of Zakat al-Fitr</div>
+      <div class="big-number" id="fr-total">2.5 <small>kg</small></div>
+      <span class="badge ok" id="fr-sub">for one person</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Time of payment:</strong> before the Eid prayer; it may be paid a day or two early, and it may not be delayed past the Eid prayer without a valid excuse.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Share</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

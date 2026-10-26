@@ -1,0 +1,67 @@
+<!--META
+{"title": "Oruç Fidyesi, Yemin Kefareti ve Ramazan'da Orucu Bozma Kefareti Hesaplayıcı", "h1": "Fidye ve Kefaret Hesaplayıcı", "description": "Hasta ve yaşlılar için oruç fidyesini, on fakiri doyurmakla ödenen yemin kefaretini ve Ramazan gündüzünde cinsel ilişki kefaretini kilogram veya değer olarak hesaplayın; iki aylık orucun bitiş tarihiyle.", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "Fidye ve Kefaret", "lead": "Fidye veya kefaret türünü seçip bilgileri girin; doyurma miktarını kilogram olarak ve yaklaşık değerini öğrenin.", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">Oruç fidyesi</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">Yemin kefareti</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">Ramazan'da cinsel ilişki kefareti</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">Yaşlı ve iyileşmesi umulmayan hasta gibi oruç tutmaktan sürekli olarak âciz olan kişi için: her gün karşılığında bir fakiri doyurmak.</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">Gün sayısı</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="Azalt">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="Artır">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 gün</button><button type="button" class="chip" data-days="30">30 gün</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">Yeminini bozan kişi için: on fakiri doyurmak veya giydirmek ya da bir köle azat etmek; bunları bulamayan üç gün oruç tutar.</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">Kefaret sayısı (farklı yeminler)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="Azalt">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="Artır">+</button></div>
+        <span class="hint">Kefaret ödenmeden önce aynı şey üzerine yemin tekrarlanmışsa, cumhura göre tek kefaret gerekir.</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">Sırasıyla: bir köle azat etmek; bulamayan iki ay peş peşe oruç tutar; buna da gücü yetmeyen altmış fakiri doyurur.</p>
+      <div class="field">
+        <label for="fd-start">İki aylık orucun başlangıç tarihi (bitiş tarihini hesaplamak için)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">Her fakir için doyurma miktarı</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">Miktar</label>
+          <select id="fd-measure">
+            <option value="0.75">Bir müd — yaklaşık 0,75 kg (Mâlikî ve Şâfiî)</option>
+            <option value="1.5">Yarım sa' — yaklaşık 1,5 kg (çağdaş fetvalar)</option>
+            <option value="custom">Başka bir miktar…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">Kilogram cinsinden miktar</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">kg</span></div></div>
+        <div class="field"><label for="fd-price">Kilogram fiyatı veya öğün değeri (isteğe bağlı)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">Fiyat türü</label><select id="fd-price-type"><option value="kg">Kilogram fiyatı</option><option value="meal">Tam bir öğünün değeri</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">Ödenmesi gereken</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

@@ -1,0 +1,24 @@
+<!--META
+{"title": "Berapa hari lagi menuju Ramadan dan Idul Fitri? Hitung mundur hari besar Islam", "h1": "Hari Besar Islam", "description": "Hitung mundur langsung menuju bulan Ramadan, Idul Fitri, hari Arafah, Idul Adha, Tahun Baru Hijriah, Asyura, dan Ayyamul Bidh, beserta perkiraan tanggal Hijriah dan Masehinya.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Hari Besar Islam", "lead": "Ketahui berapa hari lagi menuju Ramadan, dua hari raya, dan momen-momen Islam terpenting, beserta perkiraan tanggal Masehi setiap hari besar.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Hitung mundur menuju</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>hari</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>jam</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>menit</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>detik</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Bagikan hitung mundur</button></div>
+  </section>
+
+  <div class="section-title"><h2>Hari besar mendatang</h2><span class="muted" style="font-size:.9rem">Ketuk hari besar mana pun untuk menampilkan hitung mundurnya</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Tanggal dihitung menurut kalender Ummul Qura, dan dapat berbeda satu hari tergantung rukyatul hilal yang berlaku di negara Anda.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

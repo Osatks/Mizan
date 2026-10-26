@@ -1,0 +1,61 @@
+<!--META
+{"title": "শরয়ি মিরাস ক্যালকুলেটর: ইলমুল ফারায়েয অনুযায়ী মিরাস বণ্টন", "h1": "মিরাস (ফারায়েয) ক্যালকুলেটর", "description": "নির্ভুল শরয়ি মিরাস ক্যালকুলেটর: ওয়ারিস ও পরিত্যক্ত সম্পত্তির মূল্য লিখুন এবং প্রত্যেক ওয়ারিসের অংশ ভগ্নাংশ, শতাংশ ও অঙ্কে জানুন — হাজব, মাসআলার মূল, আওল ও রদ্দের ব্যাখ্যাসহ।", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "মিরাস ক্যালকুলেটর", "lead": "মৃত ব্যক্তির লিঙ্গ বেছে নিন, পরিত্যক্ত সম্পত্তির মূল্য ও জীবিত ওয়ারিসদের তথ্য দিন — ইলমুল ফারায়েযের নিয়ম অনুযায়ী বিস্তারিত বণ্টন পেয়ে যাবেন।", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>মৃত ব্যক্তি ও পরিত্যক্ত সম্পত্তি</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">নতুন মাসআলা শুরু করুন</button>
+      </div>
+      <div class="field">
+        <span class="label">মৃত ব্যক্তির লিঙ্গ</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">পুরুষ</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">নারী</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">মোট পরিত্যক্ত সম্পত্তি</label><input id="inh-estate" inputmode="decimal" placeholder="উদাহরণ: 600000"></div>
+        <div class="field"><label for="inh-funeral">কাফন-দাফনের খরচ</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">মৃত ব্যক্তির ঋণ</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">ওসিয়ত (ওয়ারিস নয় এমন কারও জন্য)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">ওয়ারিসদের অনুমতি ছাড়া ঋণ পরিশোধের পর অবশিষ্ট সম্পত্তির এক-তৃতীয়াংশের বেশি হতে পারবে না।</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>বণ্টনযোগ্য নিট সম্পত্তি</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">মাসআলার সারসংক্ষেপ</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">ওয়ারিস যোগ করুন</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>বণ্টন দেখতে তালিকা থেকে ওয়ারিস বেছে নিন।</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>মৃত্যুর সময় জীবিত ওয়ারিসগণ</h2><span class="muted" style="font-size:.9rem">ওয়ারিস যোগ করতে + চাপুন</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>বণ্টনের বিস্তারিত</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">শেয়ার করুন</button>
+        <button type="button" class="btn ghost sm" onclick="print()">প্রিন্ট করুন</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>ওয়ারিস</th><th>সংখ্যা</th><th>উত্তরাধিকারের ধরন</th><th>অংশ</th><th>সাহাম (ভাগ)</th><th>শতাংশ</th><th>অঙ্ক</th><th>জনপ্রতি</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>এই ফলাফল দিকনির্দেশনামূলক এবং অধিকাংশ আলেমের মাজহাবের ওপর ভিত্তি করে তৈরি; এটি শরিয়া আদালত বা ফারায়েযে বিশেষজ্ঞ আলেমের শরণাপন্ন হওয়ার বিকল্প নয়, বিশেষত যেসব মাসআলায় মতভেদ, ওসিয়ত বা যাবিল আরহাম (দূরবর্তী আত্মীয়) ওয়ারিস রয়েছে।</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

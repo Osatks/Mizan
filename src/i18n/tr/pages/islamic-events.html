@@ -1,0 +1,24 @@
+<!--META
+{"title": "Ramazan'a ve bayrama ne kadar kaldı? İslami özel günler için geri sayım", "h1": "İslami Özel Günler", "description": "Ramazan ayı, Ramazan Bayramı, Arefe günü, Kurban Bayramı, hicrî yılbaşı, Aşure ve eyyâm-ı bîd için canlı geri sayım; tahmini hicrî ve miladî tarihleriyle.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "İslami Özel Günler", "lead": "Ramazan'a, iki bayrama ve en önemli İslami mevsimlere kaç gün kaldığını, her birinin tahmini miladî tarihiyle öğrenin.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Geri sayım:</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>gün</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>saat</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>dakika</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>saniye</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Geri sayımı paylaş</button></div>
+  </section>
+
+  <div class="section-title"><h2>Yaklaşan özel günler</h2><span class="muted" style="font-size:.9rem">Geri sayımını görmek için herhangi bir güne dokunun</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Tarihler Ümmü'l-Kurâ takvimine göre hesaplanmıştır; ülkenizde esas alınan hilal gözlemine göre bir gün farklılık gösterebilir.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

@@ -1,0 +1,61 @@
+<!--META
+{"title": "Kalkulator Waris Syariat: Pembagian Harta Warisan menurut Ilmu Faraid", "h1": "Kalkulator Waris", "description": "Kalkulator waris syariat yang akurat: masukkan ahli waris dan nilai harta warisan untuk mengetahui bagian setiap ahli waris dalam pecahan, persentase, dan nominal, dengan penjelasan hajb, asal masalah, 'aul, dan radd.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Kalkulator Waris", "lead": "Pilih jenis kelamin almarhum, masukkan nilai harta warisan dan ahli waris yang masih hidup, dan Anda akan mendapatkan pembagian terperinci menurut kaidah ilmu faraid.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Almarhum dan harta warisan</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Mulai masalah baru</button>
+      </div>
+      <div class="field">
+        <span class="label">Jenis kelamin almarhum</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Laki-laki</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Perempuan</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Total harta warisan</label><input id="inh-estate" inputmode="decimal" placeholder="Contoh: 600000"></div>
+        <div class="field"><label for="inh-funeral">Biaya pengurusan jenazah dan pemakaman</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Utang almarhum</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Wasiat (untuk bukan ahli waris)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Tidak boleh melebihi sepertiga dari sisa setelah utang kecuali dengan persetujuan ahli waris.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Harta warisan bersih yang dapat dibagi</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Ringkasan masalah</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Tambahkan ahli waris</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Pilih ahli waris dari daftar untuk menampilkan pembagian.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Ahli waris yang hidup saat kematian</h2><span class="muted" style="font-size:.9rem">Tekan + untuk menambah ahli waris</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Rincian pembagian</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Bagikan</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Cetak</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Ahli waris</th><th>Jumlah</th><th>Jenis warisan</th><th>Bagian</th><th>Saham</th><th>Persentase</th><th>Nominal</th><th>Per orang</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Hasil ini bersifat panduan berdasarkan mazhab mayoritas ulama, dan tidak menggantikan peninjauan oleh pengadilan agama atau ulama yang ahli dalam faraid, terutama dalam masalah yang diperselisihkan, ada wasiat, atau melibatkan ahli waris dari kalangan dzawil arham.</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

@@ -1,0 +1,51 @@
+<!--META
+{"title": "Ummul-Quro taqvimi boʻyicha hijriy va milodiy sana oʻgirgichi", "h1": "Hijriy sana oʻgirgichi", "description": "Ummul-Quro taqvimi boʻyicha sanani hijriydan milodiyga va milodiydan hijriyga bir zumda oʻgiring; ikkala sanani va bugungi kunni birga koʻrsatuvchi qoʻsh oylik taqvim bilan.", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "Hijriy sana", "lead": "Ikki sana oʻrtasida tezkor va aniq oʻgirish, hijriy va milodiy sanalarni yonma-yon koʻrsatuvchi oylik taqvim bilan.", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Sanani oʻgirish</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">Milodiy → Hijriy</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">Hijriy → Milodiy</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">Kun</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">Oy</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">Yil</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">Kun</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">Oy</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">Yil</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">Bugungi sana</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">Natijadan nusxa olish</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">Mos hijriy sana</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="Oldingi oy">←</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="Keyingi oy">→</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">Katta raqam — hijriy kun, kichigi — milodiy kun. Oʻgirish uchun istalgan kunni bosing.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

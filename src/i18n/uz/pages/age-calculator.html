@@ -1,0 +1,44 @@
+<!--META
+{"title": "Hijriy va milodiy yosh kalkulyatori (yil, oy va kunlarda aniq)", "h1": "Yosh kalkulyatori", "description": "Yoshingizni hijriy va milodiy taqvimlarda yil, oy va kunlarda hisoblang; tugʻilgan kuningiz, uning hijriy sanasi, yashagan kunlaringiz soni va keyingi tugʻilgan kuningizgacha qolgan vaqtni bilib oling.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Yosh kalkulyatori", "lead": "Tugʻilgan sanangizni hijriy yoki milodiy hisobda kiriting va ikkala taqvimdagi aniq yoshingiz hamda hayotingiz haqidagi qiziqarli statistikani bilib oling.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Tugʻilgan sana</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Milodiy</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">Hijriy</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">Kun</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Oy</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Yil</label><input id="age-y" type="number" inputmode="numeric" placeholder="Masalan: 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Yoshni quyidagi sanada hisoblash (milodiy)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Bugungi sanada qoldiring yoki maʼlum bir sanadagi yoshingizni bilish uchun oʻzgartiring.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Yoshingiz haqida statistika</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Milodiy taqvim boʻyicha yoshingiz</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Hijriy taqvim boʻyicha yoshingiz</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Ulashish</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

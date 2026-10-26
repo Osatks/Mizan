@@ -1,0 +1,62 @@
+<!--META
+{"title": "মীযান | মুসলিমের টুলসমূহ: কুরআন মাজিদ, যাকাত, মিরাস ও নামাজের সময়সূচি", "h1": "মীযান", "description": "বিনামূল্যের নির্ভুল ইসলামি প্ল্যাটফর্ম, টুলসমূহ ও স্মার্টফোন অ্যাপ: তাফসির ও তিলাওয়াতসহ কুরআন মাজিদ, যাচাইকৃত যিকির-আযকার, যাকাত ক্যালকুলেটর, মিরাস ক্যালকুলেটর, নামাজের সময়সূচি ও কিবলার দিক।", "path": "/", "type": "home", "nav": "home", "custom_hero": true, "date": "2026-10-22", "scripts": ["home.js"]}
+-->
+<!--HERO-->
+<section class="home-hero">
+  <div class="container">
+    <span class="eyebrow">✦ ওয়েব ও মোবাইলে বিনামূল্যের নির্ভুল ইসলামি টুলস</span>
+    <h1>একজন মুসলিমের প্রয়োজনীয় <span>ইবাদত ও শরয়ি হিসাব</span> সবকিছু এক জায়গায়</h1>
+    <p>আপনার যাকাত হিসাব করুন, ইলমুল ফারায়েয অনুযায়ী মিরাস বণ্টন করুন, নামাজের সময়, কিবলার দিক ও হিজরি তারিখ জানুন — সঙ্গে রয়েছে মীযান মোবাইল অ্যাপ, যাতে আছে তাফসির ও তিলাওয়াতসহ কুরআন মাজিদ এবং যিকির-আযকারের বিশাল সংকলন, 15টি ভাষায়।</p>
+    <div class="hero-search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="tool-search" placeholder="টুল খুঁজুন… যেমন: যাকাত, মিরাস, নামাজ, হিজরি" aria-label="টুল খুঁজুন" autocomplete="off">
+    </div>
+    <div class="hero-today">
+      <span class="pill">আজ: <b data-today-hijri></b></span>
+      <span class="pill" data-today-greg></span>
+      <span class="pill" id="hero-next-event" hidden></span>
+    </div>
+  </div>
+</section>
+<!--/HERO-->
+<section id="tools" aria-labelledby="tools-title">
+  <h2 id="tools-title" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">টুলসমূহ</h2>
+  {{tools_grid}}
+  <p class="no-results card">এই নামে কোনো টুল পাওয়া যায়নি। অন্য শব্দ দিয়ে চেষ্টা করুন, অথবা <a href="/contact/">আমাদের নতুন টুলের প্রস্তাব দিন</a>।</p>
+</section>
+
+<div class="section-title"><h2>স্মার্টফোনের জন্য মীযান অ্যাপ</h2><a href="/app/">অ্যাপ ডাউনলোড করুন →</a></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>কুরআন মাজিদ ও তাফসির</h3><p>উসমানি লিপিতে সোনালি অলংকৃত মুসহাফের পৃষ্ঠা। যেকোনো আয়াতে দীর্ঘক্ষণ চাপ দিয়ে তার তাফসির পড়ুন, তিলাওয়াত শুনুন, সংরক্ষণ করুন বা শেয়ার করুন; সঙ্গে আছে ফোকাস মোড ও খতম অনুসরণ।</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="15" r="2"/><circle cx="6" cy="8" r="2"/><circle cx="6" cy="15" r="2"/><path d="M12 19v3"/><circle cx="12" cy="18" r="1.5"/></svg></span><div><h3>দলিল ও তাখরিজসহ 334টি যিকির</h3><p>সকাল-সন্ধ্যার যিকির, নামাজের যিকির, কুরআনের দোয়া ও হিসনুল মুসলিমের 24টি বিভাগ — উৎস, বর্ণনাকারী ও হাদিসের মান উল্লেখসহ এবং ইন্টারঅ্যাকটিভ কাউন্টার।</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v3"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M4 22V12h16v10"/><path d="M10 22v-5a2 2 0 0 1 4 0v5"/><path d="M2 22h20"/></svg></span><div><h3>নামাজের অ্যালার্ট ও 5টি উইজেট</h3><p>ইন্টারনেট ছাড়াই কাজ করে এমন নামাজের সময়সূচি ও আজানের অ্যালার্ট, সঙ্গে হোম স্ক্রিনের জন্য 5টি উইজেট (সময়সূচি, পরবর্তী নামাজ, আজকের আয়াত, হিজরি তারিখ ও খতম)।</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></span><div><h3>15টি আন্তর্জাতিক ভাষা, বিজ্ঞাপনমুক্ত</h3><p>ইন্টারফেস এবং কুরআনের অর্থানুবাদ, যিকির ও শরয়ি দলিলের অনুবাদ 15টি ভাষায়, ইন্টারফেসের 10টি রং; 100% ইন্টারনেট ছাড়াই চলে এবং কোনো বিজ্ঞাপন নেই।</p></div></div>
+  </div>
+  <div class="app-home-cta">
+    <a class="btn" href="/app/">মীযান অ্যাপ বিনামূল্যে ডাউনলোড করুন</a>
+    <span class="muted">Google Play-তে পাওয়া যাচ্ছে · iPhone শীঘ্রই আসছে</span>
+  </div>
+</section>
+
+<div class="section-title"><h2>কেন মীযান?</h2></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>দলিলভিত্তিক ও শরয়ি নির্ভুলতা</h3><p>হিসাবের নিয়মগুলো অধিকাংশ ফকিহের নির্ভরযোগ্য মতের ওপর ভিত্তি করে তৈরি, সঙ্গে শরয়ি দলিল এবং মতভেদের স্থানগুলোর ব্যাখ্যা।</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h3>সম্পূর্ণ গোপনীয়তা</h3><p>সব হিসাব ও রিডিং আপনার ডিভাইসেই স্থানীয়ভাবে সম্পন্ন হয়; আমরা আপনার সংখ্যা বা অবস্থান কোনো সার্ভারে পাঠাই না।</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><div><h3>দ্রুত এবং ইন্টারনেট ছাড়াই চলে</h3><p>লেখার সঙ্গে সঙ্গে তাৎক্ষণিক ফলাফল, 15টি ভাষায় স্পষ্ট ইন্টারফেস — মোবাইল ও কম্পিউটারে, নেটওয়ার্ক সংযোগ ছাড়াও কাজ করে।</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/><path d="M12 8v4l3 2"/></svg></span><div><h3>সর্বদা বিনামূল্যে</h3><p>সব টুল, মুসহাফ, তাফসির ও যিকির-আযকার নিবন্ধন বা সাবস্ক্রিপশন ছাড়াই বিনামূল্যে পাওয়া যায়।</p></div></div>
+  </div>
+</section>
+
+<!--AR-ONLY--><div class="section-title"><h2>সাম্প্রতিক প্রবন্ধ</h2><a href="/articles/">সব প্রবন্ধ →</a></div>
+{{articles_latest}}
+<!--/AR-ONLY-->
+
+<section class="prose card">
+  <h2>মীযান ওয়েবসাইট ও অ্যাপ সম্পর্কে</h2>
+  <p>«মীযান» ওয়েব ও স্মার্টফোনের (Google Play-তে Android, iPhone শীঘ্রই) জন্য একটি পূর্ণাঙ্গ ইসলামি ব্যবস্থা, যা একজন মুসলিমের দৈনন্দিন ইবাদতে সঙ্গী হতে এবং তার শরয়ি ও ব্যবহারিক প্রশ্নের উত্তর দিতে তৈরি করা হয়েছে: উসমানি লিপিতে কুরআন মাজিদ পাঠ, তার তাফসির নিয়ে চিন্তাভাবনা ও তিলাওয়াত শোনা; বিশুদ্ধ সনদসহ সকাল-সন্ধ্যা ও নামাজের যিকিরে নিয়মিত থাকা; এবং এ ধরনের প্রশ্নের উত্তর জানা — এ বছর আমার সম্পদের যাকাত কত? ফারায়েয অনুযায়ী ওয়ারিসদের মধ্যে মিরাস কীভাবে বণ্টন হয়? আমার শহরে নামাজের সময় কখন হয়? এখন আমার অবস্থান থেকে কিবলা কোন দিকে?</p>
+  <p><a href="/zakat-calculator/">যাকাত ক্যালকুলেটর</a> স্বর্ণ ও রৌপ্যের নিসাবের ওপর নির্ভর করে এবং পাঁচ ধরনের সম্পদ গ্রহণ করে — নগদ অর্থ, স্বর্ণ, রৌপ্য, শেয়ার ও ব্যবসায়িক পণ্য — পরিশোধযোগ্য ঋণ বাদ দিয়ে এবং শরয়ি দলিল উল্লেখ করে। আর <a href="/inheritance-calculator/">মিরাস ক্যালকুলেটর</a> ইলমুল ফারায়েযের নিয়মগুলো প্রয়োগ করে — নির্ধারিত অংশ (ফুরুয), আসাবা, হাজব, আওল ও রদ্দ — মিরাসের আয়াতসমূহ ও বণ্টনের ধাপগুলোর ব্যাখ্যাসহ, এবং মাসআলার মূল ও প্রত্যেক ওয়ারিসের অংশ ভগ্নাংশ, শতাংশ ও অঙ্কে দেখায়।</p>
+  <p><a href="/prayer-times/">নামাজের সময়সূচি</a> টুলটি নির্ভুল জ্যোতির্বিজ্ঞানী সমীকরণের মাধ্যমে সময় হিসাব করে এবং আপনার দেশে প্রচলিত হিসাব পদ্ধতি বেছে নেওয়ার সুযোগ দেয়; আর <a href="/qibla-direction/">কিবলার দিক</a> টুলটি মোবাইলে একটি ইন্টারঅ্যাকটিভ কম্পাস দেয়। <a href="/hijri-converter/">তারিখ রূপান্তরকারী</a> সৌদি আরবে সরকারিভাবে স্বীকৃত উম্মুল কুরা ক্যালেন্ডারের ওপর নির্ভর করে।</p>
+  <div class="note"><p>সব টুলের ফলাফল দিকনির্দেশনামূলক, যা বোঝা ও আনুমানিক হিসাবে সহায়তা করে; বিশেষ বা জটিল বিষয়ে আলেম ও সংশ্লিষ্ট সরকারি কর্তৃপক্ষের শরণাপন্ন হোন।</p></div>
+</section>

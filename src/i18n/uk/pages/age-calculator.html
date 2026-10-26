@@ -1,0 +1,44 @@
+<!--META
+{"title": "Калькулятор віку за хіджрою та григоріанським календарем (роки, місяці, дні)", "h1": "Калькулятор віку", "description": "Обчисліть свій вік за календарем хіджри та григоріанським календарем у роках, місяцях і днях, дізнайтеся день тижня свого народження, його дату за хіджрою, кількість прожитих днів і скільки лишилося до наступного дня народження.", "path": "/age-calculator/", "type": "tool", "nav": "age", "breadcrumb": "Калькулятор віку", "lead": "Введіть дату народження за хіджрою або за григоріанським календарем і дізнайтеся свій точний вік за обома календарями та цікаву статистику про своє життя.", "date": "2026-10-15", "scripts": ["age.js"]}
+-->
+<div class="tool-layout" id="age-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>Дата народження</h2>
+      <div class="segmented" role="tablist" id="age-cal">
+        <button type="button" role="tab" data-cal="g" aria-selected="true">Григоріанська</button>
+        <button type="button" role="tab" data-cal="h" aria-selected="false">За хіджрою</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label for="age-d">День</label><select id="age-d"></select></div>
+      <div class="field"><label for="age-m">Місяць</label><select id="age-m"></select></div>
+      <div class="field"><label for="age-y">Рік</label><input id="age-y" type="number" inputmode="numeric" placeholder="Напр.: 1995"></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="age-at">Обчислити вік на дату (григоріанську)</label>
+      <input id="age-at" type="date">
+      <span class="hint">Залиште сьогоднішню дату або змініть її, щоб дізнатися свій вік на певну дату.</span>
+    </div>
+
+    <div id="age-extra" hidden>
+      <h3 class="group-title" style="margin-top:24px">Статистика вашого віку</h3>
+      <div class="tiles" id="age-tiles"></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Ваш вік за григоріанським календарем</div>
+      <div class="big-number" id="age-g">—</div>
+    </div>
+    <div class="result-head">
+      <div class="label">Ваш вік за календарем хіджри</div>
+      <div class="big-number" id="age-h" style="color:var(--gold)">—</div>
+    </div>
+    <ul class="stat-list" id="age-list"></ul>
+    <div class="btn-row"><button type="button" class="btn" id="age-share">Поділитися</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/age.html-->

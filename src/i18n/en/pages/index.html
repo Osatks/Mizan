@@ -1,0 +1,62 @@
+<!--META
+{"title": "Mizan | Muslim Tools: Holy Quran, Zakat, Inheritance and Prayer Times", "h1": "Mizan", "description": "A free and accurate Islamic platform, tools and smartphone app: the Holy Quran with tafsir and recitation, authenticated adhkar, a zakat calculator, an inheritance calculator, prayer times and Qibla direction.", "path": "/", "type": "home", "nav": "home", "custom_hero": true, "date": "2026-10-22", "scripts": ["home.js"]}
+-->
+<!--HERO-->
+<section class="home-hero">
+  <div class="container">
+    <span class="eyebrow">✦ Free and accurate Islamic tools on the web and mobile</span>
+    <h1>Everything a Muslim needs for <span>worship and religious calculations</span> in one place</h1>
+    <p>Calculate your zakat, divide an estate according to the science of fara'id, and find prayer times, the Qibla direction and the Hijri date, along with the Mizan mobile app featuring the Holy Quran with tafsir and recitation and an encyclopedia of adhkar in 15 languages.</p>
+    <div class="hero-search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="tool-search" placeholder="Search for a tool… e.g. zakat, inheritance, prayer, Hijri" aria-label="Search for a tool" autocomplete="off">
+    </div>
+    <div class="hero-today">
+      <span class="pill">Today: <b data-today-hijri></b></span>
+      <span class="pill" data-today-greg></span>
+      <span class="pill" id="hero-next-event" hidden></span>
+    </div>
+  </div>
+</section>
+<!--/HERO-->
+<section id="tools" aria-labelledby="tools-title">
+  <h2 id="tools-title" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Tools</h2>
+  {{tools_grid}}
+  <p class="no-results card">We couldn't find a tool by that name. Try another word, or <a href="/contact/">suggest a new tool to us</a>.</p>
+</section>
+
+<div class="section-title"><h2>The Mizan smartphone app</h2><a href="/app/">Download the app →</a></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>The Holy Quran and tafsir</h3><p>Gilded Mushaf pages in the Uthmani script. Long-press any verse to read its tafsir, listen to it, bookmark it or share it, with a focus mode and khatmah tracking.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="15" r="2"/><circle cx="6" cy="8" r="2"/><circle cx="6" cy="15" r="2"/><path d="M12 19v3"/><circle cx="12" cy="18" r="1.5"/></svg></span><div><h3>334 adhkar with evidence and sources</h3><p>24 sections of morning and evening adhkar, prayer adhkar, Quranic supplications and Hisn al-Muslim, showing the source, narrator and hadith grading, with an interactive counter.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v3"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M4 22V12h16v10"/><path d="M10 22v-5a2 2 0 0 1 4 0v5"/><path d="M2 22h20"/></svg></span><div><h3>Prayer alerts and 5 widgets</h3><p>Prayer times and adhan alerts that work offline, with 5 home-screen widgets (prayer times, next prayer, verse of the day, Hijri date and khatmah).</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></span><div><h3>15 world languages and no ads</h3><p>Interface and translations of the meanings of the Quran, adhkar and religious evidence in 15 languages, with 10 interface colors; it works 100% offline and has no ads.</p></div></div>
+  </div>
+  <div class="app-home-cta">
+    <a class="btn" href="/app/">Download the Mizan app for free</a>
+    <span class="muted">Available on Google Play · iPhone coming soon</span>
+  </div>
+</section>
+
+<div class="section-title"><h2>Why Mizan?</h2></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>Grounded and religiously accurate</h3><p>The calculation rules follow the position relied upon by the majority of jurists, with the religious evidence attached and points of difference explained.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h3>Complete privacy</h3><p>All calculations and readings happen locally on your device, and we never send your figures or location to any server.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><div><h3>Fast and works offline</h3><p>Instant results as you type, with a clear interface in 15 languages that works on mobile and desktop, even without a network connection.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/><path d="M12 8v4l3 2"/></svg></span><div><h3>Always free</h3><p>All tools, the Mushaf, the tafsirs and the adhkar are available for free, with no registration or subscription.</p></div></div>
+  </div>
+</section>
+
+<!--AR-ONLY--><div class="section-title"><h2>Latest articles</h2><a href="/articles/">All articles →</a></div>
+{{articles_latest}}
+<!--/AR-ONLY-->
+
+<section class="prose card">
+  <h2>About the Mizan website and app</h2>
+  <p>Mizan is a complete Islamic suite on the web and smartphones (Android on Google Play, iPhone coming soon), designed to accompany Muslims in their daily worship and answer their religious and practical questions: reading the Holy Quran in the Uthmani script, reflecting on its tafsir and listening to its recitation; keeping up the morning, evening and prayer adhkar with their authentic chains of narration; and knowing how much zakat is due on my wealth this year, how an estate is divided among the heirs according to the fara'id, when prayer time begins in my city, and where the Qibla is from where I am right now.</p>
+  <p>The <a href="/zakat-calculator/">zakat calculator</a> relies on the gold and silver nisab and accepts the five types of wealth: cash, gold, silver, shares and trade goods, deducting debts that are due and presenting the religious evidence. The <a href="/inheritance-calculator/">inheritance calculator</a> applies the rules of the science of fara'id, including fixed shares (furud), residuary inheritance (ta'sib), exclusion (hajb), 'awl and radd, with an explanation of the inheritance verses and the steps of the division, and it shows the base of the case and each heir's share as a fraction, a percentage and an amount.</p>
+  <p>The <a href="/prayer-times/">prayer times</a> tool calculates the times using precise astronomical equations and lets you choose the calculation method adopted in your country, while the <a href="/qibla-direction/">Qibla direction</a> tool provides an interactive compass on your phone. The <a href="/hijri-converter/">date converter</a> relies on the Umm al-Qura calendar officially adopted in the Kingdom of Saudi Arabia.</p>
+  <div class="note"><p>Results in all tools are for guidance, to help with understanding and estimation; for specific or complex cases, refer to qualified scholars and the competent official authorities.</p></div>
+</section>

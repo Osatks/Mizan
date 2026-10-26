@@ -1,0 +1,115 @@
+<!--META
+{"title": "زکوٰۃ کیلکولیٹر 2026: مال، سونے اور حصص کی زکوٰۃ درست طور پر معلوم کریں", "h1": "زکوٰۃ کیلکولیٹر", "description": "مفت اور درست زکوٰۃ کیلکولیٹر: نقدی، بینک اکاؤنٹس، سونے، چاندی، حصص اور مالِ تجارت کی زکوٰۃ، نصاب کے حساب اور قرضوں کی فوری کٹوتی کے ساتھ معلوم کریں۔", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "زکوٰۃ کیلکولیٹر", "lead": "اپنا مال اور سونے کی موجودہ قیمت درج کریں، اور فوراً جانیں کہ کیا آپ کا مال نصاب کو پہنچا ہے اور آپ پر کتنی زکوٰۃ واجب ہے۔", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">آپ کے مال کی تفصیل</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">معلومات صاف کریں</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">کرنسی</label>
+        <select id="zk-currency">
+          <option value="ر.س">سعودی ریال</option><option value="د.إ">اماراتی درہم</option><option value="د.ك">کویتی دینار</option>
+          <option value="ر.ق">قطری ریال</option><option value="د.ب">بحرینی دینار</option><option value="ر.ع">عمانی ریال</option>
+          <option value="ج.م">مصری پاؤنڈ</option><option value="د.أ">اردنی دینار</option><option value="د.ع">عراقی دینار</option>
+          <option value="د.م">مراکشی درہم</option><option value="د.ج">الجزائری دینار</option><option value="د.ت">تیونسی دینار</option>
+          <option value="ل.ل">لبنانی لیرہ</option><option value="ل.س">شامی لیرہ</option><option value="ر.ي">یمنی ریال</option>
+          <option value="ج.س">سوڈانی پاؤنڈ</option><option value="د.ل">لیبیائی دینار</option><option value="$">امریکی ڈالر</option><option value="€">یورو</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">نقدی کے لیے معتبر نصاب</label>
+        <select id="zk-basis">
+          <option value="gold">سونے کا نصاب (85 گرام)</option>
+          <option value="silver">چاندی کا نصاب (595 گرام)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> آج کی قیمتیں</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">24 قیراط سونے کی فی گرام قیمت</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="مثال: 420"><span class="unit" data-cur></span></div>
+          <span class="hint">اپنے ملک کی کسی سنار کی دکان یا معتبر ریٹ ویب سائٹ سے۔</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">چاندی کی فی گرام قیمت (اختیاری)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="مثال: 5"><span class="unit" data-cur></span></div>
+          <span class="hint">اگر آپ نے چاندی کا نصاب منتخب کیا ہے یا آپ کے پاس چاندی ہے تو ضروری ہے۔</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> نقدی اور بیلنس</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">ہاتھ میں نقدی</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">بینک اور والیٹ کے بیلنس</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">آپ کے وہ قرض جن کی واپسی متوقع ہو</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">دیگر مال (کمیٹیاں، منافع…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> سونا اور چاندی (گرام میں)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">24 قیراط سونا</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">گرام</span></div></div>
+        <div class="field"><label for="zk-g22">22 قیراط سونا</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">گرام</span></div></div>
+        <div class="field"><label for="zk-g21">21 قیراط سونا</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">گرام</span></div></div>
+        <div class="field"><label for="zk-g18">18 قیراط سونا</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">گرام</span></div></div>
+        <div class="field"><label for="zk-silver">خالص چاندی</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">گرام</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> استعمال کے زیورات کو حساب میں شامل کریں (حنفیہ کا قول، اور یہی احوط ہے)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">ان میں سے استعمال کے زیورات (گرام، 21 قیراط کے مساوی)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">گرام</span></div>
+        <span class="hint">جمہور کے قول کے مطابق کہ استعمال کے لیے رکھے گئے زیورات پر زکوٰۃ نہیں، یہ وزن حساب سے نکال دیا جائے گا۔</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> سرمایہ کاری اور تجارت</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">خرید و فروخت کے لیے حصص (بازاری قیمت)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">طویل مدتی سرمایہ کاری کے حصص (قابلِ زکوٰۃ حصہ)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">اگر معلوم ہو تو کمپنی کے قابلِ زکوٰۃ اثاثوں میں آپ کا حصہ۔</span></div>
+        <div class="field"><label for="zk-goods">مالِ تجارت (سامان کی قیمت)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> منہا کی جانے والی رقوم</p>
+      <div class="field"><label for="zk-debts">آپ کے ذمے فوری واجب الادا قرض (اس سال واجب)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">صرف سال کے دوران واجب الادا قسطیں، طویل مدتی قرض کی پوری رقم نہیں۔</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">واجب زکوٰۃ</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">سونے کی قیمت اور اپنا مال درج کریں</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>کل قابلِ زکوٰۃ مال</span><span id="zk-total">0</span></li>
+      <li><span>منہا کیے گئے قرض</span><span id="zk-debts-out">0</span></li>
+      <li><span>خالص قابلِ زکوٰۃ مال</span><span id="zk-net">0</span></li>
+      <li><span>نصاب کی مالیت</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">نصاب کے مقابلے میں مال کی شرح</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">نتیجہ شیئر کریں</button>
+      <button type="button" class="btn ghost" onclick="print()">پرنٹ کریں</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">آپ کی معلومات صرف آپ کی ڈیوائس پر محفوظ ہوتی ہیں۔ اگر خالص مال نصاب کو پہنچ جائے اور اس پر ہجری سال گزر جائے تو زکوٰۃ کی مقدار اس کا 2.5% ہے۔</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

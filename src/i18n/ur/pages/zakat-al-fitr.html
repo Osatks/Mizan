@@ -1,0 +1,74 @@
+<!--META
+{"title": "صدقۂ فطر کیلکولیٹر: فی کس مقدار کلو اور قیمت میں کتنی ہے", "h1": "صدقۂ فطر کیلکولیٹر", "description": "اپنے تمام اہلِ خانہ کی طرف سے صدقۂ فطر چاول، گندم یا کھجور کے کلوگرام میں، یا نقد قیمت میں معلوم کریں، اس کے احکام، ادائیگی کے وقت اور مستحقین کی وضاحت کے ساتھ۔", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "صدقۂ فطر", "lead": "اپنے اہلِ خانہ کی تعداد اور کھانے کی قسم یا قیمت منتخب کریں، اور فوراً واجب صدقۂ فطر کی مقدار جانیں۔", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>اہلِ خانہ کی معلومات</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">جن کی طرف سے ادا کر رہے ہیں ان کی تعداد (اپنے سمیت)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="کم کریں">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="بڑھائیں">+</button>
+        </div>
+        <span class="hint">اس میں آپ خود، آپ کی بیوی، آپ کے بچے اور وہ سب شامل ہیں جن کا نان نفقہ آپ پر واجب ہے۔</span>
+      </div>
+      <div class="field">
+        <span class="label">ادائیگی کا طریقہ</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">اناج (صاع)</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">نقد قیمت</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">اناج کی قسم اور صاع کی مقدار</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">اناج کی قسم</label>
+          <select id="fr-type">
+            <option value="2.5">چاول — تقریباً 2.5 کلو</option>
+            <option value="3">چاول (احتیاطاً) — 3 کلو</option>
+            <option value="2.04">گندم — تقریباً 2.04 کلو</option>
+            <option value="2.5">کھجور — تقریباً 2.5 کلو</option>
+            <option value="2.2">جَو — تقریباً 2.2 کلو</option>
+            <option value="custom">کوئی اور مقدار…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">صاع کا وزن کلوگرام میں</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">کلو</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">فی کلو قیمت (اختیاری)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">فی کلو</span></div>
+          <span class="hint">خریداری کی تقریبی لاگت جاننے کے لیے۔</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">نقد قیمت</p>
+      <div class="field">
+        <label for="fr-value">فی کس صدقۂ فطر کی قیمت</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="مثال: 35"><span class="unit">فی کس</span></div>
+        <span class="hint">آپ کے ملک کا دار الافتاء یا سرکاری ادارہ ہر سال اس کا اعلان کرتا ہے۔ قیمت ادا کرنا حنفیہ کا قول ہے، جبکہ جمہور اناج ادا کرنے کے قائل ہیں۔</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">صدقۂ فطر کی مقدار</div>
+      <div class="big-number" id="fr-total">2.5 <small>کلو</small></div>
+      <span class="badge ok" id="fr-sub">ایک فرد کی طرف سے</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>ادائیگی کا وقت:</strong> نمازِ عید سے پہلے؛ ایک یا دو دن پہلے ادا کرنا جائز ہے، اور بغیر عذر کے نمازِ عید کے بعد تک مؤخر کرنا جائز نہیں۔</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">شیئر کریں</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->

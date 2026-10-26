@@ -28,6 +28,70 @@ SRC = ROOT / "src"
 DIST = ROOT / "dist"
 CONFIG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
 
+# ---------- اللغات ----------
+# العربية في جذر الموقع، وكل لغة أخرى في مجلدها (/en/ و/fr/ …) بنفس المسارات.
+# الترجمات في src/i18n/<code>.json (قاموس مفتاحه النص العربي، للقالب وbuild.py وسكربتات الصفحات)
+# وفي src/i18n/<code>/pages و src/i18n/<code>/content (نسخ مترجمة من الصفحات وشروح الأدوات).
+_AR_FONT = "family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800"
+_LATIN_FONT = "family=Amiri:wght@400;700&family=Noto+Sans:wght@400;500;700;800&family=Noto+Serif:wght@700"
+LANGS = [
+    # الرمز، الاسم بلغته، الاتجاه، لغة Intl، og:locale، الخطوط
+    {"code": "ar", "native": "العربية", "dir": "rtl", "locale": "ar-EG-u-nu-latn", "og": "ar_AR", "fonts": _AR_FONT},
+    {"code": "en", "native": "English", "dir": "ltr", "locale": "en-u-nu-latn", "og": "en_US", "fonts": _LATIN_FONT},
+    {"code": "fr", "native": "Français", "dir": "ltr", "locale": "fr-u-nu-latn", "og": "fr_FR", "fonts": _LATIN_FONT},
+    {"code": "tr", "native": "Türkçe", "dir": "ltr", "locale": "tr-u-nu-latn", "og": "tr_TR", "fonts": _LATIN_FONT},
+    {"code": "ur", "native": "اردو", "dir": "rtl", "locale": "ur-u-nu-latn", "og": "ur_PK",
+     "fonts": "family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700"},
+    {"code": "id", "native": "Bahasa Indonesia", "dir": "ltr", "locale": "id-u-nu-latn", "og": "id_ID", "fonts": _LATIN_FONT},
+    {"code": "ms", "native": "Bahasa Melayu", "dir": "ltr", "locale": "ms-u-nu-latn", "og": "ms_MY", "fonts": _LATIN_FONT},
+    {"code": "fa", "native": "فارسی", "dir": "rtl", "locale": "fa-u-nu-latn", "og": "fa_IR",
+     "fonts": "family=Amiri:wght@400;700&family=Vazirmatn:wght@400;500;700;800"},
+    {"code": "bn", "native": "বাংলা", "dir": "ltr", "locale": "bn-u-nu-latn", "og": "bn_BD",
+     "fonts": "family=Amiri:wght@400;700&family=Noto+Sans+Bengali:wght@400;500;700;800&family=Noto+Sans:wght@400;700"},
+    {"code": "ru", "native": "Русский", "dir": "ltr", "locale": "ru-u-nu-latn", "og": "ru_RU", "fonts": _LATIN_FONT},
+    {"code": "de", "native": "Deutsch", "dir": "ltr", "locale": "de-u-nu-latn", "og": "de_DE", "fonts": _LATIN_FONT},
+    {"code": "es", "native": "Español", "dir": "ltr", "locale": "es-u-nu-latn", "og": "es_ES", "fonts": _LATIN_FONT},
+    {"code": "uk", "native": "Українська", "dir": "ltr", "locale": "uk-u-nu-latn", "og": "uk_UA", "fonts": _LATIN_FONT},
+    {"code": "uz", "native": "Oʻzbekcha", "dir": "ltr", "locale": "uz-u-nu-latn", "og": "uz_UZ", "fonts": _LATIN_FONT},
+    {"code": "kk", "native": "Қазақша", "dir": "ltr", "locale": "kk-u-nu-latn", "og": "kk_KZ", "fonts": _LATIN_FONT},
+]
+LANG = LANGS[0]   # اللغة التي تُبنى صفحاتها الآن
+_DICT = {}        # قاموسها: النص العربي ← الترجمة
+_MISSING = set()  # نصوص بلا ترجمة في اللغة الحالية (تُعرض بالعربية ويُنبَّه إليها)
+
+
+def set_lang(lang):
+    global LANG, _DICT
+    LANG = lang
+    _MISSING.clear()
+    f = SRC / "i18n" / f"{lang['code']}.json"
+    _DICT = json.loads(f.read_text(encoding="utf-8")) if lang["code"] != "ar" and f.exists() else {}
+
+
+def T(s):
+    """النص بلغة الصفحة الحالية؛ العربية هي المفتاح، وتُعاد كما هي إن لم توجد ترجمة."""
+    if LANG["code"] == "ar":
+        return s
+    v = _DICT.get(s)
+    if not v:
+        _MISSING.add(s)
+        return s
+    return v
+
+
+def prefix():
+    return "" if LANG["code"] == "ar" else "/" + LANG["code"]
+
+
+def arrow():
+    """سهم «انتقل» بحسب اتجاه اللغة."""
+    return "←" if LANG["dir"] == "rtl" else "→"
+
+
+TR_RE = re.compile(r"\{\{t:(.*?)\}\}")
+JS_T_RE = re.compile(r'\bt\("((?:[^"\\]|\\.)*)"')
+
+
 META_RE = re.compile(r"^\s*<!--META\s*(\{.*?\})\s*-->", re.S)
 INCLUDE_RE = re.compile(r"<!--INCLUDE\s+([\w/.\-]+)\s*-->")
 FAQ_RE = re.compile(r"<!--FAQ\s*(\[.*?\])\s*-->", re.S)
@@ -164,14 +228,14 @@ def accent_css():
 
 def appearance_sheet():
     """ورقة «المظهر»: الوضع (تلقائي/فاتح/داكن) وعشرة ألوان في صفين، كما في إعدادات التطبيق."""
-    modes = [("system", "تلقائي"), ("light", "فاتح"), ("dark", "داكن")]
+    modes = [("system", T("تلقائي")), ("light", T("فاتح")), ("dark", T("داكن"))]
     seg = "".join(f'<button type="button" role="radio" aria-checked="false" data-mode="{k}">{n}</button>'
                   for k, n in modes)
     check = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" '
              'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>')
     sw = "".join(
         f'<button type="button" class="sw" role="radio" aria-checked="false" data-accent="{k}" '
-        f'data-name="{n}" aria-label="{n}" title="{n}" '
+        f'data-name="{esc(T(n))}" aria-label="{esc(T(n))}" title="{esc(T(n))}" '
         f'style="--a:{recolor(BRAND_GREEN, h, c) if k != "emerald" else BRAND_GREEN};'
         f'--b:{recolor(BRAND_GREEN_DEEP, h, c) if k != "emerald" else BRAND_GREEN_DEEP}">{check}</button>'
         for k, h, c, n in ACCENTS)
@@ -179,14 +243,14 @@ def appearance_sheet():
             '<div class="ap-scrim" data-ap-close></div>'
             '<section class="ap-sheet" role="dialog" aria-modal="true" aria-labelledby="ap-title">'
             '<span class="ap-grab" aria-hidden="true"></span>'
-            '<div class="ap-head"><h2 id="ap-title">المظهر</h2>'
-            '<button type="button" class="icon-btn ap-x" data-ap-close aria-label="إغلاق">'
+            '<div class="ap-head"><h2 id="ap-title">' + T("المظهر") + '</h2>'
+            '<button type="button" class="icon-btn ap-x" data-ap-close aria-label="' + T("إغلاق") + '">'
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">'
             '<path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'
-            f'<div class="segmented ap-mode" role="radiogroup" aria-label="الوضع">{seg}</div>'
-            '<p class="ap-label">لون التطبيق · <b data-accent-name>زمردي</b></p>'
-            f'<div class="ap-swatches" role="radiogroup" aria-label="لون التطبيق">{sw}</div>'
-            '<p class="ap-note">نفس ألوان تطبيق ميزان للهواتف، ويُحفظ اختيارك على هذا الجهاز.</p>'
+            f'<div class="segmented ap-mode" role="radiogroup" aria-label="{T("الوضع")}">{seg}</div>'
+            f'<p class="ap-label">{T("لون التطبيق")} · <b data-accent-name>{T("زمردي")}</b></p>'
+            f'<div class="ap-swatches" role="radiogroup" aria-label="{T("لون التطبيق")}">{sw}</div>'
+            f'<p class="ap-note">{T("نفس ألوان تطبيق ميزان للهواتف، ويُحفظ اختيارك على هذا الجهاز.")}</p>'
             '</section></div>')
 
 
@@ -231,6 +295,12 @@ def resolve_includes(body, depth=0):
 
     def repl(m):
         f = SRC / m.group(1)
+        if LANG["code"] != "ar":
+            tf = SRC / "i18n" / LANG["code"] / m.group(1)
+            if tf.exists():
+                f = tf
+            else:
+                print(f"  تحذير ({LANG['code']}): لا ترجمة لـ {m.group(1)}، تُعرض العربية")
         if not f.exists():
             print(f"  تحذير: ملف التضمين غير موجود {f}")
             return ""
@@ -247,7 +317,7 @@ def extract_faq(body):
         items = json.loads(m.group(1))
         faqs.extend(items)
         out = ['<section class="faq card" aria-labelledby="faq-title">',
-               '<h2 id="faq-title">الأسئلة الشائعة</h2>']
+               f'<h2 id="faq-title">{T("الأسئلة الشائعة")}</h2>']
         for q, a in items:
             out.append(f'<details><summary>{esc(q)}</summary><div class="faq-a"><p>{a}</p></div></details>')
         out.append("</section>")
@@ -264,11 +334,11 @@ def tools_grid(exclude=None, limit=None):
     cards = []
     for t in items:
         cards.append(
-            f'<a class="tool-card" href="{t["path"]}" data-tool="{t["key"]}">'
+            f'<a class="tool-card" href="{prefix()}{t["path"]}" data-tool="{t["key"]}">'
             f'<span class="tool-ico">{icon(t["icon"])}</span>'
-            f'<span class="tool-name">{esc(t["name"])}</span>'
-            f'<span class="tool-desc">{esc(t["desc"])}</span>'
-            f'<span class="tool-go" aria-hidden="true">←</span></a>')
+            f'<span class="tool-name">{esc(T(t["name"]))}</span>'
+            f'<span class="tool-desc">{esc(T(t["desc"]))}</span>'
+            f'<span class="tool-go" aria-hidden="true">{arrow()}</span></a>')
     return '<div class="tools-grid">' + "".join(cards) + "</div>"
 
 
@@ -299,13 +369,15 @@ def nav_html(active):
     ]
     out = []
     for key, href, label in links:
+        if key == "articles" and LANG["code"] != "ar":
+            continue  # المقالات بالعربية فقط
         cur = ' aria-current="page"' if key == active else ""
-        out.append(f'<a href="{href}"{cur}>{label}</a>')
+        out.append(f'<a href="{prefix()}{href}"{cur}>{T(label)}</a>')
     # قائمة منسدلة لكل الأدوات
-    tools = "".join(f'<a href="{t["path"]}">{icon(t["icon"], "icon sm")}<span>{esc(t["name"])}</span></a>'
+    tools = "".join(f'<a href="{prefix()}{t["path"]}">{icon(t["icon"], "icon sm")}<span>{esc(T(t["name"]))}</span></a>'
                     for t in TOOLS)
     out.append(f'<div class="nav-more"><button type="button" class="nav-more-btn" aria-expanded="false">'
-               f'كل الأدوات <span aria-hidden="true">▾</span></button>'
+               f'{T("كل الأدوات")} <span aria-hidden="true">▾</span></button>'
                f'<div class="nav-menu">{tools}</div></div>')
     return "".join(out)
 
@@ -326,26 +398,26 @@ def tabbar(active):
     for key, href, label, svg in TABS:
         on = key == active or (key == "tools" and active in tool_keys | {"articles"})
         cur = ' aria-current="page"' if on else ""
-        out.append(f'<a href="{href}" data-tab="{key}"{cur}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+        out.append(f'<a href="{prefix()}{href}" data-tab="{key}"{cur}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
                    f'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{svg}</svg>'
-                   f'<span>{label}</span></a>')
-    return '<nav class="app-tabbar" aria-label="تنقل التطبيق">' + "".join(out) + "</nav>"
+                   f'<span>{T(label)}</span></a>')
+    return f'<nav class="app-tabbar" aria-label="{T("تنقل التطبيق")}">' + "".join(out) + "</nav>"
 
 
 def breadcrumb(meta):
     if meta["path"] == "/":
         return "", None
-    trail = [("الرئيسية", "/")]
+    trail = [(T("الرئيسية"), prefix() + "/")]
     if meta.get("type") == "article":
         trail.append(("مقالات", "/articles/"))
-    trail.append((meta.get("breadcrumb", meta["h1"]), meta["path"]))
+    trail.append((meta.get("breadcrumb", meta["h1"]), prefix() + meta["path"]))
     html_parts = []
     for i, (name, href) in enumerate(trail):
         if i == len(trail) - 1:
             html_parts.append(f'<span aria-current="page">{esc(name)}</span>')
         else:
             html_parts.append(f'<a href="{href}">{esc(name)}</a>')
-    crumbs = '<nav class="breadcrumb" aria-label="مسار التنقل">' + '<span class="sep">/</span>'.join(html_parts) + "</nav>"
+    crumbs = f'<nav class="breadcrumb" aria-label="{T("مسار التنقل")}">' + '<span class="sep">/</span>'.join(html_parts) + "</nav>"
     ld = {
         "@context": "https://schema.org", "@type": "BreadcrumbList",
         "itemListElement": [
@@ -379,6 +451,62 @@ def apply_fingerprints(text, mapping):
     return text
 
 
+def load_pages(lang):
+    """صفحات اللغة: العربية من src/pages (مع المقالات)، وغيرها من نسخها المترجمة في src/i18n/<code>/pages."""
+    if lang["code"] == "ar":
+        files = sorted((SRC / "pages").rglob("*.html"))
+    else:
+        d = SRC / "i18n" / lang["code"] / "pages"
+        files = sorted(d.glob("*.html")) if d.exists() else []
+    pages = []
+    for p in files:
+        meta, body = read_page(p)
+        meta.setdefault("h1", meta["title"])
+        pages.append((p, meta, body))
+    return pages
+
+
+def js_strings(names):
+    """النصوص المترجَمة في سكربتات الصفحة: كل t("…") في main.js وسكربتاتها."""
+    out = set()
+    for n in names:
+        f = SRC / "assets" / "js" / n
+        if f.exists():
+            for m in JS_T_RE.finditer(f.read_text(encoding="utf-8")):
+                out.add(json.loads('"' + m.group(1) + '"'))
+    return out
+
+
+def localize_links(text, paths):
+    """روابط صفحات الموقع داخل صفحة اللغة تشير إلى نسختها في اللغة نفسها إن وُجدت."""
+    if LANG["code"] == "ar":
+        return text
+
+    def repl(m):
+        path, rest = m.group(2), m.group(3) or ""
+        if path in paths:
+            return f'{m.group(1)}{prefix()}{path}{rest}"'
+        return m.group(0)
+
+    return re.sub(r'(href=")(/[^"#?]*)([#?][^"]*)?"', repl, text)
+
+
+def lang_switch(path, available):
+    """قائمة اللغات في الرأس: كل لغة تفتح الصفحة نفسها بلغتها، أو رئيسيتها إن لم تُترجم الصفحة."""
+    globe = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" '
+             'aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/>'
+             '<path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>')
+    items = []
+    for l in LANGS:
+        p = path if l["code"] in available else "/"
+        href = ("" if l["code"] == "ar" else "/" + l["code"]) + p
+        cur = ' aria-current="true"' if l["code"] == LANG["code"] else ""
+        items.append(f'<a href="{href}" hreflang="{l["code"]}" lang="{l["code"]}" dir="{l["dir"]}"{cur}>{esc(l["native"])}</a>')
+    return (f'<details class="lang-switch"><summary class="icon-btn" aria-label="{esc(T("اللغة"))}" '
+            f'title="{esc(T("اللغة"))}">{globe}<span class="lang-code">{LANG["code"].upper()}</span></summary>'
+            f'<div class="lang-menu">{"".join(items)}</div></details>')
+
+
 def build():
     if DIST.exists():
         shutil.rmtree(DIST)
@@ -388,133 +516,180 @@ def build():
     assets = fingerprint_assets()
     template = (SRC / "templates" / "base.html").read_text(encoding="utf-8")
 
-    pages = []
-    for p in sorted((SRC / "pages").rglob("*.html")):
-        meta, body = read_page(p)
-        meta.setdefault("h1", meta["title"])
-        pages.append((p, meta, body))
-    articles = [m for _, m, _ in pages if m.get("type") == "article"]
+    # كل اللغات أولاً: لكل صفحة نعرف بأي لغات توجد (روابط hreflang وقائمة اللغات)
+    all_pages = {}
+    for lang in LANGS:
+        set_lang(lang)
+        all_pages[lang["code"]] = load_pages(lang)
+    available = {}
+    for code, pages in all_pages.items():
+        for _, meta, _ in pages:
+            available.setdefault(meta["path"], []).append(code)
 
     year = date.today().year
     sitemap = []
-    for src_path, meta, body in pages:
-        body = resolve_includes(body)
-        body, faqs = extract_faq(body)
-        body = (body.replace("{{tools_grid}}", tools_grid())
-                    .replace("{{articles_list}}", articles_list(articles))
-                    .replace("{{articles_latest}}", articles_list(articles, 3))
-                    .replace("{{site_name}}", esc(CONFIG["site_name"]))
-                    .replace("{{contact_email}}", esc(CONFIG["contact_email"]))
-                    .replace("{{site_url}}", esc(CONFIG["site_url"]))
-                    .replace("{{play_url}}", esc(CONFIG["play_url"])))
+    report = []
+    for lang in LANGS:
+        set_lang(lang)
+        code = lang["code"]
+        pages = all_pages[code]
+        if not pages:
+            continue
+        articles = [m for _, m, _ in pages if m.get("type") == "article"]
+        paths = {m["path"] for _, m, _ in pages}
+        site_name = T(CONFIG["site_name"])
+        for src_path, meta, body in pages:
+            body = resolve_includes(body)
+            if code != "ar":
+                body = re.sub(r"<!--AR-ONLY-->.*?<!--/AR-ONLY-->", "", body, flags=re.S)
+            else:
+                body = body.replace("<!--AR-ONLY-->", "").replace("<!--/AR-ONLY-->", "")
+            body, faqs = extract_faq(body)
+            body = (body.replace("{{tools_grid}}", tools_grid())
+                        .replace("{{articles_list}}", articles_list(articles))
+                        .replace("{{articles_latest}}", articles_list(articles, 3))
+                        .replace("{{site_name}}", esc(site_name))
+                        .replace("{{contact_email}}", esc(CONFIG["contact_email"]))
+                        .replace("{{site_url}}", esc(CONFIG["site_url"]))
+                        .replace("{{play_url}}", esc(CONFIG["play_url"])))
 
-        if meta.get("type") == "tool":
-            body += ('<section class="related"><h2>أدوات أخرى قد تفيدك</h2>'
-                     + tools_grid(exclude=meta.get("nav"), limit=6) + "</section>")
-        if meta.get("type") == "article":
-            body += ('<section class="related"><h2>جرّب أدواتنا</h2>'
-                     + tools_grid(limit=3) + "</section>")
-
-        crumbs, crumb_ld = breadcrumb(meta)
-        url = CONFIG["site_url"] + meta["path"]
-        full_title = (meta["title"] if meta["path"] == "/"
-                      else f'{meta["title"]} | {CONFIG["site_name"]}')
-
-        ld = []
-        if meta["path"] == "/":
-            ld.append({"@context": "https://schema.org", "@type": "WebSite",
-                       "name": CONFIG["site_name"], "url": CONFIG["site_url"] + "/",
-                       "inLanguage": "ar"})
-        if crumb_ld:
-            ld.append(crumb_ld)
-        if meta.get("type") == "tool":
-            ld.append({"@context": "https://schema.org", "@type": "WebApplication",
-                       "name": meta["h1"], "url": url, "applicationCategory": "UtilitiesApplication",
-                       "operatingSystem": "Any", "inLanguage": "ar",
-                       "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
-        if meta.get("type") == "app":
-            ld.append({"@context": "https://schema.org", "@type": "MobileApplication",
-                       "name": CONFIG["site_name"], "url": url, "operatingSystem": "Android 8.0+",
-                       "applicationCategory": "LifestyleApplication", "inLanguage": "ar",
-                       "installUrl": CONFIG["play_url"], "downloadUrl": CONFIG["play_url"],
-                       "image": CONFIG["site_url"] + "/assets/img/icon-512.png",
-                       "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
-        if meta.get("type") == "article":
-            ld.append({"@context": "https://schema.org", "@type": "Article",
-                       "headline": meta["h1"], "description": meta["description"],
-                       "datePublished": meta["date"], "dateModified": meta.get("updated", meta["date"]),
-                       "inLanguage": "ar", "mainEntityOfPage": url,
-                       "author": {"@type": "Organization", "name": CONFIG["site_name"]},
-                       "publisher": {"@type": "Organization", "name": CONFIG["site_name"]}})
-        if faqs:
-            ld.append({"@context": "https://schema.org", "@type": "FAQPage",
-                       "mainEntity": [{"@type": "Question", "name": q,
-                                       "acceptedAnswer": {"@type": "Answer",
-                                                          "text": re.sub("<[^>]+>", "", a)}}
-                                      for q, a in faqs]})
-        ld_html = "".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>'
-                          for x in ld)
-
-        head_extra = ""
-        if CONFIG.get("adsense_client"):
-            head_extra += ('<script async src="https://pagead2.googlesyndication.com/pagead/js/'
-                           f'adsbygoogle.js?client={esc(CONFIG["adsense_client"])}" crossorigin="anonymous"></script>')
-        if CONFIG.get("google_analytics_id"):
-            gid = esc(CONFIG["google_analytics_id"])
-            head_extra += (f'<script async src="https://www.googletagmanager.com/gtag/js?id={gid}"></script>'
-                           "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}"
-                           f"gtag('js',new Date());gtag('config','{gid}');</script>")
-        if meta.get("noindex"):
-            head_extra += '<meta name="robots" content="noindex">'
-
-        scripts = "".join(f'<script src="/assets/js/{s}" defer></script>' for s in meta.get("scripts", []))
-
-        hero = ""
-        hm = re.search(r"<!--HERO-->(.*?)<!--/HERO-->", body, re.S)
-        if hm:
-            hero = hm.group(1)
-            body = body[:hm.start()] + body[hm.end():]
-        elif not meta.get("custom_hero"):
-            lead = f'<p class="lead">{meta["lead"]}</p>' if meta.get("lead") else ""
-            extra = ""
+            if meta.get("type") == "tool":
+                body += (f'<section class="related"><h2>{T("أدوات أخرى قد تفيدك")}</h2>'
+                         + tools_grid(exclude=meta.get("nav"), limit=6) + "</section>")
             if meta.get("type") == "article":
-                extra = (f'<p class="article-info"><span>{esc(meta.get("category", ""))}</span>'
-                         f'<span>نُشر: <time datetime="{meta["date"]}">{meta["date"]}</time></span>'
-                         f'<span>{esc(meta.get("read_time", ""))}</span></p>')
-            hero = (f'<header class="page-hero"><div class="container">{crumbs}'
-                    f'<h1>{esc(meta["h1"])}</h1>{lead}{extra}</div></header>')
+                body += ('<section class="related"><h2>جرّب أدواتنا</h2>'
+                         + tools_grid(limit=3) + "</section>")
 
-        out = template
-        for k, v in {
-            "{{title}}": esc(full_title),
-            "{{description}}": esc(meta["description"]),
-            "{{canonical}}": esc(url),
-            "{{og_type}}": "article" if meta.get("type") == "article" else "website",
-            "{{og_image}}": esc(CONFIG["site_url"] + CONFIG["default_image"]),
-            "{{site_name}}": esc(CONFIG["site_name"]),
-            "{{site_tagline}}": esc(CONFIG["site_tagline"]),
-            "{{nav}}": nav_html(meta.get("nav", "")),
-            "{{tabbar}}": tabbar(meta.get("nav", "")),
-            "{{appearance}}": appearance_sheet(),
-            "{{hero}}": hero,
-            "{{body_class}}": esc(meta.get("body_class", meta.get("type", "page"))),
-            "{{head_extra}}": head_extra,
-            "{{jsonld}}": ld_html,
-            "{{scripts}}": scripts,
-            "{{year}}": str(year),
-            "{{footer_tools}}": "".join(f'<li><a href="{t["path"]}">{esc(t["name"])}</a></li>' for t in TOOLS),
-        }.items():
-            out = out.replace(k, v)
-        out = out.replace("{{content}}", body)
+            crumbs, crumb_ld = breadcrumb(meta)
+            url = CONFIG["site_url"] + prefix() + meta["path"]
+            full_title = meta["title"] if meta["path"] == "/" else f'{meta["title"]} | {site_name}'
 
-        rel = meta.get("output") or (meta["path"].strip("/") + "/index.html" if meta["path"] != "/" else "index.html")
-        dest = DIST / rel.lstrip("/")
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(apply_fingerprints(out, assets), encoding="utf-8")
-        if not meta.get("noindex"):
-            sitemap.append((url, meta.get("updated", meta.get("date", date.today().isoformat())),
-                            "1.0" if meta["path"] == "/" else ("0.9" if meta.get("type") == "tool" else "0.7")))
-        print(f"  ✓ {meta['path']}")
+            ld = []
+            if meta["path"] == "/":
+                ld.append({"@context": "https://schema.org", "@type": "WebSite",
+                           "name": site_name, "url": CONFIG["site_url"] + prefix() + "/",
+                           "inLanguage": code})
+            if crumb_ld:
+                ld.append(crumb_ld)
+            if meta.get("type") == "tool":
+                ld.append({"@context": "https://schema.org", "@type": "WebApplication",
+                           "name": meta["h1"], "url": url, "applicationCategory": "UtilitiesApplication",
+                           "operatingSystem": "Any", "inLanguage": code,
+                           "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
+            if meta.get("type") == "app":
+                ld.append({"@context": "https://schema.org", "@type": "MobileApplication",
+                           "name": site_name, "url": url, "operatingSystem": "Android 8.0+",
+                           "applicationCategory": "LifestyleApplication", "inLanguage": code,
+                           "installUrl": CONFIG["play_url"], "downloadUrl": CONFIG["play_url"],
+                           "image": CONFIG["site_url"] + "/assets/img/icon-512.png",
+                           "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
+            if meta.get("type") == "article":
+                ld.append({"@context": "https://schema.org", "@type": "Article",
+                           "headline": meta["h1"], "description": meta["description"],
+                           "datePublished": meta["date"], "dateModified": meta.get("updated", meta["date"]),
+                           "inLanguage": "ar", "mainEntityOfPage": url,
+                           "author": {"@type": "Organization", "name": CONFIG["site_name"]},
+                           "publisher": {"@type": "Organization", "name": CONFIG["site_name"]}})
+            if faqs:
+                ld.append({"@context": "https://schema.org", "@type": "FAQPage",
+                           "mainEntity": [{"@type": "Question", "name": q,
+                                           "acceptedAnswer": {"@type": "Answer",
+                                                              "text": re.sub("<[^>]+>", "", a)}}
+                                          for q, a in faqs]})
+            ld_html = "".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>'
+                              for x in ld)
+
+            head_extra = ""
+            if CONFIG.get("adsense_client"):
+                head_extra += ('<script async src="https://pagead2.googlesyndication.com/pagead/js/'
+                               f'adsbygoogle.js?client={esc(CONFIG["adsense_client"])}" crossorigin="anonymous"></script>')
+            if CONFIG.get("google_analytics_id"):
+                gid = esc(CONFIG["google_analytics_id"])
+                head_extra += (f'<script async src="https://www.googletagmanager.com/gtag/js?id={gid}"></script>'
+                               "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}"
+                               f"gtag('js',new Date());gtag('config','{gid}');</script>")
+            if meta.get("noindex"):
+                head_extra += '<meta name="robots" content="noindex">'
+
+            # روابط hreflang بين نسخ الصفحة، والعربية هي الافتراضية
+            langs_here = available.get(meta["path"], [])
+            alternates = ""
+            if len(langs_here) > 1 and not meta.get("noindex"):
+                alternates = "".join(
+                    f'<link rel="alternate" hreflang="{c}" href="{esc(CONFIG["site_url"] + ("" if c == "ar" else "/" + c) + meta["path"])}">'
+                    for c in langs_here)
+                alternates += f'<link rel="alternate" hreflang="x-default" href="{esc(CONFIG["site_url"] + meta["path"])}">'
+
+            # قاموس سكربتات الصفحة (للغات غير العربية)
+            i18n = ""
+            if code != "ar":
+                keys = js_strings(["main.js"] + meta.get("scripts", []))
+                strings = {k: T(k) for k in sorted(keys)}
+                strings = {k: v for k, v in strings.items() if v != k}
+                i18n = ("<script>window.MIZAN_T=" + json.dumps(strings, ensure_ascii=False).replace("</", "<\\/")
+                        + "</script>")
+
+            scripts = "".join(f'<script src="/assets/js/{s}" defer></script>' for s in meta.get("scripts", []))
+
+            hero = ""
+            hm = re.search(r"<!--HERO-->(.*?)<!--/HERO-->", body, re.S)
+            if hm:
+                hero = hm.group(1)
+                body = body[:hm.start()] + body[hm.end():]
+            elif not meta.get("custom_hero"):
+                lead = f'<p class="lead">{meta["lead"]}</p>' if meta.get("lead") else ""
+                extra = ""
+                if meta.get("type") == "article":
+                    extra = (f'<p class="article-info"><span>{esc(meta.get("category", ""))}</span>'
+                             f'<span>نُشر: <time datetime="{meta["date"]}">{meta["date"]}</time></span>'
+                             f'<span>{esc(meta.get("read_time", ""))}</span></p>')
+                hero = (f'<header class="page-hero"><div class="container">{crumbs}'
+                        f'<h1>{esc(meta["h1"])}</h1>{lead}{extra}</div></header>')
+
+            out = template
+            for k, v in {
+                "{{lang}}": code,
+                "{{dir}}": lang["dir"],
+                "{{locale}}": lang["locale"],
+                "{{og_locale}}": lang["og"],
+                "{{fonts_url}}": f'https://fonts.googleapis.com/css2?{lang["fonts"]}&amp;display=swap'.replace("&family", "&amp;family"),
+                "{{title}}": esc(full_title),
+                "{{description}}": esc(meta["description"]),
+                "{{canonical}}": esc(url),
+                "{{og_type}}": "article" if meta.get("type") == "article" else "website",
+                "{{og_image}}": esc(CONFIG["site_url"] + CONFIG["default_image"]),
+                "{{site_name}}": esc(site_name),
+                "{{site_tagline}}": esc(T(CONFIG["site_tagline"])),
+                "{{nav}}": nav_html(meta.get("nav", "")),
+                "{{tabbar}}": tabbar(meta.get("nav", "")),
+                "{{appearance}}": appearance_sheet(),
+                "{{lang_switch}}": lang_switch(meta["path"], langs_here),
+                "{{hero}}": hero,
+                "{{body_class}}": esc(meta.get("body_class", meta.get("type", "page"))),
+                "{{i18n}}": i18n,
+                "{{alternates}}": alternates,
+                "{{head_extra}}": head_extra,
+                "{{jsonld}}": ld_html,
+                "{{scripts}}": scripts,
+                "{{year}}": str(year),
+                "{{footer_tools}}": "".join(f'<li><a href="{prefix()}{t["path"]}">{esc(T(t["name"]))}</a></li>' for t in TOOLS),
+            }.items():
+                out = out.replace(k, v)
+            out = TR_RE.sub(lambda m: esc(T(m.group(1))), out)
+            out = out.replace("{{content}}", body)
+            out = localize_links(out, paths)
+
+            rel = meta.get("output") or (meta["path"].strip("/") + "/index.html" if meta["path"] != "/" else "index.html")
+            if code != "ar":
+                rel = code + "/" + rel.lstrip("/")
+            dest = DIST / rel.lstrip("/")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(apply_fingerprints(out, assets), encoding="utf-8")
+            if not meta.get("noindex"):
+                sitemap.append((url, meta.get("updated", meta.get("date", date.today().isoformat())),
+                                "1.0" if meta["path"] == "/" else ("0.9" if meta.get("type") == "tool" else "0.7")))
+        report.append(f"  {code}: {len(pages)} صفحة" + (f"، {len(_MISSING)} نصًا بلا ترجمة" if _MISSING else ""))
+    set_lang(LANGS[0])
 
     # sitemap.xml
     xml = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -542,12 +717,12 @@ def build():
 
     publish_language_packs()
 
-    # عامل الخدمة: يخزّن كل الصفحات والملفات ليعمل التطبيق دون إنترنت
+    # عامل الخدمة: يخزّن الصفحات العربية والملفات ليعمل الموقع دون إنترنت (صفحات اللغات الأخرى تُخزَّن عند زيارتها)
     sw_tpl = SRC / "templates" / "sw.js"
     if sw_tpl.exists():
         import hashlib
         precache = ["/"]
-        for _, meta, _ in pages:
+        for _, meta, _ in all_pages["ar"]:
             if meta.get("noindex") and meta["path"] != "/404.html":
                 continue
             if meta["path"] not in precache:
@@ -569,7 +744,8 @@ def build():
         "/assets/*\n  Cache-Control: public, max-age=604800\n"
         "/lang/*\n  Cache-Control: public, max-age=3600\n  Access-Control-Allow-Origin: *\n", encoding="utf-8")
 
-    print(f"\nتم بناء {len(pages)} صفحة في {DIST}")
+    print("\n".join(report))
+    print(f"\nتم بناء {sum(len(p) for p in all_pages.values())} صفحة في {DIST}")
 
 
 def publish_language_packs():

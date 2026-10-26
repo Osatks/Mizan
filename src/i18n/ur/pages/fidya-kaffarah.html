@@ -1,0 +1,67 @@
+<!--META
+{"title": "روزے کا فدیہ، قسم کا کفارہ اور رمضان میں روزہ توڑنے کا کفارہ کیلکولیٹر", "h1": "فدیہ و کفارہ کیلکولیٹر", "description": "مریض اور بوڑھے کے لیے روزے کا فدیہ، دس مسکینوں کو کھانا کھلا کر قسم کا کفارہ، اور رمضان کے دن میں جماع کا کفارہ، کلوگرام میں یا قیمت میں معلوم کریں، دو ماہ کے روزوں کے اختتام کی تاریخ کے ساتھ۔", "path": "/fidya-kaffarah/", "type": "tool", "nav": "fidya", "breadcrumb": "فدیہ و کفارہ", "lead": "فدیہ یا کفارے کی قسم منتخب کریں اور معلومات درج کریں، تاکہ کھانا کھلانے کی مقدار کلوگرام میں اور اس کی تقریبی قیمت معلوم ہو سکے۔", "date": "2026-10-15", "scripts": ["fidya.js"]}
+-->
+<div class="tool-layout" id="fidya-app">
+  <section class="card">
+    <div class="segmented" role="tablist" id="fd-tabs" style="margin-bottom:18px">
+      <button type="button" role="tab" data-t="fidya" aria-selected="true">روزے کا فدیہ</button>
+      <button type="button" role="tab" data-t="yamin" aria-selected="false">قسم کا کفارہ</button>
+      <button type="button" role="tab" data-t="jima" aria-selected="false">رمضان میں جماع کا کفارہ</button>
+    </div>
+
+    <div data-panel="fidya">
+      <p class="muted" style="margin-top:0">جو شخص مستقل طور پر روزہ رکھنے سے عاجز ہو، جیسے بہت بوڑھا یا ایسا مریض جس کے شفا یاب ہونے کی امید نہ ہو: ہر دن کے بدلے ایک مسکین کو کھانا کھلائے۔</p>
+      <div class="field">
+        <span class="label" id="fd-days-l">دنوں کی تعداد</span>
+        <div class="stepper" role="group" aria-labelledby="fd-days-l"><button type="button" data-step="-1" aria-label="کم کریں">−</button><input id="fd-days" type="number" min="1" max="360" value="30" inputmode="numeric" aria-labelledby="fd-days-l"><button type="button" data-step="1" aria-label="بڑھائیں">+</button></div>
+        <div class="btn-row" style="margin-top:8px"><button type="button" class="chip" data-days="29">29 دن</button><button type="button" class="chip" data-days="30">30 دن</button></div>
+      </div>
+    </div>
+
+    <div data-panel="yamin" hidden>
+      <p class="muted" style="margin-top:0">جس نے اپنی قسم توڑ دی: دس مسکینوں کو کھانا کھلانا یا انہیں کپڑے پہنانا یا ایک غلام آزاد کرنا، اور اگر یہ میسر نہ ہو تو تین دن کے روزے۔</p>
+      <div class="field">
+        <span class="label" id="fd-oaths-l">کفاروں کی تعداد (مختلف قسمیں)</span>
+        <div class="stepper" role="group" aria-labelledby="fd-oaths-l"><button type="button" data-step="-1" aria-label="کم کریں">−</button><input id="fd-oaths" type="number" min="1" max="100" value="1" inputmode="numeric" aria-labelledby="fd-oaths-l"><button type="button" data-step="1" aria-label="بڑھائیں">+</button></div>
+        <span class="hint">اگر کفارہ ادا کرنے سے پہلے ایک ہی چیز پر بار بار قسم کھائی گئی ہو تو جمہور کے نزدیک ایک ہی کفارہ واجب ہے۔</span>
+      </div>
+    </div>
+
+    <div data-panel="jima" hidden>
+      <p class="muted" style="margin-top:0">ترتیب وار: ایک غلام آزاد کرنا، اگر میسر نہ ہو تو لگاتار دو مہینے کے روزے، اور اگر اس کی طاقت نہ ہو تو ساٹھ مسکینوں کو کھانا کھلانا۔</p>
+      <div class="field">
+        <label for="fd-start">دو مہینوں کے روزوں کے آغاز کی تاریخ (اختتام کی تاریخ معلوم کرنے کے لیے)</label>
+        <input id="fd-start" type="date">
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">ہر مسکین کے لیے کھانے کی مقدار</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fd-measure">مقدار</label>
+          <select id="fd-measure">
+            <option value="0.75">ایک مُد — تقریباً 0.75 کلو (مالکیہ اور شافعیہ)</option>
+            <option value="1.5">نصف صاع — تقریباً 1.5 کلو (معاصر فتاویٰ)</option>
+            <option value="custom">کوئی اور مقدار…</option>
+          </select>
+        </div>
+        <div class="field" id="fd-custom-wrap" hidden><label for="fd-custom">مقدار کلوگرام میں</label><div class="input-unit"><input id="fd-custom" inputmode="decimal" value="1"><span class="unit">کلو</span></div></div>
+        <div class="field"><label for="fd-price">فی کلو قیمت یا ایک کھانے کی قیمت (اختیاری)</label><input id="fd-price" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="fd-price-type">قیمت کی نوعیت</label><select id="fd-price-type"><option value="kg">فی کلو قیمت</option><option value="meal">ایک مکمل کھانے کی قیمت</option></select></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fd-label">ادا کرنا واجب</div>
+      <div class="big-number" id="fd-main">—</div>
+      <span class="badge ok" id="fd-sub"></span>
+    </div>
+    <ul class="stat-list" id="fd-stats"></ul>
+    <div class="note" id="fd-note" style="margin-bottom:0"></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fidya.html-->

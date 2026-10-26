@@ -1,0 +1,51 @@
+<!--META
+{"title": "مبدل تاریخ هجری قمری و میلادی بر اساس تقویم ام‌القری", "h1": "مبدل تاریخ هجری قمری", "description": "تاریخ را فوراً از هجری قمری به میلادی و از میلادی به هجری قمری بر اساس تقویم ام‌القری تبدیل کنید، همراه با تقویم ماهانه دوگانه که هر دو تاریخ و روز جاری را نشان می‌دهد.", "path": "/hijri-converter/", "type": "tool", "nav": "hijri", "breadcrumb": "تاریخ هجری قمری", "lead": "تبدیل فوری و دقیق میان دو تاریخ، همراه با تقویم ماهانه‌ای که تاریخ هجری قمری و میلادی را کنار هم نشان می‌دهد.", "date": "2026-10-15", "scripts": ["hijri.js"]}
+-->
+<div class="tool-layout" id="hijri-app">
+  <section class="card">
+    <div class="tool-head">
+      <h2>تبدیل تاریخ</h2>
+      <div class="segmented" role="tablist" id="hj-dir">
+        <button type="button" role="tab" data-dir="g2h" aria-selected="true">میلادی ← هجری</button>
+        <button type="button" role="tab" data-dir="h2g" aria-selected="false">هجری ← میلادی</button>
+      </div>
+    </div>
+
+    <div id="hj-g2h">
+      <div class="form-grid">
+        <div class="field"><label for="g-day">روز</label><select id="g-day"></select></div>
+        <div class="field"><label for="g-month">ماه</label><select id="g-month"></select></div>
+        <div class="field"><label for="g-year">سال</label><input id="g-year" type="number" min="623" max="2100" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div id="hj-h2g" hidden>
+      <div class="form-grid">
+        <div class="field"><label for="h-day">روز</label><select id="h-day"></select></div>
+        <div class="field"><label for="h-month">ماه</label><select id="h-month"></select></div>
+        <div class="field"><label for="h-year">سال</label><input id="h-year" type="number" min="1" max="1500" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn ghost sm" id="hj-today">تاریخ امروز</button>
+      <button type="button" class="btn ghost sm" id="hj-copy">کپی نتیجه</button>
+    </div>
+
+    <div class="conv-result" aria-live="polite">
+      <div class="label" id="hj-res-label">تاریخ هجری قمری معادل</div>
+      <div class="big-number" id="hj-res">—</div>
+      <div id="hj-res-sub" class="muted"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="cal-prev" aria-label="ماه قبل">→</button>
+      <h3 id="cal-title"></h3>
+      <button type="button" class="icon-btn" id="cal-next" aria-label="ماه بعد">←</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <p class="muted" style="font-size:.85rem;margin:12px 0 0">عدد بزرگ روز هجری قمری و عدد کوچک روز میلادی است. برای تبدیل، روی هر روز بزنید.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/hijri.html-->

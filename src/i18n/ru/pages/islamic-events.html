@@ -1,0 +1,24 @@
+<!--META
+{"title": "Сколько осталось до Рамадана и Ида? Обратный отсчёт до исламских праздников", "h1": "Исламские праздники", "description": "Обратный отсчёт в реальном времени до месяца Рамадан, Ид аль-Фитра, дня Арафа, Ид аль-Адхи, Нового года по хиджре, Ашуры и «белых дней» с их ожидаемыми датами по хиджре и по григорианскому календарю.", "path": "/islamic-events/", "type": "tool", "nav": "events", "breadcrumb": "Исламские праздники", "lead": "Узнайте, сколько дней осталось до Рамадана, двух праздников и важнейших исламских периодов, с ожидаемой григорианской датой каждого события.", "date": "2026-10-15", "scripts": ["events.js"]}
+-->
+<div id="events-app">
+  <section class="event-feature pattern-bg" aria-live="polite">
+    <div style="opacity:.85">Обратный отсчёт до</div>
+    <h2 id="ev-name">—</h2>
+    <div id="ev-date" style="opacity:.9"></div>
+    <div class="tiles">
+      <div class="tile"><b id="ev-d">0</b><span>дн.</span></div>
+      <div class="tile"><b id="ev-h">0</b><span>ч.</span></div>
+      <div class="tile"><b id="ev-m">0</b><span>мин.</span></div>
+      <div class="tile"><b id="ev-s">0</b><span>сек.</span></div>
+    </div>
+    <p id="ev-desc" style="max-width:640px;margin:18px auto 0;opacity:.9"></p>
+    <div class="btn-row" style="justify-content:center"><button type="button" class="btn gold sm" id="ev-share">Поделиться отсчётом</button></div>
+  </section>
+
+  <div class="section-title"><h2>Ближайшие события</h2><span class="muted" style="font-size:.9rem">Нажмите на любое событие, чтобы увидеть его обратный отсчёт</span></div>
+  <div class="event-list" id="ev-list"></div>
+  <p class="muted" style="font-size:.88rem;margin-top:14px">Даты рассчитаны по календарю Умм аль-Кура и могут отличаться на день в зависимости от наблюдения молодой луны, принятого в вашей стране.</p>
+</div>
+
+<!--INCLUDE content/events.html-->

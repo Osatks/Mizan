@@ -1,0 +1,61 @@
+<!--META
+{"title": "Шариатский калькулятор наследства: раздел наследства по науке фараид", "h1": "Калькулятор наследства", "description": "Точный шариатский калькулятор наследства: введите наследников и стоимость наследства, чтобы узнать долю каждого наследника в виде дроби, процента и суммы с указанием хаджба, основы задачи, ауля и радда.", "path": "/inheritance-calculator/", "type": "tool", "nav": "inheritance", "breadcrumb": "Калькулятор наследства", "lead": "Выберите пол умершего, введите стоимость наследства и живых наследников — и получите подробный раздел по правилам науки фараид.", "date": "2026-10-15", "scripts": ["inheritance.js"]}
+-->
+<div id="inh-app">
+  <div class="tool-layout">
+    <section class="card">
+      <div class="tool-head">
+        <h2>Умерший и наследство</h2>
+        <button type="button" class="btn ghost sm" id="inh-reset">Новая задача</button>
+      </div>
+      <div class="field">
+        <span class="label">Пол умершего</span>
+        <div class="segmented" id="inh-gender" role="tablist">
+          <button type="button" role="tab" data-g="m" aria-selected="true">Мужчина</button>
+          <button type="button" role="tab" data-g="f" aria-selected="false">Женщина</button>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field"><label for="inh-estate">Всё наследство</label><input id="inh-estate" inputmode="decimal" placeholder="Например: 600000"></div>
+        <div class="field"><label for="inh-funeral">Расходы на подготовку и похороны</label><input id="inh-funeral" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-debts">Долги умершего</label><input id="inh-debts" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label for="inh-will">Завещание (не наследнику)</label><input id="inh-will" inputmode="decimal" placeholder="0"><span class="hint">Не более трети остатка после долгов, если только наследники не дадут согласия.</span></div>
+      </div>
+      <ul class="stat-list" style="margin-top:16px">
+        <li><span>Чистое наследство для раздела</span><span id="inh-net">—</span></li>
+      </ul>
+    </section>
+
+    <aside class="card result-card">
+      <div class="result-head">
+        <div class="label">Сводка задачи</div>
+        <div class="big-number" id="inh-asl" style="font-size:1.8rem">—</div>
+        <span class="badge gold" id="inh-kind">Добавьте наследников</span>
+      </div>
+      <div class="share-bars" id="inh-bars"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M4 7h16"/><path d="M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg><p>Выберите наследников из списка, чтобы увидеть раздел.</p></div></div>
+    </aside>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="tool-head"><h2>Наследники, живые на момент смерти</h2><span class="muted" style="font-size:.9rem">Нажмите +, чтобы добавить наследника</span></div>
+    <div id="inh-heirs"></div>
+  </section>
+
+  <section class="card" id="inh-result" hidden style="margin-top:24px">
+    <div class="tool-head">
+      <h2>Подробности раздела</h2>
+      <div class="btn-row" style="margin:0">
+        <button type="button" class="btn sm" id="inh-share">Поделиться</button>
+        <button type="button" class="btn ghost sm" onclick="print()">Печать</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="res-table">
+      <thead><tr><th>Наследник</th><th>Кол-во</th><th>Вид наследования</th><th>Доля</th><th>Части</th><th>Процент</th><th>Сумма</th><th>На каждого</th></tr></thead>
+      <tbody id="inh-tbody"></tbody>
+    </table></div>
+    <div id="inh-notes"></div>
+    <div class="note warn"><p>Этот результат носит ориентировочный характер и основан на мнении большинства учёных; он не заменяет обращения в шариатский суд или к учёному, специализирующемуся на фараид, особенно в спорных вопросах, при наличии завещаний или наследников из числа зави-ль-архам (дальних родственников).</p></div>
+  </section>
+</div>
+
+<!--INCLUDE content/inheritance.html-->

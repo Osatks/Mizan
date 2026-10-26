@@ -1,0 +1,40 @@
+<!--META
+{"title": "Направление киблы от вашего местоположения: электронный компас киблы", "h1": "Направление киблы", "description": "Точно определите направление киблы из любой точки мира с помощью интерактивного компаса киблы на телефоне, с углом киблы от севера и расстоянием до благородной Каабы.", "path": "/qibla-direction/", "type": "tool", "nav": "qibla", "breadcrumb": "Направление киблы", "lead": "Используйте своё местоположение или выберите город, чтобы узнать угол киблы; на телефоне поворачивайте его, пока не засветится золотая стрелка.", "date": "2026-10-15", "scripts": ["praytimes.js", "qibla.js"]}
+-->
+<div class="tool-layout" id="qibla-app">
+  <section class="card">
+    <div class="compass-wrap">
+      <div class="compass" id="qb-compass">
+        <span class="phone-mark" aria-hidden="true"></span>
+        <div class="compass-dial" id="qb-dial">
+          <svg class="ticks" viewBox="0 0 200 200" aria-hidden="true" id="qb-ticks"></svg>
+          <span class="cardinal n">С</span><span class="cardinal e">В</span><span class="cardinal s">Ю</span><span class="cardinal w">З</span>
+          <div class="qibla-needle" id="qb-needle"><span class="arm"></span><span class="kaaba" title="Кааба"></span></div>
+        </div>
+        <span class="compass-center"></span>
+      </div>
+    </div>
+    <p id="qb-status" class="badge gold" style="display:flex;justify-content:center;margin:10px auto 0;max-width:420px;text-align:center">На телефоне нажмите «Включить компас», чтобы компас поворачивался вместе с телефоном</p>
+    <div class="btn-row" style="justify-content:center">
+      <button type="button" class="btn" id="qb-start">🧭 Включить компас</button>
+      <button type="button" class="btn ghost" id="qb-gps">📍 Моё местоположение</button>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Угол киблы от географического севера</div>
+      <div class="big-number" id="qb-angle">—</div>
+      <span class="badge ok" id="qb-dir"></span>
+    </div>
+    <div class="field"><label for="qb-city">Или выберите город</label><select id="qb-city"></select></div>
+    <ul class="stat-list" style="margin-top:16px">
+      <li><span>Ваше местоположение</span><span id="qb-loc">—</span></li>
+      <li><span>Расстояние до Каабы</span><span id="qb-dist">—</span></li>
+      <li><span>Текущее направление телефона</span><span id="qb-heading">—</span></li>
+    </ul>
+    <div class="note" style="margin-bottom:0"><p>Держите телефон подальше от приборов и металла; если показания нестабильны, поводите телефоном восьмёркой, чтобы откалибровать компас.</p></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/qibla.html-->

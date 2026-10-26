@@ -1,0 +1,62 @@
+<!--META
+{"title": "Mizan | Musulmon vositalari: Qurʼoni karim, zakot, meros va namoz vaqtlari", "h1": "Mizan", "description": "Bepul va aniq islomiy platforma, vositalar va smartfon ilovasi: tafsir va tilovatli Qurʼoni karim, tahqiq qilingan zikrlar, zakot kalkulyatori, meros kalkulyatori, namoz vaqtlari va qibla yoʻnalishi.", "path": "/", "type": "home", "nav": "home", "custom_hero": true, "date": "2026-10-22", "scripts": ["home.js"]}
+-->
+<!--HERO-->
+<section class="home-hero">
+  <div class="container">
+    <span class="eyebrow">✦ Veb va telefon uchun bepul va aniq islomiy vositalar</span>
+    <h1>Musulmonga kerak boʻlgan <span>ibodatlar va shariy hisob-kitoblar</span> bir joyda</h1>
+    <p>Zakotingizni hisoblang, merosni farooiz ilmi asosida taqsimlang, namoz vaqtlari, qibla yoʻnalishi va hijriy sanani bilib oling. Mizan mobil ilovasida esa tafsir va tilovatli Qurʼoni karim hamda 15 tildagi zikrlar ensiklopediyasi mavjud.</p>
+    <div class="hero-search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" id="tool-search" placeholder="Vosita qidiring… masalan: zakot, meros, namoz, hijriy" aria-label="Vosita qidirish" autocomplete="off">
+    </div>
+    <div class="hero-today">
+      <span class="pill">Bugun: <b data-today-hijri></b></span>
+      <span class="pill" data-today-greg></span>
+      <span class="pill" id="hero-next-event" hidden></span>
+    </div>
+  </div>
+</section>
+<!--/HERO-->
+<section id="tools" aria-labelledby="tools-title">
+  <h2 id="tools-title" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Vositalar</h2>
+  {{tools_grid}}
+  <p class="no-results card">Bunday nomli vosita topilmadi. Boshqa soʻzni sinab koʻring yoki <a href="/contact/">bizga yangi vosita taklif qiling</a>.</p>
+</section>
+
+<div class="section-title"><h2>Smartfonlar uchun Mizan ilovasi</h2><a href="/app/">Ilovani yuklab oling →</a></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>Qurʼoni karim va tafsir</h3><p>Usmoniy rasmdagi zarhal Mushaf sahifalari. Istalgan oyatni uzoq bosib, uning tafsirini oʻqing, tinglang, saqlang yoki ulashing; diqqat rejimi va xatmni kuzatish ham bor.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="15" r="2"/><circle cx="6" cy="8" r="2"/><circle cx="6" cy="15" r="2"/><path d="M12 19v3"/><circle cx="12" cy="18" r="1.5"/></svg></span><div><h3>Dalil va taxrijli 334 ta zikr</h3><p>Ertalabki va kechki zikrlar, namoz zikrlari, Qurʼondagi duolar va «Hisnul-muslim»dan iborat 24 boʻlim: manba, roviy va hadis darajasi koʻrsatilgan, interaktiv hisoblagich bilan.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v3"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M4 22V12h16v10"/><path d="M10 22v-5a2 2 0 0 1 4 0v5"/><path d="M2 22h20"/></svg></span><div><h3>Namoz eslatmalari va 5 ta vidjet</h3><p>Internetsiz ishlaydigan namoz vaqtlari va azon eslatmalari, bosh ekran uchun 5 ta vidjet (vaqtlar, keyingi namoz, kun oyati, hijriy sana va xatm).</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></span><div><h3>15 ta jahon tili, reklamasiz</h3><p>Interfeys, Qurʼon maʼnolari tarjimalari, zikrlar va shariy dalillar 15 tilda, interfeys uchun 10 xil rang; 100% internetsiz va reklamasiz ishlaydi.</p></div></div>
+  </div>
+  <div class="app-home-cta">
+    <a class="btn" href="/app/">Mizan ilovasini bepul yuklab oling</a>
+    <span class="muted">Google Play’da mavjud · iPhone uchun tez orada</span>
+  </div>
+</section>
+
+<div class="section-title"><h2>Nega aynan Mizan?</h2></div>
+<section class="card">
+  <div class="features">
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>Shariy asos va aniqlik</h3><p>Hisob qoidalari fuqaholar jumhuri qabul qilgan qarashlarga asoslangan, shariy dalil ilova qilinib, ixtilofli oʻrinlar koʻrsatilgan.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h3>Toʻliq maxfiylik</h3><p>Barcha hisob-kitoblar va oʻlchovlar qurilmangizda mahalliy bajariladi; raqamlaringiz yoki joylashuvingizni hech qanday serverga yubormaymiz.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><div><h3>Tezkor va internetsiz ishlaydi</h3><p>Yozish jarayonida darhol natija; 15 tildagi aniq interfeys telefon va kompyuterda, tarmoqqa ulanmasdan ham ishlaydi.</p></div></div>
+    <div class="feature"><span class="tool-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"/><path d="M12 8v4l3 2"/></svg></span><div><h3>Doimo bepul</h3><p>Barcha vositalar, Mushaf, tafsirlar va zikrlar roʻyxatdan oʻtmasdan va obunasiz bepul taqdim etiladi.</p></div></div>
+  </div>
+</section>
+
+<!--AR-ONLY--><div class="section-title"><h2>Soʻnggi maqolalar</h2><a href="/articles/">Barcha maqolalar →</a></div>
+{{articles_latest}}
+<!--/AR-ONLY-->
+
+<section class="prose card">
+  <h2>Mizan sayti va ilovasi haqida</h2>
+  <p>«Mizan» — veb va smartfonlar (Google Play’da Android, tez orada iPhone) uchun yaratilgan yaxlit islomiy tizim boʻlib, musulmonga kundalik ibodatida hamrohlik qiladi va uning shariy hamda amaliy savollariga javob beradi: Qurʼoni karimni Usmoniy rasmda oʻqish, tafsiri ustida tafakkur qilish va tilovatini tinglash; ertalabki, kechki va namoz zikrlarini sahih isnodlari bilan muntazam aytib borish; shuningdek, bu yil molimning zakoti qancha? Meros merosxoʻrlar orasida farooiz boʻyicha qanday taqsimlanadi? Shahrimda namoz vaqti qachon kiradi? Hozir turgan joyimdan qibla qaysi tomonda?</p>
+  <p><a href="/zakat-calculator/">Zakot kalkulyatori</a> oltin va kumush nisobiga tayanadi va mol-mulkning besh turini — naqd pul, oltin, kumush, aksiyalar va savdo mollarini qabul qiladi, toʻlanishi lozim boʻlgan qarzlarni ayiradi va shariy dalillarni koʻrsatadi. <a href="/inheritance-calculator/">Meros kalkulyatori</a> esa farooiz ilmi qoidalarini — farz ulushlar, asaba, hajb, avl va raddni qoʻllaydi, meros oyatlari va taqsimot bosqichlarini tushuntiradi, masala aslini va har bir merosxoʻr ulushini kasr, foiz va summada koʻrsatadi.</p>
+  <p><a href="/prayer-times/">Namoz vaqtlari</a> vositasi vaqtlarni aniq astronomik formulalar bilan hisoblaydi va mamlakatingizda qabul qilingan hisoblash usulini tanlash imkonini beradi, <a href="/qibla-direction/">qibla yoʻnalishi</a> vositasi esa telefonda interaktiv kompasni taqdim etadi. <a href="/hijri-converter/">Sana oʻgirgichi</a> Saudiya Arabistoni Podshohligida rasman qabul qilingan Ummul-Quro taqvimiga asoslanadi.</p>
+  <div class="note"><p>Barcha vositalardagi natijalar tushunish va taxminlashga yordam beruvchi yoʻl-yoʻriq xarakterida; xususiy yoki murakkab masalalarda ulamolar va vakolatli rasmiy idoralarga murojaat qilinadi.</p></div>
+</section>

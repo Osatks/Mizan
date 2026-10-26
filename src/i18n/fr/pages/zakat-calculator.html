@@ -1,0 +1,115 @@
+<!--META
+{"title": "Calculateur de zakat 2026 : calculez précisément la zakat sur l’argent, l’or et les actions", "h1": "Calculateur de zakat", "description": "Un calculateur de zakat gratuit et précis : calculez la zakat sur les liquidités, les comptes bancaires, l’or, l’argent, les actions et les marchandises commerciales, avec le calcul du nisab et la déduction des dettes instantanément.", "path": "/zakat-calculator/", "type": "tool", "nav": "zakat", "breadcrumb": "Calculateur de zakat", "lead": "Saisissez vos biens et le cours actuel de l’or, et vous saurez instantanément si vous avez atteint le nisab et combien de zakat vous devez.", "date": "2026-10-15", "scripts": ["zakat.js"]}
+-->
+<div class="tool-layout" id="zakat-app">
+  <section class="card" aria-labelledby="zk-form">
+    <div class="tool-head">
+      <h2 id="zk-form">Vos biens</h2>
+      <button type="button" class="btn ghost sm" id="zk-reset">Effacer les données</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="zk-currency">Devise</label>
+        <select id="zk-currency">
+          <option value="&#1585;.&#1587;">Riyal saoudien</option><option value="&#1583;.&#1573;">Dirham émirati</option><option value="&#1583;.&#1603;">Dinar koweïtien</option>
+          <option value="&#1585;.&#1602;">Riyal qatari</option><option value="&#1583;.&#1576;">Dinar bahreïni</option><option value="&#1585;.&#1593;">Rial omanais</option>
+          <option value="&#1580;.&#1605;">Livre égyptienne</option><option value="&#1583;.&#1571;">Dinar jordanien</option><option value="&#1583;.&#1593;">Dinar irakien</option>
+          <option value="&#1583;.&#1605;">Dirham marocain</option><option value="&#1583;.&#1580;">Dinar algérien</option><option value="&#1583;.&#1578;">Dinar tunisien</option>
+          <option value="&#1604;.&#1604;">Livre libanaise</option><option value="&#1604;.&#1587;">Livre syrienne</option><option value="&#1585;.&#1610;">Rial yéménite</option>
+          <option value="&#1580;.&#1587;">Livre soudanaise</option><option value="&#1583;.&#1604;">Dinar libyen</option><option value="$">Dollar américain</option><option value="€">Euro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zk-basis">Nisab retenu pour l’argent liquide</label>
+        <select id="zk-basis">
+          <option value="gold">Nisab de l’or (85 grammes)</option>
+          <option value="silver">Nisab de l’argent (595 grammes)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Cours du jour</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="zk-gold-price">Prix du gramme d’or 24 carats</label>
+          <div class="input-unit"><input id="zk-gold-price" inputmode="decimal" placeholder="ex. : 420"><span class="unit" data-cur></span></div>
+          <span class="hint">Auprès d’une bijouterie ou d’un site de cours fiable dans votre pays.</span>
+        </div>
+        <div class="field">
+          <label for="zk-silver-price">Prix du gramme d’argent (facultatif)</label>
+          <div class="input-unit"><input id="zk-silver-price" inputmode="decimal" placeholder="ex. : 5"><span class="unit" data-cur></span></div>
+          <span class="hint">Requis si vous choisissez le nisab de l’argent ou si vous possédez de l’argent.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> Liquidités et soldes</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-cash">Espèces en main</label><div class="input-unit"><input id="zk-cash" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-bank">Soldes bancaires et portefeuilles</label><div class="input-unit"><input id="zk-bank" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-receivable">Créances dont le remboursement est attendu</label><div class="input-unit"><input id="zk-receivable" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-other">Autres fonds (tontines, bénéfices…)</label><div class="input-unit"><input id="zk-other" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9h12l3 5H3z"/><path d="M8 14l-2 6h12l-2-6"/></svg> Or et argent (en grammes)</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-g24">Or 24 carats</label><div class="input-unit"><input id="zk-g24" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-g22">Or 22 carats</label><div class="input-unit"><input id="zk-g22" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-g21">Or 21 carats</label><div class="input-unit"><input id="zk-g21" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-g18">Or 18 carats</label><div class="input-unit"><input id="zk-g18" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="field"><label for="zk-silver">Argent pur</label><div class="input-unit"><input id="zk-silver" inputmode="decimal" placeholder="0"><span class="unit">g</span></div></div>
+      </div>
+      <label class="check" style="margin-top:14px"><input type="checkbox" id="zk-jewelry" checked> Inclure les bijoux de parure portés dans le calcul (avis des hanafites, et le plus prudent)</label>
+      <div class="field" style="margin-top:12px" id="zk-jewel-wrap" hidden>
+        <label for="zk-jewel-g">Dont bijoux de parure portés (grammes, équivalent 21 carats)</label>
+        <div class="input-unit"><input id="zk-jewel-g" inputmode="decimal" placeholder="0"><span class="unit">g</span></div>
+        <span class="hint">Ce poids sera exclu du calcul selon l’avis de la majorité, pour qui les bijoux destinés à l’usage ne sont pas soumis à la zakat.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Investissement et commerce</p>
+      <div class="form-grid">
+        <div class="field"><label for="zk-stocks-trade">Actions destinées au négoce (valeur de marché)</label><div class="input-unit"><input id="zk-stocks-trade" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+        <div class="field"><label for="zk-stocks-long">Actions d’investissement à long terme (assiette zakatable)</label><div class="input-unit"><input id="zk-stocks-long" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Votre part des actifs zakatables de la société, si vous la connaissez.</span></div>
+        <div class="field"><label for="zk-goods">Marchandises commerciales (valeur du stock)</label><div class="input-unit"><input id="zk-goods" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14" transform="rotate(45 12 12)"/></svg> À déduire</p>
+      <div class="field"><label for="zk-debts">Dettes exigibles à votre charge (dues cette année)</label><div class="input-unit"><input id="zk-debts" inputmode="decimal" placeholder="0"><span class="unit" data-cur></span></div><span class="hint">Uniquement les échéances dues pendant le hawl, et non la totalité d’un prêt à long terme.</span></div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label">Zakat due</div>
+      <div class="big-number" id="zk-amount">0</div>
+      <div id="zk-status" class="badge gold">Saisissez le cours de l’or et vos biens</div>
+    </div>
+    <ul class="stat-list">
+      <li><span>Total des biens zakatables</span><span id="zk-total">0</span></li>
+      <li><span>Dettes déduites</span><span id="zk-debts-out">0</span></li>
+      <li><span>Assiette nette de la zakat</span><span id="zk-net">0</span></li>
+      <li><span>Valeur du nisab</span><span id="zk-nisab">—</span></li>
+    </ul>
+    <div style="margin-top:16px">
+      <div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">Assiette par rapport au nisab</div>
+      <div class="progress"><i id="zk-progress" style="width:0"></i></div>
+    </div>
+    <div id="zk-breakdown" style="margin-top:18px"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="zk-share">Partager le résultat</button>
+      <button type="button" class="btn ghost" onclick="print()">Imprimer</button>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin:14px 0 0">Vos données sont enregistrées uniquement sur votre appareil. Le taux de la zakat est de 2,5 % de l’assiette nette si elle atteint le nisab et qu’une année hégirienne (hawl) s’est écoulée sur elle.</p>
+  </aside>
+</div>
+
+<!--INCLUDE content/zakat.html-->

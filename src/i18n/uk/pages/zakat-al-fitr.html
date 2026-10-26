@@ -1,0 +1,74 @@
+<!--META
+{"title": "Калькулятор закят аль-фітр: скільки за кожну особу в кілограмах і грошах", "h1": "Калькулятор закят аль-фітр", "description": "Обчисліть закят аль-фітр за всіх членів вашої сім’ї в кілограмах рису, пшениці чи фініків або в грошовому еквіваленті, з поясненням його положень, часу сплати та тих, хто має на нього право.", "path": "/zakat-al-fitr/", "type": "tool", "nav": "fitr", "breadcrumb": "Закят аль-фітр", "lead": "Вкажіть кількість членів сім’ї та вид їжі або вартість — і одразу дізнаєтеся обов’язковий розмір закят аль-фітр.", "date": "2026-10-15", "scripts": ["fitr.js"]}
+-->
+<div class="tool-layout" id="fitr-app">
+  <section class="card">
+    <div class="tool-head"><h2>Дані сім’ї</h2></div>
+    <div class="form-grid">
+      <div class="field">
+        <span class="label" id="fr-p-l">Кількість осіб, за яких ви сплачуєте (разом із вами)</span>
+        <div class="stepper" role="group" aria-labelledby="fr-p-l">
+          <button type="button" data-step="-1" aria-label="Зменшити">−</button>
+          <input id="fr-people" type="number" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="fr-p-l">
+          <button type="button" data-step="1" aria-label="Збільшити">+</button>
+        </div>
+        <span class="hint">Включає вас, вашу дружину, дітей і тих, кого ви зобов’язані утримувати.</span>
+      </div>
+      <div class="field">
+        <span class="label">Спосіб сплати</span>
+        <div class="segmented" role="tablist" id="fr-mode">
+          <button type="button" role="tab" aria-selected="true" data-mode="food">Їжею (са’)</button>
+          <button type="button" role="tab" aria-selected="false" data-mode="money">Грошима</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-food">
+      <p class="group-title">Вид їжі та вага са’а</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="fr-type">Вид їжі</label>
+          <select id="fr-type">
+            <option value="2.5">Рис — приблизно 2.5 кг</option>
+            <option value="3">Рис (обережніше) — 3 кг</option>
+            <option value="2.04">Пшениця — приблизно 2.04 кг</option>
+            <option value="2.5">Фініки — приблизно 2.5 кг</option>
+            <option value="2.2">Ячмінь — приблизно 2.2 кг</option>
+            <option value="custom">Інша кількість…</option>
+          </select>
+        </div>
+        <div class="field" id="fr-custom-wrap" hidden>
+          <label for="fr-custom">Вага са’а в кілограмах</label>
+          <div class="input-unit"><input id="fr-custom" inputmode="decimal" value="2.5"><span class="unit">кг</span></div>
+        </div>
+        <div class="field">
+          <label for="fr-kgprice">Ціна кілограма (необов’язково)</label>
+          <div class="input-unit"><input id="fr-kgprice" inputmode="decimal" placeholder="0"><span class="unit">за кг</span></div>
+          <span class="hint">Щоб дізнатися приблизну вартість купівлі.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="fr-money" hidden>
+      <p class="group-title">Грошовий еквівалент</p>
+      <div class="field">
+        <label for="fr-value">Сума закят аль-фітр за одну особу</label>
+        <div class="input-unit"><input id="fr-value" inputmode="decimal" placeholder="Напр.: 35"><span class="unit">за особу</span></div>
+        <span class="hint">Її щороку оголошує дар аль-іфта або офіційний орган вашої країни. Сплата грошима — думка ханафітів, а більшість учених вважає, що слід давати їжу.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card result-card" aria-live="polite">
+    <div class="result-head">
+      <div class="label" id="fr-label">Розмір закят аль-фітр</div>
+      <div class="big-number" id="fr-total">2.5 <small>кг</small></div>
+      <span class="badge ok" id="fr-sub">за одну особу</span>
+    </div>
+    <ul class="stat-list" id="fr-stats"></ul>
+    <div class="note" style="margin-bottom:0"><p><strong>Час сплати:</strong> до святкового намазу; дозволено сплатити за день-два до нього, але не можна відкладати на після святкового намазу без поважної причини.</p></div>
+    <div class="btn-row"><button type="button" class="btn" id="fr-share">Поділитися</button></div>
+  </aside>
+</div>
+
+<!--INCLUDE content/fitr.html-->
