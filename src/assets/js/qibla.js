@@ -15,7 +15,7 @@
   }
   $("qb-ticks").innerHTML = ticks;
 
-  const DIRS = ["الشمال", "الشمال الشرقي", "الشرق", "الجنوب الشرقي", "الجنوب", "الجنوب الغربي", "الغرب", "الشمال الغربي"];
+  const DIRS = [t("الشمال"), t("الشمال الشرقي"), t("الشرق"), t("الجنوب الشرقي"), t("الجنوب"), t("الجنوب الغربي"), t("الغرب"), t("الشمال الغربي")];
   const dirName = (a) => DIRS[Math.round(a / 45) % 8];
 
   function renderCity() {
@@ -25,9 +25,9 @@
   function update() {
     qibla = P.qibla(loc.lat, loc.lng);
     $("qb-angle").innerHTML = `${qibla.toFixed(1)}°`;
-    $("qb-dir").textContent = "باتجاه " + dirName(qibla);
+    $("qb-dir").textContent = t("باتجاه {dir}", { dir: dirName(qibla) });
     $("qb-loc").textContent = loc.name;
-    $("qb-dist").textContent = M.fmt(P.distanceKm(loc.lat, loc.lng), 0) + " كم";
+    $("qb-dist").textContent = t("{n} كم", { n: M.fmt(P.distanceKm(loc.lat, loc.lng), 0) });
     $("qb-needle").style.transform = `rotate(${qibla}deg)`;
     rotate();
   }
@@ -46,7 +46,7 @@
     $("qb-compass").classList.toggle("aligned", aligned);
     const st = $("qb-status");
     st.className = "badge " + (aligned ? "ok" : "gold");
-    st.textContent = aligned ? "✓ أنت متجه نحو القبلة" : `أدِر هاتفك ${(((qibla - smooth + 360) % 360) < 180 ? "يميناً" : "يساراً")} بمقدار ${Math.round(off)}°`;
+    st.textContent = aligned ? t("✓ أنت متجه نحو القبلة") : (((qibla - smooth + 360) % 360) < 180 ? t("أدِر هاتفك يميناً بمقدار {deg}°", { deg: Math.round(off) }) : t("أدِر هاتفك يساراً بمقدار {deg}°", { deg: Math.round(off) }));
     if (aligned && navigator.vibrate && !rotate._v) { navigator.vibrate(60); rotate._v = true; }
     if (!aligned) rotate._v = false;
   }
@@ -65,18 +65,18 @@
     try {
       if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
         const r = await DeviceOrientationEvent.requestPermission();
-        if (r !== "granted") throw new Error("تم رفض إذن البوصلة");
+        if (r !== "granted") throw new Error(t("تم رفض إذن البوصلة"));
       }
       if ("ondeviceorientationabsolute" in window) addEventListener("deviceorientationabsolute", onOrient);
       else addEventListener("deviceorientation", onOrient);
-      $("qb-status").textContent = "حرّك هاتفك ببطء…";
-      setTimeout(() => { if (heading == null) { $("qb-status").textContent = "لا تتوفر بوصلة في هذا الجهاز. استخدم الزاوية الموضحة مع بوصلة عادية."; } }, 2500);
-    } catch (err) { M.toast(err.message || "تعذر تشغيل البوصلة"); }
+      $("qb-status").textContent = t("حرّك هاتفك ببطء…");
+      setTimeout(() => { if (heading == null) { $("qb-status").textContent = t("لا تتوفر بوصلة في هذا الجهاز. استخدم الزاوية الموضحة مع بوصلة عادية."); } }, 2500);
+    } catch (err) { M.toast(err.message || t("تعذر تشغيل البوصلة")); }
   });
 
   $("qb-gps").addEventListener("click", async () => {
     const b = $("qb-gps"); b.disabled = true;
-    try { loc = await P.geolocate(); P.setLocation(loc); renderCity(); update(); M.toast("تم تحديد موقعك ✓"); }
+    try { loc = await P.geolocate(); P.setLocation(loc); renderCity(); update(); M.toast(t("تم تحديد موقعك ✓")); }
     catch (e) { M.toast(e.message); }
     b.disabled = false;
   });

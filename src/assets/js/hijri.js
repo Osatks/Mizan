@@ -32,25 +32,25 @@
       const y = +$("g-year").value, m = +$("g-month").value;
       fillDays($("g-day"), new Date(y, m, 0).getDate());
       const d = +$("g-day").value;
-      if (!y || y < 623 || y > 2100) { res.textContent = "—"; sub.textContent = "أدخل سنة بين 623 و2100"; return; }
+      if (!y || y < 623 || y > 2100) { res.textContent = "—"; sub.textContent = t("أدخل سنة بين 623 و2100"); return; }
       const g = new Date(y, m - 1, d); g.setFullYear(y);
       const h = M.toHijri(g);
       res.textContent = M.hijriStr(h);
       sub.textContent = `${M.WEEKDAYS[g.getDay()]} — ${M.gregStr(g)}`;
-      $("hj-res-label").textContent = "التاريخ الهجري الموافق";
-      resultText = `${M.gregStr(g)} يوافق ${M.hijriStr(h)}`;
+      $("hj-res-label").textContent = t("التاريخ الهجري الموافق");
+      resultText = t("{from} يوافق {to}", { from: M.gregStr(g), to: M.hijriStr(h) });
       calYM = { y: h.y, m: h.m };
     } else {
       const y = +$("h-year").value, m = +$("h-month").value;
-      if (!y || y < 1 || y > 1500) { res.textContent = "—"; sub.textContent = "أدخل سنة هجرية بين 1 و1500"; return; }
+      if (!y || y < 1 || y > 1500) { res.textContent = "—"; sub.textContent = t("أدخل سنة هجرية بين 1 و1500"); return; }
       fillDays($("h-day"), M.hijriMonthLength(y, m));
       const d = +$("h-day").value;
       const g = M.fromHijri(y, m, d);
-      if (!g) { res.textContent = "—"; sub.textContent = "تعذر التحويل لهذا التاريخ"; return; }
+      if (!g) { res.textContent = "—"; sub.textContent = t("تعذر التحويل لهذا التاريخ"); return; }
       res.textContent = M.gregStr(g);
       sub.textContent = `${M.WEEKDAYS[g.getDay()]} — ${M.hijriStr({ y, m, d })}`;
-      $("hj-res-label").textContent = "التاريخ الميلادي الموافق";
-      resultText = `${M.hijriStr({ y, m, d })} يوافق ${M.gregStr(g)}`;
+      $("hj-res-label").textContent = t("التاريخ الميلادي الموافق");
+      resultText = t("{from} يوافق {to}", { from: M.hijriStr({ y, m, d }), to: M.gregStr(g) });
       calYM = { y, m };
     }
     renderCal();
@@ -66,14 +66,14 @@
     const len = M.hijriMonthLength(y, m);
     const last = new Date(first.getFullYear(), first.getMonth(), first.getDate() + len - 1);
     const gSpan = first.getMonth() === last.getMonth() ? `${M.GREG_MONTHS[first.getMonth()]} ${first.getFullYear()}` : `${M.GREG_MONTHS[first.getMonth()]} – ${M.GREG_MONTHS[last.getMonth()]} ${last.getFullYear()}`;
-    $("cal-title").innerHTML = `${M.HIJRI_MONTHS[m - 1]} ${y} هـ<br><small class="muted" style="font-family:var(--font);font-size:.8rem">${gSpan}</small>`;
+    $("cal-title").innerHTML = `${t("{month} {y} هـ", { month: M.HIJRI_MONTHS[m - 1], y })}<br><small class="muted" style="font-family:var(--font);font-size:.8rem">${gSpan}</small>`;
     const today = new Date(); today.setHours(0, 0, 0, 0);
-    let html = ["أحد", "اثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"].map((d) => `<div class="dow">${d}</div>`).join("");
+    let html = [t("أحد"), t("اثنين"), t("ثلاثاء"), t("أربعاء"), t("خميس"), t("جمعة"), t("سبت")].map((d) => `<div class="dow">${d}</div>`).join("");
     for (let i = 0; i < first.getDay(); i++) html += "<div></div>";
     for (let d = 1; d <= len; d++) {
       const g = new Date(first.getFullYear(), first.getMonth(), first.getDate() + d - 1);
       const isToday = g.getTime() === today.getTime();
-      html += `<button type="button" class="day${isToday ? " today" : ""}" data-h="${d}" style="border:0;cursor:pointer" aria-label="${d} ${M.HIJRI_MONTHS[m - 1]} يوافق ${M.gregStr(g)}"><b>${d}</b><small>${g.getDate()}/${g.getMonth() + 1}</small></button>`;
+      html += `<button type="button" class="day${isToday ? " today" : ""}" data-h="${d}" style="border:0;cursor:pointer" aria-label="${t("{from} يوافق {to}", { from: `${d} ${M.HIJRI_MONTHS[m - 1]}`, to: M.gregStr(g) })}"><b>${d}</b><small>${g.getDate()}/${g.getMonth() + 1}</small></button>`;
     }
     $("cal-grid").innerHTML = html;
   }
@@ -97,7 +97,7 @@
   $("hijri-app").addEventListener("change", convert);
   $("hijri-app").addEventListener("input", (e) => { if (e.target.type === "number") convert(); });
   $("hj-today").addEventListener("click", setToday);
-  $("hj-copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(resultText); M.toast("تم النسخ ✓"); } catch (e) {} });
+  $("hj-copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(resultText); M.toast(t("تم النسخ ✓")); } catch (e) {} });
 
   setToday();
 })();
