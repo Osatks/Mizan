@@ -819,3 +819,32 @@ a.store-badge:focus-visible { outline: 3px solid #f1cf72; outline-offset: 3px; }
 .app-banner small { color: var(--muted); font-size: .8rem; }
 .app-banner .btn { flex: none; }
 .app-banner .close { flex: none; border: 0; background: none; color: var(--muted); font-size: 1.4rem; line-height: 1; padding: 4px 6px; cursor: pointer; }
+
+/* ===== تعدد اللغات ===== */
+.lang-switch { position: relative; }
+.lang-switch > summary { list-style: none; width: auto; min-width: 42px; padding: 0 8px; grid-auto-flow: column; gap: 4px; }
+.lang-switch > summary::-webkit-details-marker { display: none; }
+.lang-code { font-size: .72rem; font-weight: 800; letter-spacing: .02em; font-family: system-ui, sans-serif; }
+.lang-menu {
+  position: absolute; top: calc(100% + 8px); inset-inline-end: 0; z-index: 70; width: 210px; max-height: min(70vh, 520px); overflow: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  padding: 6px; display: grid; gap: 2px;
+}
+.lang-menu a { padding: 8px 12px; border-radius: 10px; text-decoration: none; color: var(--text); font-size: .95rem; text-align: start; font-family: system-ui, "Segoe UI", sans-serif; }
+.lang-menu a:hover { background: var(--primary-soft); color: var(--primary); }
+.lang-menu a[aria-current="true"] { color: var(--primary); background: var(--primary-soft); font-weight: 700; }
+@media (max-width: 520px) { .lang-code { display: none; } .lang-switch > summary { width: 42px; padding: 0; } }
+
+/* خطوط كل لغة؛ الآيات القرآنية تبقى بخط أميري */
+:root:not([lang="ar"]):not([lang="ur"]):not([lang="fa"]):not([lang="bn"]) {
+  --font: "Noto Sans", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Noto Serif", Georgia, serif;
+}
+:root[lang="ur"] { --font: "Noto Naskh Arabic", "Segoe UI", Tahoma, sans-serif; --font-display: "Noto Naskh Arabic", "Amiri", serif; }
+:root[lang="fa"] { --font: "Vazirmatn", "Segoe UI", Tahoma, sans-serif; --font-display: "Vazirmatn", "Amiri", serif; }
+:root[lang="bn"] { --font: "Noto Sans Bengali", "Noto Sans", system-ui, sans-serif; --font-display: "Noto Sans Bengali", "Noto Sans", sans-serif; }
+:root:not([lang="ar"]) body { line-height: 1.7; }
+.verse-ar { display: block; font-family: "Amiri", serif; direction: rtl; text-align: right; font-size: 1.3rem; line-height: 2.1; }
+.verse-tr { display: block; font-family: var(--font); font-size: .98rem; line-height: 1.7; color: var(--text-soft); margin-top: 8px; }
+:root[dir="ltr"] .tool-card:hover .tool-go { transform: translateX(4px); }
+:root[dir="ltr"] .store-badge span, :root[dir="ltr"] .store-badge small { direction: ltr; }
