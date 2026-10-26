@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="{{lang}}" dir="{{dir}}" data-locale="{{locale}}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -12,7 +12,7 @@
 <meta property="og:description" content="{{description}}">
 <meta property="og:url" content="{{canonical}}">
 <meta property="og:site_name" content="{{site_name}}">
-<meta property="og:locale" content="ar_AR">
+<meta property="og:locale" content="{{og_locale}}">
 <meta property="og:image" content="{{og_image}}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -24,31 +24,32 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="{{fonts_url}}" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/style.css">
 <script>try{var d=document.documentElement,t=localStorage.getItem('theme'),a=localStorage.getItem('accent');if(t==='light'||t==='dark')d.dataset.theme=t;if(a&&a!=='emerald')d.dataset.accent=a}catch(e){}</script>
-{{head_extra}}
+{{i18n}}{{alternates}}{{head_extra}}
 {{jsonld}}
 </head>
 <body class="{{body_class}}">
-<a class="skip" href="#main">تخطَّ إلى المحتوى</a>
+<a class="skip" href="#main">{{t:تخطَّ إلى المحتوى}}</a>
 <header class="site-header">
   <div class="container header-inner">
-    <a class="brand" href="/" aria-label="{{site_name}} - الصفحة الرئيسية">
+    <a class="brand" href="/" aria-label="{{t:ميزان - الصفحة الرئيسية}}">
       <img src="/assets/img/favicon.svg" alt="" width="38" height="38">
       <span class="brand-text"><strong>{{site_name}}</strong><small>{{site_tagline}}</small></span>
     </a>
-    <nav class="main-nav" id="main-nav" aria-label="القائمة الرئيسية">{{nav}}</nav>
+    <nav class="main-nav" id="main-nav" aria-label="{{t:القائمة الرئيسية}}">{{nav}}</nav>
     <div class="header-actions">
       <button type="button" class="btn sm install-btn" hidden>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
-        <span>ثبّت التطبيق</span>
+        <span>{{t:ثبّت التطبيق}}</span>
       </button>
-      <button type="button" class="icon-btn ap-open theme-toggle" aria-label="المظهر ولون التطبيق" aria-haspopup="dialog" aria-controls="appearance">
+      {{lang_switch}}
+      <button type="button" class="icon-btn ap-open theme-toggle" aria-label="{{t:المظهر ولون التطبيق}}" aria-haspopup="dialog" aria-controls="appearance">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.5a2.5 2.5 0 0 0 0-5H12a2 2 0 0 1 0-4h3a4 4 0 0 0 4-4c0-2.8-3.1-5-7-5z"/><circle cx="7.5" cy="10.5" r=".8" fill="currentColor"/><circle cx="10.5" cy="7.5" r=".8" fill="currentColor"/><circle cx="14.5" cy="7.5" r=".8" fill="currentColor"/></svg>
         <span class="dot" aria-hidden="true"></span>
       </button>
-      <button type="button" class="icon-btn menu-toggle" aria-label="فتح القائمة" aria-controls="main-nav" aria-expanded="false">
+      <button type="button" class="icon-btn menu-toggle" aria-label="{{t:فتح القائمة}}" aria-controls="main-nav" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
     </div>
@@ -65,31 +66,31 @@
   <div class="container footer-grid">
     <div class="footer-about">
       <a class="brand" href="/"><img src="/assets/img/favicon.svg" alt="" width="34" height="34"><span class="brand-text"><strong>{{site_name}}</strong><small>{{site_tagline}}</small></span></a>
-      <p>منظومة أدوات إسلامية مجانية ودقيقة على الويب والهاتف، تجمع المصحف الشريف بالتفسير والتلاوة، والأذكار المحققة، وحساب الزكاة والمواريث ومواقيت الصلاة والتاريخ الهجري بـ 15 لغة.</p>
+      <p>{{t:منظومة أدوات إسلامية مجانية ودقيقة على الويب والهاتف، تجمع المصحف الشريف بالتفسير والتلاوة، والأذكار المحققة، وحساب الزكاة والمواريث ومواقيت الصلاة والتاريخ الهجري بـ 15 لغة.}}</p>
     </div>
     <div>
-      <h2>الأدوات</h2>
+      <h2>{{t:الأدوات}}</h2>
       <ul class="footer-links two-col">{{footer_tools}}</ul>
     </div>
     <div>
-      <h2>الموقع</h2>
+      <h2>{{t:الموقع}}</h2>
       <ul class="footer-links">
-        <li><a href="/app/">تطبيق ميزان</a></li>
-        <li><a href="/articles/">المقالات</a></li>
-        <li><a href="/about/">من نحن</a></li>
-        <li><a href="/contact/">اتصل بنا</a></li>
-        <li><a href="/privacy-policy/">سياسة الخصوصية</a></li>
-        <li><a href="/terms/">الشروط والأحكام</a></li>
-        <li><a href="/disclaimer/">إخلاء المسؤولية</a></li>
+        <li><a href="/app/">{{t:تطبيق ميزان}}</a></li>
+        <li><a href="/articles/">{{t:المقالات}}</a></li>
+        <li><a href="/about/">{{t:من نحن}}</a></li>
+        <li><a href="/contact/">{{t:اتصل بنا}}</a></li>
+        <li><a href="/privacy-policy/">{{t:سياسة الخصوصية}}</a></li>
+        <li><a href="/terms/">{{t:الشروط والأحكام}}</a></li>
+        <li><a href="/disclaimer/">{{t:إخلاء المسؤولية}}</a></li>
       </ul>
     </div>
   </div>
   <div class="container footer-bottom">
-    <p>© {{year}} {{site_name}}. جميع الحقوق محفوظة.</p>
-    <p class="muted">النتائج إرشادية، ويُرجع في المسائل الشرعية الخاصة إلى أهل العلم.</p>
+    <p>© {{year}} {{t:ميزان. جميع الحقوق محفوظة.}}</p>
+    <p class="muted">{{t:النتائج إرشادية، ويُرجع في المسائل الشرعية الخاصة إلى أهل العلم.}}</p>
   </div>
 </footer>
-<button type="button" class="to-top" aria-label="العودة للأعلى">↑</button>
+<button type="button" class="to-top" aria-label="{{t:العودة للأعلى}}">↑</button>
 {{tabbar}}
 {{appearance}}
 <script src="/assets/js/main.js" defer></script>
