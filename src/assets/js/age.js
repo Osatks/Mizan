@@ -32,7 +32,7 @@
     if (m < 0) { y--; m += 12; }
     return { y, m, d };
   }
-  const ymdStr = (r) => `${r.y} <small>سنة</small> ${r.m} <small>شهر</small> ${r.d} <small>يوم</small>`;
+  const ymdStr = (r) => `${r.y} <small>${t("سنة")}</small> ${r.m} <small>${t("شهر")}</small> ${r.d} <small>${t("يوم")}</small>`;
 
   function birthDate() {
     const y = +$("age-y").value, m = +$("age-m").value, d = +$("age-d").value;
@@ -48,7 +48,7 @@
     const at = atParts.length === 3 ? new Date(atParts[0], atParts[1] - 1, atParts[2]) : new Date();
     at.setHours(0, 0, 0, 0);
     if (!birth || birth > at) {
-      $("age-g").textContent = "—"; $("age-h").textContent = "—"; $("age-list").innerHTML = birth > at ? "<li><span>تاريخ الميلاد بعد تاريخ الحساب</span></li>" : ""; $("age-extra").hidden = true;
+      $("age-g").textContent = "—"; $("age-h").textContent = "—"; $("age-list").innerHTML = birth > at ? "<li><span>" + t("تاريخ الميلاد بعد تاريخ الحساب") + "</span></li>" : ""; $("age-extra").hidden = true;
       return;
     }
     const gA = { y: birth.getFullYear(), m: birth.getMonth() + 1, d: birth.getDate() };
@@ -69,21 +69,21 @@
     const toNextH = nh ? Math.round((nh - at) / 86400000) : null;
 
     $("age-list").innerHTML = [
-      ["تاريخ الميلاد ميلادياً", M.gregStr(birth)],
-      ["تاريخ الميلاد هجرياً", M.hijriStr(hA)],
-      ["يوم الميلاد", M.WEEKDAYS[birth.getDay()]],
-      ["عيد ميلادك القادم (ميلادي)", toNext === 0 ? "اليوم 🎉" : `بعد ${toNext} يوماً`],
-      ["ذكرى ميلادك الهجرية القادمة", toNextH === 0 ? "اليوم" : toNextH != null ? `بعد ${toNextH} يوماً` : "—"],
+      [t("تاريخ الميلاد ميلادياً"), M.gregStr(birth)],
+      [t("تاريخ الميلاد هجرياً"), M.hijriStr(hA)],
+      [t("يوم الميلاد"), M.WEEKDAYS[birth.getDay()]],
+      [t("عيد ميلادك القادم (ميلادي)"), toNext === 0 ? t("اليوم 🎉") : t("بعد {n} يوماً", { n: toNext })],
+      [t("ذكرى ميلادك الهجرية القادمة"), toNextH === 0 ? t("اليوم") : toNextH != null ? t("بعد {n} يوماً", { n: toNextH }) : "—"],
     ].map(([a, b]) => `<li><span>${a}</span><span>${b}</span></li>`).join("");
 
     const months = gAge.y * 12 + gAge.m;
     $("age-tiles").innerHTML = [
-      [M.fmt(days, 0), "يوماً"], [M.fmt(days * 1440, 0), "دقيقة"],[M.fmt(months, 0), "شهراً"],
-      [M.fmt(days * 24, 0), "ساعة"], [M.fmt(hAge.y, 0), "رمضان مرّ عليك"],
-      [M.fmt(Math.floor(days / 7), 0), "يوم جمعة"],
+      [M.fmt(days, 0), t("يوماً")], [M.fmt(days * 1440, 0), t("دقيقة")],[M.fmt(months, 0), t("شهراً")],
+      [M.fmt(days * 24, 0), t("ساعة")], [M.fmt(hAge.y, 0), t("رمضان مرّ عليك")],
+      [M.fmt(Math.floor(days / 7), 0), t("يوم جمعة")],
     ].map(([n, l]) => `<div class="tile"><b>${n}</b><span>${l}</span></div>`).join("");
     $("age-extra").hidden = false;
-    app._summary = `عمري ${gAge.y} سنة ميلادية و${hAge.y} سنة هجرية`;
+    app._summary = t("عمري {g} سنة ميلادية و{h} سنة هجرية", { g: gAge.y, h: hAge.y });
     M.store.set("age", { cal, y: $("age-y").value, m: $("age-m").value, d: $("age-d").value });
   }
 
@@ -98,7 +98,7 @@
         if (c === "h") { const h = M.toHijri(b); $("age-y").value = h.y; fillMonths(); $("age-m").value = h.m; fillDays(); $("age-d").value = h.d; }
         else { $("age-y").value = b.getFullYear(); fillMonths(); $("age-m").value = b.getMonth() + 1; fillDays(); $("age-d").value = b.getDate(); }
       } else { fillMonths(); fillDays(); }
-      $("age-y").placeholder = c === "h" ? "مثال: 1415" : "مثال: 1995";
+      $("age-y").placeholder = c === "h" ? t("مثال: 1415") : t("مثال: 1995");
     }
     calc();
   }
@@ -106,7 +106,7 @@
   $("age-cal").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b && b.dataset.cal !== cal) setCal(b.dataset.cal); });
   app.addEventListener("change", (e) => { if (e.target.id === "age-m" || e.target.id === "age-y") fillDays(); calc(); });
   $("age-y").addEventListener("input", () => { fillDays(); calc(); });
-  $("age-share").addEventListener("click", () => M.share("حاسبة العمر", (app._summary || "احسب عمرك") + " — عبر موقع ميزان"));
+  $("age-share").addEventListener("click", () => M.share(t("حاسبة العمر"), t("{text} — عبر موقع ميزان", { text: app._summary || t("احسب عمرك") })));
 
   if (saved) { cal = saved.cal || "g"; }
   fillMonths();

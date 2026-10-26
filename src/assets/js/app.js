@@ -7,9 +7,9 @@
   var root = document.documentElement;
   if (android) {
     root.classList.add("is-android");
-    if (note) { note.textContent = "جهازك يعمل بنظام Android: اضغط زر Google Play للتثبيت."; note.hidden = false; }
+    if (note) { note.textContent = t("جهازك يعمل بنظام Android: اضغط زر Google Play للتثبيت."); note.hidden = false; }
   } else if (ios) {
     root.classList.add("is-ios");
-    if (note) { note.textContent = "نسخة iPhone وiPad قيد التطوير وستصدر قريبًا على App Store. يمكنك الآن استخدام أدوات ميزان من المتصفح."; note.hidden = false; }
+    if (note) { note.textContent = t("نسخة iPhone وiPad قيد التطوير وستصدر قريبًا على App Store. يمكنك الآن استخدام أدوات ميزان من المتصفح."); note.hidden = false; }
   }
 })();

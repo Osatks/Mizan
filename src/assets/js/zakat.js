@@ -29,12 +29,12 @@
     const silver = v["zk-silver"] * sp;
 
     const parts = [
-      ["النقود والأرصدة", v["zk-cash"] + v["zk-bank"] + v["zk-other"]],
-      ["الديون المرجوّة", v["zk-receivable"]],
-      ["الذهب", gold],
-      ["الفضة", silver],
-      ["الأسهم", v["zk-stocks-trade"] + v["zk-stocks-long"]],
-      ["عروض التجارة", v["zk-goods"]],
+      [t("النقود والأرصدة"), v["zk-cash"] + v["zk-bank"] + v["zk-other"]],
+      [t("الديون المرجوّة"), v["zk-receivable"]],
+      [t("الذهب"), gold],
+      [t("الفضة"), silver],
+      [t("الأسهم"), v["zk-stocks-trade"] + v["zk-stocks-long"]],
+      [t("عروض التجارة"), v["zk-goods"]],
     ];
     const total = parts.reduce((s, p) => s + p[1], 0);
     const debts = Math.min(v["zk-debts"], total);
@@ -46,19 +46,19 @@
     $("zk-total").textContent = M.money(total, cur());
     $("zk-debts-out").textContent = M.money(debts, cur());
     $("zk-net").textContent = M.money(net, cur());
-    $("zk-nisab").textContent = nisab ? M.money(nisab, cur()) : "أدخل سعر " + (basis === "silver" ? "الفضة" : "الذهب");
+    $("zk-nisab").textContent = nisab ? M.money(nisab, cur()) : (basis === "silver" ? t("أدخل سعر الفضة") : t("أدخل سعر الذهب"));
 
     const status = $("zk-status");
     let zakat = 0;
     if (!nisab) {
-      status.className = "badge gold"; status.textContent = "أدخل سعر " + (basis === "silver" ? "الفضة" : "الذهب") + " لحساب النصاب";
+      status.className = "badge gold"; status.textContent = basis === "silver" ? t("أدخل سعر الفضة لحساب النصاب") : t("أدخل سعر الذهب لحساب النصاب");
     } else if (net >= nisab && net > 0) {
       zakat = net * RATE;
-      status.className = "badge ok"; status.textContent = "✓ بلغ مالك النصاب — تجب الزكاة";
+      status.className = "badge ok"; status.textContent = t("✓ بلغ مالك النصاب — تجب الزكاة");
     } else if (net > 0) {
-      status.className = "badge no"; status.textContent = "لم يبلغ النصاب — لا زكاة عليك";
+      status.className = "badge no"; status.textContent = t("لم يبلغ النصاب — لا زكاة عليك");
     } else {
-      status.className = "badge gold"; status.textContent = "أدخل أموالك";
+      status.className = "badge gold"; status.textContent = t("أدخل أموالك");
     }
     const amountEl = $("zk-amount");
     const newText = M.fmt(zakat) + " ";
@@ -74,12 +74,12 @@
     const rows = parts.filter((p) => p[1] > 0);
     if (zakat > 0 && rows.length > 1) {
       const ratio = net / total;
-      bd.innerHTML = '<div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">توزيع الزكاة حسب نوع المال</div><ul class="stat-list">' +
+      bd.innerHTML = '<div class="label" style="font-size:.88rem;color:var(--muted);margin-bottom:6px">' + t("توزيع الزكاة حسب نوع المال") + '</div><ul class="stat-list">' +
         rows.map((p) => `<li><span>${p[0]}</span><span>${M.money(p[1] * ratio * RATE, cur())}</span></li>`).join("") + "</ul>";
     } else bd.innerHTML = "";
 
     if (zakat > 0 && gp) {
-      bd.innerHTML += `<p class="muted" style="font-size:.88rem;margin:12px 0 0">تعادل زكاتك تقريباً <b>${M.fmt(zakat / gp, 2)}</b> غرام ذهب عيار 24.</p>`;
+      bd.innerHTML += `<p class="muted" style="font-size:.88rem;margin:12px 0 0">${t("تعادل زكاتك تقريباً {grams} غرام ذهب عيار 24.", { grams: "<b>" + M.fmt(zakat / gp, 2) + "</b>" })}</p>`;
     }
 
     const data = { currency: cur(), basis, jewelry: $("zk-jewelry").checked };
@@ -92,11 +92,11 @@
   app.addEventListener("change", calc);
   $("zk-reset").addEventListener("click", () => {
     FIELDS.forEach((id) => ($(id).value = ""));
-    M.store.del("zakat"); calc(); M.toast("تم مسح البيانات");
+    M.store.del("zakat"); calc(); M.toast(t("تم مسح البيانات"));
   });
   $("zk-share").addEventListener("click", () => {
     const r = app._result || {};
-    M.share("حاسبة الزكاة", r.zakat ? `زكاتي المستحقة: ${M.money(r.zakat, cur())} (الوعاء الزكوي ${M.money(r.net, cur())}) — حسبتها عبر حاسبة الزكاة في موقع ميزان` : "احسب زكاتك بسهولة عبر حاسبة الزكاة في موقع ميزان");
+    M.share(t("حاسبة الزكاة"), r.zakat ? t("زكاتي المستحقة: {amount} (الوعاء الزكوي {net}) — حسبتها عبر حاسبة الزكاة في موقع ميزان", { amount: M.money(r.zakat, cur()), net: M.money(r.net, cur()) }) : t("احسب زكاتك بسهولة عبر حاسبة الزكاة في موقع ميزان"));
   });
   calc();
 })();

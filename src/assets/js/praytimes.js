@@ -10,74 +10,74 @@
   const fixAngle = (a) => fix(a, 360), fixHour = (a) => fix(a, 24);
 
   const METHODS = {
-    makkah: { name: "أم القرى (السعودية)", fajr: 18.5, isha: { min: 90 } },
-    mwl: { name: "رابطة العالم الإسلامي", fajr: 18, isha: 17 },
-    egypt: { name: "الهيئة المصرية العامة للمساحة", fajr: 19.5, isha: 17.5 },
-    dubai: { name: "الإمارات (دبي)", fajr: 18.2, isha: 18.2 },
-    kuwait: { name: "الكويت", fajr: 18, isha: 17.5 },
-    qatar: { name: "قطر", fajr: 18, isha: { min: 90 } },
-    jordan: { name: "الأردن وفلسطين", fajr: 18, isha: 18 },
-    morocco: { name: "المغرب", fajr: 19, isha: 17 },
-    algeria: { name: "الجزائر", fajr: 18, isha: 17 },
-    tunisia: { name: "تونس", fajr: 18, isha: 18 },
-    karachi: { name: "جامعة العلوم الإسلامية بكراتشي", fajr: 18, isha: 18 },
-    turkey: { name: "رئاسة الشؤون الدينية التركية", fajr: 18, isha: 17 },
-    isna: { name: "أمريكا الشمالية (ISNA)", fajr: 15, isha: 15 },
-    france: { name: "اتحاد المنظمات الإسلامية بفرنسا", fajr: 12, isha: 12 },
+    makkah: { name: t("أم القرى (السعودية)"), fajr: 18.5, isha: { min: 90 } },
+    mwl: { name: t("رابطة العالم الإسلامي"), fajr: 18, isha: 17 },
+    egypt: { name: t("الهيئة المصرية العامة للمساحة"), fajr: 19.5, isha: 17.5 },
+    dubai: { name: t("الإمارات (دبي)"), fajr: 18.2, isha: 18.2 },
+    kuwait: { name: t("الكويت"), fajr: 18, isha: 17.5 },
+    qatar: { name: t("قطر"), fajr: 18, isha: { min: 90 } },
+    jordan: { name: t("الأردن وفلسطين"), fajr: 18, isha: 18 },
+    morocco: { name: t("المغرب"), fajr: 19, isha: 17 },
+    algeria: { name: t("الجزائر"), fajr: 18, isha: 17 },
+    tunisia: { name: t("تونس"), fajr: 18, isha: 18 },
+    karachi: { name: t("جامعة العلوم الإسلامية بكراتشي"), fajr: 18, isha: 18 },
+    turkey: { name: t("رئاسة الشؤون الدينية التركية"), fajr: 18, isha: 17 },
+    isna: { name: t("أمريكا الشمالية (ISNA)"), fajr: 15, isha: 15 },
+    france: { name: t("اتحاد المنظمات الإسلامية بفرنسا"), fajr: 12, isha: 12 },
   };
 
   // [الاسم، الدولة، خط العرض، خط الطول، المنطقة الزمنية، طريقة الحساب]
   const CITIES = [
-    ["مكة المكرمة", "السعودية", 21.4225, 39.8262, "Asia/Riyadh", "makkah"],
-    ["المدينة المنورة", "السعودية", 24.4672, 39.6111, "Asia/Riyadh", "makkah"],
-    ["الرياض", "السعودية", 24.7136, 46.6753, "Asia/Riyadh", "makkah"],
-    ["جدة", "السعودية", 21.5433, 39.1728, "Asia/Riyadh", "makkah"],
-    ["الدمام", "السعودية", 26.4207, 50.0888, "Asia/Riyadh", "makkah"],
-    ["أبها", "السعودية", 18.2164, 42.5053, "Asia/Riyadh", "makkah"],
-    ["دبي", "الإمارات", 25.2048, 55.2708, "Asia/Dubai", "dubai"],
-    ["أبوظبي", "الإمارات", 24.4539, 54.3773, "Asia/Dubai", "dubai"],
-    ["الشارقة", "الإمارات", 25.3463, 55.4209, "Asia/Dubai", "dubai"],
-    ["الكويت", "الكويت", 29.3759, 47.9774, "Asia/Kuwait", "kuwait"],
-    ["الدوحة", "قطر", 25.2854, 51.531, "Asia/Qatar", "qatar"],
-    ["المنامة", "البحرين", 26.2285, 50.586, "Asia/Bahrain", "makkah"],
-    ["مسقط", "عُمان", 23.588, 58.3829, "Asia/Muscat", "mwl"],
-    ["القاهرة", "مصر", 30.0444, 31.2357, "Africa/Cairo", "egypt"],
-    ["الإسكندرية", "مصر", 31.2001, 29.9187, "Africa/Cairo", "egypt"],
-    ["أسوان", "مصر", 24.0889, 32.8998, "Africa/Cairo", "egypt"],
-    ["عمّان", "الأردن", 31.9454, 35.9284, "Asia/Amman", "jordan"],
-    ["القدس", "فلسطين", 31.7683, 35.2137, "Asia/Jerusalem", "jordan"],
-    ["غزة", "فلسطين", 31.5017, 34.4668, "Asia/Gaza", "jordan"],
-    ["بيروت", "لبنان", 33.8938, 35.5018, "Asia/Beirut", "mwl"],
-    ["دمشق", "سوريا", 33.5138, 36.2765, "Asia/Damascus", "mwl"],
-    ["حلب", "سوريا", 36.2021, 37.1343, "Asia/Damascus", "mwl"],
-    ["بغداد", "العراق", 33.3152, 44.3661, "Asia/Baghdad", "mwl"],
-    ["البصرة", "العراق", 30.5085, 47.7804, "Asia/Baghdad", "mwl"],
-    ["أربيل", "العراق", 36.1912, 44.0092, "Asia/Baghdad", "mwl"],
-    ["صنعاء", "اليمن", 15.3694, 44.191, "Asia/Aden", "mwl"],
-    ["عدن", "اليمن", 12.7855, 45.0187, "Asia/Aden", "mwl"],
-    ["الخرطوم", "السودان", 15.5007, 32.5599, "Africa/Khartoum", "egypt"],
-    ["طرابلس", "ليبيا", 32.8872, 13.1913, "Africa/Tripoli", "egypt"],
-    ["بنغازي", "ليبيا", 32.1167, 20.0667, "Africa/Tripoli", "egypt"],
-    ["تونس", "تونس", 36.8065, 10.1815, "Africa/Tunis", "tunisia"],
-    ["الجزائر", "الجزائر", 36.7538, 3.0588, "Africa/Algiers", "algeria"],
-    ["وهران", "الجزائر", 35.6971, -0.6308, "Africa/Algiers", "algeria"],
-    ["الرباط", "المغرب", 34.0209, -6.8416, "Africa/Casablanca", "morocco"],
-    ["الدار البيضاء", "المغرب", 33.5731, -7.5898, "Africa/Casablanca", "morocco"],
-    ["مراكش", "المغرب", 31.6295, -7.9811, "Africa/Casablanca", "morocco"],
-    ["نواكشوط", "موريتانيا", 18.0735, -15.9582, "Africa/Nouakchott", "mwl"],
-    ["مقديشو", "الصومال", 2.0469, 45.3182, "Africa/Mogadishu", "mwl"],
-    ["جيبوتي", "جيبوتي", 11.5721, 43.1456, "Africa/Djibouti", "mwl"],
-    ["إسطنبول", "تركيا", 41.0082, 28.9784, "Europe/Istanbul", "turkey"],
-    ["كراتشي", "باكستان", 24.8607, 67.0011, "Asia/Karachi", "karachi"],
-    ["كوالالمبور", "ماليزيا", 3.139, 101.6869, "Asia/Kuala_Lumpur", "mwl"],
-    ["جاكرتا", "إندونيسيا", -6.2088, 106.8456, "Asia/Jakarta", "mwl"],
-    ["لندن", "بريطانيا", 51.5074, -0.1278, "Europe/London", "mwl"],
-    ["باريس", "فرنسا", 48.8566, 2.3522, "Europe/Paris", "france"],
-    ["برلين", "ألمانيا", 52.52, 13.405, "Europe/Berlin", "mwl"],
-    ["ستوكهولم", "السويد", 59.3293, 18.0686, "Europe/Stockholm", "mwl"],
-    ["نيويورك", "الولايات المتحدة", 40.7128, -74.006, "America/New_York", "isna"],
-    ["تورونتو", "كندا", 43.6532, -79.3832, "America/Toronto", "isna"],
-    ["سيدني", "أستراليا", -33.8688, 151.2093, "Australia/Sydney", "mwl"],
+    [t("مكة المكرمة"), t("السعودية"), 21.4225, 39.8262, "Asia/Riyadh", "makkah"],
+    [t("المدينة المنورة"), t("السعودية"), 24.4672, 39.6111, "Asia/Riyadh", "makkah"],
+    [t("الرياض"), t("السعودية"), 24.7136, 46.6753, "Asia/Riyadh", "makkah"],
+    [t("جدة"), t("السعودية"), 21.5433, 39.1728, "Asia/Riyadh", "makkah"],
+    [t("الدمام"), t("السعودية"), 26.4207, 50.0888, "Asia/Riyadh", "makkah"],
+    [t("أبها"), t("السعودية"), 18.2164, 42.5053, "Asia/Riyadh", "makkah"],
+    [t("دبي"), t("الإمارات"), 25.2048, 55.2708, "Asia/Dubai", "dubai"],
+    [t("أبوظبي"), t("الإمارات"), 24.4539, 54.3773, "Asia/Dubai", "dubai"],
+    [t("الشارقة"), t("الإمارات"), 25.3463, 55.4209, "Asia/Dubai", "dubai"],
+    [t("الكويت"), t("الكويت"), 29.3759, 47.9774, "Asia/Kuwait", "kuwait"],
+    [t("الدوحة"), t("قطر"), 25.2854, 51.531, "Asia/Qatar", "qatar"],
+    [t("المنامة"), t("البحرين"), 26.2285, 50.586, "Asia/Bahrain", "makkah"],
+    [t("مسقط"), t("عُمان"), 23.588, 58.3829, "Asia/Muscat", "mwl"],
+    [t("القاهرة"), t("مصر"), 30.0444, 31.2357, "Africa/Cairo", "egypt"],
+    [t("الإسكندرية"), t("مصر"), 31.2001, 29.9187, "Africa/Cairo", "egypt"],
+    [t("أسوان"), t("مصر"), 24.0889, 32.8998, "Africa/Cairo", "egypt"],
+    [t("عمّان"), t("الأردن"), 31.9454, 35.9284, "Asia/Amman", "jordan"],
+    [t("القدس"), t("فلسطين"), 31.7683, 35.2137, "Asia/Jerusalem", "jordan"],
+    [t("غزة"), t("فلسطين"), 31.5017, 34.4668, "Asia/Gaza", "jordan"],
+    [t("بيروت"), t("لبنان"), 33.8938, 35.5018, "Asia/Beirut", "mwl"],
+    [t("دمشق"), t("سوريا"), 33.5138, 36.2765, "Asia/Damascus", "mwl"],
+    [t("حلب"), t("سوريا"), 36.2021, 37.1343, "Asia/Damascus", "mwl"],
+    [t("بغداد"), t("العراق"), 33.3152, 44.3661, "Asia/Baghdad", "mwl"],
+    [t("البصرة"), t("العراق"), 30.5085, 47.7804, "Asia/Baghdad", "mwl"],
+    [t("أربيل"), t("العراق"), 36.1912, 44.0092, "Asia/Baghdad", "mwl"],
+    [t("صنعاء"), t("اليمن"), 15.3694, 44.191, "Asia/Aden", "mwl"],
+    [t("عدن"), t("اليمن"), 12.7855, 45.0187, "Asia/Aden", "mwl"],
+    [t("الخرطوم"), t("السودان"), 15.5007, 32.5599, "Africa/Khartoum", "egypt"],
+    [t("طرابلس"), t("ليبيا"), 32.8872, 13.1913, "Africa/Tripoli", "egypt"],
+    [t("بنغازي"), t("ليبيا"), 32.1167, 20.0667, "Africa/Tripoli", "egypt"],
+    [t("تونس"), t("تونس"), 36.8065, 10.1815, "Africa/Tunis", "tunisia"],
+    [t("الجزائر"), t("الجزائر"), 36.7538, 3.0588, "Africa/Algiers", "algeria"],
+    [t("وهران"), t("الجزائر"), 35.6971, -0.6308, "Africa/Algiers", "algeria"],
+    [t("الرباط"), t("المغرب"), 34.0209, -6.8416, "Africa/Casablanca", "morocco"],
+    [t("الدار البيضاء"), t("المغرب"), 33.5731, -7.5898, "Africa/Casablanca", "morocco"],
+    [t("مراكش"), t("المغرب"), 31.6295, -7.9811, "Africa/Casablanca", "morocco"],
+    [t("نواكشوط"), t("موريتانيا"), 18.0735, -15.9582, "Africa/Nouakchott", "mwl"],
+    [t("مقديشو"), t("الصومال"), 2.0469, 45.3182, "Africa/Mogadishu", "mwl"],
+    [t("جيبوتي"), t("جيبوتي"), 11.5721, 43.1456, "Africa/Djibouti", "mwl"],
+    [t("إسطنبول"), t("تركيا"), 41.0082, 28.9784, "Europe/Istanbul", "turkey"],
+    [t("كراتشي"), t("باكستان"), 24.8607, 67.0011, "Asia/Karachi", "karachi"],
+    [t("كوالالمبور"), t("ماليزيا"), 3.139, 101.6869, "Asia/Kuala_Lumpur", "mwl"],
+    [t("جاكرتا"), t("إندونيسيا"), -6.2088, 106.8456, "Asia/Jakarta", "mwl"],
+    [t("لندن"), t("بريطانيا"), 51.5074, -0.1278, "Europe/London", "mwl"],
+    [t("باريس"), t("فرنسا"), 48.8566, 2.3522, "Europe/Paris", "france"],
+    [t("برلين"), t("ألمانيا"), 52.52, 13.405, "Europe/Berlin", "mwl"],
+    [t("ستوكهولم"), t("السويد"), 59.3293, 18.0686, "Europe/Stockholm", "mwl"],
+    [t("نيويورك"), t("الولايات المتحدة"), 40.7128, -74.006, "America/New_York", "isna"],
+    [t("تورونتو"), t("كندا"), 43.6532, -79.3832, "America/Toronto", "isna"],
+    [t("سيدني"), t("أستراليا"), -33.8688, 151.2093, "Australia/Sydney", "mwl"],
   ].map(([name, country, lat, lng, tz, method]) => ({ name, country, lat, lng, tz, method }));
 
   /** فرق التوقيت بالساعات لمنطقة زمنية في تاريخ معين */
@@ -176,9 +176,9 @@
     let h = Math.floor(mins / 60) % 24, m = mins % 60;
     const mm = String(m).padStart(2, "0");
     if (!h12) return `${String(h).padStart(2, "0")}:${mm}`;
-    const suf = h < 12 ? "ص" : "م";
+    const am = h < 12;
     h = h % 12 || 12;
-    return `${h}:${mm} ${suf}`;
+    return am ? t("{time} ص", { time: `${h}:${mm}` }) : t("{time} م", { time: `${h}:${mm}` });
   }
 
   const KAABA = { lat: 21.4225, lng: 39.8262 };
@@ -195,13 +195,17 @@
 
   /** موقع المستخدم: المحفوظ أو مكة افتراضياً */
   function getLocation() {
-    return window.Mizan.store.get("location", { ...CITIES[0], cityIndex: 0 });
+    const loc = window.Mizan.store.get("location", { ...CITIES[0], cityIndex: 0 });
+    // الاسم المحفوظ قد يكون بلغة أخرى، فيُؤخذ اسم المدينة ودولتها من القائمة بلغة الصفحة
+    const c = CITIES[loc.cityIndex];
+    if (c) { loc.name = c.name; loc.country = c.country; }
+    return loc;
   }
   function setLocation(loc) { window.Mizan.store.set("location", loc); }
 
   function geolocate() {
     return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) return reject(new Error("المتصفح لا يدعم تحديد الموقع"));
+      if (!navigator.geolocation) return reject(new Error(t("المتصفح لا يدعم تحديد الموقع")));
       navigator.geolocation.getCurrentPosition(
         (p) => {
           const lat = +p.coords.latitude.toFixed(4), lng = +p.coords.longitude.toFixed(4);
@@ -209,9 +213,9 @@
           let best = CITIES[0], bd = Infinity;
           CITIES.forEach((c) => { const d = (c.lat - lat) ** 2 + (c.lng - lng) ** 2; if (d < bd) { bd = d; best = c; } });
           const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          resolve({ name: bd < 1.5 ? best.name : "موقعي الحالي", country: bd < 1.5 ? best.country : "", lat, lng, tz, method: best.method, cityIndex: -1, gps: true });
+          resolve({ name: bd < 1.5 ? best.name : t("موقعي الحالي"), country: bd < 1.5 ? best.country : "", lat, lng, tz, method: best.method, cityIndex: -1, gps: true });
         },
-        (err) => reject(new Error(err.code === 1 ? "تم رفض إذن الوصول إلى الموقع" : "تعذر تحديد الموقع")),
+        (err) => reject(new Error(err.code === 1 ? t("تم رفض إذن الوصول إلى الموقع") : t("تعذر تحديد الموقع"))),
         { enableHighAccuracy: false, timeout: 12000, maximumAge: 600000 }
       );
     });

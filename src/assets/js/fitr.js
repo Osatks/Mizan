@@ -28,19 +28,19 @@
 
     if (mode === "food") {
       const kg = sa * people;
-      main = `${M.fmt(kg)} <small>كغ</small>`;
-      stats.push(["مقدار الصاع للفرد", M.fmt(sa) + " كغ"], ["عدد الأفراد", people], ["الإجمالي", M.fmt(kg) + " كغ"]);
+      main = `${M.fmt(kg)} <small>${t("كغ")}</small>`;
+      stats.push([t("مقدار الصاع للفرد"), t("{n} كغ", { n: M.fmt(sa) })], [t("عدد الأفراد"), people], [t("الإجمالي"), t("{n} كغ", { n: M.fmt(kg) })]);
       const price = M.num($("fr-kgprice"));
-      if (price) stats.push(["التكلفة التقريبية", M.fmt(kg * price)]);
-      $("fr-label").textContent = "مقدار الطعام الواجب إخراجه";
+      if (price) stats.push([t("التكلفة التقريبية"), M.fmt(kg * price)]);
+      $("fr-label").textContent = t("مقدار الطعام الواجب إخراجه");
     } else {
       const val = M.num($("fr-value"));
       main = val ? `${M.fmt(val * people)}` : "—";
-      stats.push(["قيمة الفرد", val ? M.fmt(val) : "أدخل القيمة"], ["عدد الأفراد", people], ["الإجمالي", val ? M.fmt(val * people) : "—"]);
-      $("fr-label").textContent = "القيمة النقدية الإجمالية";
+      stats.push([t("قيمة الفرد"), val ? M.fmt(val) : t("أدخل القيمة")], [t("عدد الأفراد"), people], [t("الإجمالي"), val ? M.fmt(val * people) : "—"]);
+      $("fr-label").textContent = t("القيمة النقدية الإجمالية");
     }
     $("fr-total").innerHTML = main;
-    $("fr-sub").textContent = people === 1 ? "عن فرد واحد" : people === 2 ? "عن فردين" : `عن ${people} أفراد`;
+    $("fr-sub").textContent = people === 1 ? t("عن فرد واحد") : people === 2 ? t("عن فردين") : t("عن {n} أفراد", { n: people });
     $("fr-stats").innerHTML = stats.map(([a, b]) => `<li><span>${a}</span><span>${b}</span></li>`).join("");
 
     M.store.set("fitr", { "fr-people": people, "fr-kgprice": $("fr-kgprice").value, "fr-value": $("fr-value").value, "fr-custom": $("fr-custom").value, typeIndex: $("fr-type").selectedIndex });
@@ -51,6 +51,6 @@
   $("fr-mode").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) setMode(b.dataset.mode); });
   app.addEventListener("input", calc);
   app.addEventListener("change", calc);
-  $("fr-share").addEventListener("click", () => M.share("زكاة الفطر", app._summary + " — عبر موقع ميزان"));
+  $("fr-share").addEventListener("click", () => M.share(t("زكاة الفطر"), t("{text} — عبر موقع ميزان", { text: app._summary })));
   setMode(mode);
 })();
