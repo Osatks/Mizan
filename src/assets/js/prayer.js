@@ -81,7 +81,7 @@
       const dt = new Date(y, m, d), t = P.compute(dt, opts(dt)), h = M.toHijri(dt);
       const cls = dt.getTime() === today.getTime() ? ' style="background:var(--primary-soft);font-weight:700"' : "";
       html += `<tr${cls}><td>${M.WEEKDAYS[dt.getDay()]}</td><td>${d}/${m + 1}</td><td>${h.d} ${M.HIJRI_MONTHS[h.m - 1]}</td>` +
-        ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"].map((k) => `<td dir="ltr" style="text-align:right">${P.fmtTime(t[k], h12())}</td>`).join("") + "</tr>";
+        ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"].map((k) => `<td dir="ltr" style="text-align:end">${P.fmtTime(t[k], h12())}</td>`).join("") + "</tr>";
     }
     $("pt-month-body").innerHTML = html;
   }

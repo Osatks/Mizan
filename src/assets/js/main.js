@@ -3,6 +3,8 @@
   const T = window.MIZAN_T || {};
   window.t = function (s, v) {
     let r = Object.prototype.hasOwnProperty.call(T, s) && T[s] ? T[s] : s;
+    // «النص|سياق»: السياق يميّز المعاني المختلفة للنص العربي نفسه ولا يُعرض
+    if (r === s) r = s.replace(/\|.*$/, "");
     if (v) r = r.replace(/\{(\w+)\}/g, (m, k) => (Object.prototype.hasOwnProperty.call(v, k) ? v[k] : m));
     return r;
   };
