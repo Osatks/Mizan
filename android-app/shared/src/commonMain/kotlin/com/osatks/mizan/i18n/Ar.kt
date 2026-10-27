@@ -210,11 +210,19 @@ object Ar : Strings {
         "mirza" to "معظّم بيك ميرزا، أحمد آباد",
         "adam" to "آدم (ويكيميديا كومنز)",
         "kalkan_fajr" to "الفجر — كالكان، تركيا",
+        "madinah" to "المسجد النبوي، المدينة المنورة",
+        "andrewler" to "أندرولر (ويكيميديا كومنز)",
+        "aaqib" to "عاقب عزيز",
+        "fouad" to "فؤاد أذان",
+        "fouad_fajr" to "الفجر — فؤاد أذان",
+        "kas_fajr" to "الفجر — كاش، تركيا",
+        "malmo_fajr" to "الفجر — بسيم عزمي، مالمو",
+        "shalqar" to "مسجد شالقار، كازاخستان",
     )
     override val playAdhan = "استمع إلى الأذان"
     override val stopAdhan = "إيقاف"
     override val vibrationTitle = "نمط الاهتزاز"
-    override val vibeNames = mapOf("short" to "قصير", "long" to "طويل", "heartbeat" to "نبض القلب", "pulse" to "ثلاث نبضات", "wave" to "موجة")
+    override val vibeNames = mapOf("short" to "قصير", "double" to "نقرتان", "triple" to "ثلاث نقرات", "long" to "طويل", "heartbeat" to "نبض القلب", "pulse" to "ثلاث نبضات", "wave" to "موجة", "rise" to "تصاعد", "gentle" to "هادئ", "strong" to "قوي", "knock" to "طَرْق الباب", "rapid" to "رفرفة")
     override val tryVibration = "جرّب الاهتزاز"
     override val adhanStopHint = "لإيقاف الأذان اضغط «إيقاف» في الإشعار أو أحد زرَّي الصوت. وإن كان الهاتف على الصامت أو الاهتزاز فالتنبيه يتبع ذلك."
     override val adhanIosNote = "يحدّ iPhone صوت الإشعار بثلاثين ثانية، فيُسمع في الإشعار أول الأذان، ويُسمع كاملاً إن كان ميزان مفتوحاً عند دخول الوقت. ويهتز الإشعار بنمط iPhone نفسه (الإعدادات › الأصوات والحس اللمسي)، أما الأنماط هنا فتُحَسّ والتطبيق مفتوح."

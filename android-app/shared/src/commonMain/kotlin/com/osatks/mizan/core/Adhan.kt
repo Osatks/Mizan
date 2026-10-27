@@ -39,14 +39,41 @@ enum class AlertMode(val key: String) {
  * و[amps] شدة كل مقطع 0..255 (0 للانتظار). الشدة تعمل في الأجهزة التي تدعمها، والأزمنة في كل جهاز.
  */
 enum class VibePattern(val key: String, val timings: List<Long>, val amps: List<Int>) {
-    SHORT("short", listOf(0, 160, 140, 160), listOf(0, 255, 0, 255)),
+    /** اهتزازة واحدة قصيرة */
+    SHORT("short", listOf(0, 320), listOf(0, 255)),
+    /** نقرتان */
+    DOUBLE("double", listOf(0, 110, 130, 110), listOf(0, 255, 0, 255)),
+    /** ثلاث نقرات */
+    TRIPLE("triple", listOf(0, 90, 110, 90, 110, 90), listOf(0, 255, 0, 255, 0, 255)),
     LONG("long", listOf(0, 1400), listOf(0, 230)),
     HEARTBEAT("heartbeat", listOf(0, 90, 120, 180, 650, 90, 120, 180, 650, 90, 120, 180), listOf(0, 160, 0, 255, 0, 160, 0, 255, 0, 160, 0, 255)),
     PULSE("pulse", listOf(0, 450, 300, 450, 300, 450), listOf(0, 255, 0, 255, 0, 255)),
-    WAVE("wave", listOf(0, 220, 0, 220, 0, 220, 0, 220, 0, 220, 0, 220), listOf(0, 60, 0, 130, 0, 200, 0, 255, 0, 170, 0, 90));
+    /** يعلو ثم يهدأ (الانتظارات صفرية فتتصل المقاطع) */
+    WAVE("wave", listOf(0, 220, 0, 220, 0, 220, 0, 220, 0, 220, 0, 220), listOf(0, 60, 0, 130, 0, 200, 0, 255, 0, 170, 0, 90)),
+    /** يتصاعد من الخفيف إلى القوي */
+    RISE("rise", listOf(0, 260, 0, 260, 0, 260, 0, 260, 0, 260), listOf(0, 40, 0, 90, 0, 145, 0, 200, 0, 255)),
+    /** هادئ: نبضتان لطيفتان */
+    GENTLE("gentle", listOf(0, 350, 300, 350), listOf(0, 70, 0, 70)),
+    /** قوي: اهتزازتان طويلتان بأقصى شدة */
+    STRONG("strong", listOf(0, 700, 180, 700), listOf(0, 255, 0, 255)),
+    /** طَرق الباب: طرقتان ثم طرقتان */
+    KNOCK("knock", listOf(0, 55, 100, 55, 420, 55, 100, 55), listOf(0, 255, 0, 255, 0, 255, 0, 255)),
+    /** رفرفة سريعة متتابعة */
+    RAPID("rapid", listOf(0, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45), List(20) { if (it % 2 == 0) 0 else 220 });
 
     /** مجموع مدته بالملّي ثانية */
     val millis get() = timings.sum()
+
+    /** المقاطع المهتزة: (البداية، المدة، الشدة) بالملّي ثانية — لرسم النمط وتشغيله في iOS */
+    val pulses: List<Triple<Long, Long, Int>>
+        get() {
+            var t = 0L
+            return timings.mapIndexedNotNull { i, ms ->
+                val start = t
+                t += ms
+                amps[i].takeIf { it > 0 && ms > 0 }?.let { Triple(start, ms, it) }
+            }
+        }
 
     companion object {
         val DEFAULT = HEARTBEAT

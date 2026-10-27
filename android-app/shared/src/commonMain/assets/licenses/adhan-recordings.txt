@@ -1,11 +1,13 @@
 Adhan recordings used by Mizan
 
 Every recording below was published by its muezzin or by the person who recorded it, under a licence that
-allows redistribution (CC0 or the Public Domain Mark). Mizan's versions are derived works: cut to the
-adhan itself, converted to mono, high-pass filtered at 80 Hz, loudness-normalised (-16 LUFS, EBU R128
+allows redistribution (CC0, the Public Domain Mark, CC BY or CC BY-SA). Mizan's versions are derived works:
+cut to the adhan itself, converted to mono, high-pass filtered at 80 Hz, loudness-normalised (-16 LUFS, EBU R128
 measurement, peaks limited to -1.5 dB) with short fades, and encoded as AAC 64 kbps (.m4a, full adhan) and as a 28-second
 opening excerpt with a fade-out (IMA4 .caf, iPhone notification sound). The processing script is
-android-app/tools/make_adhan.py. The derived files are offered under the same terms as their sources.
+android-app/tools/make_adhan.py. The derived files are offered under the same terms as their sources: the
+CC BY recordings with the attribution given below, and the CC BY-SA recordings under CC BY-SA (that licence
+applies to those audio files only, not to the rest of the app).
 
 Recordings by famous muezzins of the Two Holy Mosques, Mishary Alafasy, Abdul Basit and other well-known
 studio or broadcast recordings are not included: no copy with a licence that allows redistribution was found.
@@ -54,3 +56,79 @@ public domain.
    Licence:    CC0 1.0 Universal
                https://creativecommons.org/publicdomain/zero/1.0/
    Changes:    0:00–2:32 kept.
+
+6. The Prophet's Mosque, Madinah — downloadable
+   Title:      File:33937 ejaz215 call-to-prayer-from-the-prophet-s-mo.ogg ("Islamic call to prayer from the
+               prophet mosque"), transferred to Wikimedia Commons in 2014 from freesound.org/people/ejaz215/sounds/33937
+   Source:     https://commons.wikimedia.org/wiki/File:33937_ejaz215_call-to-prayer-from-the-prophet-s-mo.ogg
+   Author:     ejaz215 (Freesound user)
+   Muezzin:    not named by the source
+   Licence:    Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+               https://creativecommons.org/licenses/by/3.0/
+   Attribution: "Call to prayer from the Prophet's Mosque" by ejaz215 (Freesound), CC BY 3.0, via Wikimedia Commons;
+               converted and normalised for Mizan.
+   Note:       the Freesound page has since been removed; the licence is the one recorded on Wikimedia Commons.
+   Changes:    the whole recording (0:00–3:06.5) kept.
+
+7. Andrewler (Wikimedia Commons) — downloadable
+   Title:      File:Azan.ogg ("Adhan.", 3 September 2022)
+   Source:     https://commons.wikimedia.org/wiki/File:Azan.ogg
+   Author:     Wikimedia Commons user Andrewler (marked as own work)
+   Licence:    Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+               https://creativecommons.org/licenses/by-sa/4.0/
+   Attribution: "Azan" by Andrewler, CC BY-SA 4.0, via Wikimedia Commons; cut, converted and normalised for Mizan.
+               Mizan's derived audio files (andrewler.m4a, adhan_andrewler.caf) are licensed CC BY-SA 4.0.
+   Changes:    0:00–2:38.5 kept; the du'a after the adhan was removed.
+
+8. Aaqib Azeez (Wikimedia Commons) — downloadable
+   Title:      File:The Adhan - Muslim Call to Prayer - Aaqib Azeez.mp3 (23 December 2020)
+   Source:     https://commons.wikimedia.org/wiki/File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3
+   Author:     Wikimedia Commons user Atcovi (marked as own work); the title names the muezzin as Aaqib Azeez
+   Licence:    Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+               https://creativecommons.org/licenses/by-sa/4.0/
+   Attribution: "The Adhan - Muslim Call to Prayer - Aaqib Azeez" by Atcovi, CC BY-SA 4.0, via Wikimedia Commons;
+               converted and normalised for Mizan. Mizan's derived audio files (aaqib.m4a, adhan_aaqib.caf) are
+               licensed CC BY-SA 4.0.
+   Changes:    the whole recording (0:00–1:26.5) kept.
+
+9. Fouad Adan — adhan and Fajr adhan — downloadable
+   Title:      Adhan Fouad Adan (files "Mp32.mp3" and "adan alfajr  fouad adan.mp3")
+   Source:     https://archive.org/details/AdanAlfajrFouadAdan
+   Creator:    Fouad Adan (the muezzin); uploaded from the artist's own archive.org account, which also publishes
+               his nasheeds and du'as
+   Licence:    Public Domain Mark 1.0, applied by the uploader
+               https://creativecommons.org/publicdomain/mark/1.0/
+   Changes:    both recordings kept whole (2:26 and 2:17).
+
+10. Fajr — Kaş, Turkey — downloadable
+   Title:      Kaş, Türkiye - Morning adhan. Some traffic. Rooster. Dogs (22 February 2024)
+   Source:     https://archive.org/details/aporee_63024_72492 (radio aporee ::: maps)
+   Recordist:  Heleste (ambientfeel.t.me), Sony PCM-D100
+   Muezzin:    not named by the source
+   Licence:    Public Domain Mark 1.0, applied by the recordist
+               https://creativecommons.org/publicdomain/mark/1.0/
+   Changes:    0:11.5–5:23 kept.
+
+11. Fajr — Besim Azemi, Malmö Mosque, Sweden — downloadable
+   Title:      File:Eid al-Fitr Fajr azan at Malmö Mosque - 19 August 2012.webm (YouTube video 0IHfm4Y82xA,
+               "Islamic Center Malmo, Ezani Sabahut, Besim Azemi, Gryningsbön Azan, Qendra Islame Malmo Suedi")
+   Source:     https://commons.wikimedia.org/wiki/File:Eid_al-Fitr_Fajr_azan_at_Malm%C3%B6_Mosque_-_19_August_2012.webm
+   Author:     Islamic Center Malmö (the mosque's own YouTube channel); muezzin Besim Azemi
+   Licence:    Creative Commons Attribution 3.0 (CC BY 3.0), as published on YouTube; the licence was confirmed
+               by a Wikimedia Commons licence review on 12 February 2020
+               https://creativecommons.org/licenses/by/3.0/
+   Attribution: "Islamic Center Malmo, Ezani Sabahut, Besim Azemi" by Islamic Center Malmö, CC BY 3.0, via Wikimedia
+               Commons; audio only, cut, converted and normalised for Mizan.
+   Changes:    the sound track of the 240p version, 0:03.5–3:57 kept; the salawat after the adhan was removed.
+
+12. Matey Qoqanuly mosque, Shalqar, Kazakhstan — downloadable
+   Title:      File:Adhan in Shalqar mosque.webm (27 December 2014)
+   Source:     https://commons.wikimedia.org/wiki/File:Adhan_in_Shalqar_mosque.webm
+   Author:     Wikimedia Commons user Esetok (marked as own work)
+   Muezzin:    not named by the source
+   Licence:    Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+               https://creativecommons.org/licenses/by-sa/4.0/
+   Attribution: "Adhan in Shalqar mosque" by Esetok, CC BY-SA 4.0, via Wikimedia Commons; audio only, cut, converted
+               and normalised for Mizan. Mizan's derived audio files (shalqar.m4a, adhan_shalqar.caf) are licensed
+               CC BY-SA 4.0.
+   Changes:    the sound track of the 240p version, 0:02.5–2:14.5 kept.

@@ -20,7 +20,16 @@ import platform.CoreHaptics.CHHapticEventParameterIDHapticIntensity
 import platform.CoreHaptics.CHHapticEventParameterIDHapticSharpness
 import platform.CoreHaptics.CHHapticEventTypeHapticContinuous
 import platform.CoreHaptics.CHHapticEventTypeHapticTransient
+import platform.CoreHaptics.CHHapticDynamicParameterIDHapticIntensityControl
+import platform.CoreHaptics.CHHapticParameterCurve
+import platform.CoreHaptics.CHHapticParameterCurveControlPoint
 import platform.CoreHaptics.CHHapticPattern
+import platform.UIKit.UIImpactFeedbackGenerator
+import platform.UIKit.UIImpactFeedbackStyle
+import platform.darwin.DISPATCH_TIME_NOW
+import platform.darwin.dispatch_after
+import platform.darwin.dispatch_get_main_queue
+import platform.darwin.dispatch_time
 import platform.Foundation.NSBundle
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSLibraryDirectory
@@ -73,25 +82,45 @@ actual object AdhanAudio {
     }
 
     actual fun vibrate(p: VibePattern) {
-        if (!CHHapticEngine.capabilitiesForHardware().supportsHaptics) {
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-            return
-        }
-        // المقاطع القصيرة نقرات، والطويلة اهتزاز متصل بشدته
+        if (!CHHapticEngine.capabilitiesForHardware().supportsHaptics) return impacts(p)
+        // المقاطع القصيرة نقرات، والطويلة اهتزاز متصل؛ والمقاطع المتلاصقة (الموجة والتصاعد) اهتزاز واحد
+        // تتغير شدته بمنحنى، فيُحسّ تدرّجاً ناعماً لا خطوات متقطعة
         val events = ArrayList<CHHapticEvent>()
-        var t = 0L
-        p.timings.forEachIndexed { i, ms ->
-            val amp = p.amps.getOrElse(i) { 0 }
-            if (amp > 0 && ms > 0) {
-                val intensity = CHHapticEventParameter(CHHapticEventParameterIDHapticIntensity, amp / 255f)
-                val sharpness = CHHapticEventParameter(CHHapticEventParameterIDHapticSharpness, if (ms <= 120) 0.6f else 0.3f)
-                events += if (ms <= 120) CHHapticEvent(CHHapticEventTypeHapticTransient, listOf(intensity, sharpness), t / 1000.0)
-                else CHHapticEvent(CHHapticEventTypeHapticContinuous, listOf(intensity, sharpness), t / 1000.0, ms / 1000.0)
+        val curves = ArrayList<CHHapticParameterCurve>()
+        val groups = ArrayList<MutableList<Triple<Long, Long, Int>>>()
+        for (pulse in p.pulses) {
+            val last = groups.lastOrNull()?.last()
+            if (last != null && last.first + last.second == pulse.first) groups.last() += pulse else groups += mutableListOf(pulse)
+        }
+        for (g in groups) {
+            val start = g.first().first
+            val ms = g.last().first + g.last().second - start
+            val amp = g.maxOf { it.third }
+            val sharp = 0.25f + 0.45f * amp / 255f
+            if (g.size == 1 && ms <= 120) {
+                events += CHHapticEvent(CHHapticEventTypeHapticTransient, listOf(
+                    CHHapticEventParameter(CHHapticEventParameterIDHapticIntensity, amp / 255f),
+                    CHHapticEventParameter(CHHapticEventParameterIDHapticSharpness, sharp + 0.2f),
+                ), start / 1000.0)
+                continue
             }
-            t += ms
+            events += CHHapticEvent(CHHapticEventTypeHapticContinuous, listOf(
+                CHHapticEventParameter(CHHapticEventParameterIDHapticIntensity, if (g.size == 1) amp / 255f else 1f),
+                CHHapticEventParameter(CHHapticEventParameterIDHapticSharpness, sharp),
+            ), start / 1000.0, ms / 1000.0)
+            if (g.size > 1) {
+                // نقطة في منتصف كل مقطع بشدته، وبدايةٌ ونهاية (الحد 16 نقطة)
+                val points = listOf(0.0 to g.first().third) +
+                    g.map { (s, d, a) -> (s - start + d / 2) / 1000.0 to a } + (ms / 1000.0 to g.last().third)
+                curves += CHHapticParameterCurve(
+                    CHHapticDynamicParameterIDHapticIntensityControl,
+                    points.take(16).map { (t, a) -> CHHapticParameterCurveControlPoint(t, a / 255f) },
+                    start / 1000.0,
+                )
+            }
         }
         if (events.isEmpty()) return
-        val pattern = CHHapticPattern(events = events, parameters = emptyList<Any>(), error = null)
+        val pattern = CHHapticPattern(events = events, parameterCurves = curves, error = null)
         // المحرك يتوقف حين يغادر التطبيق الواجهة: يُعاد إنشاؤه عند الفشل
         for (attempt in 0..1) {
             val e = engine ?: CHHapticEngine(andReturnError = null).also { engine = it }
@@ -99,7 +128,26 @@ actual object AdhanAudio {
             if (ok) return
             engine = null
         }
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+        impacts(p)
+    }
+
+    /**
+     * أجهزة بلا Core Haptics (iPhone 7 وما قبله): نقرة من مولّد النظام لكل مقطع بقوة تناسب شدته،
+     * والمقاطع الطويلة اهتزاز النظام المعتاد (يعمل في كل جهاز)
+     */
+    private fun impacts(p: VibePattern) {
+        for ((start, ms, amp) in p.pulses) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, start * 1_000_000), dispatch_get_main_queue()) {
+                if (ms >= 400) AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+                else UIImpactFeedbackGenerator(
+                    when {
+                        amp >= 200 -> UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy
+                        amp >= 110 -> UIImpactFeedbackStyle.UIImpactFeedbackStyleMedium
+                        else -> UIImpactFeedbackStyle.UIImpactFeedbackStyleLight
+                    }
+                ).impactOccurred()
+            }
+        }
     }
 
     /** Library/Sounds: iOS يبحث فيه عن أصوات الإشعارات بعد جذر حزمة التطبيق */

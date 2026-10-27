@@ -222,11 +222,19 @@ object Ru : Strings {
         "mirza" to "Моаззам-бег Мирза, Ахмадабад",
         "adam" to "Адам (Викисклад)",
         "kalkan_fajr" to "Фаджр — Калкан, Турция",
+        "madinah" to "Мечеть Пророка, Медина",
+        "andrewler" to "Andrewler (Викисклад)",
+        "aaqib" to "Акиб Азиз",
+        "fouad" to "Фуад Адан",
+        "fouad_fajr" to "Фаджр — Фуад Адан",
+        "kas_fajr" to "Фаджр — Каш, Турция",
+        "malmo_fajr" to "Фаджр — Бесим Аземи, Мальмё",
+        "shalqar" to "Мечеть Шалкара, Казахстан",
     )
     override val playAdhan = "Слушать азан"
     override val stopAdhan = "Остановить"
     override val vibrationTitle = "Вибрация"
-    override val vibeNames = mapOf("short" to "Короткая", "long" to "Длинная", "heartbeat" to "Сердцебиение", "pulse" to "3 импульса", "wave" to "Волна")
+    override val vibeNames = mapOf("short" to "Короткая", "double" to "Двойная", "triple" to "Тройная", "long" to "Длинная", "heartbeat" to "Сердцебиение", "pulse" to "3 импульса", "wave" to "Волна", "rise" to "Нарастающая", "gentle" to "Мягкая", "strong" to "Сильная", "knock" to "Стук", "rapid" to "Частая")
     override val tryVibration = "Проверить вибрацию"
     override val adhanStopHint = "Чтобы остановить азан, нажмите «Остановить» в уведомлении или кнопку громкости. Если телефон в беззвучном режиме или на вибрации, оповещение следует этому режиму."
     override val adhanIosNote = "iPhone ограничивает звук уведомления 30 секундами, поэтому в уведомлении звучит начало азана, а полностью азан звучит, если Мизан открыт во время молитвы. Уведомления вибрируют по шаблону самого iPhone (Настройки › Звуки, тактильные сигналы); шаблоны здесь ощущаются, когда Мизан открыт."

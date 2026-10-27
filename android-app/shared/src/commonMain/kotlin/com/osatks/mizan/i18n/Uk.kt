@@ -222,11 +222,19 @@ object Uk : Strings {
         "mirza" to "Моаззам-бег Мірза, Ахмадабад",
         "adam" to "Адам (Вікісховище)",
         "kalkan_fajr" to "Фаджр — Калкан, Туреччина",
+        "madinah" to "Мечеть Пророка, Медина",
+        "andrewler" to "Andrewler (Вікісховище)",
+        "aaqib" to "Акіб Азіз",
+        "fouad" to "Фуад Адан",
+        "fouad_fajr" to "Фаджр — Фуад Адан",
+        "kas_fajr" to "Фаджр — Каш, Туреччина",
+        "malmo_fajr" to "Фаджр — Бесім Аземі, Мальме",
+        "shalqar" to "Мечеть Шалкара, Казахстан",
     )
     override val playAdhan = "Слухати азан"
     override val stopAdhan = "Зупинити"
     override val vibrationTitle = "Вібрація"
-    override val vibeNames = mapOf("short" to "Коротка", "long" to "Довга", "heartbeat" to "Серцебиття", "pulse" to "3 імпульси", "wave" to "Хвиля")
+    override val vibeNames = mapOf("short" to "Коротка", "double" to "Подвійна", "triple" to "Потрійна", "long" to "Довга", "heartbeat" to "Серцебиття", "pulse" to "3 імпульси", "wave" to "Хвиля", "rise" to "Наростаюча", "gentle" to "М’яка", "strong" to "Сильна", "knock" to "Стукіт", "rapid" to "Часта")
     override val tryVibration = "Перевірити вібрацію"
     override val adhanStopHint = "Щоб зупинити азан, натисніть «Зупинити» у сповіщенні або кнопку гучності. Якщо телефон у беззвучному режимі чи на вібрації, сповіщення слідує цьому режиму."
     override val adhanIosNote = "iPhone обмежує звук сповіщення 30 секундами, тож у сповіщенні звучить початок азану, а повністю азан звучить, якщо Мізан відкритий під час молитви. Сповіщення вібрують за шаблоном самого iPhone (Параметри › Звуки й тактильні сигнали); шаблони тут відчуваються, коли Мізан відкритий."
