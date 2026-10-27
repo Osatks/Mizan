@@ -655,6 +655,9 @@ object Ur : Strings {
     override val obSkip = "چھوڑیں"
     override val obNext = "اگلا"
     override val obStart = "شروع کریں"
+    override val obLocationTitle = "آپ کہاں ہیں؟"
+    override val obLocationBody = "نماز کے اوقات اور قبلہ کی درست سمت کے لیے آپ کا مقام درکار ہے۔ یہ آپ کے آلے پر ہی رہتا ہے اور کسی سرور پر نہیں بھیجا جاتا۔"
+    override val locationNeeded = "اپنے شہر کے درست اوقاتِ نماز دیکھنے کے لیے اپنا مقام منتخب کریں"
     override val appGuide = "ایپ گائیڈ"
     override val appGuideSub = "میزان کی خصوصیات کا مختصر تعارف"
     override val onboarding = listOf(

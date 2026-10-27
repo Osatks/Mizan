@@ -523,6 +523,9 @@ interface Strings {
     val obSkip: String                  // onboarding
     val obNext: String                  // onboarding
     val obStart: String                 // onboarding
+    val obLocationTitle: String         // onboarding: last page asks for the location ("Where are you?")
+    val obLocationBody: String          // why the location is needed; it stays on the device
+    val locationNeeded: String          // banner on Home/Prayer while no location has been chosen
     val appGuide: String                // settings row
     val appGuideSub: String             // settings row subtitle
     val onboarding: List<Pair<String, String>>  // 5 pages (title, body): welcome, prayer&qibla, Quran, calculators with evidence, search

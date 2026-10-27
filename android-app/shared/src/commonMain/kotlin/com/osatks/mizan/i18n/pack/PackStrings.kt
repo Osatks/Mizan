@@ -528,6 +528,9 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val obSkip: String by lazy { s("obSkip") ?: En.obSkip }
     override val obNext: String by lazy { s("obNext") ?: En.obNext }
     override val obStart: String by lazy { s("obStart") ?: En.obStart }
+    override val obLocationTitle: String by lazy { s("obLocationTitle") ?: En.obLocationTitle }
+    override val obLocationBody: String by lazy { s("obLocationBody") ?: En.obLocationBody }
+    override val locationNeeded: String by lazy { s("locationNeeded") ?: En.locationNeeded }
     override val appGuide: String by lazy { s("appGuide") ?: En.appGuide }
     override val appGuideSub: String by lazy { s("appGuideSub") ?: En.appGuideSub }
     override val onboarding: List<Pair<String, String>> by lazy { pairs("onboarding", En.onboarding) }

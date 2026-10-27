@@ -30,6 +30,9 @@ object AppSettings {
 
     var place by mutableStateOf(Place.of(PrayTimes.CITIES[0]))
         private set
+    /** هل اختار المستخدم موقعه (GPS أو مدينة)؟ قبل ذلك نطلبه بدل افتراض مكة */
+    var placeSet by mutableStateOf(false)
+        private set
     var method by mutableStateOf("makkah")
         private set
     var hanafi by mutableStateOf(false)
@@ -50,7 +53,8 @@ object AppSettings {
         if (::sp.isInitialized) return
         sp = Prefs("mizan")
         migrate()
-        if (sp.contains("place_lat")) {
+        placeSet = sp.contains("place_lat")
+        if (placeSet) {
             place = Place(
                 sp.getString("place_key")?.takeIf { it.isNotEmpty() },
                 (sp.getString("place_lat") ?: "0").toDouble(), (sp.getString("place_lng") ?: "0").toDouble(),
@@ -83,6 +87,7 @@ object AppSettings {
 
     fun updatePlace(p: Place) {
         place = p
+        placeSet = true
         method = p.method
         sp.edit()
             .putString("place_key", p.key ?: "")

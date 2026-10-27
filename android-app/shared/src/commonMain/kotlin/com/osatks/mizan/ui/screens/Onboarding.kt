@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -45,7 +47,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.ui.SlowStar
 import com.osatks.mizan.ui.drawStar8
 import com.osatks.mizan.ui.theme.Gold
@@ -64,19 +68,23 @@ private val PAGE_ICONS = listOf(Icons.Filled.Star, Icons.Filled.Explore, Icons.A
 fun Onboarding(onDone: () -> Unit) {
     val s = LocalStrings.current
     val pages = s.onboarding
-    val pager = rememberPagerState { pages.size }
+    // الصفحة الأخيرة تطلب الموقع: لا نفترض مكة، فالمواقيت والقبلة تُحسب من موقع المستخدم
+    val count = pages.size + 1
+    val pager = rememberPagerState { count }
     val scope = rememberCoroutineScope()
-    val last = pager.currentPage == pages.lastIndex
+    val last = pager.currentPage == count - 1
     Box(Modifier.fillMaxSize().background(HeroBrush)) {
         // نجمة كبيرة تدور ببطء خلف الصفحات
         SlowStar(Modifier.size(420.dp).align(Alignment.TopEnd).graphicsLayer { translationX = 140f; translationY = -80f }, Color.White.copy(alpha = .06f), 90_000, 4f)
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.End) {
-                if (!last) TextButton(onClick = onDone) { Text(s.obSkip, color = Color.White.copy(alpha = .85f)) }
-                else Spacer(Modifier.height(48.dp))
+                // «تخطي» ينقل إلى صفحة الموقع أولاً، ومنها يُنهي الجولة
+                if (!last || !AppSettings.placeSet) TextButton(onClick = { if (last) onDone() else scope.launch { pager.animateScrollToPage(count - 1) } }) {
+                    Text(s.obSkip, color = Color.White.copy(alpha = .85f))
+                } else Spacer(Modifier.height(48.dp))
             }
             HorizontalPager(pager, Modifier.weight(1f)) { i ->
-                val (title, body) = pages[i]
+                val (title, body) = pages.getOrNull(i) ?: (s.obLocationTitle to s.obLocationBody)
                 Column(
                     Modifier.fillMaxSize().padding(horizontal = 32.dp).graphicsLayer {
                         val o = ((pager.currentPage - i) + pager.currentPageOffsetFraction).absoluteValue.coerceAtMost(1f)
@@ -91,18 +99,31 @@ fun Onboarding(onDone: () -> Unit) {
                             drawStar8(Offset(size.width / 2, size.height / 2), size.minDimension * 0.42f, Gold.copy(alpha = .9f), 2.5.dp.toPx(), rings = false)
                             drawCircle(Color.White.copy(alpha = .10f), size.minDimension * 0.27f)
                         }
-                        Icon(PAGE_ICONS.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(56.dp), tint = Gold)
+                        Icon(if (i == pages.size) Icons.Filled.Place else PAGE_ICONS.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(56.dp), tint = Gold)
                     }
                     Spacer(Modifier.height(36.dp))
                     Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(14.dp))
                     Text(body, style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = .85f), textAlign = TextAlign.Center)
+                    if (i == pages.size) {
+                        Spacer(Modifier.height(28.dp))
+                        // الموقع المختار يظهر فوق الزرين بعد تحديده
+                        if (AppSettings.placeSet) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.CheckCircle, null, Modifier.size(20.dp), tint = Gold)
+                                Spacer(Modifier.width(8.dp))
+                                Text(s.placeName(AppSettings.place), color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                            }
+                            Spacer(Modifier.height(16.dp))
+                        }
+                        LocationButtons(onHero = true, modifier = Modifier.fillMaxWidth())
+                    }
                 }
             }
             // النقاط وزر المتابعة
             Row(Modifier.fillMaxWidth().padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    pages.indices.forEach { i ->
+                    (0 until count).forEach { i ->
                         val on = i == pager.currentPage
                         val w by animateDpAsState(if (on) 22.dp else 8.dp, tween(250), label = "dot")
                         val c by animateColorAsState(if (on) Gold else Color.White.copy(alpha = .35f), tween(250), label = "dotColor")

@@ -655,6 +655,9 @@ object Tr : Strings {
     override val obSkip = "Atla"
     override val obNext = "İleri"
     override val obStart = "Başlayın"
+    override val obLocationTitle = "Neredesiniz?"
+    override val obLocationBody = "Namaz vakitlerini ve kıbleyi doğru hesaplamak için konumunuz gerekir. Konumunuz cihazınızda kalır, hiçbir sunucuya gönderilmez."
+    override val locationNeeded = "Şehrinizin doğru namaz vakitlerini görmek için konumunuzu belirleyin"
     override val appGuide = "Uygulama rehberi"
     override val appGuideSub = "Mizan'ın neler yapabildiğine kısa bir bakış"
     override val onboarding = listOf(

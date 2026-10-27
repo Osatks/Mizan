@@ -654,6 +654,9 @@ object En : Strings {
     override val obSkip = "Skip"
     override val obNext = "Next"
     override val obStart = "Get started"
+    override val obLocationTitle = "Where are you?"
+    override val obLocationBody = "Your location is needed to compute accurate prayer times and the qibla. It stays on your device and is never sent to a server."
+    override val locationNeeded = "Set your location to see the right prayer times for your city"
     override val appGuide = "App guide"
     override val appGuideSub = "A quick tour of what Mizan can do"
     override val onboarding = listOf(

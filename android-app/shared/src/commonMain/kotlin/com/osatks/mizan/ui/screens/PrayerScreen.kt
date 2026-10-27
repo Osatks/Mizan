@@ -117,6 +117,7 @@ fun PrayerScreen() {
     val city = place.city
     val subtitle = s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: "")
     ToolPage(s.prayerTitle, subtitle, sharedKey = "prayer", icon = TOOL_ICONS["prayer"]) {
+        if (!AppSettings.placeSet) item { LocationNeededCard() }
         item {
             ResultCard(s.nextPrayerLabel(s.prayer(next.key)), PrayerUtil.hms(next.remaining), s.atTime(s.time(next.at.hour + next.at.minute / 60.0)))
         }

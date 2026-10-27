@@ -637,6 +637,9 @@ object Ar : Strings {
     override val obSkip = "تخطي"
     override val obNext = "التالي"
     override val obStart = "ابدأ"
+    override val obLocationTitle = "أين أنت؟"
+    override val obLocationBody = "نحتاج موقعك لحساب مواقيت الصلاة واتجاه القبلة بدقة. يبقى موقعك على جهازك ولا يُرسل إلى أي خادم."
+    override val locationNeeded = "حدّد موقعك لتظهر مواقيت الصلاة الصحيحة لمدينتك"
     override val appGuide = "دليل التطبيق"
     override val appGuideSub = "جولة سريعة في أهم ما في ميزان"
     override val onboarding = listOf(

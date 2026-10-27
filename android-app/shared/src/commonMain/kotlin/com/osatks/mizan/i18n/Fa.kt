@@ -655,6 +655,9 @@ object Fa : Strings {
     override val obSkip = "رد شدن"
     override val obNext = "بعدی"
     override val obStart = "شروع"
+    override val obLocationTitle = "کجا هستید؟"
+    override val obLocationBody = "برای محاسبهٔ دقیق اوقات نماز و جهت قبله به موقعیت شما نیاز است. موقعیت شما روی دستگاهتان می‌ماند و به هیچ سروری فرستاده نمی‌شود."
+    override val locationNeeded = "موقعیت خود را تعیین کنید تا اوقات درست نماز شهرتان نمایش داده شود"
     override val appGuide = "راهنمای برنامه"
     override val appGuideSub = "آشنایی کوتاه با امکانات میزان"
     override val onboarding = listOf(

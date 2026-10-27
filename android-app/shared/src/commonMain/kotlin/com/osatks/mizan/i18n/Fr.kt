@@ -673,6 +673,9 @@ object Fr : Strings {
     override val obSkip = "Passer"
     override val obNext = "Suivant"
     override val obStart = "Commencer"
+    override val obLocationTitle = "Où êtes-vous ?"
+    override val obLocationBody = "Votre position permet de calculer précisément les horaires de prière et la qibla. Elle reste sur votre appareil et n’est jamais envoyée à un serveur."
+    override val locationNeeded = "Indiquez votre position pour obtenir les bons horaires de prière de votre ville"
     override val appGuide = "Guide de l'application"
     override val appGuideSub = "Un aperçu rapide de ce que Mizan peut faire"
     override val onboarding = listOf(

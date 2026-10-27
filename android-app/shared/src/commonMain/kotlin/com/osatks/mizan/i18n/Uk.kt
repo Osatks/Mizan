@@ -674,6 +674,9 @@ object Uk : Strings {
     override val obSkip = "Пропустити"
     override val obNext = "Далі"
     override val obStart = "Почати"
+    override val obLocationTitle = "Де ви?"
+    override val obLocationBody = "Ваше місцезнаходження потрібне, щоб точно розрахувати час намазу й напрямок кібли. Воно залишається на пристрої й нікуди не надсилається."
+    override val locationNeeded = "Укажіть своє місцезнаходження, щоб бачити точний час намазу для вашого міста"
     override val appGuide = "Огляд застосунку"
     override val appGuideSub = "Короткий огляд того, що вміє Мізан"
     override val onboarding = listOf(

@@ -655,6 +655,9 @@ object Id : Strings {
     override val obSkip = "Lewati"
     override val obNext = "Lanjut"
     override val obStart = "Mulai"
+    override val obLocationTitle = "Di mana Anda?"
+    override val obLocationBody = "Lokasi Anda diperlukan untuk menghitung waktu salat dan arah kiblat dengan tepat. Lokasi tetap di perangkat Anda dan tidak pernah dikirim ke server."
+    override val locationNeeded = "Tentukan lokasi Anda untuk melihat waktu salat yang tepat di kota Anda"
     override val appGuide = "Panduan aplikasi"
     override val appGuideSub = "Tur singkat tentang apa saja yang bisa dilakukan Mizan"
     override val onboarding = listOf(

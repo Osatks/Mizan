@@ -655,6 +655,9 @@ object Bn : Strings {
     override val obSkip = "এড়িয়ে যান"
     override val obNext = "পরবর্তী"
     override val obStart = "শুরু করুন"
+    override val obLocationTitle = "আপনি কোথায়?"
+    override val obLocationBody = "নামাজের সময় ও কিবলার দিক সঠিকভাবে হিসাব করতে আপনার অবস্থান প্রয়োজন। এটি আপনার ডিভাইসেই থাকে, কোনো সার্ভারে পাঠানো হয় না।"
+    override val locationNeeded = "আপনার শহরের সঠিক নামাজের সময় দেখতে অবস্থান নির্ধারণ করুন"
     override val appGuide = "অ্যাপ নির্দেশিকা"
     override val appGuideSub = "মিজান কী কী করতে পারে তার এক ঝলক"
     override val onboarding = listOf(

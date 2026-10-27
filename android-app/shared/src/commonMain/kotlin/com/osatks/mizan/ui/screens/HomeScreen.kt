@@ -169,6 +169,10 @@ fun HomeScreen(open: (String) -> Unit) {
                 }
             }
         }
+        if (!AppSettings.placeSet) item {
+            // قبل اختيار الموقع: نطلبه بدل عرض مواقيت مكة على أنها مواقيت المستخدم
+            LocationNeededCard(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp))
+        }
         item {
             // القرآن الكريم: متابعة القراءة من آخر موضع، أو البدء
             Box(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp).reveal(reveal, 4)) {
@@ -176,7 +180,7 @@ fun HomeScreen(open: (String) -> Unit) {
             }
         }
         item {
-            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 5))
+            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 5))
         }
         TOOL_ORDER.chunked(2).forEachIndexed { row, pair ->
             item {

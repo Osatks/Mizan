@@ -83,17 +83,26 @@ private val TAB_ROUTES = TABS.map { it.route }.toSet()
 fun MizanApp(startRoute: String? = null) {
     val nav = rememberNavController()
     LaunchedEffect(startRoute) {
-        if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) nav.navigate(startRoute)
+        if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) {
+            if (startRoute in TAB_ROUTES) nav.goTab(startRoute) else nav.navigate(startRoute)
+        }
     }
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route
     val onTab = current == null || current in TAB_ROUTES
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val back: () -> Unit = { nav.popBackStack() }
+    // فتح تبويب من داخل شاشة (مثل «القرآن» من الرئيسية) يمرّ بالتبويبات نفسها، لا يُكدَّس فوق الرئيسية،
+    // وإلا حفظ التبويب الرئيسي هذه الشاشة في حالته فبدا شريط التنقل وكأنه لا يعمل
+    val open: (String) -> Unit = { r -> if (r in TAB_ROUTES) nav.goTab(r) else nav.navigate(r) }
 
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         SharedTransitionLayout {
-            CompositionLocalProvider(LocalSharedScope provides this, LocalBottomInset provides if (onTab) 92.dp else 0.dp) {
+            // لون النص الافتراضي يتبع الخلفية، وإلا ظهر نص بلا لون محدد أسود في الوضع الداكن
+            CompositionLocalProvider(
+                LocalSharedScope provides this, LocalBottomInset provides if (onTab) 92.dp else 0.dp,
+                androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground,
+            ) {
                 NavHost(
                     nav, startDestination = "home", modifier = Modifier.fillMaxSize(),
                     enterTransition = { enter(rtl) },
@@ -104,10 +113,10 @@ fun MizanApp(startRoute: String? = null) {
                     fun screen(route: String, content: @Composable () -> Unit) = composable(route) {
                         CompositionLocalProvider(LocalNavScope provides this) { content() }
                     }
-                    screen("home") { HomeScreen(open = { nav.navigate(it) }) }
+                    screen("home") { HomeScreen(open = open) }
                     screen("prayer") { PrayerScreen() }
                     screen("qibla") { QiblaScreen(back) }
-                    screen("quran") { QuranScreen(open = { nav.navigate(it) }) }
+                    screen("quran") { QuranScreen(open = open) }
                     composable(
                         SURAH_ROUTE,
                         arguments = listOf(
@@ -132,7 +141,7 @@ fun MizanApp(startRoute: String? = null) {
                     }
                     screen("tasbih") { TasbihScreen() }
                     screen("adhkar") { com.osatks.mizan.ui.screens.AdhkarScreen(back) }
-                    screen("settings") { SettingsScreen(open = { nav.navigate(it) }) }
+                    screen("settings") { SettingsScreen(open = open) }
                     screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
                     screen("guide") { com.osatks.mizan.ui.screens.Onboarding(back) }
                     screen("zakat") { ZakatScreen(back) }
@@ -144,7 +153,8 @@ fun MizanApp(startRoute: String? = null) {
                     screen("fidya") { FidyaScreen(back) }
                     screen("search") {
                         SearchScreen(back) { route ->
-                            nav.navigate(route) { popUpTo("search") { inclusive = true } }
+                            if (route in TAB_ROUTES) { nav.popBackStack(); nav.goTab(route) }
+                            else nav.navigate(route) { popUpTo("search") { inclusive = true } }
                         }
                     }
                 }
