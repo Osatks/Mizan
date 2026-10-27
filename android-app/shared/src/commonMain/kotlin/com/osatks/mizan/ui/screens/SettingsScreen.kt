@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -104,10 +103,10 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
         item {
             SectionCard(s.prayerTitle) {
                 ClickRow(s.adhanAlert, s.adhanAlertDesc, onClick = {}, leading = Icons.Filled.NotificationsActive) {
-                    Switch(checked = AppSettings.notify, onCheckedChange = { on -> toggleNotify(on) })
+                    com.osatks.mizan.ui.AppSwitch(checked = AppSettings.notify, onCheckedChange = { on -> toggleNotify(on) })
                 }
                 ClickRow(s.use24h, s.use24hDesc, onClick = { AppSettings.updateUse24h(!AppSettings.use24h) }, leading = Icons.Filled.AccessTime) {
-                    Switch(checked = AppSettings.use24h, onCheckedChange = { AppSettings.updateUse24h(it) })
+                    com.osatks.mizan.ui.AppSwitch(checked = AppSettings.use24h, onCheckedChange = { AppSettings.updateUse24h(it) })
                 }
                 if (PrayerAlerts.hasExactAlarmSettings) {
                     ClickRow(s.exactAlarm, s.exactAlarmDesc, leading = Icons.Filled.Alarm, onClick = { PrayerAlerts.openExactAlarmSettings() })

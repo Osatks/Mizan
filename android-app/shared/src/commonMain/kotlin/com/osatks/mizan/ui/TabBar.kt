@@ -11,12 +11,28 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.material3.ripple
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import com.osatks.mizan.ui.theme.LocalDark
+import dev.chrisbanes.haze.HazeState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -35,7 +51,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,26 +82,34 @@ val TABS = listOf(
 )
 
 /**
- * شريط تنقل عائم: التبويب المختار يتمدد كحبة تحمل اسمه، والبقية أيقونات فقط.
+ * شريط تنقل عائم من زجاج: يُموَّه ما يمر خلفه من المحتوى، وحافته تلمع من الأعلى، وظله ناعم.
+ * التبويب المختار "عدسة" زجاجية ملوّنة بلون التطبيق تتمدد لتحمل اسمه، والبقية أيقونات فقط.
  * التمدد والانكماش بنابض خفيف، والأيقونة "تقفز" لحظة الاختيار.
  */
 @Composable
-fun FloatingTabBar(current: String?, onSelect: (String) -> Unit) {
+fun FloatingTabBar(current: String?, haze: HazeState?, onSelect: (String) -> Unit) {
     val s = LocalStrings.current
-    Surface(
-        modifier = Modifier.navigationBarsPadding().padding(horizontal = 14.dp, vertical = 10.dp).fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
-        shadowElevation = 10.dp,
+    val dark = LocalDark.current
+    val shape = RoundedCornerShape(percent = 50)
+    // في iOS يجلس الشريط فوق مؤشر الشاشة الرئيسية مباشرة كشريط النظام، لا فوق المنطقة الآمنة كلها
+    val nav = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val bottom = if (IsIos && nav > 20.dp) nav - 12.dp else nav + 10.dp
+    Row(
+        Modifier
+            .padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = bottom)
+            .fillMaxWidth()
+            .shadow(
+                18.dp, shape,
+                ambientColor = Color.Black.copy(alpha = if (dark) .45f else .10f),
+                spotColor = Color.Black.copy(alpha = if (dark) .55f else .20f),
+            )
+            .glass(haze, shape, glassStyle(if (dark) .52f else .56f, 24.dp))
+            .padding(6.dp)
+            .height(52.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            Modifier.padding(horizontal = 8.dp, vertical = 8.dp).height(52.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TABS.forEach { tab -> TabPill(tab.label(s), if (current == tab.route) tab.on else tab.off, current == tab.route) { onSelect(tab.route) } }
-        }
+        TABS.forEach { tab -> TabPill(tab.label(s), if (current == tab.route) tab.on else tab.off, current == tab.route) { onSelect(tab.route) } }
     }
 }
 
@@ -94,19 +117,47 @@ fun FloatingTabBar(current: String?, onSelect: (String) -> Unit) {
 private fun TabPill(label: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val src = remember { MutableInteractionSource() }
-    val bg by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, tween(Motion.MEDIUM), label = "tabBg"
-    )
+    val dark = LocalDark.current
+    val primary = MaterialTheme.colorScheme.primary
     val fg by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, tween(Motion.MEDIUM), label = "tabFg"
+        if (selected) primary else MaterialTheme.colorScheme.onSurfaceVariant, tween(Motion.MEDIUM), label = "tabFg"
     )
+    // العدسة تظهر وتخفت بنابض بدل تبدّل اللون فجأة
+    val lens by animateFloatAsState(if (selected) 1f else 0f, spring(dampingRatio = .82f, stiffness = 520f), label = "tabLens")
     val bounce by animateFloatAsState(
         if (selected) 1f else 0f, spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), label = "tabBounce"
     )
-    Surface(
-        onClick = { if (!selected) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onClick() },
-        shape = CircleShape, color = bg, interactionSource = src,
-        modifier = Modifier.height(48.dp).pressScale(src, 0.9f).semantics { this.selected = selected; role = Role.Tab }
+    val fill = primary.copy(alpha = if (dark) .24f else .13f)
+    val sheen = Color.White.copy(alpha = if (dark) .14f else .60f)
+    val rimTop = Color.White.copy(alpha = if (dark) .30f else 1f)
+    val rimBottom = Color.White.copy(alpha = if (dark) .06f else .45f)
+    val shade = Color.Black.copy(alpha = if (dark) .20f else .06f)
+    Box(
+        Modifier
+            .height(48.dp)
+            // الضغط يكبّر العدسة قليلاً كزجاج iOS، لا يصغّرها
+            .pressScale(src, 1.07f)
+            .semantics { this.selected = selected; role = Role.Tab }
+            .drawWithCache {
+                val r = CornerRadius(size.height / 2)
+                val w = 1.dp.toPx()
+                val sheenBrush = Brush.verticalGradient(0f to sheen, .6f to Color.Transparent)
+                val rimBrush = Brush.verticalGradient(listOf(rimTop, rimBottom))
+                onDrawBehind {
+                    if (lens > 0.01f) {
+                        drawRoundRect(shade, Offset(0f, w), size, r, alpha = lens)
+                        drawRoundRect(fill, cornerRadius = r, alpha = lens)
+                        drawRoundRect(sheenBrush, cornerRadius = r, alpha = lens)
+                        drawRoundRect(rimBrush, Offset(w / 2, w / 2), Size(size.width - w, size.height - w), r, alpha = lens, style = Stroke(w))
+                    }
+                }
+            }
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = src, indication = if (IsIos) null else ripple(), role = Role.Tab,
+                onClick = { if (!selected) haptic.performHapticFeedback(HapticFeedbackType.SegmentTick); onClick() },
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Row(Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(

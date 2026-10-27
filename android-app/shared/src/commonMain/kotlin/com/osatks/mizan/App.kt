@@ -46,6 +46,10 @@ import com.osatks.mizan.core.Demo
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.ui.FloatingTabBar
+import com.osatks.mizan.ui.IsIos
+import com.osatks.mizan.ui.LocalAppHaze
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import com.osatks.mizan.ui.LanguageHost
 import com.osatks.mizan.ui.LocalBottomInset
 import com.osatks.mizan.ui.LocalNavScope
@@ -95,12 +99,16 @@ fun MizanApp(startRoute: String? = null) {
     // فتح تبويب من داخل شاشة (مثل «القرآن» من الرئيسية) يمرّ بالتبويبات نفسها، لا يُكدَّس فوق الرئيسية،
     // وإلا حفظ التبويب الرئيسي هذه الشاشة في حالته فبدا شريط التنقل وكأنه لا يعمل
     val open: (String) -> Unit = { r -> if (r in TAB_ROUTES) nav.goTab(r) else nav.navigate(r) }
+    // محتوى الصفحات مصدرٌ للزجاج (شريط التنقل والأوراق السفلية)، إلا صفحة المصحف: لا شريط فوقها، فلا كلفة إضافية على التقليب
+    val appHaze = rememberHazeState()
+    val glassSource = current != SURAH_ROUTE
 
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        SharedTransitionLayout {
+        SharedTransitionLayout(Modifier.fillMaxSize().then(if (glassSource) Modifier.hazeSource(appHaze) else Modifier)) {
             // لون النص الافتراضي يتبع الخلفية، وإلا ظهر نص بلا لون محدد أسود في الوضع الداكن
             CompositionLocalProvider(
                 LocalSharedScope provides this, LocalBottomInset provides if (onTab) 92.dp else 0.dp,
+                LocalAppHaze provides appHaze,
                 androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground,
             ) {
                 NavHost(
@@ -166,13 +174,14 @@ fun MizanApp(startRoute: String? = null) {
         AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
             com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
         }
+        // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)
         AnimatedVisibility(
-            visible = onTab,
+            visible = onTab && !firstRun,
             modifier = Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it } + fadeIn(),
             exit = slideOutVertically(tween(Motion.SHORT, easing = Motion.Accelerate)) { it } + fadeOut(),
         ) {
-            FloatingTabBar(current) { nav.goTab(it) }
+            FloatingTabBar(current, appHaze) { nav.goTab(it) }
         }
     }
 }
@@ -197,8 +206,10 @@ private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(): EnterT
     if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
     else scaleIn(tween(Motion.LONG, easing = Motion.Emphasized), initialScale = 0.94f) + fadeIn(tween(Motion.MEDIUM))
 
+// في iOS تخرج الصفحة كاملة إلى جهة الرجوع: سحب الحافة للرجوع (يتبع الإصبع) يحمل الصفحة معه كما في تطبيقات النظام
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(rtl: Boolean): ExitTransition =
     if (isTabSwitch()) fadeOut(tween(90))
+    else if (IsIos) slideOutHorizontally(tween(Motion.LONG - 80, easing = Motion.Emphasized)) { w -> if (rtl) -w else w }
     else slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { w -> (if (rtl) -w else w) / 4 } +
         fadeOut(tween(Motion.SHORT, delayMillis = 60))
 

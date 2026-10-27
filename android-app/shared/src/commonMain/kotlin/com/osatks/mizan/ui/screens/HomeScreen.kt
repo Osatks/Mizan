@@ -71,6 +71,11 @@ import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.i18n.weekday
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.ui.LocalBottomInset
+import com.osatks.mizan.ui.GlassTopBar
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.rememberLazyListState
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import com.osatks.mizan.ui.quran.ContinueCard
 import com.osatks.mizan.ui.quran.quranStyle
 import com.osatks.mizan.ui.RevealState
@@ -114,7 +119,11 @@ fun HomeScreen(open: (String) -> Unit) {
     val reveal = remember { RevealState() }
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) { LazyColumn(contentPadding = PaddingValues(bottom = 20.dp + bottom + LocalBottomInset.current)) {
+    val haze = rememberHazeState()
+    // القائمة مصدر لزجاج الشريط العلوي: يظهر باسم التطبيق حين تمرّ الترويسة تحت شريط الحالة
+    Box(Modifier.fillMaxSize()) { androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) {
+    val list = rememberLazyListState()
+    LazyColumn(state = list, modifier = Modifier.fillMaxSize().hazeSource(haze), contentPadding = PaddingValues(bottom = 20.dp + bottom + LocalBottomInset.current)) {
         item {
             Box(
                 Modifier.fillMaxWidth()
@@ -194,8 +203,8 @@ fun HomeScreen(open: (String) -> Unit) {
             }
         }
     }
-
-}
+    GlassTopBar(list, haze, s.appName, onBack = null)
+} }
     if (showLang) LanguageSheet { showLang = false }
 }
 

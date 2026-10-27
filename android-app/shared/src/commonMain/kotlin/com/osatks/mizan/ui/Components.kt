@@ -14,6 +14,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -82,6 +83,28 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
+import androidx.compose.material3.Switch
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import com.osatks.mizan.ui.theme.LocalDark
+import dev.chrisbanes.haze.ExperimentalHazeApi
+import dev.chrisbanes.haze.HazeInputScale
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.ui.theme.Gold
@@ -146,12 +169,19 @@ class PageScope internal constructor(private val list: LazyListScope, private va
     fun item(key: Any? = null, content: @Composable () -> Unit) {
         val i = index++
         list.item(key = key) {
-            Box(Modifier.reveal(reveal, i)) { content() }
+            Box(Modifier.padding(horizontal = 16.dp).reveal(reveal, i)) { content() }
         }
     }
 }
 
-/** صفحة أداة: رأس + محتوى قابل للتمرير */
+/** ارتفاع الشريط العلوي المضغوط (دون شريط الحالة) */
+internal val TopBarHeight = 52.dp
+
+/**
+ * صفحة أداة بأسلوب iOS: عنوان كبير في رأس متدرج يمرّ مع المحتوى، وفوقه شريط زجاجي ثابت فيه زر الرجوع.
+ * حين يمرّ الرأس تحت الشريط يظهر زجاج الشريط (تمويه ما تحته) وعنوان صغير في وسطه.
+ * الرأس يبقى مربوطاً ببطاقة الأداة في الرئيسية (sharedKey) فيتحول أحدهما إلى الآخر.
+ */
 @Composable
 fun ToolPage(
     title: String, subtitle: String? = null, onBack: (() -> Unit)? = null,
@@ -160,13 +190,139 @@ fun ToolPage(
 ) {
     val reveal = remember { RevealState() }
     val nav = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        PageHeader(title, subtitle, onBack, sharedKey, icon)
-        androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) { LazyColumn(
-            modifier = Modifier.fillMaxSize().imePadding(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + nav + LocalBottomInset.current),
-            verticalArrangement = Arrangement.spacedBy(spacing),
-        ) { PageScope(this, reveal).content() } }
+    val haze = rememberHazeState()
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) {
+            val list = rememberLazyListState()
+            LazyColumn(
+                state = list,
+                modifier = Modifier.fillMaxSize().hazeSource(haze).imePadding(),
+                contentPadding = PaddingValues(bottom = 16.dp + nav + LocalBottomInset.current),
+                verticalArrangement = Arrangement.spacedBy(spacing),
+            ) {
+                item(key = "page-header", contentType = "page-header") {
+                    Column {
+                        LargeHeader(title, subtitle, sharedKey, icon, hasBack = onBack != null)
+                        Spacer(Modifier.height((16.dp - spacing).coerceAtLeast(0.dp)))
+                    }
+                }
+                PageScope(this, reveal).content()
+            }
+            GlassTopBar(list, haze, title, onBack)
+        }
+    }
+}
+
+/** الرأس الكبير لصفحة الأداة: أيقونة وعنوان كبير وسطر وصف؛ يترك أعلاه مكان الشريط الثابت إن كان فيه زر رجوع */
+@Composable
+private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, icon: ImageVector?, hasBack: Boolean) {
+    val shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+    Box(
+        Modifier
+            .then(if (sharedKey != null) Modifier.sharedCard("card-$sharedKey", shape) else Modifier)
+            .fillMaxWidth()
+            .clip(shape)
+            .background(HeroBrush)
+            .starBackdrop(Color.White.copy(alpha = .07f), 72.dp, Alignment.TopEnd, (-28).dp, 44.dp, 90_000)
+    ) {
+        Row(
+            Modifier.statusBarsPadding().padding(start = 20.dp, end = 20.dp, top = if (hasBack) TopBarHeight else 14.dp, bottom = 22.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (icon != null) {
+                Box(
+                    Modifier
+                        .then(if (sharedKey != null) Modifier.sharedIcon("icon-$sharedKey") else Modifier)
+                        .size(46.dp).clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = .14f)),
+                    contentAlignment = Alignment.Center
+                ) { Icon(icon, null, tint = Gold) }
+                Spacer(Modifier.width(14.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                // العنوان يتبدل بانزلاق لطيف (مثل اسم السورة عند تقليب صفحات المصحف)
+                androidx.compose.animation.AnimatedContent(
+                    title,
+                    transitionSpec = {
+                        (fadeIn(tween(Motion.MEDIUM)) + androidx.compose.animation.slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it / 2 }) togetherWith
+                            fadeOut(tween(Motion.SHORT)) using androidx.compose.animation.SizeTransform(clip = false)
+                    },
+                    label = "title"
+                ) { t -> Text(t, style = MaterialTheme.typography.headlineMedium, color = Color.White) }
+                if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = .85f))
+            }
+        }
+    }
+}
+
+/**
+ * الشريط العلوي العائم فوق قائمة يبدأ عنصرها الأول برأس متدرج:
+ * شفاف فوق الرأس (زر الرجوع أبيض)، ثم يصير زجاجاً يموّه ما يمر تحته مع عنوان صغير في الوسط حين يمرّ الرأس تحته.
+ * كل ذلك يُقرأ أثناء الرسم فقط، فالتمرير لا يعيد بناء الصفحة.
+ */
+@OptIn(ExperimentalHazeApi::class)
+@Composable
+internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, onBack: (() -> Unit)?) {
+    val density = LocalDensity.current
+    val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val barPx = with(density) { (top + TopBarHeight).toPx() }
+    val rampPx = with(density) { 36.dp.toPx() }
+    // 0 والرأس ظاهر تحت الشريط، 1 حين يمرّ طرفه السفلي تحته
+    val glass = remember(list, barPx) {
+        derivedStateOf {
+            if (list.firstVisibleItemIndex > 0) 1f
+            else {
+                val h = list.layoutInfo.visibleItemsInfo.firstOrNull()?.size ?: return@derivedStateOf 0f
+                val left = h - barPx - list.firstVisibleItemScrollOffset
+                (1f - left / rampPx).coerceIn(0f, 1f)
+            }
+        }
+    }
+    val shown by remember(glass) { derivedStateOf { glass.value > 0f } }
+    val style = glassStyle(if (LocalDark.current) .66f else .72f, 24.dp)
+    val hairline = MaterialTheme.colorScheme.outlineVariant
+    Box(Modifier.fillMaxWidth()) {
+        Box(
+            Modifier.matchParentSize()
+                .then(
+                    if (shown) Modifier.hazeEffect(haze, style) { alpha = glass.value; inputScale = HazeInputScale.Auto }
+                    else Modifier
+                )
+                .drawBehind { if (glass.value > 0f) drawRect(hairline, Offset(0f, size.height - 1f), Size(size.width, 1f), alpha = glass.value * .8f) }
+        )
+        Box(Modifier.statusBarsPadding().fillMaxWidth().height(TopBarHeight), contentAlignment = Alignment.Center) {
+            Text(
+                title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
+                // نسخة مصغّرة من عنوان الرأس: قارئ الشاشة يقرأ العنوان الكبير وحده
+                modifier = Modifier.padding(horizontal = 60.dp).clearAndSetSemantics {}.graphicsLayer {
+                    val a = ((glass.value - .4f) / .6f).coerceIn(0f, 1f)
+                    alpha = a
+                    translationY = (1f - a) * 6.dp.toPx()
+                }
+            )
+            if (onBack != null) Box(Modifier.align(Alignment.CenterStart).padding(start = 10.dp)) { BackChip(onBack) { glass.value } }
+        }
+    }
+}
+
+/** زر الرجوع: دائرة زجاجية بيضاء فوق الرأس، ويأخذ لون التطبيق حين يصير الشريط زجاجاً (كسهم الرجوع في iOS) */
+@Composable
+private fun BackChip(onBack: () -> Unit, progress: () -> Float) {
+    val s = LocalStrings.current
+    val p = progress()
+    val tint = lerp(Color.White, MaterialTheme.colorScheme.primary, p)
+    val bg = lerp(Color.White.copy(alpha = .16f), MaterialTheme.colorScheme.onSurface.copy(alpha = .06f), p)
+    val src = remember { MutableInteractionSource() }
+    Box(
+        Modifier.size(40.dp).pressScale(src, 0.88f).clip(CircleShape).background(bg)
+            .clickable(interactionSource = src, indication = if (IsIos) null else ripple(), role = Role.Button, onClick = onBack),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            // في iOS سهم الرجوع المعتاد هناك (‹) بأطراف مستديرة
+            if (IsIos) Icons.AutoMirrored.Rounded.ArrowBackIos else Icons.AutoMirrored.Filled.ArrowBack, contentDescription = s.back, tint = tint,
+            modifier = Modifier.size(if (IsIos) 22.dp else 24.dp)
+        )
     }
 }
 
@@ -224,12 +380,18 @@ fun Stepper(label: String, value: Int, onChange: (Int) -> Unit, min: Int = 0, ma
 @Composable
 fun MiniStepper(value: Int, onChange: (Int) -> Unit, min: Int = 0, max: Int = 99) {
     val s = LocalStrings.current
+    val haptic = LocalHapticFeedback.current
+    // نقرة خفيفة مع كل خطوة، وأقوى قليلاً عند بلوغ الحد
+    fun step(v: Int) {
+        haptic.performHapticFeedback(if (v == min || v == max) HapticFeedbackType.ContextClick else HapticFeedbackType.SegmentTick)
+        onChange(v)
+    }
     Row(verticalAlignment = Alignment.CenterVertically) {
-        StepButton(Icons.Filled.Remove, s.decrease, enabled = value > min) { onChange(value - 1) }
+        StepButton(Icons.Filled.Remove, s.decrease, enabled = value > min) { step(value - 1) }
         Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) {
             RollingText("$value", MaterialTheme.typography.titleMedium)
         }
-        StepButton(Icons.Filled.Add, s.increase, enabled = value < max) { onChange(value + 1) }
+        StepButton(Icons.Filled.Add, s.increase, enabled = value < max) { step(value + 1) }
     }
 }
 
@@ -255,6 +417,7 @@ fun Segmented(options: List<Pair<String, String>>, selected: String, onSelect: (
     val pos by animateFloatAsState(index.toFloat(), spring(dampingRatio = 0.78f, stiffness = 420f), label = "seg")
     val pill = MaterialTheme.colorScheme.surface
     val edge = MaterialTheme.colorScheme.outlineVariant
+    val haptic = LocalHapticFeedback.current
     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
         Row(
             Modifier.padding(4.dp).height(IntrinsicSize.Min).drawBehind {
@@ -270,7 +433,10 @@ fun Segmented(options: List<Pair<String, String>>, selected: String, onSelect: (
                     if (i == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, label = "segText"
                 )
                 Box(
-                    Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(12.dp)).clickable { onSelect(key) },
+                    Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(12.dp)).clickable {
+                        if (key != selected) haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                        onSelect(key)
+                    },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -281,6 +447,45 @@ fun Segmented(options: List<Pair<String, String>>, selected: String, onSelect: (
             }
         }
     }
+}
+
+/**
+ * مفتاح تشغيل وإيقاف، معه اهتزاز خفيف عند التبديل.
+ * في iOS بشكل مفتاح النظام (مسار بعرض 51 ونقطة بيضاء تنزلق وتتمدد عند اللمس)، وفي أندرويد مفتاح Material.
+ */
+@Composable
+fun AppSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    val change: (Boolean) -> Unit = { on ->
+        haptic.performHapticFeedback(if (on) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff)
+        onCheckedChange(on)
+    }
+    if (!IsIos) {
+        Switch(checked = checked, onCheckedChange = change)
+        return
+    }
+    val src = remember { MutableInteractionSource() }
+    val pressed by src.collectIsPressedAsState()
+    val pos by animateFloatAsState(if (checked) 1f else 0f, spring(dampingRatio = .74f, stiffness = 520f), label = "switch")
+    val stretch by animateFloatAsState(if (pressed) 1f else 0f, spring(stiffness = 900f), label = "switchPress")
+    val track by animateColorAsState(
+        if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = .16f), tween(Motion.SHORT), label = "switchTrack"
+    )
+    Box(
+        Modifier.size(51.dp, 31.dp).clip(CircleShape).background(track)
+            .toggleable(checked, interactionSource = src, indication = null, role = Role.Switch, onValueChange = change)
+            .drawBehind {
+                val inset = 2.dp.toPx()
+                val h = size.height - inset * 2
+                val w = h + 7.dp.toPx() * stretch
+                val travel = size.width - inset * 2 - w
+                val ltrX = inset + travel * pos
+                val x = if (layoutDirection == LayoutDirection.Rtl) size.width - ltrX - w else ltrX
+                val r = CornerRadius(h / 2)
+                drawRoundRect(Color.Black.copy(alpha = .10f), Offset(x, inset + 1.5.dp.toPx()), Size(w, h), r)
+                drawRoundRect(Color.White, Offset(x, inset), Size(w, h), r)
+            }
+    )
 }
 
 /** قائمة منسدلة بسيطة */

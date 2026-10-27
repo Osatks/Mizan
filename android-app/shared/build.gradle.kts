@@ -32,6 +32,8 @@ kotlin {
             api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
             implementation("org.jetbrains.kotlinx:atomicfu:0.27.0")
+            // زجاج حقيقي (تمويه ما خلف شريط التنقل والرؤوس العائمة): RenderEffect في أندرويد 12+، و Skia في iOS
+            implementation("dev.chrisbanes.haze:haze:1.6.10")
         }
         androidMain.dependencies {
             api("androidx.core:core-ktx:1.15.0")

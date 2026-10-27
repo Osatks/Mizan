@@ -65,7 +65,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -384,7 +383,7 @@ private fun shareBody(d: Dhikr, tr: AdhkarTr, lang: Lang, s: Strings, t: String?
 @Composable
 private fun EvidenceSheet(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<String>?, onDismiss: () -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surface) {
+    GlassSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 22.dp, end = 22.dp, bottom = 36.dp)) {
             DhikrEvidence(d, tr, lang, quran)
         }

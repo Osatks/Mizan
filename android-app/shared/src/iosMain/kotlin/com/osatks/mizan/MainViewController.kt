@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.osatks.mizan.ui.IosHaptics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,16 +29,21 @@ import kotlinx.coroutines.delay
 import platform.UIKit.UIViewController
 
 /** نقطة دخول iOS: يستدعيها iOSApp.swift */
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 fun MainViewController(): UIViewController {
     AppSettings.init()
     // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)
     PrayerAlerts.reschedule()
-    return ComposeUIViewController {
-        LanguageHost {
-            MizanTheme {
-                Box(Modifier.fillMaxSize()) {
-                    MizanApp()
-                    ToastOverlay()
+    // سحب الحافة للرجوع (كتطبيقات النظام): يقود انتقال الرجوع في NavHost مع حركة الإصبع
+    return ComposeUIViewController(configure = { enableBackGesture = true }) {
+        // اهتزازات بمولّدات UIKit لكل نوع ما يناسبه (التبويبات، العدّادات، المفاتيح)
+        CompositionLocalProvider(LocalHapticFeedback provides IosHaptics) {
+            LanguageHost {
+                MizanTheme {
+                    Box(Modifier.fillMaxSize()) {
+                        MizanApp()
+                        ToastOverlay()
+                    }
                 }
             }
         }
