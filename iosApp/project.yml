@@ -20,6 +20,8 @@ targets:
     platform: iOS
     sources:
       - path: iosApp
+      # بديل App Group عبر سلسلة المفاتيح، مشترك مع الأداة
+      - path: Shared
       # نصوص المصحف والتفاسير والأذكار والخطوط وحزم اللغات: المجلد نفسه الذي يضمّنه أندرويد
       - path: ../android-app/shared/src/commonMain/assets
         type: folder
@@ -47,6 +49,7 @@ targets:
     platform: iOS
     sources:
       - path: MizanWidgets
+      - path: Shared
       # خط المصحف نفسه الذي يستعمله التطبيق (UIAppFonts في Info.plist الأداة)
       - path: ../android-app/shared/src/commonMain/assets/fonts/amiri_quran.ttf
         buildPhase: resources

@@ -183,7 +183,16 @@ enum Store {
     /// سبب غياب اللقطة: G (لا حاوية مجموعة متاحة لهذا التوقيع) أو F (لا ملف بعد) أو D (ملف لا يُقرأ)، مع عدد المجموعات المعروفة
     static func diagnosis() -> String {
         let gs = groups()
-        guard let dir = container() else { return "G · \(gs.count) · \(gs.first ?? "-")" }
+        guard let dir = container() else {
+            // بلا App Group: حالة قراءة سلسلة المفاتيح، وتجربة كتابة فيها (‎-34018 = لا صلاحية للمجموعة)
+            let (data, r) = SharedKeychain.read()
+            if let data = data {
+                do { _ = try JSONDecoder().decode(Snapshot.self, from: data); return "K OK" }
+                catch { return "KD · \(String(describing: error).prefix(60))" }
+            }
+            let team = SharedKeychain.teamPrefix() ?? "-"
+            return "G · K\(r) · \(team)"
+        }
         let url = dir.appendingPathComponent(file)
         guard let data = try? Data(contentsOf: url) else { return "F · \(gs.count)" }
         do { _ = try JSONDecoder().decode(Snapshot.self, from: data); return "OK" }
@@ -191,8 +200,10 @@ enum Store {
     }
 
     static func load() -> Snapshot? {
-        guard let url = container()?.appendingPathComponent(file),
-              let data = try? Data(contentsOf: url) else { return nil }
+        if let url = container()?.appendingPathComponent(file), let data = try? Data(contentsOf: url),
+           let snap = try? JSONDecoder().decode(Snapshot.self, from: data) { return snap }
+        // بلا App Group: من سلسلة المفاتيح المشتركة
+        guard let data = SharedKeychain.read().0 else { return nil }
         return try? JSONDecoder().decode(Snapshot.self, from: data)
     }
 }

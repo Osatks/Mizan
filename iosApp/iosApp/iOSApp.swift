@@ -39,7 +39,9 @@ final class WidgetSync {
     private var task: UIBackgroundTaskIdentifier = .invalid
 
     func start() {
-        NotificationCenter.default.addObserver(forName: Notification.Name("MizanWidgetsReload"), object: nil, queue: .main) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: Notification.Name("MizanWidgetsReload"), object: nil, queue: .main) { [weak self] note in
+            // اللقطة نفسها تُكتب أيضاً في سلسلة المفاتيح المشتركة، لتثبيتات بلا App Group (Sideloadly بحساب مجاني)
+            if let json = note.object as? String, let data = json.data(using: .utf8) { SharedKeychain.write(data) }
             WidgetCenter.shared.reloadAllTimelines()
             self?.endTask()
         }

@@ -15,6 +15,8 @@ import platform.Foundation.dataWithContentsOfFile
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSURL
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 import platform.Foundation.writeToURL
 
 /**
@@ -64,12 +66,11 @@ object IosWidgets {
     fun refresh() {
         job?.cancel()
         job = scope.launch {
-            val dir = container() ?: return@launch
             val json = runCatching { WidgetData.snapshotJson() }.getOrNull() ?: return@launch
-            val url = dir.URLByAppendingPathComponent(FILE) ?: return@launch
-            if (json.encodeToByteArray().toNSData().writeToURL(url, true)) {
-                NSNotificationCenter.defaultCenter.postNotificationName(RELOAD, null)
-            }
+            container()?.URLByAppendingPathComponent(FILE)?.let { json.encodeToByteArray().toNSData().writeToURL(it, true) }
+            // اللقطة مع الإشعار: يكتبها Swift أيضاً في سلسلة المفاتيح المشتركة (لتثبيتات بلا App Group)
+            // ثم يطلب إعادة رسم الأدوات. يُرسل على الخيط الرئيسي لأن المراقب هناك.
+            dispatch_async(dispatch_get_main_queue()) { NSNotificationCenter.defaultCenter.postNotificationName(RELOAD, json) }
         }
     }
 
