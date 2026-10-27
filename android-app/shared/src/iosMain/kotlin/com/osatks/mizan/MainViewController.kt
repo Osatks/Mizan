@@ -22,15 +22,23 @@ import com.osatks.mizan.platform.IosToast
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.ui.LanguageHost
 import com.osatks.mizan.ui.theme.MizanTheme
+import androidx.compose.ui.ExperimentalComposeUiApi
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import platform.UIKit.UIViewController
 
 /** نقطة دخول iOS: يستدعيها iOSApp.swift */
+@OptIn(ExperimentalComposeUiApi::class)
 fun MainViewController(): UIViewController {
     AppSettings.init()
-    // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)
-    PrayerAlerts.reschedule()
-    return ComposeUIViewController {
+    // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)،
+    // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت و35 طلب إشعار لا ينتظرها أول إطار
+    MainScope().launch { delay(1200); PrayerAlerts.reschedule() }
+    return ComposeUIViewController(configure = {
+        // ترميز أوامر الرسم لـ Metal على خيط مستقل، فيتفرغ الخيط الرئيسي للتركيب واللمس في كل إطار
+        parallelRendering = true
+    }) {
         LanguageHost {
             MizanTheme {
                 Box(Modifier.fillMaxSize()) {

@@ -83,7 +83,8 @@ fun AnnotatedString.Builder.appendAyahEnd(ayah: Int) = appendInlineContent(AYAH_
 @Composable
 fun ayahEndContent(fontSize: TextUnit, ring: Color, number: Color): Map<String, InlineTextContent> {
     val paint = remember { mushafPaint() }
-    return mapOf(
+    // الخريطة نفسها ما لم يتغير المقاس أو اللون، فلا تُعاد تهيئة نص الآية مع كل تركيب
+    return remember(fontSize, ring, number) { mapOf(
         // المكان المحجوز فوق خط الأساس تماماً، فتجلس الحلقة على سطر الآية كما يضعها الخط (ويتدلى أسفلها تحته)
         AYAH_END_ID to InlineTextContent(Placeholder(1.32.em, 0.72.em, PlaceholderVerticalAlign.AboveBaseline)) { alt ->
             Canvas(Modifier.fillMaxSize()) {
@@ -92,7 +93,7 @@ fun ayahEndContent(fontSize: TextUnit, ring: Color, number: Color): Map<String, 
                 drawIntoCanvas { drawAyahEnd(it, paint, alt.toIntOrNull() ?: 0, px * 0.02f, baseline, px, ring.toArgb(), number.toArgb()) }
             }
         }
-    )
+    ) }
 }
 
 /**

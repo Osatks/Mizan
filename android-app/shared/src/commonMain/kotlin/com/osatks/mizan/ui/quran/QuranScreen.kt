@@ -92,6 +92,8 @@ fun QuranScreen(open: (String) -> Unit) {
     var tab by rememberSaveable { mutableStateOf("surahs") }
     var q by rememberSaveable { mutableStateOf("") }
     val text by produceState(QuranData.cached(QuranData.UTHMANI)) { value = QuranData.uthmani() }
+    // خط المصحف يُقرأ ويُهيَّأ تشكيله في الخلفية قبل فتح أي سورة، فلا يتحمله أول ظهور للصفحة
+    LaunchedEffect(Unit) { warmMushafFont() }
 
     // نتائج البحث في الآيات تُحسب في الخلفية بعد توقف الكتابة قليلاً
     var ayahHits by remember { mutableStateOf<List<Int>?>(emptyList()) }
