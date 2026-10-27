@@ -31,6 +31,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.font.FontWeight
@@ -88,6 +89,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
 import kotlin.math.absoluteValue
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -133,7 +135,10 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     QuranProgress.ensure()
     val s = LocalStrings.current
     val lang = LocalLang.current
-    val text by produceState(QuranData.cached(QuranData.UTHMANI)) { value = QuranData.uthmani() }
+    // النص وخط المصحف يُقرآن في الخلفية قبل أول صفحة (إن لم يكونا جاهزين من فهرس المصحف)
+    val text by produceState(QuranData.cached(QuranData.UTHMANI)) {
+        if (value == null) value = QuranData.uthmani().also { warmMushafFont() }
+    }
     val translation = remember(lang) { Sources.translationFor(lang) }
     val trText by produceState(translation?.let { QuranData.cached("tafsir/${it.id}.txt") }, translation) {
         value = translation?.let { QuranData.source(it.id) }
@@ -171,8 +176,15 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     DisposableEffect(Unit) { onDispose { if (sheetIdx == null) QuranPrefs.updateLast(currentIndex()) } }
 
-    val headSurah = if (mode == "mushaf") QuranMeta.locate(QuranMeta.pageRange(pager.currentPage + 1).first).first else listSurah
-    val headIndex = if (mode == "mushaf") QuranMeta.pageRange(pager.currentPage + 1).first else QuranMeta.STARTS[listSurah - 1]
+    // الرأس (السورة والجزء) مشتق من الصفحة المعروضة: لا تُعاد الشاشة كلها مع كل صفحة تُقلَّب (منتصف السحب)،
+    // بل حين تتغير السورة أو الجزء فقط
+    val head by remember(mode) {
+        derivedStateOf {
+            val i = if (mode == "mushaf") QuranMeta.pageRange(pager.currentPage + 1).first else QuranMeta.STARTS[listSurah - 1]
+            QuranMeta.locate(i).first to QuranMeta.juzOf(i)
+        }
+    }
+    val headSurah = head.first
     // وضع التركيز: بلا رأس ولا أشرطة نظام، والشاشة مضاءة، والإشعارات صامتة إن سمح المستخدم بذلك
     var focus by rememberSaveable { mutableStateOf(startInFocus) }
     var askSilence by remember { mutableStateOf(false) }
@@ -210,7 +222,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         val seen = AppSettings.getInt("ayah_hint")
         if (seen < 3) { AppSettings.putInt("ayah_hint", seen + 1); delay(1200); ayahHint = true; delay(5000); ayahHint = false }
     }
-    LaunchedEffect(pager.currentPage, listSurah) { actionIdx = null }
+    // تقليب الصفحة يغلق شريط خيارات الآية (يُراقب هنا لا في التركيب، فلا تُعاد الشاشة مع كل صفحة)
+    LaunchedEffect(Unit) { snapshotFlow { pager.currentPage to listSurah }.collect { actionIdx = null } }
     LaunchedEffect(hifzHint) { if (hifzHint) { delay(4500); hifzHint = false } }
     LaunchedEffect(focus, mode) {
         if (focus && mode == "list") {
@@ -296,7 +309,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         ) {
         PageHeader(
             s.surahName(headSurah),
-            "${if (QuranMeta.isMedinan(headSurah)) s.medinan else s.meccan} · ${s.ayahCount(QuranMeta.COUNTS[headSurah - 1])} · ${s.juzName(QuranMeta.juzOf(headIndex))}",
+            "${if (QuranMeta.isMedinan(headSurah)) s.medinan else s.meccan} · ${s.ayahCount(QuranMeta.COUNTS[headSurah - 1])} · ${s.juzName(head.second)}",
             onBack, cardKey = "$from-$surah"
         ) {
             IconButton(onClick = { enterFocus() }) { Icon(Icons.Filled.Fullscreen, s.focusMode, tint = Color.White) }
@@ -347,18 +360,18 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                 // صفحات المصحف تُقلَّب كالكتاب العربي: التالية على اليسار، والصفحة المغادرة تنحسر قليلاً
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { it }) { p ->
+                        // بُعد الصفحة عن موضعها أثناء السحب؛ يُقرأ في طبقات الرسم فقط فلا يعيد تركيب الصفحة مع كل إطار
+                        val away = { ((pager.currentPage - p) + pager.currentPageOffsetFraction).absoluteValue.coerceAtMost(1f) }
                         Box(
                             Modifier.fillMaxSize().graphicsLayer {
-                                val o = ((pager.currentPage - p) + pager.currentPageOffsetFraction).absoluteValue.coerceAtMost(1f)
-                                val sc = 1f - 0.06f * o
+                                val sc = 1f - 0.06f * away()
                                 scaleX = sc; scaleY = sc
-                                alpha = 1f - 0.4f * o
                             }
                         ) {
                             MushafPage(
                                 p + 1, t, selIdx, bottom + playerRoom, onFrameTap = { if (focus) exitPing++ },
-                                hifz = hifzOn, revealed = revealed, onEdge = if (focus) ::turn else null,
-                                onLongPress = { longPress(it) },
+                                hifz = hifzOn, revealed = revealed, onEdge = if (focus) { d -> turn(d) } else null,
+                                onLongPress = { longPress(it) }, fade = away,
                             ) { tapAyah(it) }
                         }
                     }
@@ -528,9 +541,12 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
 internal fun MushafPage(
     page: Int, text: Array<String>, selected: Int, bottomInset: androidx.compose.ui.unit.Dp, onFrameTap: () -> Unit,
     hifz: Boolean = false, revealed: Set<Int> = emptySet(), onEdge: ((Int) -> Unit)? = null,
-    onLongPress: ((Int) -> Unit)? = null, onTap: (Int) -> Unit,
+    onLongPress: ((Int) -> Unit)? = null, fade: () -> Float = { 0f }, onTap: (Int) -> Unit,
 ) {
     val p = mushafPalette()
+    // الصفحة المغادرة تخبو نحو لون ما حولها: غشاء بلون الخلفية فوق الورقة، بدل شفافية الصفحة كلها
+    // (الشفافية ترسم الصفحة بظلها في ذاكرة وسيطة مع كل إطار من السحب)
+    val veil = p.backdrop.takeOrElse { MaterialTheme.colorScheme.surfaceContainerLow }
     val first = QuranMeta.pageRange(page).first
     val (firstSurah, _) = QuranMeta.locate(first)
     val read = remember(QuranProgress.readCount, page) { QuranProgress.isRead(page) }
@@ -572,6 +588,11 @@ internal fun MushafPage(
     }
     // رقم الصفحة في وسط خطَّي الإطار السفليين
     PageMedallion(page, read, Modifier.align(Alignment.BottomCenter).padding(bottom = MEDALLION_CENTER - MEDALLION_SIZE / 2))
+    Spacer(
+        Modifier.matchParentSize()
+            .graphicsLayer { alpha = 0.4f * fade(); compositingStrategy = CompositingStrategy.ModulateAlpha }
+            .background(veil)
+    )
     }
 }
 
