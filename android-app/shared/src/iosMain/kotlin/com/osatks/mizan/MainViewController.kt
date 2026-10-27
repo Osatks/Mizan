@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.osatks.mizan.ui.IosHaptics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,12 +41,17 @@ fun MainViewController(): UIViewController {
     return ComposeUIViewController(configure = {
         // ترميز أوامر الرسم لـ Metal على خيط مستقل، فيتفرغ الخيط الرئيسي للتركيب واللمس في كل إطار
         parallelRendering = true
+        // سحب الحافة للرجوع (كتطبيقات النظام): يقود انتقال الرجوع في NavHost مع حركة الإصبع
+        enableBackGesture = true
     }) {
-        LanguageHost {
-            MizanTheme {
-                Box(Modifier.fillMaxSize()) {
-                    MizanApp()
-                    ToastOverlay()
+        // اهتزازات بمولّدات UIKit لكل نوع ما يناسبه (التبويبات، العدّادات، المفاتيح)
+        CompositionLocalProvider(LocalHapticFeedback provides IosHaptics) {
+            LanguageHost {
+                MizanTheme {
+                    Box(Modifier.fillMaxSize()) {
+                        MizanApp()
+                        ToastOverlay()
+                    }
                 }
             }
         }

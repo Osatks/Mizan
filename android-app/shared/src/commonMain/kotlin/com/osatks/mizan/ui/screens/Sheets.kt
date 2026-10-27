@@ -49,6 +49,16 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetState
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.graphics.Color
+import com.osatks.mizan.ui.LocalAppHaze
+import com.osatks.mizan.ui.glass
+import com.osatks.mizan.ui.glassRim
+import com.osatks.mizan.ui.glassStyle
+import com.osatks.mizan.ui.theme.LocalDark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,7 +94,7 @@ import kotlinx.coroutines.launch
 fun LanguageSheet(onDismiss: () -> Unit) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surface) {
+    GlassSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         LanguageList { code ->
             scope.launch { sheet.hide() }.invokeOnCompletion {
                 onDismiss()
@@ -162,6 +172,7 @@ internal fun LanguageList(state: LazyListState = rememberLazyListState(), pick: 
     confirmDelete?.let { l ->
         AlertDialog(
             onDismissRequest = { confirmDelete = null },
+            shape = RoundedCornerShape(30.dp), containerColor = MaterialTheme.colorScheme.surface,
             title = { Text(s.deleteTafsirQ(l.native)) },
             confirmButton = { TextButton(onClick = { LanguagePacks.delete(l.code); confirmDelete = null }) { Text(s.delete, color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text(s.cancel) } },
@@ -171,7 +182,8 @@ internal fun LanguageList(state: LazyListState = rememberLazyListState(), pick: 
 
 @Composable
 private fun OptionRow(title: String, subtitle: String?, selected: Boolean, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
-    val bg by animateColorAsState(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, label = "opt")
+    // الصفوف شفافة فوق الزجاج، والمختار منها بلون التطبيق الخفيف
+    val bg by animateColorAsState(if (selected) MaterialTheme.colorScheme.primary.copy(alpha = .13f) else Color.Transparent, label = "opt")
     Row(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(bg).clickable(onClick = onClick)
             .padding(start = 16.dp, end = if (trailing != null) 6.dp else 16.dp, top = 13.dp, bottom = 13.dp),
@@ -186,6 +198,39 @@ private fun OptionRow(title: String, subtitle: String?, selected: Boolean, trail
             Box(Modifier.size(28.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
                 Icon(Icons.Filled.Check, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(18.dp))
             }
+        }
+    }
+}
+
+/**
+ * ورقة سفلية زجاجية بأسلوب iOS: زوايا عليا مستديرة 32، ومقبض صغير في أعلاها، وسطحها يموّه الصفحة التي خلفها
+ * (من مصدر التطبيق [LocalAppHaze]) بطبقة من لون السطح كثيفة تكفي لقراءة النص فوق أي محتوى.
+ * التمويه بثلث الدقة ونصف قطر محدود؛ ويمتد السطح تحت شريط التنقل السفلي ثم يُزاح المحتوى عنه.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GlassSheet(onDismissRequest: () -> Unit, sheetState: SheetState, content: @Composable ColumnScope.() -> Unit) {
+    val dark = LocalDark.current
+    val shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest, sheetState = sheetState, shape = shape,
+        containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.onSurface, tonalElevation = 0.dp,
+        scrimColor = Color.Black.copy(alpha = if (dark) .45f else .25f),
+        dragHandle = null,
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+    ) {
+        Column(
+            Modifier.fillMaxWidth()
+                .glass(LocalAppHaze.current, shape, glassStyle(if (dark) .80f else .82f, 32.dp, fallback = 1f), glassRim(.8f))
+                .navigationBarsPadding()
+        ) {
+            // المقبض: كبسولة صغيرة رمادية كما في أوراق iOS
+            Box(
+                Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp, bottom = 14.dp)
+                    .size(width = 36.dp, height = 5.dp).clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) .32f else .22f))
+            )
+            content()
         }
     }
 }
@@ -209,7 +254,7 @@ fun CityPickerSheet(selectedKey: String?, onDismiss: () -> Unit, onPick: (City) 
         val terms = Search.normalize(q).split(' ').filter { it.isNotEmpty() }
         if (terms.isEmpty()) all else all.filter { (_, _, hay) -> terms.all { hay.contains(it) } }
     }
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = MaterialTheme.colorScheme.surface) {
+    GlassSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         Column(Modifier.fillMaxHeight(0.92f).imePadding()) {
             OutlinedTextField(
                 value = q, onValueChange = { q = it }, singleLine = true,
@@ -226,7 +271,7 @@ fun CityPickerSheet(selectedKey: String?, onDismiss: () -> Unit, onPick: (City) 
                 items(shown, key = { it.first.key }) { (c, country, _) ->
                     Row(
                         Modifier.animateItem().fillMaxWidth().clip(RoundedCornerShape(14.dp))
-                            .background(if (c.key == selectedKey) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
+                            .background(if (c.key == selectedKey) MaterialTheme.colorScheme.primary.copy(alpha = .13f) else Color.Transparent)
                             .clickable {
                                 scope.launch { sheet.hide() }.invokeOnCompletion { onDismiss(); onPick(c) }
                             }
