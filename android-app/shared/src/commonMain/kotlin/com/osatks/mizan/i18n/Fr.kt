@@ -191,6 +191,34 @@ object Fr : Strings {
     override val channelDesc = "Une alerte au début de chaque prière"
     override fun prayerNowTitle(prayer: String) = "C'est l'heure ${de(prayer)}"
     override fun prayerNowText(city: String) = "$city — venez à la prière"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Adhan et alertes"
+    override val adhanSettingsSub = "Muezzin, alerte pour chaque prière et vibration"
+    override val alertPerPrayer = "Alerte pour chaque prière"
+    override val alertModeAdhan = "Adhan"
+    override val alertModeVibrate = "Vibreur seul"
+    override val alertModeSilent = "Notification silencieuse"
+    override val alertModeOff = "Aucune alerte"
+    override val alertModesHint = "« Adhan » joue l’appel à la prière en entier, « Vibreur seul » vibre sans son, « Notification silencieuse » affiche une notification sans son, et « Aucune alerte » n’envoie rien pour cette prière."
+    override val muezzinTitle = "Muezzin"
+    override val fajrAdhanTitle = "Adhan du Fajr"
+    override val fajrAdhanHint = "L’adhan du Fajr ajoute « As-salatu khayrun min an-nawm » (la prière est meilleure que le sommeil)."
+    override val fajrSameAsOthers = "Comme les autres prières"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "Mosquée du KLCC, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Fajr — Kalkan, Turquie",
+    )
+    override val playAdhan = "Écouter l’adhan"
+    override val stopAdhan = "Arrêter"
+    override val vibrationTitle = "Type de vibration"
+    override val vibeNames = mapOf("short" to "Courte", "long" to "Longue", "heartbeat" to "Battement de cœur", "pulse" to "3 impulsions", "wave" to "Vague")
+    override val tryVibration = "Essayer la vibration"
+    override val adhanStopHint = "Touchez « Arrêter » dans la notification ou appuyez sur une touche de volume pour arrêter l’adhan. Si le téléphone est en mode silencieux ou vibreur, l’alerte suit ce mode."
+    override val adhanIosNote = "L’iPhone limite les sons de notification à 30 secondes : la notification joue le début de l’adhan, et l’adhan complet est joué si Mizan est ouvert à l’heure de la prière. Les notifications vibrent selon le motif de l’iPhone (Réglages › Sons et vibrations) ; les motifs ci-dessus se ressentent quand Mizan est ouvert."
+    override val recordingSources = "Sources des enregistrements"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Direction de la qibla"

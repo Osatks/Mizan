@@ -35,6 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Notifications
@@ -90,7 +91,7 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun PrayerScreen() {
+fun PrayerScreen(open: (String) -> Unit = {}) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     var next by remember { mutableStateOf(PrayerUtil.next()) }
@@ -196,6 +197,10 @@ fun PrayerScreen() {
                         Text(s.adhanAlertDesc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     com.osatks.mizan.ui.AppSwitch(checked = AppSettings.notify, onCheckedChange = { on -> toggleNotify(on) })
+                }
+                // الأذان والتنبيهات: المؤذن، وطريقة التنبيه لكل صلاة، والاهتزاز
+                com.osatks.mizan.ui.ClickRow(s.adhanSettings, s.adhanSettingsSub, onClick = { open("adhan") }, leading = Icons.AutoMirrored.Filled.VolumeUp) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Text(s.timesMayDiffer, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

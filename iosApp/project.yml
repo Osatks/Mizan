@@ -26,6 +26,9 @@ targets:
       - path: ../android-app/shared/src/commonMain/assets
         type: folder
         buildPhase: resources
+      # أصوات إشعارات الأذان (أقل من 30 ثانية، caf): تُنسخ إلى جذر Mizan.app حيث يبحث عنها UNNotificationSound
+      - path: Sounds
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mizan.almuslim

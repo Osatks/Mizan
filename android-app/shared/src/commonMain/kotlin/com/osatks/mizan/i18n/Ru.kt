@@ -203,6 +203,34 @@ object Ru : Strings {
     override val channelDesc = "Уведомление при наступлении времени каждого намаза"
     override fun prayerNowTitle(prayer: String) = "Наступило время намаза $prayer"
     override fun prayerNowText(city: String) = "$city — спешите на намаз"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Азан и оповещения"
+    override val adhanSettingsSub = "Муэдзин, оповещение для каждой молитвы и вибрация"
+    override val alertPerPrayer = "Оповещение для каждой молитвы"
+    override val alertModeAdhan = "Азан"
+    override val alertModeVibrate = "Только вибрация"
+    override val alertModeSilent = "Беззвучное уведомление"
+    override val alertModeOff = "Без оповещения"
+    override val alertModesHint = "«Азан» воспроизводит азан полностью, «Только вибрация» вибрирует без звука, «Беззвучное уведомление» показывает уведомление без звука, а «Без оповещения» ничего не присылает для этой молитвы."
+    override val muezzinTitle = "Муэдзин"
+    override val fajrAdhanTitle = "Азан на Фаджр"
+    override val fajrAdhanHint = "В азан на Фаджр добавляется «Ас-саляту хайрун мина-н-наум» (молитва лучше сна)."
+    override val fajrSameAsOthers = "Как для остальных молитв"
+    override val muezzinNames = mapOf(
+        "asim" to "Асим Джавед",
+        "klcc" to "Мечеть KLCC, Куала-Лумпур",
+        "mirza" to "Моаззам-бег Мирза, Ахмадабад",
+        "adam" to "Адам (Викисклад)",
+        "kalkan_fajr" to "Фаджр — Калкан, Турция",
+    )
+    override val playAdhan = "Слушать азан"
+    override val stopAdhan = "Остановить"
+    override val vibrationTitle = "Вибрация"
+    override val vibeNames = mapOf("short" to "Короткая", "long" to "Длинная", "heartbeat" to "Сердцебиение", "pulse" to "3 импульса", "wave" to "Волна")
+    override val tryVibration = "Проверить вибрацию"
+    override val adhanStopHint = "Чтобы остановить азан, нажмите «Остановить» в уведомлении или кнопку громкости. Если телефон в беззвучном режиме или на вибрации, оповещение следует этому режиму."
+    override val adhanIosNote = "iPhone ограничивает звук уведомления 30 секундами, поэтому в уведомлении звучит начало азана, а полностью азан звучит, если Мизан открыт во время молитвы. Уведомления вибрируют по шаблону самого iPhone (Настройки › Звуки, тактильные сигналы); шаблоны здесь ощущаются, когда Мизан открыт."
+    override val recordingSources = "Источники записей"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Направление киблы"

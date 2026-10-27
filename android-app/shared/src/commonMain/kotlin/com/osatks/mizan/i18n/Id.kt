@@ -184,6 +184,34 @@ object Id : Strings {
     override val channelDesc = "Pengingat saat setiap waktu salat tiba"
     override fun prayerNowTitle(prayer: String) = "Waktunya salat $prayer"
     override fun prayerNowText(city: String) = "$city — marilah salat"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Azan & pengingat"
+    override val adhanSettingsSub = "Muazin, pengingat tiap salat, dan getaran"
+    override val alertPerPrayer = "Pengingat tiap salat"
+    override val alertModeAdhan = "Azan"
+    override val alertModeVibrate = "Getar saja"
+    override val alertModeSilent = "Notifikasi senyap"
+    override val alertModeOff = "Tanpa pengingat"
+    override val alertModesHint = "“Azan” memutar azan lengkap, “Getar saja” bergetar tanpa suara, “Notifikasi senyap” menampilkan notifikasi tanpa suara, dan “Tanpa pengingat” tidak mengirim apa pun untuk salat itu."
+    override val muezzinTitle = "Muazin"
+    override val fajrAdhanTitle = "Azan Subuh"
+    override val fajrAdhanHint = "Azan Subuh ditambah “Ash-shalatu khairun minan naum” (salat lebih baik daripada tidur)."
+    override val fajrSameAsOthers = "Sama dengan salat lainnya"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "Masjid KLCC, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Subuh — Kalkan, Turki",
+    )
+    override val playAdhan = "Putar azan"
+    override val stopAdhan = "Hentikan"
+    override val vibrationTitle = "Pola getaran"
+    override val vibeNames = mapOf("short" to "Pendek", "long" to "Panjang", "heartbeat" to "Detak jantung", "pulse" to "3 denyut", "wave" to "Gelombang")
+    override val tryVibration = "Coba getaran"
+    override val adhanStopHint = "Ketuk “Hentikan” di notifikasi atau tekan tombol volume untuk menghentikan azan. Jika ponsel dalam mode senyap atau getar, pengingat mengikuti mode itu."
+    override val adhanIosNote = "iPhone membatasi suara notifikasi hingga 30 detik, jadi notifikasi memutar awal azan; azan lengkap diputar jika Mizan terbuka saat waktu salat. Notifikasi bergetar dengan pola iPhone sendiri (Pengaturan › Suara & Haptik); pola di sini terasa saat Mizan terbuka."
+    override val recordingSources = "Sumber rekaman"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Arah Kiblat"

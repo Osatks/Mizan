@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -104,6 +105,9 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
             SectionCard(s.prayerTitle) {
                 ClickRow(s.adhanAlert, s.adhanAlertDesc, onClick = {}, leading = Icons.Filled.NotificationsActive) {
                     com.osatks.mizan.ui.AppSwitch(checked = AppSettings.notify, onCheckedChange = { on -> toggleNotify(on) })
+                }
+                ClickRow(s.adhanSettings, s.adhanSettingsSub, onClick = { open("adhan") }, leading = Icons.AutoMirrored.Filled.VolumeUp) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 ClickRow(s.use24h, s.use24hDesc, onClick = { AppSettings.updateUse24h(!AppSettings.use24h) }, leading = Icons.Filled.AccessTime) {
                     com.osatks.mizan.ui.AppSwitch(checked = AppSettings.use24h, onCheckedChange = { AppSettings.updateUse24h(it) })

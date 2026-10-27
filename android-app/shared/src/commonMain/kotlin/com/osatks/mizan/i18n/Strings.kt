@@ -129,6 +129,30 @@ interface Strings {
     val channelDesc: String
     fun prayerNowTitle(prayer: String): String  // "It's time for Asr"
     fun prayerNowText(city: String): String     // "Riyadh — come to prayer"
+    // ---------- Adhan & alerts ----------
+    val adhanSettings: String                   // screen title and settings row: "Adhan & alerts"
+    val adhanSettingsSub: String                // row subtitle: muezzin, alert for each prayer, vibration
+    val alertPerPrayer: String                  // section title: "Alert for each prayer"
+    val alertModeAdhan: String                  // alert mode: plays the adhan
+    val alertModeVibrate: String                // alert mode: "Vibrate only"
+    val alertModeSilent: String                 // alert mode: "Silent notification"
+    val alertModeOff: String                    // alert mode: "No alert"
+    val alertModesHint: String                  // explains the four modes
+    val muezzinTitle: String                    // section title: "Muezzin"
+    val fajrAdhanTitle: String                  // section title: "Fajr adhan"
+    val fajrAdhanHint: String                   // the Fajr adhan adds "prayer is better than sleep"
+    val fajrSameAsOthers: String                // Fajr option: "Same as the other prayers"
+    /** recording names by id (see core/AdhanCatalog.kt) */
+    val muezzinNames: Map<String, String>
+    val playAdhan: String                       // content description of the play button: "Play adhan"
+    val stopAdhan: String                       // stop button and notification action: "Stop"
+    val vibrationTitle: String                  // section title: "Vibration pattern"
+    /** keys: short long heartbeat pulse wave */
+    val vibeNames: Map<String, String>
+    val tryVibration: String                    // button: "Try vibration"
+    val adhanStopHint: String                   // Android: how to stop the adhan; silent/vibrate phone mode is followed
+    val adhanIosNote: String                    // iOS: 30-second notification sounds, full adhan when the app is open, system vibration
+    val recordingSources: String                // section title: "Recording sources"
 
     // ---------- Qibla ----------
     val qiblaTitle: String

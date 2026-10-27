@@ -186,6 +186,34 @@ object Es : Strings {
     override val channelDesc = "Un aviso al comenzar cada horario de oración"
     override fun prayerNowTitle(prayer: String) = "Es la hora de $prayer"
     override fun prayerNowText(city: String) = "$city — ven a la oración"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Adhan y avisos"
+    override val adhanSettingsSub = "Almuédano, aviso para cada oración y vibración"
+    override val alertPerPrayer = "Aviso para cada oración"
+    override val alertModeAdhan = "Adhan"
+    override val alertModeVibrate = "Solo vibración"
+    override val alertModeSilent = "Notificación silenciosa"
+    override val alertModeOff = "Sin aviso"
+    override val alertModesHint = "«Adhan» reproduce el llamado completo, «Solo vibración» vibra sin sonido, «Notificación silenciosa» muestra una notificación sin sonido y «Sin aviso» no envía nada para esa oración."
+    override val muezzinTitle = "Almuédano"
+    override val fajrAdhanTitle = "Adhan del Fajr"
+    override val fajrAdhanHint = "El adhan del Fajr añade «As-salatu jairun min an-naum» (la oración es mejor que el sueño)."
+    override val fajrSameAsOthers = "Igual que las demás oraciones"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "Mezquita del KLCC, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Fajr — Kalkan, Turquía",
+    )
+    override val playAdhan = "Escuchar el adhan"
+    override val stopAdhan = "Detener"
+    override val vibrationTitle = "Patrón de vibración"
+    override val vibeNames = mapOf("short" to "Corta", "long" to "Larga", "heartbeat" to "Latido", "pulse" to "3 pulsos", "wave" to "Ola")
+    override val tryVibration = "Probar vibración"
+    override val adhanStopHint = "Toca «Detener» en la notificación o pulsa una tecla de volumen para detener el adhan. Si el teléfono está en silencio o vibración, el aviso sigue ese modo."
+    override val adhanIosNote = "El iPhone limita los sonidos de notificación a 30 segundos, así que la notificación reproduce el inicio del adhan; el adhan completo suena si Mizan está abierto a la hora de la oración. Las notificaciones vibran con el patrón del propio iPhone (Ajustes › Sonidos y vibraciones); los patrones de aquí se sienten con Mizan abierto."
+    override val recordingSources = "Fuentes de las grabaciones"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Dirección de la qibla"

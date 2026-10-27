@@ -716,6 +716,7 @@ def build():
                 shutil.copy2(f, dest)
 
     publish_language_packs()
+    publish_adhan_sounds()
 
     # عامل الخدمة: يخزّن الصفحات العربية والملفات ليعمل الموقع دون إنترنت (صفحات اللغات الأخرى تُخزَّن عند زيارتها)
     sw_tpl = SRC / "templates" / "sw.js"
@@ -742,7 +743,8 @@ def build():
     # ملفات إعدادات الاستضافة (Netlify / Cloudflare Pages)
     (DIST / "_headers").write_text(
         "/assets/*\n  Cache-Control: public, max-age=604800\n"
-        "/lang/*\n  Cache-Control: public, max-age=3600\n  Access-Control-Allow-Origin: *\n", encoding="utf-8")
+        "/lang/*\n  Cache-Control: public, max-age=3600\n  Access-Control-Allow-Origin: *\n"
+        "/adhan/*\n  Cache-Control: public, max-age=604800\n  Access-Control-Allow-Origin: *\n", encoding="utf-8")
 
     print("\n".join(report))
     print(f"\nتم بناء {sum(len(p) for p in all_pages.values())} صفحة في {DIST}")
@@ -787,6 +789,26 @@ def publish_language_packs():
     if tpl.exists():
         shutil.copy2(tpl, out / "en.template.json")
     print(f"حزم اللغات: {', '.join(packs)}")
+
+
+def publish_adhan_sounds():
+    """تسجيلات الأذان التي ينزّلها التطبيق عند اختيارها (غير المضمّنة فيه): تُنشر في dist/adhan.
+
+    المصدر src/adhan: لكل تسجيل <id>.m4a (الأذان كاملاً لأندرويد والتطبيق) و adhan_<id>.caf (صوت إشعار iOS،
+    أقل من 30 ثانية). تُصنع بـ android-app/tools/make_adhan.py، وقائمتها ورخصها في AdhanCatalog.kt
+    و android-app/shared/src/commonMain/assets/licenses/adhan-recordings.txt.
+    """
+    src = SRC / "adhan"
+    if not src.exists():
+        return
+    out = DIST / "adhan"
+    out.mkdir(parents=True, exist_ok=True)
+    names = []
+    for f in sorted(src.iterdir()):
+        if f.suffix in (".m4a", ".caf"):
+            shutil.copy2(f, out / f.name)
+            names.append(f.name)
+    print(f"تسجيلات الأذان: {len(names)} ملفاً")
 
 
 if __name__ == "__main__":

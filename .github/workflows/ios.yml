@@ -57,6 +57,10 @@ jobs:
           test -d build/Build/Products/Release-iphoneos/Mizan.app
           # أدوات الشاشة الرئيسية يجب أن تكون داخل التطبيق
           test -d build/Build/Products/Release-iphoneos/Mizan.app/PlugIns/MizanWidgets.appex
+          # أصوات إشعارات الأذان في جذر التطبيق، والأذان الكامل المضمّن في assets
+          ls build/Build/Products/Release-iphoneos/Mizan.app/*.caf
+          test -f build/Build/Products/Release-iphoneos/Mizan.app/mizan_vibrate.caf
+          ls build/Build/Products/Release-iphoneos/Mizan.app/assets/adhan/*.m4a
 
       # البناء بلا توقيع لا يضع الصلاحيات (entitlements) في الملف التنفيذي، و AltStore/Sideloadly تقرأ منه
       # صلاحية App Group لتسجّلها للتطبيق والأداة عند التوقيع بحساب Apple. فنضع توقيعاً مؤقتاً (ad-hoc، بلا شهادة)

@@ -79,7 +79,7 @@ import com.osatks.mizan.ui.theme.MizanTheme
  * التطبيق كله: التنقل بين الشاشات، وشريط التبويبات، وجولة أول تشغيل.
  * يستضيفه MainActivity في أندرويد و MainViewController في iOS.
  */
-internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar")
+internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -122,7 +122,7 @@ fun MizanApp(startRoute: String? = null) {
                         CompositionLocalProvider(LocalNavScope provides this) { content() }
                     }
                     screen("home") { HomeScreen(open = open) }
-                    screen("prayer") { PrayerScreen() }
+                    screen("prayer") { PrayerScreen(open = open) }
                     screen("qibla") { QiblaScreen(back) }
                     screen("quran") { QuranScreen(open = open) }
                     composable(
@@ -152,6 +152,7 @@ fun MizanApp(startRoute: String? = null) {
                     screen("settings") { SettingsScreen(open = open) }
                     screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
                     screen("guide") { com.osatks.mizan.ui.screens.Onboarding(back) }
+                    screen("adhan") { com.osatks.mizan.ui.screens.AdhanScreen(back) }
                     screen("zakat") { ZakatScreen(back) }
                     screen("fitr") { FitrScreen(back) }
                     screen("inheritance") { InheritanceScreen(back) }

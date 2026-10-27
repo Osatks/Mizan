@@ -184,6 +184,34 @@ object Ms : Strings {
     override val channelDesc = "Peringatan apabila masuk waktu setiap solat"
     override fun prayerNowTitle(prayer: String) = "Telah masuk waktu $prayer"
     override fun prayerNowText(city: String) = "$city — marilah mendirikan solat"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Azan & peringatan"
+    override val adhanSettingsSub = "Muazin, peringatan setiap solat dan getaran"
+    override val alertPerPrayer = "Peringatan setiap solat"
+    override val alertModeAdhan = "Azan"
+    override val alertModeVibrate = "Getar sahaja"
+    override val alertModeSilent = "Pemberitahuan senyap"
+    override val alertModeOff = "Tiada peringatan"
+    override val alertModesHint = "“Azan” memainkan azan penuh, “Getar sahaja” bergetar tanpa bunyi, “Pemberitahuan senyap” memaparkan pemberitahuan tanpa bunyi, dan “Tiada peringatan” tidak menghantar apa-apa untuk solat itu."
+    override val muezzinTitle = "Muazin"
+    override val fajrAdhanTitle = "Azan Subuh"
+    override val fajrAdhanHint = "Azan Subuh ditambah “As-solatu khairun minan naum” (solat lebih baik daripada tidur)."
+    override val fajrSameAsOthers = "Sama seperti solat lain"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "Masjid KLCC, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Subuh — Kalkan, Turki",
+    )
+    override val playAdhan = "Main azan"
+    override val stopAdhan = "Henti"
+    override val vibrationTitle = "Corak getaran"
+    override val vibeNames = mapOf("short" to "Pendek", "long" to "Panjang", "heartbeat" to "Degupan jantung", "pulse" to "3 denyutan", "wave" to "Gelombang")
+    override val tryVibration = "Cuba getaran"
+    override val adhanStopHint = "Ketik “Henti” pada pemberitahuan atau tekan butang kelantangan untuk menghentikan azan. Jika telefon dalam mod senyap atau getar, peringatan mengikut mod itu."
+    override val adhanIosNote = "iPhone mengehadkan bunyi pemberitahuan kepada 30 saat, jadi pemberitahuan memainkan permulaan azan; azan penuh dimainkan jika Mizan dibuka pada waktu solat. Pemberitahuan bergetar mengikut corak iPhone sendiri (Tetapan › Bunyi & Haptik); corak di sini dirasai apabila Mizan dibuka."
+    override val recordingSources = "Sumber rakaman"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Arah Kiblat"

@@ -183,6 +183,34 @@ object De : Strings {
     override val channelDesc = "Ein Hinweis zu Beginn jeder Gebetszeit"
     override fun prayerNowTitle(prayer: String) = "Es ist Zeit für $prayer"
     override fun prayerNowText(city: String) = "$city — auf zum Gebet"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Adhan & Hinweise"
+    override val adhanSettingsSub = "Muezzin, Hinweis für jedes Gebet und Vibration"
+    override val alertPerPrayer = "Hinweis für jedes Gebet"
+    override val alertModeAdhan = "Adhan"
+    override val alertModeVibrate = "Nur Vibration"
+    override val alertModeSilent = "Stille Mitteilung"
+    override val alertModeOff = "Kein Hinweis"
+    override val alertModesHint = "„Adhan“ spielt den vollständigen Gebetsruf, „Nur Vibration“ vibriert ohne Ton, „Stille Mitteilung“ zeigt eine Mitteilung ohne Ton, und „Kein Hinweis“ sendet für dieses Gebet nichts."
+    override val muezzinTitle = "Muezzin"
+    override val fajrAdhanTitle = "Fadschr-Adhan"
+    override val fajrAdhanHint = "Im Fadschr-Adhan kommt „As-salatu khairun min an-naum“ (das Gebet ist besser als der Schlaf) hinzu."
+    override val fajrSameAsOthers = "Wie die anderen Gebete"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "KLCC-Moschee, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Fadschr — Kalkan, Türkei",
+    )
+    override val playAdhan = "Adhan anhören"
+    override val stopAdhan = "Stopp"
+    override val vibrationTitle = "Vibrationsmuster"
+    override val vibeNames = mapOf("short" to "Kurz", "long" to "Lang", "heartbeat" to "Herzschlag", "pulse" to "3 Impulse", "wave" to "Welle")
+    override val tryVibration = "Vibration testen"
+    override val adhanStopHint = "Tippe in der Mitteilung auf „Stopp“ oder drücke eine Lautstärketaste, um den Adhan zu beenden. Ist das Telefon stumm oder auf Vibration, folgt der Hinweis diesem Modus."
+    override val adhanIosNote = "Das iPhone begrenzt Mitteilungstöne auf 30 Sekunden, daher spielt die Mitteilung den Anfang des Adhan; der vollständige Adhan erklingt, wenn Mizan zur Gebetszeit geöffnet ist. Mitteilungen vibrieren mit dem Muster des iPhone (Einstellungen › Töne & Haptik); die Muster hier sind bei geöffnetem Mizan zu spüren."
+    override val recordingSources = "Quellen der Aufnahmen"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Qibla-Richtung"
