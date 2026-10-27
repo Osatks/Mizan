@@ -160,6 +160,11 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val adhanAlert: String by lazy { s("adhanAlert") ?: En.adhanAlert }
     override val adhanAlertDesc: String by lazy { s("adhanAlertDesc") ?: En.adhanAlertDesc }
     override val timesMayDiffer: String by lazy { s("timesMayDiffer") ?: En.timesMayDiffer }
+    override fun endsAt(t: String): String = f("endsAt", "t" to t) ?: En.endsAt(t)
+    override fun iqamaAt(t: String): String = f("iqamaAt", "t" to t) ?: En.iqamaAt(t)
+    override val iqamaTitle: String by lazy { s("iqamaTitle") ?: En.iqamaTitle }
+    override val iqamaDesc: String by lazy { s("iqamaDesc") ?: En.iqamaDesc }
+    override val prayerEndsNote: String by lazy { s("prayerEndsNote") ?: En.prayerEndsNote }
     override val locationFound: String by lazy { s("locationFound") ?: En.locationFound }
     override val locationFailed: String by lazy { s("locationFailed") ?: En.locationFailed }
     override val locationDenied: String by lazy { s("locationDenied") ?: En.locationDenied }

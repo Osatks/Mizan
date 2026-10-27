@@ -19,11 +19,26 @@ data class Method(val key: String, val fajr: Double, val ishaAngle: Double?, val
 
 data class PrayerTimes(
     val fajr: Double, val sunrise: Double, val dhuhr: Double,
-    val asr: Double, val maghrib: Double, val isha: Double
+    val asr: Double, val maghrib: Double, val isha: Double,
+    /** الغروب، ونهاية وقت المغرب (مغيب الشفق)، ومنتصف الليل (نهاية وقت الاختيار للعشاء)؛ NaN إن لم تُحسب */
+    val sunset: Double = Double.NaN, val maghribEnd: Double = Double.NaN, val midnight: Double = Double.NaN,
 ) {
     operator fun get(key: String): Double = when (key) {
         "fajr" -> fajr; "sunrise" -> sunrise; "dhuhr" -> dhuhr
         "asr" -> asr; "maghrib" -> maghrib; else -> isha
+    }
+
+    /**
+     * نهاية وقت الصلاة: الفجر بطلوع الشمس، والظهر بدخول العصر، والعصر بالغروب، والمغرب بمغيب الشفق،
+     * والعشاء (وقت الاختيار) بمنتصف الليل. NaN للشروق أو حين لا يمكن الحساب.
+     */
+    fun end(key: String): Double = when (key) {
+        "fajr" -> sunrise
+        "dhuhr" -> asr
+        "asr" -> if (sunset.isNaN()) maghrib else sunset
+        "maghrib" -> if (maghribEnd.isNaN()) isha else maghribEnd
+        "isha" -> midnight
+        else -> Double.NaN
     }
 }
 
@@ -109,6 +124,9 @@ object PrayTimes {
         }
 
         var fajr = 5.0; var sunrise = 6.0; var dhuhr = 12.0; var asr = 13.0; var sunset = 18.0; var maghrib = 18.0; var isha = 18.0
+        // مغيب الشفق الأحمر (17°) عند الجمهور، والأبيض (18°) عند الحنفية: نهاية وقت المغرب
+        var shafaq = 19.0
+        val shafaqAngle = if (hanafi) 18.0 else 17.0
         repeat(2) {
             fun p(v: Double) = (if (v.isNaN()) 12.0 else v) / 24.0
             val nf = sunAngleTime(m.fajr, p(fajr), true)
@@ -118,10 +136,11 @@ object PrayTimes {
             val nss = sunAngleTime(0.833, p(sunset))
             val nm = if (m.maghribAngle != null) sunAngleTime(m.maghribAngle, p(maghrib)) else nss
             val ni = if (m.ishaAngle != null) sunAngleTime(m.ishaAngle, p(isha)) else Double.NaN
-            fajr = nf; sunrise = ns; dhuhr = nd; asr = na; sunset = nss; maghrib = nm; isha = ni
+            val nsh = sunAngleTime(shafaqAngle, p(shafaq))
+            fajr = nf; sunrise = ns; dhuhr = nd; asr = na; sunset = nss; maghrib = nm; isha = ni; shafaq = nsh
         }
         val adj = offset - lng / 15.0
-        fajr += adj; sunrise += adj; dhuhr += adj; asr += adj; sunset += adj; maghrib += adj; isha += adj
+        fajr += adj; sunrise += adj; dhuhr += adj; asr += adj; sunset += adj; maghrib += adj; isha += adj; shafaq += adj
         if (maghrib.isNaN()) maghrib = sunset
         if (m.ishaMinutes != null) {
             val ramadan = Hijri.toHijri(date)?.m == 9 && m.key == "makkah"
@@ -137,7 +156,16 @@ object PrayTimes {
             if (isha.isNaN() || fixHour(isha - sunset) > ishaMax) isha = sunset + ishaMax
         }
         dhuhr += 1.0 / 60.0 // احتياط دقيقة
-        return PrayerTimes(fajr, sunrise, dhuhr, asr, maghrib, isha)
+
+        // نهاية المغرب: في الطرق التي تحسب العشاء بزاوية يدخل العشاء بمغيب الشفق نفسه، وفي طرق المدة الثابتة
+        // (أم القرى وقطر) قد يغيب الشفق قبل موعد العشاء المعلن بكثير
+        val maghribEnd = when {
+            m.ishaAngle != null || shafaq.isNaN() -> isha
+            else -> minOf(isha, shafaq)
+        }
+        // منتصف الليل الشرعي: منتصف ما بين الغروب والفجر التالي (فجر الغد ≈ فجر اليوم + 24 ساعة)
+        val midnight = if (fajr.isNaN()) Double.NaN else sunset + (fajr + 24 - sunset) / 2
+        return PrayerTimes(fajr, sunrise, dhuhr, asr, maghrib, isha, sunset, maghribEnd, midnight)
     }
 
     fun format(hours: Double, h24: Boolean, am: String = "AM", pm: String = "PM"): String {

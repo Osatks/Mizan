@@ -112,6 +112,11 @@ interface Strings {
     val adhanAlert: String
     val adhanAlertDesc: String
     val timesMayDiffer: String
+    fun endsAt(t: String): String               // under a prayer time: "Ends 6:21 AM" (t is already formatted)
+    fun iqamaAt(t: String): String              // under a prayer time: "Iqama 5:29 AM"
+    val iqamaTitle: String                      // section title
+    val iqamaDesc: String                       // minutes after the adhan per prayer; 0 hides it
+    val prayerEndsNote: String                  // how the end of each prayer's time is determined
     val locationFound: String
     val locationFailed: String
     val locationDenied: String

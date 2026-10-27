@@ -23,6 +23,9 @@ data class Place(
     }
 }
 
+/** الإقامة الافتراضية بعد الأذان بالدقائق (المعمول به في أكثر المساجد) */
+val IQAMA_DEFAULT = mapOf("fajr" to 25, "dhuhr" to 20, "asr" to 20, "maghrib" to 10, "isha" to 20)
+
 /** إعدادات التطبيق المحفوظة على الجهاز، مع حالة Compose للتحديث الفوري */
 object AppSettings {
     private lateinit var sp: Prefs
@@ -38,6 +41,9 @@ object AppSettings {
     var hanafi by mutableStateOf(false)
         private set
     var use24h by mutableStateOf(false)
+        private set
+    /** الإقامة بعد الأذان بالدقائق لكل صلاة (0 = لا تُعرض)، ويغيّرها المستخدم */
+    var iqama by mutableStateOf(IQAMA_DEFAULT)
         private set
     var theme by mutableStateOf("system") // system | light | dark
     var accent by mutableStateOf("emerald") // لون التطبيق: مفتاح من Accent
@@ -65,6 +71,7 @@ object AppSettings {
         method = (sp.getString("method") ?: place.method)
         hanafi = sp.getBool("hanafi", false)
         use24h = sp.getBool("use24h", false)
+        iqama = IQAMA_DEFAULT.mapValues { (k, v) -> sp.getInt("iqama_$k", v) }
         theme = (sp.getString("theme") ?: "system")
         accent = (sp.getString("accent") ?: "emerald")
         notify = sp.getBool("notify", false)
@@ -100,6 +107,10 @@ object AppSettings {
     fun updateMethod(v: String) { method = v; sp.edit().putString("method", v).apply() }
     fun updateHanafi(v: Boolean) { hanafi = v; sp.edit().putBoolean("hanafi", v).apply() }
     fun updateUse24h(v: Boolean) { use24h = v; sp.edit().putBoolean("use24h", v).apply() }
+    fun updateIqama(prayer: String, minutes: Int) {
+        iqama = iqama + (prayer to minutes)
+        sp.edit().putInt("iqama_$prayer", minutes).apply()
+    }
     fun updateTheme(v: String) { theme = v; sp.edit().putString("theme", v).apply() }
     fun updateAccent(v: String) { accent = v; sp.edit().putString("accent", v).apply() }
     fun updateNotify(v: Boolean) { notify = v; sp.edit().putBoolean("notify", v).apply() }
