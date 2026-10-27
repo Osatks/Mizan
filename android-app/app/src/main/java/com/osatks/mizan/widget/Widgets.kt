@@ -176,9 +176,10 @@ object Widgets {
 
         if (anyLive(ctx)) {
             val w = WidgetData.window(now)
-            val steps = durationBetween(w.start, now).inWholeMinutes / AdhkarClock.ROTATE_MIN + 1
-            val rotate = w.start.plusSeconds(steps * AdhkarClock.ROTATE_MIN * 60)
-            am.setWindow(AlarmManager.RTC, millis(minOf(w.end, rotate).plusSeconds(1)), 60_000, tickIntent(ctx, true))
+            // الذكر التالي كل نصف دقيقة؛ تنبيه غير موقظ (RTC) فلا يعمل والشاشة مطفأة
+            val steps = durationBetween(w.start, now).inWholeSeconds / AdhkarClock.ROTATE_SEC + 1
+            val rotate = w.start.plusSeconds(steps * AdhkarClock.ROTATE_SEC)
+            am.setWindow(AlarmManager.RTC, millis(minOf(w.end, rotate).plusSeconds(1)), 5_000, tickIntent(ctx, true))
         } else am.cancel(tickIntent(ctx, true))
     }
 
@@ -250,7 +251,9 @@ class NextPrayerWidget : MizanWidget() {
             setTextViewText(R.id.label, wt.nextPrayer)
             setTextViewText(R.id.name, s.prayer(next.key))
             setTextViewText(R.id.time, s.time(Widgets.hours(next.at)))
-            setTextViewText(R.id.city, s.placeName(AppSettings.place))
+            // التاريخ الهجري لليوم مع المدينة
+            val hijri = Hijri.toHijri(now.date)?.let { h -> s.hijriDate(h.d, h.m, h.y) }
+            setTextViewText(R.id.city, listOfNotNull(hijri, s.placeName(AppSettings.place)).joinToString(" · "))
             setChronometer(R.id.countdown, SystemClock.elapsedRealtime() + left, null, true)
             setChronometerCountDown(R.id.countdown, true)
             setProgressBar(R.id.progress, 1000, (durationBetween(prev, now).inWholeSeconds * 1000 / span).toInt().coerceIn(0, 1000), false)

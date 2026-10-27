@@ -202,11 +202,19 @@ object En : Strings {
         "mirza" to "Moazzambeg Mirza, Ahmedabad",
         "adam" to "Adam-synagda (Wikimedia Commons)",
         "kalkan_fajr" to "Fajr — Kalkan, Turkey",
+        "madinah" to "The Prophet's Mosque, Madinah",
+        "andrewler" to "Andrewler (Wikimedia Commons)",
+        "aaqib" to "Aaqib Azeez",
+        "fouad" to "Fouad Adan",
+        "fouad_fajr" to "Fajr — Fouad Adan",
+        "kas_fajr" to "Fajr — Kaş, Turkey",
+        "malmo_fajr" to "Fajr — Besim Azemi, Malmö",
+        "shalqar" to "Shalqar mosque, Kazakhstan",
     )
     override val playAdhan = "Play adhan"
     override val stopAdhan = "Stop"
     override val vibrationTitle = "Vibration pattern"
-    override val vibeNames = mapOf("short" to "Short", "long" to "Long", "heartbeat" to "Heartbeat", "pulse" to "Pulse ×3", "wave" to "Wave")
+    override val vibeNames = mapOf("short" to "Short", "double" to "Double tap", "triple" to "Triple tap", "long" to "Long", "heartbeat" to "Heartbeat", "pulse" to "Pulse ×3", "wave" to "Wave", "rise" to "Rising", "gentle" to "Gentle", "strong" to "Strong", "knock" to "Knock", "rapid" to "Rapid")
     override val tryVibration = "Try vibration"
     override val adhanStopHint = "Tap Stop in the notification or press a volume key to stop the adhan. When the phone is on silent or vibrate, the alert follows that mode."
     override val adhanIosNote = "iPhone limits notification sounds to 30 seconds, so the notification plays the opening of the adhan; the full adhan plays when Mizan is open at prayer time. Notifications vibrate with the iPhone’s own pattern (Settings › Sounds & Haptics); the patterns here are felt while Mizan is open."

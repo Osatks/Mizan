@@ -102,7 +102,7 @@ enum StandaloneSnapshot {
 
         return Snapshot(
             v: 1, at: Double(Zone.instant(nowLocal, tz)), lang: l.code, rtl: l.rtl, theme: "system", colors: c.colors,
-            place: placeName, rotate: spec.rotate, labels: l.labels, days: dayList, windows: windows, items: used
+            place: placeName, rotateSec: spec.rotateSec, labels: l.labels, days: dayList, windows: windows, items: used
         )
     }
 

@@ -55,7 +55,7 @@ struct NextPrayerBlock: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Header(symbol: "moon.stars.fill", title: snap.label("nextPrayer"))
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
             Text(next.name)
                 .font(Mizan.rounded(26, .bold))
                 .lineLimit(1)
@@ -75,11 +75,21 @@ struct NextPrayerBlock: View {
                 .padding(.top, 4)
             TimeBar(from: snap.previousPrayer(before: now)?.date ?? now.addingTimeInterval(-3600), to: next.date, now: now)
                 .padding(.top, 6)
-            Text(snap.place)
-                .font(Mizan.rounded(11))
-                .foregroundColor(Mizan.text3)
-                .lineLimit(1)
-                .padding(.top, 5)
+            // التاريخ الهجري لليوم، وتحته المدينة
+            VStack(alignment: .leading, spacing: 1) {
+                if let hijri = snap.day(at: now)?.hijri, !hijri.isEmpty {
+                    Text(hijri)
+                        .font(Mizan.rounded(11, .medium))
+                        .foregroundColor(Mizan.text2)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                Text(snap.place)
+                    .font(Mizan.rounded(10))
+                    .foregroundColor(Mizan.text3)
+                    .lineLimit(1)
+            }
+            .padding(.top, 5)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -190,8 +200,13 @@ struct PrayerTimesView: View {
         Shell(snap: entry.snap, url: Deep.url("prayer")) {
             if let snap = entry.snap, let day = snap.day(at: entry.date), let next = snap.nextPrayer(after: entry.date) {
                 if family == .systemSmall {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Header(symbol: nil, title: snap.place)
+                        Text(day.hijri)
+                            .font(Mizan.rounded(10, .medium))
+                            .foregroundColor(Mizan.text2)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         PrayerList(snap: snap, next: next, now: entry.date, compact: true)
                     }
                 } else {

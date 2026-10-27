@@ -239,7 +239,7 @@ object WidgetData {
                 "accent" to hex(c.accentLight), "gold" to hex(c.gold),
             ),
             "place" to s.placeName(place),
-            "rotate" to AdhkarClock.ROTATE_MIN,
+            "rotateSec" to AdhkarClock.ROTATE_SEC,
             "labels" to labels(s, wt),
             "days" to dayList,
             "windows" to winList,

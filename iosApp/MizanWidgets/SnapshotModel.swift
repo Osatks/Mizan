@@ -11,7 +11,8 @@ struct Snapshot: Codable {
     var theme: String
     var colors: Palette
     var place: String
-    var rotate: Int
+    /// كل كم ثانية ينتقل الذكر المعروض
+    var rotateSec: Int
     var labels: [String: String]
     var days: [Day]
     var windows: [AdhkarWindow]
@@ -114,10 +115,10 @@ extension Snapshot {
         return short.isEmpty ? all : short
     }
 
-    /// رقم الذكر المعروض: ينتقل كل [rotate] دقيقة، ويزيد عليه ما تقدّم به المستخدم (مثل AdhkarClock.index)
+    /// رقم الذكر المعروض: ينتقل كل [rotateSec] ثانية، ويزيد عليه ما تقدّم به المستخدم (مثل AdhkarClock.index)
     func index(at date: Date, in w: AdhkarWindow, offset: Int, count: Int) -> Int {
         guard count > 0 else { return 0 }
-        let step = Double(max(rotate, 1) * 60)
+        let step = Double(max(rotateSec, 1))
         let steps = max(0, Int((date.timeIntervalSince1970 - w.s) / step))
         let i = (steps + offset) % count
         return i < 0 ? i + count : i

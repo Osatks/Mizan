@@ -2,15 +2,16 @@ package com.osatks.mizan.ui.screens
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,7 +31,6 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,13 +41,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.osatks.mizan.core.ALERT_PRAYERS
 import com.osatks.mizan.core.AdhanSounds
@@ -66,7 +73,6 @@ import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.platform.rememberNotifyToggle
 import com.osatks.mizan.ui.AppSwitch
-import com.osatks.mizan.ui.ChipButton
 import com.osatks.mizan.ui.ClickRow
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.SectionCard
@@ -266,24 +272,62 @@ private fun MuezzinRow(m: Muezzin, selected: Boolean, onSelect: () -> Unit) {
     }
 }
 
-/** أنماط الاهتزاز: اختيار النمط يجرّبه فوراً، وزر «جرّب» يعيده */
-@OptIn(ExperimentalLayoutApi::class)
+/** أنماط الاهتزاز شبكةً من عمودين: لكل نمط اسمه ورسمه وزر «جرّب»، واختيار النمط يجرّبه فوراً */
 @Composable
 private fun VibrationCard() {
     val s = LocalStrings.current
     SectionCard(s.vibrationTitle) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            VibePattern.entries.forEach { p ->
-                ChipButton(s.vibeNames[p.key] ?: p.key, AppSettings.vibePattern == p) {
-                    AppSettings.updateVibePattern(p)
-                    AdhanAudio.vibrate(p)
+        Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            VibePattern.entries.chunked(2).forEach { row ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    row.forEach { p -> VibeTile(p, AppSettings.vibePattern == p, Modifier.weight(1f)) }
+                    if (row.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
         }
-        FilledTonalButton(onClick = { AdhanAudio.vibrate(AppSettings.vibePattern) }, modifier = Modifier.fillMaxWidth()) {
-            Icon(Icons.Filled.Vibration, null)
-            Spacer(Modifier.width(8.dp))
-            Text(s.tryVibration)
+    }
+}
+
+@Composable
+private fun VibeTile(p: VibePattern, selected: Boolean, modifier: Modifier) {
+    val s = LocalStrings.current
+    val bg by animateColorAsState(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .55f), tween(180), label = "vibeBg")
+    val accent = MaterialTheme.colorScheme.primary
+    val bars by animateColorAsState(if (selected) accent else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .6f), tween(180), label = "vibeBars")
+    Row(
+        modifier.clip(RoundedCornerShape(14.dp)).background(bg)
+            .border(1.5.dp, if (selected) accent else Color.Transparent, RoundedCornerShape(14.dp))
+            .selectable(selected, role = Role.RadioButton) { AppSettings.updateVibePattern(p); AdhanAudio.vibrate(p) }
+            .padding(start = 12.dp, end = 2.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                s.vibeNames[p.key] ?: p.key, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.height(6.dp))
+            VibeShape(p, bars, Modifier.fillMaxWidth().height(14.dp))
+        }
+        IconButton(onClick = { AdhanAudio.vibrate(p) }, modifier = Modifier.size(40.dp)) {
+            Icon(Icons.Filled.PlayArrow, s.tryVibration, Modifier.size(22.dp), tint = accent)
+        }
+    }
+}
+
+/** رسم النمط: كل مقطع مهتز شريط عرضه مدته وارتفاعه شدته، على خط زمني واحد (اتجاهه يتبع اللغة) */
+@Composable
+private fun VibeShape(p: VibePattern, color: Color, modifier: Modifier) {
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    Canvas(modifier) {
+        val total = p.millis.coerceAtLeast(1).toFloat()
+        val gap = 1.dp.toPx()
+        drawLine(color.copy(alpha = .25f), Offset(0f, size.height - 0.5f), Offset(size.width, size.height - 0.5f), 1f)
+        for ((start, ms, amp) in p.pulses) {
+            val w = (ms / total * size.width - gap).coerceAtLeast(2.dp.toPx())
+            val x = start / total * size.width
+            val h = size.height * (0.25f + 0.75f * amp / 255f)
+            drawRoundRect(color, Offset(if (rtl) size.width - x - w else x, size.height - h), Size(w, h), CornerRadius(1.5.dp.toPx()))
         }
     }
 }

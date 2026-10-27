@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the adhan recordings used by the app from their original files.
 
-    python3 tools/make_adhan.py <folder with the original downloads>
+    python3 tools/make_adhan.py <folder with the original downloads> [work folder] [--only=id,id]
 
 For each recording in RECORDINGS (sources and licences: shared/src/commonMain/assets/licenses/adhan-recordings.txt):
   1. cut to the adhan itself (no announcements or other speech before/after), mono, 80 Hz high-pass,
@@ -37,7 +37,23 @@ RECORDINGS = [
     ("mirza", "ia_mirza.mp3", 11.0, 260.0, False),
     # commons.wikimedia.org File:Beautiful_adhan.ogg
     ("adam", "c_beautiful.ogg", 0.0, 152.0, False),
-    # لم يُنزَّل بعد (حدّ طلبات ويكيميديا): المسجد النبوي، File:33937_ejaz215_call-to-prayer-from-the-prophet-s-mo.ogg (CC BY 3.0)
+    # commons.wikimedia.org File:33937_ejaz215_call-to-prayer-from-the-prophet-s-mo.ogg (from freesound.org/s/33937)
+    ("madinah", "c_madinah_ejaz.ogg", 0.0, None, False),
+    # commons.wikimedia.org File:Azan.ogg (the du'a after the adhan is left out)
+    ("andrewler", "c_azan.ogg", 0.0, 158.5, False),
+    # commons.wikimedia.org File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3
+    ("aaqib", "c_aaqib.mp3", 0.0, None, False),
+    # archive.org AdanAlfajrFouadAdan/Mp32.mp3
+    ("fouad", "ia_fouad2.mp3", 0.0, None, False),
+    # archive.org AdanAlfajrFouadAdan/adan alfajr  fouad adan.mp3
+    ("fouad_fajr", "ia_fouad_fajr.mp3", 0.0, None, False),
+    # archive.org aporee_63024_72492/MorningadhaninKa.mp3
+    ("kas_fajr", "ap_kas.mp3", 11.5, 323.0, False),
+    # commons.wikimedia.org File:Eid_al-Fitr_Fajr_azan_at_Malmö_Mosque_-_19_August_2012.webm (its 240p transcode;
+    # the salawat after the adhan is left out)
+    ("malmo_fajr", "c_malmo_fajr.webm", 3.5, 237.0, False),
+    # commons.wikimedia.org File:Adhan_in_Shalqar_mosque.webm (its 240p transcode)
+    ("shalqar", "c_shalqar.webm", 2.5, 134.5, False),
 ]
 
 NOTIFY_SECONDS = 28.0
@@ -76,13 +92,17 @@ def encode(wav: Path, m4a: Path, caf: Path):
 
 
 def main():
-    raw = Path(sys.argv[1])
-    tmp = Path(sys.argv[2]) if len(sys.argv) > 2 else raw / "_work"
+    only = {i for a in sys.argv[1:] if a.startswith("--only=") for i in a[7:].split(",")}
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    raw = Path(args[0])
+    tmp = Path(args[1]) if len(args) > 1 else raw / "_work"
     for d in (ASSETS, IOS, SITE, tmp):
         d.mkdir(parents=True, exist_ok=True)
     run("ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "anullsrc=r=22050:cl=mono", "-t", "1",
         "-c:a", "adpcm_ima_qt", "-f", "caf", str(IOS / "mizan_vibrate.caf"))
     for rid, name, start, end, bundled in RECORDINGS:
+        if only and rid not in only:
+            continue
         src = raw / name
         if not src.exists() or src.stat().st_size < 10_000:
             print(f"skip {rid}: {src} missing")

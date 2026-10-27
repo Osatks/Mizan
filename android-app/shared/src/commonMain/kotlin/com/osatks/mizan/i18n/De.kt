@@ -202,11 +202,19 @@ object De : Strings {
         "mirza" to "Moazzambeg Mirza, Ahmedabad",
         "adam" to "Adam-synagda (Wikimedia Commons)",
         "kalkan_fajr" to "Fadschr — Kalkan, Türkei",
+        "madinah" to "Prophetenmoschee, Medina",
+        "andrewler" to "Andrewler (Wikimedia Commons)",
+        "aaqib" to "Aaqib Azeez",
+        "fouad" to "Fouad Adan",
+        "fouad_fajr" to "Fadschr — Fouad Adan",
+        "kas_fajr" to "Fadschr — Kaş, Türkei",
+        "malmo_fajr" to "Fadschr — Besim Azemi, Malmö",
+        "shalqar" to "Moschee von Schalqar, Kasachstan",
     )
     override val playAdhan = "Adhan anhören"
     override val stopAdhan = "Stopp"
     override val vibrationTitle = "Vibrationsmuster"
-    override val vibeNames = mapOf("short" to "Kurz", "long" to "Lang", "heartbeat" to "Herzschlag", "pulse" to "3 Impulse", "wave" to "Welle")
+    override val vibeNames = mapOf("short" to "Kurz", "double" to "Doppeltipp", "triple" to "Dreifachtipp", "long" to "Lang", "heartbeat" to "Herzschlag", "pulse" to "3 Impulse", "wave" to "Welle", "rise" to "Ansteigend", "gentle" to "Sanft", "strong" to "Stark", "knock" to "Klopfen", "rapid" to "Schnell")
     override val tryVibration = "Vibration testen"
     override val adhanStopHint = "Tippe in der Mitteilung auf „Stopp“ oder drücke eine Lautstärketaste, um den Adhan zu beenden. Ist das Telefon stumm oder auf Vibration, folgt der Hinweis diesem Modus."
     override val adhanIosNote = "Das iPhone begrenzt Mitteilungstöne auf 30 Sekunden, daher spielt die Mitteilung den Anfang des Adhan; der vollständige Adhan erklingt, wenn Mizan zur Gebetszeit geöffnet ist. Mitteilungen vibrieren mit dem Muster des iPhone (Einstellungen › Töne & Haptik); die Muster hier sind bei geöffnetem Mizan zu spüren."

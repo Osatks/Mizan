@@ -95,10 +95,18 @@ fun MizanApp(startRoute: String? = null) {
     val current = entry?.destination?.route
     val onTab = current == null || current in TAB_ROUTES
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val back: () -> Unit = { nav.popBackStack() }
+    // الرجوع فقط من شاشة مستقرة: ضغطة ثانية (أو سحب الحافة) أثناء انتقال لم يكتمل كانت تُخرج شاشتين
+    // وتترك المكدّس في منتصف انتقال، فتبدو الواجهة معلّقة
+    val back: () -> Unit = {
+        if (nav.currentBackStackEntry?.lifecycle?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED) == true) nav.popBackStack()
+    }
     // فتح تبويب من داخل شاشة (مثل «القرآن» من الرئيسية) يمرّ بالتبويبات نفسها، لا يُكدَّس فوق الرئيسية،
     // وإلا حفظ التبويب الرئيسي هذه الشاشة في حالته فبدا شريط التنقل وكأنه لا يعمل
-    val open: (String) -> Unit = { r -> if (r in TAB_ROUTES) nav.goTab(r) else nav.navigate(r) }
+    val open: (String) -> Unit = { r ->
+        // نقرتان سريعتان على أداة كانتا تفتحانها مرتين فوق بعض
+        val settled = nav.currentBackStackEntry?.lifecycle?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED) != false
+        if (r in TAB_ROUTES) nav.goTab(r) else if (settled) nav.navigate(r)
+    }
     // محتوى الصفحات مصدرٌ للزجاج (شريط التنقل والأوراق السفلية)، إلا صفحة المصحف: لا شريط فوقها، فلا كلفة إضافية على التقليب
     val appHaze = rememberHazeState()
     val glassSource = current != SURAH_ROUTE

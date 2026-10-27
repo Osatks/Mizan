@@ -108,7 +108,7 @@ object WidgetStatic {
                 "lengths" to (1300..1600).flatMap { y -> (1..12).map { m -> if (Hijri.monthLength(y, m) == 30) '1' else '0' } }.joinToString(""),
             ),
             "adhkar" to linkedMapOf(
-                "adhanMin" to AdhkarClock.ADHAN_MIN, "afterMin" to AdhkarClock.AFTER_MIN, "rotate" to AdhkarClock.ROTATE_MIN,
+                "adhanMin" to AdhkarClock.ADHAN_MIN, "afterMin" to AdhkarClock.AFTER_MIN, "rotateSec" to AdhkarClock.ROTATE_SEC,
                 "lists" to lists(),
                 "sections" to KINDS.associateWith { AdhkarClock.sectionOf(it) },
                 "tokens" to tokens().associateWith { t -> WidgetData.expand(listOf(t)).map { it.id } },

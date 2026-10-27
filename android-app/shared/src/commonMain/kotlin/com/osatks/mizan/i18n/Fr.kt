@@ -210,11 +210,19 @@ object Fr : Strings {
         "mirza" to "Moazzambeg Mirza, Ahmedabad",
         "adam" to "Adam-synagda (Wikimedia Commons)",
         "kalkan_fajr" to "Fajr — Kalkan, Turquie",
+        "madinah" to "Mosquée du Prophète, Médine",
+        "andrewler" to "Andrewler (Wikimedia Commons)",
+        "aaqib" to "Aaqib Azeez",
+        "fouad" to "Fouad Adan",
+        "fouad_fajr" to "Fajr — Fouad Adan",
+        "kas_fajr" to "Fajr — Kaş, Turquie",
+        "malmo_fajr" to "Fajr — Besim Azemi, Malmö",
+        "shalqar" to "Mosquée de Chalqar, Kazakhstan",
     )
     override val playAdhan = "Écouter l’adhan"
     override val stopAdhan = "Arrêter"
     override val vibrationTitle = "Type de vibration"
-    override val vibeNames = mapOf("short" to "Courte", "long" to "Longue", "heartbeat" to "Battement de cœur", "pulse" to "3 impulsions", "wave" to "Vague")
+    override val vibeNames = mapOf("short" to "Courte", "double" to "Double tape", "triple" to "Triple tape", "long" to "Longue", "heartbeat" to "Battement de cœur", "pulse" to "3 impulsions", "wave" to "Vague", "rise" to "Crescendo", "gentle" to "Douce", "strong" to "Forte", "knock" to "Toc-toc", "rapid" to "Rapide")
     override val tryVibration = "Essayer la vibration"
     override val adhanStopHint = "Touchez « Arrêter » dans la notification ou appuyez sur une touche de volume pour arrêter l’adhan. Si le téléphone est en mode silencieux ou vibreur, l’alerte suit ce mode."
     override val adhanIosNote = "L’iPhone limite les sons de notification à 30 secondes : la notification joue le début de l’adhan, et l’adhan complet est joué si Mizan est ouvert à l’heure de la prière. Les notifications vibrent selon le motif de l’iPhone (Réglages › Sons et vibrations) ; les motifs ci-dessus se ressentent quand Mizan est ouvert."

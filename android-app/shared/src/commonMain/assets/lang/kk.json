@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 4,
+ "version": 5,
  "currency": "KZT",
  "quran": {
   "id": "kk.altai",
@@ -566,7 +566,15 @@
    "klcc": "KLCC мешіті, Куала-Лумпур",
    "mirza": "Моаззам-бек Мырза, Ахмадабад",
    "adam": "Адам (Wikimedia Commons)",
-   "kalkan_fajr": "Таң — Калкан, Түркия"
+   "kalkan_fajr": "Таң — Калкан, Түркия",
+   "madinah": "Пайғамбар мешіті, Мәдина",
+   "andrewler": "Andrewler (Wikimedia Commons)",
+   "aaqib": "Ақиб Әзиз",
+   "fouad": "Фуад Адан",
+   "fouad_fajr": "Таң — Фуад Адан",
+   "kas_fajr": "Таң — Каш, Түркия",
+   "malmo_fajr": "Таң — Бесим Аземи, Мальмё",
+   "shalqar": "Шалқар мешіті, Қазақстан"
   },
   "muezzinTitle": "Муәзин",
   "mushafView": "Мұсхаф көрінісі",
@@ -1010,10 +1018,17 @@
   "version": "Нұсқа {v}",
   "vibeNames": {
    "short": "Қысқа",
+   "double": "Екі рет",
+   "triple": "Үш рет",
    "long": "Ұзақ",
    "heartbeat": "Жүрек соғысы",
    "pulse": "3 соққы",
-   "wave": "Толқын"
+   "wave": "Толқын",
+   "rise": "Күшейетін",
+   "gentle": "Жұмсақ",
+   "strong": "Күшті",
+   "knock": "Есік қағу",
+   "rapid": "Жиі"
   },
   "vibrationTitle": "Діріл түрі",
   "weekdays": [
