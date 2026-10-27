@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- الصلاة: قبة مسجد -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M4,21 L4,13.4 A8,8 0 0,1 20,13.4 L20,21 Z M10,21 L10,17.2 A2,2 0 0,1 14,17.2 L14,21 Z M11.3,2.4 L12.7,2.4 L12.7,5.6 L11.3,5.6 Z" />
+</vector>

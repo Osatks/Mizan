@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- أذكار المساء: غروب -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M5.5,16.6 A6.5,6.5 0 0,1 18.5,16.6 Z M2,18.4 L22,18.4 L22,20.2 L2,20.2 Z M4.57,13.04 L2.12,12.15 L1.58,13.66 L4.02,14.55 Z M7.95,9.42 L6.46,7.29 L5.15,8.21 L6.64,10.34 Z M12.8,8.4 L12.8,5.8 L11.2,5.8 L11.2,8.4 Z M17.36,10.34 L18.85,8.21 L17.54,7.29 L16.05,9.42 Z M19.98,14.55 L22.42,13.66 L21.88,12.15 L19.43,13.04 Z" />
+</vector>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- زخرفة الأدوات: نجمتان ثمانيتان ودائرتان بخط ذهبي رفيع -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp" android:height="160dp"
+    android:viewportWidth="100" android:viewportHeight="100">
+    <path android:strokeColor="#FFE0B54A" android:strokeWidth="1.2" android:strokeLineJoin="round" android:pathData="M16.77,16.77 L83.23,16.77 L83.23,83.23 L16.77,83.23 Z" />
+    <path android:strokeColor="#FFE0B54A" android:strokeWidth="1.2" android:strokeLineJoin="round" android:pathData="M50,3 L97,50 L50,97 L3,50 Z" />
+    <path android:strokeColor="#FFE0B54A" android:strokeWidth="0.9" android:strokeLineJoin="round" android:pathData="M25.96,25.96 L74.04,25.96 L74.04,74.04 L25.96,74.04 Z" />
+    <path android:strokeColor="#FFE0B54A" android:strokeWidth="0.9" android:strokeLineJoin="round" android:pathData="M50,16 L84,50 L50,84 L16,50 Z" />
+    <path android:strokeColor="#FFE0B54A" android:strokeWidth="1.0" android:strokeLineJoin="round" android:pathData="M29,50 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0" />
+    <path android:strokeColor="#FFE0B54A" android:strokeWidth="0.8" android:strokeLineJoin="round" android:pathData="M38,50 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+</vector>

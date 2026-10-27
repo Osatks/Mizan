@@ -98,6 +98,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         // فتح شاشة محددة عند التشغيل (للاختصارات ولقطات الشاشة): --es route prayer
         val startRoute = intent?.getStringExtra("route")
+        // أداة أذكار الوقت تفتح قسم الأذكار المناسب للوقت
+        intent?.getStringExtra("section")?.let { com.osatks.mizan.widget.WidgetLaunch.adhkarSection = it }
         Demo.enabled = intent?.getBooleanExtra("demo", false) == true
         // لقطات الشاشة: لون التطبيق يُختار من الأمر نفسه
         if (Demo.enabled) intent?.getStringExtra("accent")?.let { AppSettings.updateAccent(it) }

@@ -27,6 +27,8 @@ import com.osatks.mizan.ui.LanguageHost
 import com.osatks.mizan.ui.theme.MizanTheme
 import androidx.compose.ui.ExperimentalComposeUiApi
 import kotlinx.coroutines.MainScope
+import com.osatks.mizan.widget.IosWidgets
+import com.osatks.mizan.widget.WidgetLaunch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import platform.UIKit.UIViewController
@@ -36,8 +38,9 @@ import platform.UIKit.UIViewController
 fun MainViewController(): UIViewController {
     AppSettings.init()
     // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)،
-    // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت و35 طلب إشعار لا ينتظرها أول إطار
-    MainScope().launch { delay(1200); PrayerAlerts.reschedule() }
+    // ولقطة أدوات الشاشة الرئيسية في حاوية App Group (وتُحدَّث أيضاً عند الخروج منه)؛
+    // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت وطلبات الإشعار لا ينتظرها أول إطار
+    MainScope().launch { delay(1200); PrayerAlerts.reschedule(); IosWidgets.refresh() }
     return ComposeUIViewController(configure = {
         // ترميز أوامر الرسم لـ Metal على خيط مستقل، فيتفرغ الخيط الرئيسي للتركيب واللمس في كل إطار
         parallelRendering = true
@@ -49,7 +52,10 @@ fun MainViewController(): UIViewController {
             LanguageHost {
                 MizanTheme {
                     Box(Modifier.fillMaxSize()) {
-                        MizanApp()
+                        // لمس أداة يفتح شاشتها؛ يُمسح الطلب بعد التنقل حتى يعمل اللمس التالي على الشاشة نفسها
+                        val route = WidgetLaunch.route
+                        MizanApp(route)
+                        LaunchedEffect(route) { if (route != null) { delay(400); WidgetLaunch.route = null } }
                         ToastOverlay()
                     }
                 }

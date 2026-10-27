@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ألوان الأدوات: سطح بلون التطبيق، ونص أبيض بدرجات، وذهبي ميزان -->
+<resources>
+    <color name="w_base">#0F6A55</color>
+    <color name="w_text">#FFFFFF</color>
+    <color name="w_text2">#C7FFFFFF</color>
+    <color name="w_text3">#94FFFFFF</color>
+    <color name="w_gold">#E8C15A</color>
+    <color name="w_gold_soft">#2EE8C15A</color>
+</resources>

@@ -26,6 +26,21 @@
 		<string>ms</string><string>fa</string><string>bn</string><string>ru</string><string>de</string><string>es</string>
 		<string>uk</string><string>uz</string><string>kk</string>
 	</array>
+	<!-- حاوية المشاركة مع أدوات الشاشة الرئيسية (اقرأ IosWidgets.kt) -->
+	<key>MizanAppGroup</key>
+	<string>group.com.mizan.almuslim</string>
+	<!-- روابط الأدوات: mizan://open?route=adhkar&amp;section=morning -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.mizan.almuslim</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mizan</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>

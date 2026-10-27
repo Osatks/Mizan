@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- سطح الأداة: يُلوَّن من الكود بلون التطبيق (والوضع الداكن) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/w_base" />
+    <corners android:radius="@dimen/w_radius" />
+</shape>

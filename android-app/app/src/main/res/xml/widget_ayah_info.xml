@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- آية اليوم. التحديث الدوري احتياط فقط: المنبّهات تحدّثها عند دخول كل وقت -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="250dp" android:minHeight="180dp"
-    android:targetCellWidth="4" android:targetCellHeight="3"
+    android:minWidth="250dp" android:minHeight="110dp"
+    android:minResizeWidth="180dp" android:minResizeHeight="110dp"
+    android:targetCellWidth="4" android:targetCellHeight="2"
     android:resizeMode="horizontal|vertical" android:widgetCategory="home_screen"
-    android:updatePeriodMillis="1800000"
+    android:updatePeriodMillis="10800000"
+    android:description="@string/widget_ayah_desc"
     android:initialLayout="@layout/widget_ayah" android:previewLayout="@layout/widget_ayah" />
