@@ -59,7 +59,7 @@ actual object PrayerAlerts {
     actual fun reschedule() {
         val center = UNUserNotificationCenter.currentNotificationCenter()
         // التطبيق مفتوح عند دخول الوقت: الأذان كاملاً أو نمط الاهتزاز المختار بدل صوت الإشعار
-        if (center.delegate == null) center.delegate = AlertPresenter
+        if (center.delegate == null) center.delegate = alertPresenter
         center.removeAllPendingNotificationRequests()
         if (!AppSettings.notify) return
         val s = Lang.current.strings
@@ -103,7 +103,11 @@ actual object PrayerAlerts {
 }
 
 /** إشعار الأذان والتطبيق في الواجهة: يُعرض بلا صوته، ويُشغَّل الأذان كاملاً أو نمط الاهتزاز المختار */
-private object AlertPresenter : NSObject(), UNUserNotificationCenterDelegateProtocol {
+// صنف لا object: Kotlin/Native لا يقبل object يرث صنفاً من Objective-C عند الربط. نسخة واحدة تبقى حية
+// (مفوَّض مركز الإشعارات مرجع ضعيف)
+private val alertPresenter = AlertPresenter()
+
+private class AlertPresenter : NSObject(), UNUserNotificationCenterDelegateProtocol {
     override fun userNotificationCenter(
         center: UNUserNotificationCenter,
         willPresentNotification: UNNotification,
