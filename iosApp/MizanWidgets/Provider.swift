@@ -15,7 +15,7 @@ enum WidgetKind {
 
 /**
  * خط الزمن من اللقطة وحدها: مدخل عند دخول كل صلاة وعند منتصف كل ليلة، ولأداة الأذكار
- * عند حدود نوافذها وكل [rotate] دقيقة (تدوير الذكر). اللقطة من التطبيق إن وصلت (Feed)، وإلا تبنيها الأداة
+ * عند حدود نوافذها وكل [rotateSec] ثانية (تدوير الذكر). اللقطة من التطبيق إن وصلت (Feed)، وإلا تبنيها الأداة
  * من موقعها، فتبقى الأدوات صحيحة أياماً دون فتح التطبيق. لقطة التطبيق لا يُعاد بناؤها إلا بعد آخر مدخل
  * أو حين يكتب التطبيق لقطة جديدة؛ والمستقلة كل بضع ساعات حتى يتبع الموقع تنقّل المستخدم.
  */
@@ -58,8 +58,8 @@ struct MizanProvider: TimelineProvider {
             horizon = t0 + 72 * 3600
             times += snap.days.map { $0.start }.filter { $0 > t0 && $0 < horizon }
         case .adhkar:
-            horizon = t0 + 10 * 3600
-            let step = Double(max(snap.rotate, 1) * 60)
+            horizon = t0 + 2 * 3600
+            let step = Double(max(snap.rotateSec, 1))
             for w in snap.windows where w.e > t0 && w.s < horizon {
                 if w.s > t0 { times.append(w.s) }
                 var t = w.s + step
@@ -73,7 +73,8 @@ struct MizanProvider: TimelineProvider {
         if let last = snap.days.last, last.start + 86_400 > t0, last.start + 86_400 < horizon {
             times.append(last.start + 86_400)
         }
-        let sorted = Array(Set(times)).sorted().prefix(72)
+        // الأذكار تتبدل كل نصف دقيقة: ساعتان من المداخل في كل خط زمن، ثم يُعاد بناؤه (نحو 12 مرة يومياً)
+        let sorted = Array(Set(times)).sorted().prefix(kind == .adhkar ? 240 : 72)
         let entries = sorted.map { t -> MizanEntry in
             let d = Date(timeIntervalSince1970: t)
             return MizanEntry(date: d, snap: snap, offset: AdhkarCursor.offset(for: snap.window(at: d)?.key))
@@ -134,7 +135,7 @@ enum Sample {
                          fadl: ar ? "اقرأ سورة الكهف اليوم" : "Read Surat al-Kahf today")
         return Snapshot(
             v: 1, at: now.timeIntervalSince1970, lang: ar ? "ar" : "en", rtl: ar, theme: "system", colors: Mizan.fallback,
-            place: ar ? "مكة المكرمة" : "Makkah", rotate: 20, labels: [:], days: [day(0), day(1)], windows: [w], items: ["s1": item]
+            place: ar ? "مكة المكرمة" : "Makkah", rotateSec: 30, labels: [:], days: [day(0), day(1)], windows: [w], items: ["s1": item]
         )
     }
 }

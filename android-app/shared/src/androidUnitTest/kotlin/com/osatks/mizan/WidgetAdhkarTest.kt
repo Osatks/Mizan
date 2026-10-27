@@ -4,6 +4,7 @@ import com.osatks.mizan.adhkar.Adhkar
 import com.osatks.mizan.core.HDate
 import com.osatks.mizan.core.PrayTimes
 import com.osatks.mizan.core.PrayerTimes
+import com.osatks.mizan.core.plusSeconds
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.widget.AdhkarClock
 import com.osatks.mizan.widget.AdhkarWindow
@@ -156,10 +157,12 @@ class WidgetAdhkarTest {
         val w = at(TUE, "06:00")
         val start = w.start
         assertEquals(0, AdhkarClock.index(start, w, 0, 5))
-        assertEquals(2, AdhkarClock.index(t(TUE, "06:30"), w, 0, 5))   // ٥٠ دقيقة بعد بدايتها (٥:٤٠): خطوتان
-        assertEquals(3, AdhkarClock.index(t(TUE, "06:30"), w, 1, 5))
-        assertEquals(1, AdhkarClock.index(t(TUE, "06:30"), w, -1, 5))
-        assertEquals(0, AdhkarClock.index(t(TUE, "06:30"), w, 0, 0))
+        val minute = start.plusSeconds(60)   // دقيقة بعد بدايتها: خطوتان (كل نصف دقيقة)
+        assertEquals(2, AdhkarClock.index(minute, w, 0, 5))
+        assertEquals(3, AdhkarClock.index(minute, w, 1, 5))
+        assertEquals(1, AdhkarClock.index(minute, w, -1, 5))
+        assertEquals(0, AdhkarClock.index(minute, w, 0, 0))
+        assertEquals(1, AdhkarClock.index(start.plusSeconds(59), w, 0, 5))
         assertTrue(AdhkarClock.index(t(TUE, "06:30"), w, -13, 5) in 0..4)
     }
 

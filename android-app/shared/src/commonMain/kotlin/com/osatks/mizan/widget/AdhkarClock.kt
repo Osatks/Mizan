@@ -45,8 +45,8 @@ data class AdhkarWindow(
 object AdhkarClock {
     const val ADHAN_MIN = 10
     const val AFTER_MIN = 30
-    /** كل كم دقيقة ينتقل الذكر المعروض وحده */
-    const val ROTATE_MIN = 20
+    /** كل كم ثانية ينتقل الذكر المعروض وحده */
+    const val ROTATE_SEC = 30
 
     val ADHAN = listOf("@adhan")
     val IFTAR = listOf("ram02", "ram03", "@adhan")
@@ -156,10 +156,10 @@ object AdhkarClock {
         return day(now.date, times, hijri).first()
     }
 
-    /** رقم الذكر المعروض: ينتقل كل [ROTATE_MIN] دقيقة، ويزيد عليه ما تقدّم به المستخدم بزر «التالي» */
+    /** رقم الذكر المعروض: ينتقل كل [ROTATE_SEC] ثانية، ويزيد عليه ما تقدّم به المستخدم بزر «التالي» */
     fun index(now: LocalDateTime, w: AdhkarWindow, offset: Int, count: Int): Int {
         if (count <= 0) return 0
-        val steps = (durationBetween(w.start, now).inWholeMinutes / ROTATE_MIN).coerceAtLeast(0)
+        val steps = (durationBetween(w.start, now).inWholeSeconds / ROTATE_SEC).coerceAtLeast(0)
         return ((steps + offset) % count).toInt().let { if (it < 0) it + count else it }
     }
 }

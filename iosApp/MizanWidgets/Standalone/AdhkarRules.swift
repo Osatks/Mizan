@@ -18,7 +18,7 @@ struct RuleWindow: Equatable {
 struct AdhkarSpec: Codable {
     let adhanMin: Int
     let afterMin: Int
-    let rotate: Int
+    let rotateSec: Int
     let lists: [String: [String]]
     let sections: [String: String]
     let tokens: [String: [String]]
