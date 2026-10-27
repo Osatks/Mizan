@@ -5,7 +5,7 @@
    "code": "kk",
    "native": "Қазақша",
    "english": "Kazakh",
-   "version": 3,
+   "version": 4,
    "format": 1,
    "sizeMb": 1.8,
    "file": "kk.json"
@@ -14,7 +14,7 @@
    "code": "uz",
    "native": "Oʻzbekcha",
    "english": "Uzbek",
-   "version": 3,
+   "version": 4,
    "format": 1,
    "sizeMb": 2.7,
    "file": "uz.json"
