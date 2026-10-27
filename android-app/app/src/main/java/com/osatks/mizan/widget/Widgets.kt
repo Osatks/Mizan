@@ -250,7 +250,9 @@ class NextPrayerWidget : MizanWidget() {
             setTextViewText(R.id.label, wt.nextPrayer)
             setTextViewText(R.id.name, s.prayer(next.key))
             setTextViewText(R.id.time, s.time(Widgets.hours(next.at)))
-            setTextViewText(R.id.city, s.placeName(AppSettings.place))
+            // التاريخ الهجري لليوم مع المدينة
+            val hijri = Hijri.toHijri(now.date)?.let { h -> s.hijriDate(h.d, h.m, h.y) }
+            setTextViewText(R.id.city, listOfNotNull(hijri, s.placeName(AppSettings.place)).joinToString(" · "))
             setChronometer(R.id.countdown, SystemClock.elapsedRealtime() + left, null, true)
             setChronometerCountDown(R.id.countdown, true)
             setProgressBar(R.id.progress, 1000, (durationBetween(prev, now).inWholeSeconds * 1000 / span).toInt().coerceIn(0, 1000), false)
