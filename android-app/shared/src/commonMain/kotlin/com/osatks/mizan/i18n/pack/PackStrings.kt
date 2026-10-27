@@ -174,6 +174,27 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val channelDesc: String by lazy { s("channelDesc") ?: En.channelDesc }
     override fun prayerNowTitle(prayer: String): String = f("prayerNowTitle", "prayer" to prayer) ?: En.prayerNowTitle(prayer)
     override fun prayerNowText(city: String): String = f("prayerNowText", "city" to city) ?: En.prayerNowText(city)
+    override val adhanSettings: String by lazy { s("adhanSettings") ?: En.adhanSettings }
+    override val adhanSettingsSub: String by lazy { s("adhanSettingsSub") ?: En.adhanSettingsSub }
+    override val alertPerPrayer: String by lazy { s("alertPerPrayer") ?: En.alertPerPrayer }
+    override val alertModeAdhan: String by lazy { s("alertModeAdhan") ?: En.alertModeAdhan }
+    override val alertModeVibrate: String by lazy { s("alertModeVibrate") ?: En.alertModeVibrate }
+    override val alertModeSilent: String by lazy { s("alertModeSilent") ?: En.alertModeSilent }
+    override val alertModeOff: String by lazy { s("alertModeOff") ?: En.alertModeOff }
+    override val alertModesHint: String by lazy { s("alertModesHint") ?: En.alertModesHint }
+    override val muezzinTitle: String by lazy { s("muezzinTitle") ?: En.muezzinTitle }
+    override val fajrAdhanTitle: String by lazy { s("fajrAdhanTitle") ?: En.fajrAdhanTitle }
+    override val fajrAdhanHint: String by lazy { s("fajrAdhanHint") ?: En.fajrAdhanHint }
+    override val fajrSameAsOthers: String by lazy { s("fajrSameAsOthers") ?: En.fajrSameAsOthers }
+    override val muezzinNames: Map<String, String> by lazy { map("muezzinNames", En.muezzinNames) }
+    override val playAdhan: String by lazy { s("playAdhan") ?: En.playAdhan }
+    override val stopAdhan: String by lazy { s("stopAdhan") ?: En.stopAdhan }
+    override val vibrationTitle: String by lazy { s("vibrationTitle") ?: En.vibrationTitle }
+    override val vibeNames: Map<String, String> by lazy { map("vibeNames", En.vibeNames) }
+    override val tryVibration: String by lazy { s("tryVibration") ?: En.tryVibration }
+    override val adhanStopHint: String by lazy { s("adhanStopHint") ?: En.adhanStopHint }
+    override val adhanIosNote: String by lazy { s("adhanIosNote") ?: En.adhanIosNote }
+    override val recordingSources: String by lazy { s("recordingSources") ?: En.recordingSources }
     override val qiblaTitle: String by lazy { s("qiblaTitle") ?: En.qiblaTitle }
     override val noCompass: String by lazy { s("noCompass") ?: En.noCompass }
     override val facingQibla: String by lazy { s("facingQibla") ?: En.facingQibla }

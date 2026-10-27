@@ -1,0 +1,56 @@
+Adhan recordings used by Mizan
+
+Every recording below was published by its muezzin or by the person who recorded it, under a licence that
+allows redistribution (CC0 or the Public Domain Mark). Mizan's versions are derived works: cut to the
+adhan itself, converted to mono, high-pass filtered at 80 Hz, loudness-normalised (-16 LUFS, EBU R128
+measurement, peaks limited to -1.5 dB) with short fades, and encoded as AAC 64 kbps (.m4a, full adhan) and as a 28-second
+opening excerpt with a fade-out (IMA4 .caf, iPhone notification sound). The processing script is
+android-app/tools/make_adhan.py. The derived files are offered under the same terms as their sources.
+
+Recordings by famous muezzins of the Two Holy Mosques, Mishary Alafasy, Abdul Basit and other well-known
+studio or broadcast recordings are not included: no copy with a licence that allows redistribution was found.
+Recordings captured from radio or television broadcasts were rejected even when the uploader marked them as
+public domain.
+
+
+1. Asim Javed — bundled (default adhan)
+   Title:      ICR Friday Prayer 1st Adhan, 17 May 2024 (9 Dhul-Qadah 1445), called by Asim Javed
+   Source:     https://archive.org/details/icr-friday-prayer-1st-adhan-17th-may-2024-9th-dhul-qadah-1445-by-asim-javed
+   Creator:    Asim Javed (the muezzin)
+   Licence:    CC0 1.0 Universal (public domain dedication)
+               https://creativecommons.org/publicdomain/zero/1.0/
+   Changes:    0:00–3:15.5 kept; the du'a and a spoken announcement after the adhan were removed.
+
+2. Fajr — Kalkan, Turkey — bundled (default Fajr adhan)
+   Title:      Marina Kalkan, Turkey - 915c Muezzin call to prayer (early morning), 22 September 2022
+   Source:     https://archive.org/details/aporee_58326_66906 (radio aporee ::: maps)
+   Recordist:  Piotrek Zyla, https://piotrekzyla.com (Sennheiser MKH 8020 AB pair, Sound Devices MixPre-6 II)
+   Muezzin:    not named by the source
+   Licence:    Public Domain Mark 1.0, applied by the recordist
+               https://creativecommons.org/publicdomain/mark/1.0/
+   Changes:    0:25–5:04 kept.
+
+3. KLCC mosque, Kuala Lumpur — downloadable
+   Title:      Azan Zhur Masjid KLCC (mid-day call to prayer, recorded on an iPhone from the park side of the mosque)
+   Source:     https://archive.org/details/AzanZhurMasjidKlcc
+   Recordist:  the uploader of the item ("I captured the recording on my iPhone")
+   Muezzin:    not named by the source
+   Licence:    CC0 1.0 Universal
+               https://creativecommons.org/publicdomain/zero/1.0/
+   Changes:    0:11–3:01.5 kept.
+
+4. Moazzambeg Mirza, Ahmedabad — downloadable
+   Title:      Isha Azan by Moazzambeg Mirza (7 September 2013), Muhammadi Masjid Jamiyat ul-Ahle Hadees, Sarkhej, Ahmedabad
+   Source:     https://archive.org/details/IshaAzanByMoazzambegMirza07092013
+   Creator:    Moazzam Mirza (the muezzin; uploaded by himself)
+   Licence:    Public Domain Mark 1.0, applied by the creator
+               https://creativecommons.org/publicdomain/mark/1.0/
+   Changes:    0:11–4:20 kept.
+
+5. Adam-synagda (Wikimedia Commons) — downloadable
+   Title:      File:Beautiful adhan.ogg ("Adhan.", 29 April 2022)
+   Source:     https://commons.wikimedia.org/wiki/File:Beautiful_adhan.ogg
+   Author:     Wikimedia Commons user Adam-synagda (marked as own work)
+   Licence:    CC0 1.0 Universal
+               https://creativecommons.org/publicdomain/zero/1.0/
+   Changes:    0:00–2:32 kept.

@@ -184,6 +184,34 @@ object Bn : Strings {
     override val channelDesc = "প্রতি ওয়াক্ত শুরু হলে একটি অ্যালার্ট"
     override fun prayerNowTitle(prayer: String) = "$prayer নামাজের সময় হয়েছে"
     override fun prayerNowText(city: String) = "$city — নামাজের দিকে আসুন"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "আজান ও সতর্কবার্তা"
+    override val adhanSettingsSub = "মুয়াজ্জিন, প্রতিটি নামাজের সতর্কবার্তা ও কম্পন"
+    override val alertPerPrayer = "প্রতিটি নামাজের সতর্কবার্তা"
+    override val alertModeAdhan = "আজান"
+    override val alertModeVibrate = "শুধু কম্পন"
+    override val alertModeSilent = "নীরব বিজ্ঞপ্তি"
+    override val alertModeOff = "সতর্কবার্তা নেই"
+    override val alertModesHint = "“আজান” পুরো আজান বাজায়, “শুধু কম্পন” শব্দ ছাড়া কাঁপে, “নীরব বিজ্ঞপ্তি” শব্দ ছাড়া বিজ্ঞপ্তি দেখায়, আর “সতর্কবার্তা নেই” সেই নামাজের জন্য কিছু পাঠায় না।"
+    override val muezzinTitle = "মুয়াজ্জিন"
+    override val fajrAdhanTitle = "ফজরের আজান"
+    override val fajrAdhanHint = "ফজরের আজানে “আস-সালাতু খাইরুম মিনান নাউম” (ঘুমের চেয়ে নামাজ উত্তম) যুক্ত হয়।"
+    override val fajrSameAsOthers = "অন্যান্য নামাজের মতো"
+    override val muezzinNames = mapOf(
+        "asim" to "আসিম জাভেদ",
+        "klcc" to "KLCC মসজিদ, কুয়ালালামপুর",
+        "mirza" to "মোয়াজ্জম বেগ মির্জা, আহমেদাবাদ",
+        "adam" to "আদম (উইকিমিডিয়া কমন্স)",
+        "kalkan_fajr" to "ফজর — কালকান, তুরস্ক",
+    )
+    override val playAdhan = "আজান শুনুন"
+    override val stopAdhan = "থামান"
+    override val vibrationTitle = "কম্পনের ধরন"
+    override val vibeNames = mapOf("short" to "ছোট", "long" to "লম্বা", "heartbeat" to "হৃদস্পন্দন", "pulse" to "3 বার স্পন্দন", "wave" to "ঢেউ")
+    override val tryVibration = "কম্পন পরীক্ষা করুন"
+    override val adhanStopHint = "আজান থামাতে বিজ্ঞপ্তিতে “থামান” চাপুন বা ভলিউম বোতাম চাপুন। ফোন নীরব বা কম্পন মোডে থাকলে সতর্কবার্তা সেই মোড মেনে চলে।"
+    override val adhanIosNote = "iPhone বিজ্ঞপ্তির শব্দ 30 সেকেন্ডে সীমিত রাখে, তাই বিজ্ঞপ্তিতে আজানের শুরুটা বাজে; নামাজের সময় মিজান খোলা থাকলে পুরো আজান বাজে। বিজ্ঞপ্তি iPhone-এর নিজস্ব ধরনে কাঁপে (Settings › Sounds & Haptics); এখানকার ধরনগুলো মিজান খোলা থাকলে অনুভূত হয়।"
+    override val recordingSources = "রেকর্ডিংয়ের উৎস"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "কিবলার দিক"

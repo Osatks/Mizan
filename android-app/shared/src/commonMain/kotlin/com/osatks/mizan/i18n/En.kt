@@ -183,6 +183,34 @@ object En : Strings {
     override val channelDesc = "An alert when each prayer time begins"
     override fun prayerNowTitle(prayer: String) = "It's time for $prayer"
     override fun prayerNowText(city: String) = "$city — come to prayer"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Adhan & alerts"
+    override val adhanSettingsSub = "Muezzin, alert for each prayer and vibration"
+    override val alertPerPrayer = "Alert for each prayer"
+    override val alertModeAdhan = "Adhan"
+    override val alertModeVibrate = "Vibrate only"
+    override val alertModeSilent = "Silent notification"
+    override val alertModeOff = "No alert"
+    override val alertModesHint = "Adhan plays the full call to prayer, Vibrate only vibrates without sound, Silent notification shows a notification without sound, and No alert sends nothing for that prayer."
+    override val muezzinTitle = "Muezzin"
+    override val fajrAdhanTitle = "Fajr adhan"
+    override val fajrAdhanHint = "The Fajr adhan adds “As-salatu khayrun min an-nawm” (prayer is better than sleep)."
+    override val fajrSameAsOthers = "Same as the other prayers"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "KLCC mosque, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Fajr — Kalkan, Turkey",
+    )
+    override val playAdhan = "Play adhan"
+    override val stopAdhan = "Stop"
+    override val vibrationTitle = "Vibration pattern"
+    override val vibeNames = mapOf("short" to "Short", "long" to "Long", "heartbeat" to "Heartbeat", "pulse" to "Pulse ×3", "wave" to "Wave")
+    override val tryVibration = "Try vibration"
+    override val adhanStopHint = "Tap Stop in the notification or press a volume key to stop the adhan. When the phone is on silent or vibrate, the alert follows that mode."
+    override val adhanIosNote = "iPhone limits notification sounds to 30 seconds, so the notification plays the opening of the adhan; the full adhan plays when Mizan is open at prayer time. Notifications vibrate with the iPhone’s own pattern (Settings › Sounds & Haptics); the patterns here are felt while Mizan is open."
+    override val recordingSources = "Recording sources"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Qibla Direction"

@@ -191,6 +191,34 @@ object Ar : Strings {
     override val channelDesc = "تنبيه عند دخول وقت كل صلاة"
     override fun prayerNowTitle(prayer: String) = "حان الآن وقت صلاة $prayer"
     override fun prayerNowText(city: String) = "$city — حيّ على الصلاة"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "الأذان والتنبيهات"
+    override val adhanSettingsSub = "المؤذن، وطريقة التنبيه لكل صلاة، والاهتزاز"
+    override val alertPerPrayer = "التنبيه لكل صلاة"
+    override val alertModeAdhan = "أذان"
+    override val alertModeVibrate = "اهتزاز فقط"
+    override val alertModeSilent = "إشعار صامت"
+    override val alertModeOff = "بلا تنبيه"
+    override val alertModesHint = "«أذان» يشغّل الأذان كاملاً، و«اهتزاز فقط» يهتز بلا صوت، و«إشعار صامت» يُظهر إشعاراً بلا صوت، و«بلا تنبيه» لا يرسل شيئاً لتلك الصلاة."
+    override val muezzinTitle = "المؤذن"
+    override val fajrAdhanTitle = "أذان الفجر"
+    override val fajrAdhanHint = "يُزاد في أذان الفجر «الصلاة خير من النوم»."
+    override val fajrSameAsOthers = "مثل بقية الصلوات"
+    override val muezzinNames = mapOf(
+        "asim" to "عاصم جاويد",
+        "klcc" to "مسجد KLCC، كوالالمبور",
+        "mirza" to "معظّم بيك ميرزا، أحمد آباد",
+        "adam" to "آدم (ويكيميديا كومنز)",
+        "kalkan_fajr" to "الفجر — كالكان، تركيا",
+    )
+    override val playAdhan = "استمع إلى الأذان"
+    override val stopAdhan = "إيقاف"
+    override val vibrationTitle = "نمط الاهتزاز"
+    override val vibeNames = mapOf("short" to "قصير", "long" to "طويل", "heartbeat" to "نبض القلب", "pulse" to "ثلاث نبضات", "wave" to "موجة")
+    override val tryVibration = "جرّب الاهتزاز"
+    override val adhanStopHint = "لإيقاف الأذان اضغط «إيقاف» في الإشعار أو أحد زرَّي الصوت. وإن كان الهاتف على الصامت أو الاهتزاز فالتنبيه يتبع ذلك."
+    override val adhanIosNote = "يحدّ iPhone صوت الإشعار بثلاثين ثانية، فيُسمع في الإشعار أول الأذان، ويُسمع كاملاً إن كان ميزان مفتوحاً عند دخول الوقت. ويهتز الإشعار بنمط iPhone نفسه (الإعدادات › الأصوات والحس اللمسي)، أما الأنماط هنا فتُحَسّ والتطبيق مفتوح."
+    override val recordingSources = "مصادر التسجيلات"
 
     // ---------- القبلة ----------
     override val qiblaTitle = "اتجاه القبلة"

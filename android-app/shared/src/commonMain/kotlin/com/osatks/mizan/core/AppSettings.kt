@@ -50,6 +50,16 @@ object AppSettings {
         private set
     var notify by mutableStateOf(false)
         private set
+    /** طريقة التنبيه لكل صلاة (الأذان افتراضياً: من فعّل التنبيه في إصدار سابق يسمع الأذان في الصلوات كلها) */
+    var alertModes by mutableStateOf(ALERT_PRAYERS.associateWith { AlertMode.ADHAN })
+        private set
+    /** المؤذن لكل الصلوات، ولصلاة الفجر وحدها ([Muezzins.SAME]: مثل البقية) */
+    var muezzin by mutableStateOf("")
+        private set
+    var fajrMuezzin by mutableStateOf("")
+        private set
+    var vibePattern by mutableStateOf(VibePattern.DEFAULT)
+        private set
     /** "system" أو رمز لغة من [Lang] */
     var lang by mutableStateOf(Lang.SYSTEM)
         private set
@@ -75,6 +85,10 @@ object AppSettings {
         theme = (sp.getString("theme") ?: "system")
         accent = (sp.getString("accent") ?: "emerald")
         notify = sp.getBool("notify", false)
+        alertModes = ALERT_PRAYERS.associateWith { AlertMode.of(sp.getString("alert_$it")) }
+        muezzin = sp.getString("muezzin") ?: Muezzins.DEFAULT.id
+        fajrMuezzin = sp.getString("muezzin_fajr") ?: Muezzins.FAJR_DEFAULT.id
+        vibePattern = VibePattern.of(sp.getString("vibe_pattern"))
         lang = (sp.getString("lang") ?: Lang.SYSTEM)
         LanguagePacks.init()
     }
@@ -114,6 +128,14 @@ object AppSettings {
     fun updateTheme(v: String) { theme = v; sp.edit().putString("theme", v).apply() }
     fun updateAccent(v: String) { accent = v; sp.edit().putString("accent", v).apply() }
     fun updateNotify(v: Boolean) { notify = v; sp.edit().putBoolean("notify", v).apply() }
+    fun updateAlertMode(prayer: String, mode: AlertMode) {
+        alertModes = alertModes + (prayer to mode)
+        sp.edit().putString("alert_$prayer", mode.key).apply()
+    }
+    fun alertMode(prayer: String) = alertModes[prayer] ?: AlertMode.ADHAN
+    fun updateMuezzin(id: String) { muezzin = id; sp.edit().putString("muezzin", id).apply() }
+    fun updateFajrMuezzin(id: String) { fajrMuezzin = id; sp.edit().putString("muezzin_fajr", id).apply() }
+    fun updateVibePattern(p: VibePattern) { vibePattern = p; sp.edit().putString("vibe_pattern", p.key).apply() }
     fun updateLang(v: String) { lang = v; sp.edit().putString("lang", v).apply() }
 
     // تخزين عام بسيط للأدوات (المسبحة وغيرها)

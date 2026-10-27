@@ -184,6 +184,34 @@ object Tr : Strings {
     override val channelDesc = "Her namaz vakti girdiğinde bildirim"
     override fun prayerNowTitle(prayer: String) = "$prayer vakti girdi"
     override fun prayerNowText(city: String) = "$city — haydi namaza"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Ezan ve uyarılar"
+    override val adhanSettingsSub = "Müezzin, her vakit için uyarı ve titreşim"
+    override val alertPerPrayer = "Her vakit için uyarı"
+    override val alertModeAdhan = "Ezan"
+    override val alertModeVibrate = "Yalnızca titreşim"
+    override val alertModeSilent = "Sessiz bildirim"
+    override val alertModeOff = "Uyarı yok"
+    override val alertModesHint = "“Ezan” ezanın tamamını çalar, “Yalnızca titreşim” sessizce titrer, “Sessiz bildirim” sessiz bir bildirim gösterir, “Uyarı yok” o vakit için hiçbir şey göndermez."
+    override val muezzinTitle = "Müezzin"
+    override val fajrAdhanTitle = "Sabah ezanı"
+    override val fajrAdhanHint = "Sabah ezanında “Es-salâtü hayrun mine’n-nevm” (namaz uykudan hayırlıdır) eklenir."
+    override val fajrSameAsOthers = "Diğer vakitlerle aynı"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "KLCC Camii, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Sabah ezanı — Kalkan",
+    )
+    override val playAdhan = "Ezanı dinle"
+    override val stopAdhan = "Durdur"
+    override val vibrationTitle = "Titreşim türü"
+    override val vibeNames = mapOf("short" to "Kısa", "long" to "Uzun", "heartbeat" to "Kalp atışı", "pulse" to "3 darbe", "wave" to "Dalga")
+    override val tryVibration = "Titreşimi dene"
+    override val adhanStopHint = "Ezanı durdurmak için bildirimdeki “Durdur”a dokunun veya bir ses tuşuna basın. Telefon sessiz ya da titreşim modundaysa uyarı o moda uyar."
+    override val adhanIosNote = "iPhone bildirim seslerini 30 saniyeyle sınırlar; bu yüzden bildirimde ezanın başı çalar, vakit girdiğinde Mizan açıksa ezanın tamamı çalar. Bildirimler iPhone’un kendi titreşimiyle titrer (Ayarlar › Sesler ve Dokunuş); buradaki türler Mizan açıkken hissedilir."
+    override val recordingSources = "Kayıt kaynakları"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Kıble Yönü"
