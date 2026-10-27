@@ -1,15 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- آية اليوم بخط المصحف في الوسط، وفوقها موضعها، وتحتها معناها بلغة الواجهة -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/widget_bg" android:orientation="vertical" android:gravity="center" android:padding="14dp">
-    <TextView android:id="@+id/title" android:text="@string/widget_ayah" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textColor="#E0B54A" android:textSize="12sp" android:textStyle="bold" android:maxLines="1" />
-    <TextView android:id="@+id/ayah" android:text="﴿إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا﴾" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
-        android:gravity="center" android:textColor="#FFFFFF" android:textSize="20sp" android:fontFamily="@font/amiri_quran"
-        android:textDirection="rtl" android:lineSpacingExtra="4dp" android:maxLines="4" android:ellipsize="end" />
-    <TextView android:id="@+id/meaning" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:gravity="center" android:textColor="#CCFFFFFF" android:textSize="12sp" android:maxLines="3" android:ellipsize="end" />
-    <TextView android:id="@+id/ref" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginTop="4dp" android:background="@drawable/widget_pill" android:paddingHorizontal="10dp" android:paddingVertical="2dp"
-        android:textColor="#FFFFFF" android:textSize="11sp" android:maxLines="1" />
-</LinearLayout>
+    android:background="@drawable/widget_surface" android:clipToOutline="true">
+    <!-- السطح بلون التطبيق، ثم ظل التدرج، ثم لمعة ذهبية وحافة رفيعة، ثم زخرفة النجمة -->
+    <ImageView android:id="@+id/bg" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_surface" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_shade" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_sheen" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="190dp" android:layout_height="190dp" android:layout_gravity="top|end"
+        android:layout_marginTop="-60dp" android:layout_marginEnd="-60dp" android:alpha="0.16"
+        android:src="@drawable/widget_ornament" android:importantForAccessibility="no" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="@dimen/w_pad">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <ImageView android:id="@+id/icon" android:layout_width="15dp" android:layout_height="15dp" android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_w_book" android:tint="@color/w_gold" android:importantForAccessibility="no" />
+            <TextView android:id="@+id/title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="@string/widget_ayah" android:textColor="@color/w_gold" android:textSize="12sp" android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02" android:maxLines="1" android:ellipsize="end" android:textAlignment="viewStart" />
+            <TextView android:id="@+id/ref" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/widget_chip_light" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+                android:textColor="@color/w_text" android:textSize="11sp" android:maxLines="1" />
+        </LinearLayout>
+
+        <TextView android:id="@+id/ayah" android:text="﴿إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا﴾" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+            android:layout_marginTop="6dp" android:gravity="center" android:textColor="@color/w_text" android:fontFamily="@font/amiri_quran"
+            android:textDirection="rtl" android:lineSpacingMultiplier="1.05"
+            android:autoSizeTextType="uniform" android:autoSizeMinTextSize="13sp" android:autoSizeMaxTextSize="26sp" android:autoSizeStepGranularity="1sp" />
+        <TextView android:id="@+id/meaning" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"
+            android:gravity="center" android:textColor="@color/w_text2" android:textSize="12sp" android:maxLines="3" android:ellipsize="end" />
+    </LinearLayout>
+</FrameLayout>

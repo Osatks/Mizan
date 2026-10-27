@@ -6,4 +6,20 @@
     <string name="widget_hijri">Tarikh Hijrah</string>
     <string name="widget_khatma">Khatam saya</string>
     <string name="widget_ayah">Ayat hari ini</string>
+    <!-- أداة أذكار الوقت، وأوصاف الأدوات في قائمة الأدوات، ونص المعاينة -->
+    <string name="widget_adhkar">Zikir waktu ini</string>
+    <string name="widget_next_dhikr">Seterusnya</string>
+    <string name="widget_next_prayer_desc">Solat seterusnya dengan kiraan detik</string>
+    <string name="widget_prayer_times_desc">Enam waktu hari ini, yang seterusnya ditonjolkan</string>
+    <string name="widget_hijri_desc">Tarikh Hijrah dan Masihi</string>
+    <string name="widget_khatma_desc">Kemajuan khatam, tempat menyambung dan bahagian hari ini</string>
+    <string name="widget_ayah_desc">Satu ayat pendek setiap hari bersama maknanya</string>
+    <string name="widget_adhkar_desc">Zikir mengikut waktu: pagi, petang, tidur, selepas solat dan Jumaat</string>
+    <string name="sample_prayer">Asar</string>
+    <string name="sample_fajr">Subuh</string>
+    <string name="sample_sunrise">Syuruk</string>
+    <string name="sample_dhuhr">Zohor</string>
+    <string name="sample_asr">Asar</string>
+    <string name="sample_maghrib">Maghrib</string>
+    <string name="sample_isha">Isyak</string>
 </resources>

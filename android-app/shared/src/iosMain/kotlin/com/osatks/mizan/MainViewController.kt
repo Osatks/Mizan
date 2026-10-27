@@ -22,6 +22,8 @@ import com.osatks.mizan.platform.IosToast
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.ui.LanguageHost
 import com.osatks.mizan.ui.theme.MizanTheme
+import com.osatks.mizan.widget.IosWidgets
+import com.osatks.mizan.widget.WidgetLaunch
 import kotlinx.coroutines.delay
 import platform.UIKit.UIViewController
 
@@ -30,11 +32,16 @@ fun MainViewController(): UIViewController {
     AppSettings.init()
     // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)
     PrayerAlerts.reschedule()
+    // أدوات الشاشة الرئيسية تقرأ لقطة يكتبها التطبيق في حاوية App Group (وتُحدَّث أيضاً عند الخروج منه)
+    IosWidgets.refresh()
     return ComposeUIViewController {
         LanguageHost {
             MizanTheme {
                 Box(Modifier.fillMaxSize()) {
-                    MizanApp()
+                    // لمس أداة يفتح شاشتها؛ يُمسح الطلب بعد التنقل حتى يعمل اللمس التالي على الشاشة نفسها
+                    val route = WidgetLaunch.route
+                    MizanApp(route)
+                    LaunchedEffect(route) { if (route != null) { delay(400); WidgetLaunch.route = null } }
                     ToastOverlay()
                 }
             }

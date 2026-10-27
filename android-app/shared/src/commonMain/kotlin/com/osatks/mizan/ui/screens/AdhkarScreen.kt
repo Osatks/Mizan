@@ -146,7 +146,7 @@ private fun doneToday(id: String) = AppSettings.getInt(doneKey(id), -1) == Local
  * وتحت كل ذكر ترجمته وزر «الدليل» الذي يبيّن مصدره ودرجته وراويه وفضله.
  */
 @Composable
-fun AdhkarScreen(onBack: () -> Unit, start: String = "") {
+fun AdhkarScreen(onBack: () -> Unit, start: String = com.osatks.mizan.widget.WidgetLaunch.takeAdhkarSection()) {
     var open by rememberSaveable { mutableStateOf(start) }
     BackHandler(open.isNotEmpty()) { open = "" }
     val sections by produceState(Adhkar.loaded()) { if (value == null) value = withContext(Dispatchers.IO) { Adhkar.sections() } }

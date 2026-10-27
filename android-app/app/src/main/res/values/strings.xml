@@ -6,4 +6,20 @@
     <string name="widget_hijri">التاريخ الهجري</string>
     <string name="widget_khatma">ختمتي</string>
     <string name="widget_ayah">آية اليوم</string>
+    <!-- أداة أذكار الوقت، وأوصاف الأدوات في قائمة الأدوات، ونص المعاينة -->
+    <string name="widget_adhkar">أذكار الوقت</string>
+    <string name="widget_next_dhikr">التالي</string>
+    <string name="widget_next_prayer_desc">الصلاة القادمة وعدّ تنازلي لها</string>
+    <string name="widget_prayer_times_desc">مواقيت اليوم الست والقادمة مميزة</string>
+    <string name="widget_hijri_desc">التاريخ الهجري والميلادي</string>
+    <string name="widget_khatma_desc">تقدّمك في الختمة وموضع المتابعة وورد اليوم</string>
+    <string name="widget_ayah_desc">آية قصيرة كل يوم مع معناها</string>
+    <string name="widget_adhkar_desc">الأذكار المناسبة للوقت: الصباح والمساء والنوم وبعد الصلاة والجمعة</string>
+    <string name="sample_prayer">العصر</string>
+    <string name="sample_fajr">الفجر</string>
+    <string name="sample_sunrise">الشروق</string>
+    <string name="sample_dhuhr">الظهر</string>
+    <string name="sample_asr">العصر</string>
+    <string name="sample_maghrib">المغرب</string>
+    <string name="sample_isha">العشاء</string>
 </resources>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- خلفية الأدوات: تدرج ميزان الأخضر بحواف دائرية -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <gradient android:angle="315" android:startColor="#0F6A55" android:endColor="#08463A" />
-    <corners android:radius="24dp" />
-</shape>
