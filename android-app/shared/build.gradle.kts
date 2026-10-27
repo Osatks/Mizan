@@ -28,7 +28,7 @@ kotlin {
             api(compose.ui)
             api(compose.materialIconsExtended)
             api("org.jetbrains.compose.ui:ui-backhandler:1.8.2")
-            api("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta03")
+            api("org.jetbrains.androidx.navigation:navigation-compose:2.9.0")
             api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
             implementation("org.jetbrains.kotlinx:atomicfu:0.27.0")
