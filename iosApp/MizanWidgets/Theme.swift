@@ -121,7 +121,7 @@ struct Shell<Content: View>: View {
         let rtl = snap?.rtl ?? Fallback.arabic
         let inner = content()
             .environment(\.layoutDirection, rtl ? .rightToLeft : .leftToRight)
-            .environment(\.locale, Locale(identifier: snap?.lang ?? (Fallback.arabic ? "ar" : "en")))
+            .environment(\.locale, Locale(identifier: snap?.lang ?? Fallback.lang))
             .foregroundColor(Mizan.text)
             .widgetURL(url)
         if #available(iOS 17.0, *) {
@@ -146,7 +146,7 @@ struct AccessoryShell<Content: View>: View {
         let rtl = snap?.rtl ?? Fallback.arabic
         let inner = content()
             .environment(\.layoutDirection, rtl ? .rightToLeft : .leftToRight)
-            .environment(\.locale, Locale(identifier: snap?.lang ?? (Fallback.arabic ? "ar" : "en")))
+            .environment(\.locale, Locale(identifier: snap?.lang ?? Fallback.lang))
             .widgetURL(url)
         if #available(iOS 17.0, *) {
             inner.containerBackground(for: .widget) {
@@ -249,23 +249,40 @@ struct TimeBar: View {
     }
 }
 
-/// ما يظهر قبل أن يكتب التطبيق أول لقطة، أو بعد انتهاء أيامها
+/// ما يظهر حين لا لقطة: لا موقع للأداة ولا لقطة من التطبيق (رسالة إذن الموقع)، أو لقطة انتهت أيامها
 struct NeedsApp: View {
     let snap: Snapshot?
 
     var body: some View {
-        VStack(spacing: 8) {
-            StarGlyph().fill(Mizan.gold).frame(width: 22, height: 22)
-            Text(snap?.label("openApp") ?? Fallback.text("openApp"))
-                .font(Mizan.rounded(13, .medium))
-                .multilineTextAlignment(.center)
-                .foregroundColor(Mizan.text2)
-                .minimumScaleFactor(0.7)
-            // رمز صغير يبيّن أين توقفت القراءة (للتشخيص): لا مجموعة، أو لا ملف، أو ملف لا يُقرأ
+        VStack(spacing: 6) {
             if snap == nil {
-                Text(Store.diagnosis())
-                    .font(.system(size: 9, weight: .regular, design: .monospaced))
-                    .foregroundColor(Mizan.text2.opacity(0.6))
+                Image(systemName: "location.circle.fill")
+                    .font(.system(size: 22, weight: .regular))
+                    .foregroundColor(Mizan.gold)
+                Text(Fallback.text("allowLocation"))
+                    .font(Mizan.rounded(13, .semibold))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(Mizan.text)
+                    .minimumScaleFactor(0.7)
+                Text(Fallback.text("locationHint"))
+                    .font(Mizan.rounded(10.5))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(Mizan.text2)
+                    .minimumScaleFactor(0.7)
+                // رمز صغير للتشخيص: حال إذن الموقع، ثم حال لقطة التطبيق (لا مجموعة، أو لا ملف، أو ملف لا يُقرأ)
+                Text(Feed.diagnosis())
+                    .font(.system(size: 8, weight: .regular, design: .monospaced))
+                    .foregroundColor(Mizan.text2.opacity(0.55))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .environment(\.layoutDirection, .leftToRight)
+            } else {
+                StarGlyph().fill(Mizan.gold).frame(width: 22, height: 22)
+                Text(snap?.label("openApp") ?? Fallback.text("openApp"))
+                    .font(Mizan.rounded(13, .medium))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(Mizan.text2)
+                    .minimumScaleFactor(0.7)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

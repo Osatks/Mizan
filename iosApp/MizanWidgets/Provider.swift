@@ -15,8 +15,9 @@ enum WidgetKind {
 
 /**
  * خط الزمن من اللقطة وحدها: مدخل عند دخول كل صلاة وعند منتصف كل ليلة، ولأداة الأذكار
- * عند حدود نوافذها وكل [rotate] دقيقة (تدوير الذكر). فتبقى الأدوات صحيحة أياماً دون فتح التطبيق،
- * ولا تُطلب إعادة البناء إلا بعد آخر مدخل أو حين يكتب التطبيق لقطة جديدة.
+ * عند حدود نوافذها وكل [rotate] دقيقة (تدوير الذكر). اللقطة من التطبيق إن وصلت (Feed)، وإلا تبنيها الأداة
+ * من موقعها، فتبقى الأدوات صحيحة أياماً دون فتح التطبيق. لقطة التطبيق لا يُعاد بناؤها إلا بعد آخر مدخل
+ * أو حين يكتب التطبيق لقطة جديدة؛ والمستقلة كل بضع ساعات حتى يتبع الموقع تنقّل المستخدم.
  */
 struct MizanProvider: TimelineProvider {
     let kind: WidgetKind
@@ -27,17 +28,24 @@ struct MizanProvider: TimelineProvider {
 
     func getSnapshot(in context: Context, completion: @escaping (MizanEntry) -> Void) {
         let now = Date()
-        let snap = Store.load().flatMap { $0.day(at: now) == nil ? nil : $0 } ?? Sample.snapshot
-        completion(MizanEntry(date: now, snap: snap, offset: AdhkarCursor.offset(for: snap.window(at: now)?.key)))
+        // في المعرض: بيانات الموقع إن عُرف، وإلا عينة؛ وعلى الشاشة: رسالة الإذن بدل بيانات مكان آخر
+        let snap = Feed.cached(now: now) ?? (context.isPreview ? Sample.snapshot : nil)
+        completion(MizanEntry(date: now, snap: snap, offset: AdhkarCursor.offset(for: snap?.window(at: now)?.key)))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<MizanEntry>) -> Void) {
         let now = Date()
-        guard let snap = Store.load() else {
-            // لم يُفتح التطبيق بعد: نعيد المحاولة بعد نصف ساعة
-            completion(Timeline(entries: [MizanEntry(date: now, snap: nil)], policy: .after(now.addingTimeInterval(1800))))
-            return
+        Feed.load(now: now) { snap, standalone in
+            guard let snap = snap else {
+                // لا لقطة من التطبيق ولا موقع للأداة: رسالة الإذن، ونعيد المحاولة بعد نصف ساعة
+                completion(Timeline(entries: [MizanEntry(date: now, snap: nil)], policy: .after(now.addingTimeInterval(1800))))
+                return
+            }
+            completion(timeline(snap, now: now, standalone: standalone))
         }
+    }
+
+    private func timeline(_ snap: Snapshot, now: Date, standalone: Bool) -> Timeline<MizanEntry> {
         let t0 = now.timeIntervalSince1970
         var times: [Double] = [t0]
         let horizon: Double
@@ -61,7 +69,7 @@ struct MizanProvider: TimelineProvider {
                 }
             }
         }
-        // بعد آخر أيام اللقطة: مدخل يعرض «افتح التطبيق»
+        // بعد آخر أيام اللقطة: مدخل يعرض «افتح التطبيق» ثم يُعاد البناء (فتُبنى لقطة مستقلة إن لم تتجدد لقطة التطبيق)
         if let last = snap.days.last, last.start + 86_400 > t0, last.start + 86_400 < horizon {
             times.append(last.start + 86_400)
         }
@@ -70,13 +78,29 @@ struct MizanProvider: TimelineProvider {
             let d = Date(timeIntervalSince1970: t)
             return MizanEntry(date: d, snap: snap, offset: AdhkarCursor.offset(for: snap.window(at: d)?.key))
         }
-        completion(Timeline(entries: entries, policy: .atEnd))
+        if standalone {
+            // موقع جديد كل ثلاث ساعات على الأكثر (يبقى ما بعدها صحيحاً إن تأخر النظام في إعادة البناء)
+            let refresh = min(now.addingTimeInterval(3 * 3600), entries.last.map { $0.date.addingTimeInterval(60) } ?? now)
+            return Timeline(entries: entries, policy: .after(refresh))
+        }
+        return Timeline(entries: entries, policy: .atEnd)
     }
 }
 
 /// بيانات المعاينة في معرض الأدوات قبل أول فتح للتطبيق
 enum Sample {
+    /// عينة المعرض: مواقيت مكة اليوم محسوبة في الأداة بلغة الجهاز (للمعاينة فقط، لا تُعرض على الشاشة الرئيسية)
     static var snapshot: Snapshot {
+        if let tz = TimeZone(identifier: "Asia/Riyadh"),
+           let s = StandaloneSnapshot.build(.init(lat: 21.4225, lng: 39.8262, tz: tz, now: Date(), lang: Fallback.lang,
+                                                  h24: StaticStore.deviceUses24h, days: 2)) {
+            return s
+        }
+        return legacy
+    }
+
+    /// عينة ثابتة إن تعذّرت قراءة البيانات المضمّنة
+    static var legacy: Snapshot {
         let now = Date()
         let cal = Calendar.current
         let start = cal.startOfDay(for: now).timeIntervalSince1970

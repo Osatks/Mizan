@@ -57,6 +57,8 @@ jobs:
           test -d build/Build/Products/Release-iphoneos/Mizan.app
           # أدوات الشاشة الرئيسية يجب أن تكون داخل التطبيق
           test -d build/Build/Products/Release-iphoneos/Mizan.app/PlugIns/MizanWidgets.appex
+          # وبيانات حسابها المستقل (حين لا تصلها لقطة التطبيق)
+          test -f build/Build/Products/Release-iphoneos/Mizan.app/PlugIns/MizanWidgets.appex/Static/widget-static.json
 
       # البناء بلا توقيع لا يضع الصلاحيات (entitlements) في الملف التنفيذي، و AltStore/Sideloadly تقرأ منه
       # صلاحية App Group لتسجّلها للتطبيق والأداة عند التوقيع بحساب Apple. فنضع توقيعاً مؤقتاً (ad-hoc، بلا شهادة)

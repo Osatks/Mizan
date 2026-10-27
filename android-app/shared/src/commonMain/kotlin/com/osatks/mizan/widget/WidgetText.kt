@@ -26,6 +26,8 @@ class WidgetText(
     val descNext: String, val descTimes: String, val descHijri: String, val descAyah: String, val descAdhkar: String,
     val kahf: String?, val salawat: String?, val hour: String?,
     val after: String,         // الأذكار بعد السلام من الصلاة (عنوان قصير)
+    val allowLocation: String, // iOS: الأداة تحسب المواقيت وحدها وتحتاج إذن الموقع
+    val locationHint: String,  // iOS: أين يُمنح الإذن في الإعدادات
 ) {
     fun untilTime(t: String) = until.replace("%s", t)
 
@@ -63,6 +65,8 @@ class WidgetText(
             "آية قصيرة كل يوم مع معناها", "الأذكار المناسبة للوقت: الصباح والمساء والنوم وبعد الصلاة والجمعة",
             null, null, null,
             after = "أذكار بعد الصلاة",
+            allowLocation = "اسمح لأدوات ميزان بمعرفة موقعك لتظهر مواقيتك",
+            locationHint = "الإعدادات ← ميزان ← الموقع: أثناء استخدام التطبيق أو الأدوات",
         )
         val EN = WidgetText(
             "Adhkar for now", "Next prayer", "Prayer times", "Hijri date",
@@ -74,6 +78,8 @@ class WidgetText(
             "Among the best of your days is Friday… so send abundant blessings upon me on it, for your blessings are presented to me.",
             "On Friday there is an hour in which no Muslim servant stands in prayer asking Allah for something but He gives it to him.",
             after = "After-prayer adhkar",
+            allowLocation = "Allow location for Mizan widgets to show your times",
+            locationHint = "Settings › Mizan › Location: While Using the App or Widgets",
         )
         val FR = WidgetText(
             "Adhkar du moment", "Prochaine prière", "Horaires de prière", "Date hégirienne",
@@ -85,6 +91,8 @@ class WidgetText(
             "Parmi les meilleurs de vos jours est le vendredi… multipliez-y donc les prières sur moi, car vos prières me sont présentées.",
             "Le vendredi, il est une heure où aucun serviteur musulman debout en prière ne demande quelque chose à Allah sans qu’Il le lui accorde.",
             after = "Adhkar après la prière",
+            allowLocation = "Autorisez la localisation pour les widgets Mizan afin d’afficher vos horaires",
+            locationHint = "Réglages › Mizan › Position : Lorsque l’app ou les widgets sont actifs",
         )
         val TR = WidgetText(
             "Vaktin zikirleri", "Sıradaki namaz", "Namaz vakitleri", "Hicri tarih",
@@ -96,6 +104,8 @@ class WidgetText(
             "Günlerinizin en faziletlilerinden biri cuma günüdür… O gün bana çokça salavat getirin; salavatınız bana arz olunur.",
             "Cuma gününde bir saat vardır ki, namazda duran Müslüman bir kul o saatte Allah’tan bir şey isterse, Allah onu mutlaka verir.",
             after = "Namaz sonrası zikirler",
+            allowLocation = "Vakitlerinizi göstermek için Mizan widget’larına konum izni verin",
+            locationHint = "Ayarlar › Mizan › Konum: Uygulamayı veya Widget’ları Kullanırken",
         )
         val UR = WidgetText(
             "وقت کے اذکار", "اگلی نماز", "اوقاتِ نماز", "ہجری تاریخ",
@@ -107,6 +117,8 @@ class WidgetText(
             "تمہارے بہترین دنوں میں سے جمعہ کا دن ہے… اس دن مجھ پر کثرت سے درود بھیجو، کیونکہ تمہارا درود مجھ پر پیش کیا جاتا ہے۔",
             "جمعہ میں ایک گھڑی ایسی ہے کہ جو مسلمان بندہ اس میں کھڑا نماز پڑھتے ہوئے اللہ سے کچھ مانگے، اللہ اسے ضرور عطا فرماتا ہے۔",
             after = "نماز کے بعد کے اذکار",
+            allowLocation = "اپنے اوقات دکھانے کے لیے میزان ویجیٹس کو مقام کی اجازت دیں",
+            locationHint = "سیٹنگز ← میزان ← مقام: ایپ یا ویجیٹس استعمال کرتے وقت",
         )
         val ID = WidgetText(
             "Zikir saat ini", "Salat berikutnya", "Jadwal salat", "Tanggal Hijriah",
@@ -118,6 +130,8 @@ class WidgetText(
             "Di antara hari terbaik kalian adalah hari Jumat… maka perbanyaklah selawat kepadaku pada hari itu, karena selawat kalian diperlihatkan kepadaku.",
             "Pada hari Jumat ada satu saat; tidaklah seorang hamba muslim berdiri salat lalu memohon sesuatu kepada Allah bertepatan dengannya melainkan Allah memberinya.",
             after = "Zikir setelah salat",
+            allowLocation = "Izinkan lokasi untuk widget Mizan agar jadwal Anda tampil",
+            locationHint = "Pengaturan › Mizan › Lokasi: Saat Menggunakan App atau Widget",
         )
         val MS = WidgetText(
             "Zikir waktu ini", "Solat seterusnya", "Waktu solat", "Tarikh Hijrah",
@@ -129,6 +143,8 @@ class WidgetText(
             "Antara hari terbaik kamu ialah hari Jumaat… maka perbanyakkanlah selawat kepadaku padanya, kerana selawat kamu dibentangkan kepadaku.",
             "Pada hari Jumaat ada satu saat; tiada hamba muslim yang berdiri solat memohon sesuatu kepada Allah tepat padanya melainkan Allah memberinya.",
             after = "Zikir selepas solat",
+            allowLocation = "Benarkan lokasi untuk widget Mizan bagi memaparkan waktu anda",
+            locationHint = "Seting › Mizan › Lokasi: Semasa Menggunakan App atau Widget",
         )
         val FA = WidgetText(
             "اذکار این وقت", "نماز بعدی", "اوقات نماز", "تاریخ قمری",
@@ -140,6 +156,8 @@ class WidgetText(
             "از برترین روزهای شما روز جمعه است… پس در آن بر من بسیار صلوات بفرستید، زیرا صلوات شما بر من عرضه می‌شود.",
             "در روز جمعه ساعتی است که هیچ بنده مسلمانی در آن به نماز نمی‌ایستد و چیزی از خدا نمی‌خواهد مگر آنکه به او عطا می‌کند.",
             after = "اذکار پس از نماز",
+            allowLocation = "برای نمایش اوقاتتان، به ابزارک‌های میزان اجازه موقعیت مکانی بدهید",
+            locationHint = "تنظیمات ← میزان ← موقعیت مکانی: هنگام استفاده از برنامه یا ابزارک‌ها",
         )
         val BN = WidgetText(
             "এখনকার জিকির", "পরবর্তী নামাজ", "নামাজের সময়", "হিজরি তারিখ",
@@ -151,6 +169,8 @@ class WidgetText(
             "তোমাদের শ্রেষ্ঠ দিনগুলোর একটি জুমার দিন… সেদিন আমার ওপর বেশি বেশি দরুদ পাঠ করো, কেননা তোমাদের দরুদ আমার কাছে পেশ করা হয়।",
             "জুমার দিনে এমন একটি সময় আছে, কোনো মুসলিম বান্দা নামাজে দাঁড়িয়ে তখন আল্লাহর কাছে কিছু চাইলে তিনি তা অবশ্যই দেন।",
             after = "নামাজের পরের জিকির",
+            allowLocation = "আপনার সময় দেখাতে মিজান উইজেটকে লোকেশনের অনুমতি দিন",
+            locationHint = "সেটিংস › মিজান › লোকেশন: অ্যাপ বা উইজেট ব্যবহারের সময়",
         )
         val RU = WidgetText(
             "Азкары сейчас", "Следующий намаз", "Время намаза", "Дата по хиджре",
@@ -162,6 +182,8 @@ class WidgetText(
             "Лучший из ваших дней — пятница… так призывайте же в этот день побольше благословений на меня, ведь ваши благословения представляются мне.",
             "В пятницу есть час: если раб-мусульманин, стоя в молитве, попросит в него у Аллаха что-либо, Он непременно даст ему это.",
             after = "Азкары после намаза",
+            allowLocation = "Разрешите виджетам Мизан доступ к геопозиции, чтобы видеть своё время",
+            locationHint = "Настройки › Мизан › Геопозиция: при использовании приложения или виджетов",
         )
         val DE = WidgetText(
             "Adhkar für jetzt", "Nächstes Gebet", "Gebetszeiten", "Hidschri-Datum",
@@ -173,6 +195,8 @@ class WidgetText(
             "Zu euren besten Tagen gehört der Freitag… sprecht darum an ihm viele Segenswünsche über mich, denn eure Segenswünsche werden mir vorgelegt.",
             "Am Freitag gibt es eine Stunde: Kein muslimischer Diener steht darin im Gebet und bittet Allah um etwas, ohne dass Er es ihm gibt.",
             after = "Adhkar nach dem Gebet",
+            allowLocation = "Erlaube den Standort für Mizan-Widgets, um deine Zeiten zu sehen",
+            locationHint = "Einstellungen › Mizan › Standort: Beim Verwenden der App oder Widgets",
         )
         val ES = WidgetText(
             "Adhkar de ahora", "Próxima oración", "Horarios de oración", "Fecha de la Hégira",
@@ -184,6 +208,8 @@ class WidgetText(
             "Entre los mejores de vuestros días está el viernes… multiplicad en él las bendiciones sobre mí, pues vuestras bendiciones me son presentadas.",
             "El viernes hay una hora en la que ningún siervo musulmán que esté de pie rezando pide algo a Allah sin que Él se lo conceda.",
             after = "Adhkar tras la oración",
+            allowLocation = "Permite la ubicación para los widgets de Mizan y verás tus horarios",
+            locationHint = "Ajustes › Mizan › Ubicación: Cuando se use la app o los widgets",
         )
         val UK = WidgetText(
             "Азкари зараз", "Наступний намаз", "Час намазу", "Дата за хіджрою",
@@ -195,6 +221,8 @@ class WidgetText(
             "Найкращий із ваших днів — п’ятниця… тож благословляйте мене в цей день якомога більше, бо ваші благословення представляються мені.",
             "У п’ятницю є година: якщо раб-мусульманин, стоячи в молитві, попросить у неї в Аллаха щось, Він неодмінно дасть йому це.",
             after = "Азкари після намазу",
+            allowLocation = "Дозвольте віджетам Мізан доступ до геопозиції, щоб бачити свій час",
+            locationHint = "Параметри › Мізан › Локація: коли застосунок або віджети активні",
         )
         val UZ = WidgetText(
             "Vaqt zikrlari", "Keyingi namoz", "Namoz vaqtlari", "Hijriy sana",
@@ -206,6 +234,8 @@ class WidgetText(
             "Kunlaringizning eng afzallaridan biri juma kunidir… U kuni menga ko‘p salovot ayting, chunki salovatingiz menga yetkaziladi.",
             "Jumada bir soat borki, musulmon banda namozda turib, unda Allohdan biror narsa so‘rasa, albatta, Alloh unga beradi.",
             after = "Namozdan keyingi zikrlar",
+            allowLocation = "Vaqtlaringiz chiqishi uchun Mizon vidjetlariga joylashuvga ruxsat bering",
+            locationHint = "Sozlamalar › Mizon › Joylashuv: ilova yoki vidjetlar ishlatilganda",
         )
         val KK = WidgetText(
             "Уақыт зікірлері", "Келесі намаз", "Намаз уақыттары", "Һижри күні",
@@ -217,6 +247,8 @@ class WidgetText(
             "Күндеріңіздің ең абзалдарының бірі — жұма… сол күні маған көп салауат айтыңдар, өйткені салауаттарың маған жеткізіледі.",
             "Жұма күні бір сағат бар: намазда тұрған мұсылман пенде сол сәтте Алладан бір нәрсе сұраса, Ол оны міндетті түрде береді.",
             after = "Намаздан кейінгі зікірлер",
+            allowLocation = "Уақыттарыңыз шығуы үшін Мизан виджеттеріне орналасуға рұқсат беріңіз",
+            locationHint = "Параметрлер › Мизан › Орналасу: қолданба не виджеттер қолданылғанда",
         )
 
         private val ALL = mapOf(

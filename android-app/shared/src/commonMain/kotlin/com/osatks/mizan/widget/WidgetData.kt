@@ -11,6 +11,7 @@ import com.osatks.mizan.adhkar.Dhikr
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Hijri
 import com.osatks.mizan.core.HDate
+import com.osatks.mizan.core.Place
 import com.osatks.mizan.core.PrayTimes
 import com.osatks.mizan.core.PrayerTimes
 import com.osatks.mizan.core.atStartOfDay
@@ -134,24 +135,41 @@ object WidgetData {
     }
 
     /** وقت الساعة لـ LocalDateTime بصيغة التطبيق (١٢/٢٤ ساعة وص/م بلغة الواجهة) */
-    fun clock(s: Strings, t: LocalDateTime) = s.time(t.time.toSecondOfDay() / 3600.0)
+    fun clock(s: Strings, t: LocalDateTime, h24: Boolean = AppSettings.use24h) =
+        PrayTimes.format(t.time.toSecondOfDay() / 3600.0, h24, s.am, s.pm)
+
+    /** عناوين الأدوات ونصوصها الثابتة بلغة الواجهة (في اللقطة، وفي بيانات الأداة المستقلة في iOS) */
+    fun labels(s: Strings, wt: WidgetText): Map<String, String> = linkedMapOf(
+        "adhkar" to wt.adhkar, "nextPrayer" to wt.nextPrayer, "prayerTimes" to wt.prayerTimes, "hijri" to wt.hijri,
+        "ayah" to s.ayahOfDay, "next" to wt.next, "in" to wt.inTime, "openApp" to wt.openApp,
+        "descNext" to wt.descNext, "descTimes" to wt.descTimes, "descHijri" to wt.descHijri,
+        "descAyah" to wt.descAyah, "descAdhkar" to wt.descAdhkar,
+        "allowLocation" to wt.allowLocation, "locationHint" to wt.locationHint,
+    )
 
     private fun epoch(t: LocalDateTime, z: TimeZone) = t.toInstant(z).epochSeconds
 
-    private fun hex(c: Int) = "#" + (c and 0xFFFFFF).toString(16).padStart(6, '0').uppercase()
+    internal fun hex(c: Int) = "#" + (c and 0xFFFFFF).toString(16).padStart(6, '0').uppercase()
 
     /**
      * لقطة الأدوات في iOS: [days] أيام من اليوم، بأوقات مطلقة (ثوانٍ منذ ١٩٧٠) حتى تبقى صحيحة بلا التطبيق.
      * النصوص منسقة مسبقاً بلغة التطبيق وأرقامها، فلا تحتاج الأداة إلى أي حساب.
+     * المعاملات من الإعدادات افتراضياً؛ وتمرّرها الاختبارات لتقارن بها حساب الأداة المستقل في Swift.
      */
-    suspend fun snapshot(days: Int = 7, now: LocalDateTime = PrayerUtil.now()): Map<String, Any?> {
-        val lang = Lang.current
+    suspend fun snapshot(
+        days: Int = 7, now: LocalDateTime = PrayerUtil.now(),
+        lang: Lang = Lang.current, place: Place = AppSettings.place, method: String = AppSettings.method,
+        hanafi: Boolean = AppSettings.hanafi, h24: Boolean = AppSettings.use24h,
+        accent: String = AppSettings.accent, theme: String = AppSettings.theme,
+    ): Map<String, Any?> {
         val s = lang.strings
         val wt = WidgetText.of(lang.code)
         val tr = Adhkar.tr(lang)
-        val z = zone()
+        val z = runCatching { TimeZone.of(place.tz) }.getOrElse { TimeZone.currentSystemDefault() }
         val today = now.date
-        val c = WidgetColors.of(AppSettings.accent)
+        val c = WidgetColors.of(accent)
+        val times = { d: LocalDate -> PrayTimes.compute(d, place.lat, place.lng, place.tz, method, hanafi) }
+        fun time(h: Double) = PrayTimes.format(h, h24, s.am, s.pm)
 
         val quran = runCatching { QuranData.uthmani() }.getOrNull()
         val meaning = Sources.translationFor(lang)?.let { src -> runCatching { QuranData.source(src.id) }.getOrNull() }
@@ -183,8 +201,8 @@ object WidgetData {
                     mapOf(
                         "k" to k, "name" to s.prayer(k),
                         "at" to epoch(PrayerUtil.at(d, t[k]), z),
-                        "t" to s.time(t[k]),
-                        "s" to PrayTimes.format(t[k], AppSettings.use24h, "", "").trim(),
+                        "t" to time(t[k]),
+                        "s" to PrayTimes.format(t[k], h24, "", "").trim(),
                     )
                 },
                 "ayah" to ayah,
@@ -192,7 +210,7 @@ object WidgetData {
         }
 
         // نوافذ الأذكار من ليلة أمس (ما قبل فجر اليوم) إلى آخر الأيام
-        val windows = AdhkarClock.range(today.plusDays(-1), days + 1, ::times, ::hijri).filter { epoch(it.end, z) > epoch(now, z) - 3600 }
+        val windows = AdhkarClock.range(today.plusDays(-1), days + 1, times, ::hijri).filter { epoch(it.end, z) > epoch(now, z) - 3600 }
         val used = LinkedHashMap<String, Dhikr>()
         val winList = windows.map { w ->
             val items = expand(w.items)
@@ -201,7 +219,7 @@ object WidgetData {
                 "k" to w.kind, "key" to w.key,
                 "s" to epoch(w.start, z), "e" to epoch(w.end, z),
                 "title" to title(w, lang, wt, tr), "chip" to chip(w, s, wt),
-                "until" to wt.untilTime(clock(s, w.end)),
+                "until" to wt.untilTime(clock(s, w.end, h24)),
                 "section" to w.section,
                 "items" to items.map { it.id },
             )
@@ -215,19 +233,14 @@ object WidgetData {
             "v" to 1,
             "at" to epoch(now, z),
             "lang" to lang.code, "rtl" to lang.rtl,
-            "theme" to AppSettings.theme,
+            "theme" to theme,
             "colors" to mapOf(
                 "hero1" to hex(c.hero1), "hero2" to hex(c.hero2), "night1" to hex(c.night1), "night2" to hex(c.night2),
                 "accent" to hex(c.accentLight), "gold" to hex(c.gold),
             ),
-            "place" to s.placeName(AppSettings.place),
+            "place" to s.placeName(place),
             "rotate" to AdhkarClock.ROTATE_MIN,
-            "labels" to mapOf(
-                "adhkar" to wt.adhkar, "nextPrayer" to wt.nextPrayer, "prayerTimes" to wt.prayerTimes, "hijri" to wt.hijri,
-                "ayah" to s.ayahOfDay, "next" to wt.next, "in" to wt.inTime, "openApp" to wt.openApp,
-                "descNext" to wt.descNext, "descTimes" to wt.descTimes, "descHijri" to wt.descHijri,
-                "descAyah" to wt.descAyah, "descAdhkar" to wt.descAdhkar,
-            ),
+            "labels" to labels(s, wt),
             "days" to dayList,
             "windows" to winList,
             "items" to itemMap,

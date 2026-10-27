@@ -1,7 +1,8 @@
 # مشروع Xcode لتطبيق ميزان في iOS، يُولَّد بـ XcodeGen (xcodegen generate) فلا يُحفظ ملف .xcodeproj في المستودع.
 # الواجهات والمنطق كلها في وحدة Kotlin المشتركة (android-app/shared) وتُبنى إطاراً اسمه Shared.
 # أدوات الشاشة الرئيسية (MizanWidgets) امتداد WidgetKit بلغة Swift وحدها: تقرأ لقطة JSON يكتبها التطبيق
-# في حاوية App Group (group.com.mizan.almuslim)، فلا تحمّل إطار Kotlin.
+# في حاوية App Group (group.com.mizan.almuslim)، فلا تحمّل إطار Kotlin؛ وحين لا تصلها (تثبيت بحساب مجاني بلا App Group)
+# تحسب المواقيت والأذكار وحدها من موقعها والبيانات المضمّنة في MizanWidgets/Static.
 name: Mizan
 options:
   bundleIdPrefix: com.osatks
@@ -49,6 +50,14 @@ targets:
     platform: iOS
     sources:
       - path: MizanWidgets
+        excludes:
+          - "Static"
+          - "Static/**"
+      # بيانات الحساب المستقل (المدن وجدول الهجري والأذكار وآية اليوم بكل اللغات) حين لا تصل لقطة التطبيق؛
+      # تولّدها WidgetStaticTest من مصادر Kotlin، ويُقرأ المجلد كما هو من حزمة الأداة (Static/…)
+      - path: MizanWidgets/Static
+        type: folder
+        buildPhase: resources
       - path: Shared
       # خط المصحف نفسه الذي يستعمله التطبيق (UIAppFonts في Info.plist الأداة)
       - path: ../android-app/shared/src/commonMain/assets/fonts/amiri_quran.ttf
