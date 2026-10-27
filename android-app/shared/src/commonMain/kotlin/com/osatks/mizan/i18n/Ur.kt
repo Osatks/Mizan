@@ -203,11 +203,19 @@ object Ur : Strings {
         "mirza" to "معظم بیگ مرزا، احمد آباد",
         "adam" to "آدم (Wikimedia Commons)",
         "kalkan_fajr" to "فجر — کالکان، ترکی",
+        "madinah" to "مسجدِ نبوی، مدینہ منورہ",
+        "andrewler" to "اینڈریولر (Wikimedia Commons)",
+        "aaqib" to "عاقب عزیز",
+        "fouad" to "فؤاد اذان",
+        "fouad_fajr" to "فجر — فؤاد اذان",
+        "kas_fajr" to "فجر — کاش، ترکی",
+        "malmo_fajr" to "فجر — بسیم عزمی، مالمو",
+        "shalqar" to "شالقار مسجد، قازقستان",
     )
     override val playAdhan = "اذان سنیں"
     override val stopAdhan = "روکیں"
     override val vibrationTitle = "ارتعاش کا انداز"
-    override val vibeNames = mapOf("short" to "مختصر", "long" to "طویل", "heartbeat" to "دھڑکن", "pulse" to "تین جھٹکے", "wave" to "لہر")
+    override val vibeNames = mapOf("short" to "مختصر", "double" to "دو تھپکیاں", "triple" to "تین تھپکیاں", "long" to "طویل", "heartbeat" to "دھڑکن", "pulse" to "تین جھٹکے", "wave" to "لہر", "rise" to "بڑھتا ہوا", "gentle" to "ہلکا", "strong" to "زوردار", "knock" to "دستک", "rapid" to "تیز تیز")
     override val tryVibration = "ارتعاش آزمائیں"
     override val adhanStopHint = "اذان روکنے کے لیے اطلاع میں «روکیں» یا آواز کا کوئی بٹن دبائیں۔ فون خاموش یا ارتعاش پر ہو تو اطلاع اسی کے مطابق ہوگی۔"
     override val adhanIosNote = "iPhone اطلاع کی آواز کو 30 سیکنڈ تک محدود رکھتا ہے، اس لیے اطلاع میں اذان کا ابتدائی حصہ سنائی دیتا ہے، اور نماز کے وقت میزان کھلا ہو تو پوری اذان چلتی ہے۔ اطلاعات iPhone کے اپنے انداز سے تھرتھراتی ہیں (Settings › Sounds & Haptics)؛ یہاں کے انداز میزان کھلا ہونے پر محسوس ہوتے ہیں۔"

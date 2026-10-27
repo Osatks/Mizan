@@ -47,7 +47,17 @@ class AdhanTest {
             assertTrue(p.key, p.timings.all { it >= 0 } && p.millis in 300..3000)
             // الانتظار بلا شدة، والاهتزاز بشدة (أنماط القنوات في أندرويد تتجاهل الشدة وتعتمد على التناوب)
             p.timings.indices.forEach { i -> if (i % 2 == 0) assertEquals(p.key, 0, p.amps[i]) else assertTrue(p.key, p.amps[i] > 0) }
+            // المقاطع المهتزة بترتيبها الزمني ومدتها كاملة
+            assertEquals(p.key, p.timings.filterIndexed { i, _ -> i % 2 == 1 }.sum(), p.pulses.sumOf { it.second })
+            assertTrue(p.key, p.pulses.zipWithNext().all { (a, b) -> a.first + a.second <= b.first })
+            assertTrue(p.key, p.pulses.last().let { it.first + it.second } == p.millis)
         }
+        // عشرة أنماط على الأقل، كلها مختلفة، ومفاتيحها ثابتة (تُحفظ في الإعدادات)
+        assertTrue(VibePattern.entries.size >= 10)
+        assertEquals(VibePattern.entries.size, VibePattern.entries.map { it.timings to it.amps }.toSet().size)
+        assertEquals(VibePattern.entries.size, VibePattern.entries.map { it.key }.toSet().size)
+        assertEquals(VibePattern.HEARTBEAT, VibePattern.of("heartbeat"))
+        assertEquals(VibePattern.DEFAULT, VibePattern.of("gone"))
         assertEquals(AlertMode.ADHAN, AlertMode.of(null))
         assertEquals(AlertMode.OFF, AlertMode.of("off"))
     }

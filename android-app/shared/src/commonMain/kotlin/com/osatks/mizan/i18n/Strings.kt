@@ -147,7 +147,7 @@ interface Strings {
     val playAdhan: String                       // content description of the play button: "Play adhan"
     val stopAdhan: String                       // stop button and notification action: "Stop"
     val vibrationTitle: String                  // section title: "Vibration pattern"
-    /** keys: short long heartbeat pulse wave */
+    /** keys: short double triple long heartbeat pulse wave rise gentle strong knock rapid (core/Adhan.kt VibePattern) */
     val vibeNames: Map<String, String>
     val tryVibration: String                    // button: "Try vibration"
     val adhanStopHint: String                   // Android: how to stop the adhan; silent/vibrate phone mode is followed

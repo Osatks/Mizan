@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 4,
+ "version": 5,
  "currency": "UZS",
  "quran": {
   "id": "uz.sodik",
@@ -577,7 +577,15 @@
    "klcc": "KLCC masjidi, Kuala-Lumpur",
    "mirza": "Moazzambeg Mirza, Ahmedabad",
    "adam": "Adam-synagda (Wikimedia Commons)",
-   "kalkan_fajr": "Bomdod — Kalkan, Turkiya"
+   "kalkan_fajr": "Bomdod — Kalkan, Turkiya",
+   "madinah": "Masjidi Nabaviy, Madina",
+   "andrewler": "Andrewler (Wikimedia Commons)",
+   "aaqib": "Aaqib Aziz",
+   "fouad": "Fuad Adan",
+   "fouad_fajr": "Bomdod — Fuad Adan",
+   "kas_fajr": "Bomdod — Kash, Turkiya",
+   "malmo_fajr": "Bomdod — Besim Azemi, Malmyo",
+   "shalqar": "Shalqar masjidi, Qozogʻiston"
   },
   "muezzinTitle": "Muazzin",
   "mushafView": "Mushaf koʻrinishi",
@@ -1021,10 +1029,17 @@
   "version": "Versiya {v}",
   "vibeNames": {
    "short": "Qisqa",
+   "double": "Ikki marta",
+   "triple": "Uch marta",
    "long": "Uzun",
    "heartbeat": "Yurak urishi",
    "pulse": "3 zarb",
-   "wave": "Toʻlqin"
+   "wave": "Toʻlqin",
+   "rise": "Kuchayib boruvchi",
+   "gentle": "Mayin",
+   "strong": "Kuchli",
+   "knock": "Eshik taqillashi",
+   "rapid": "Tez-tez"
   },
   "vibrationTitle": "Tebranish turi",
   "weekdays": [

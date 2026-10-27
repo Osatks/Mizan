@@ -203,11 +203,19 @@ object Tr : Strings {
         "mirza" to "Moazzambeg Mirza, Ahmedabad",
         "adam" to "Adam-synagda (Wikimedia Commons)",
         "kalkan_fajr" to "Sabah ezanı — Kalkan",
+        "madinah" to "Mescid-i Nebevî, Medine",
+        "andrewler" to "Andrewler (Wikimedia Commons)",
+        "aaqib" to "Aaqib Azeez",
+        "fouad" to "Fouad Adan",
+        "fouad_fajr" to "Sabah ezanı — Fouad Adan",
+        "kas_fajr" to "Sabah ezanı — Kaş",
+        "malmo_fajr" to "Sabah ezanı — Besim Azemi, Malmö",
+        "shalqar" to "Şalkar Camii, Kazakistan",
     )
     override val playAdhan = "Ezanı dinle"
     override val stopAdhan = "Durdur"
     override val vibrationTitle = "Titreşim türü"
-    override val vibeNames = mapOf("short" to "Kısa", "long" to "Uzun", "heartbeat" to "Kalp atışı", "pulse" to "3 darbe", "wave" to "Dalga")
+    override val vibeNames = mapOf("short" to "Kısa", "double" to "Çift dokunuş", "triple" to "Üçlü dokunuş", "long" to "Uzun", "heartbeat" to "Kalp atışı", "pulse" to "3 darbe", "wave" to "Dalga", "rise" to "Yükselen", "gentle" to "Yumuşak", "strong" to "Güçlü", "knock" to "Kapı çalma", "rapid" to "Hızlı")
     override val tryVibration = "Titreşimi dene"
     override val adhanStopHint = "Ezanı durdurmak için bildirimdeki “Durdur”a dokunun veya bir ses tuşuna basın. Telefon sessiz ya da titreşim modundaysa uyarı o moda uyar."
     override val adhanIosNote = "iPhone bildirim seslerini 30 saniyeyle sınırlar; bu yüzden bildirimde ezanın başı çalar, vakit girdiğinde Mizan açıksa ezanın tamamı çalar. Bildirimler iPhone’un kendi titreşimiyle titrer (Ayarlar › Sesler ve Dokunuş); buradaki türler Mizan açıkken hissedilir."

@@ -203,11 +203,19 @@ object Bn : Strings {
         "mirza" to "মোয়াজ্জম বেগ মির্জা, আহমেদাবাদ",
         "adam" to "আদম (উইকিমিডিয়া কমন্স)",
         "kalkan_fajr" to "ফজর — কালকান, তুরস্ক",
+        "madinah" to "মসজিদে নববী, মদিনা",
+        "andrewler" to "অ্যান্ড্রুলার (উইকিমিডিয়া কমন্স)",
+        "aaqib" to "আকিব আজিজ",
+        "fouad" to "ফুয়াদ আযান",
+        "fouad_fajr" to "ফজর — ফুয়াদ আযান",
+        "kas_fajr" to "ফজর — কাশ, তুরস্ক",
+        "malmo_fajr" to "ফজর — বেসিম আজেমি, মালমো",
+        "shalqar" to "শালকার মসজিদ, কাজাখস্তান",
     )
     override val playAdhan = "আজান শুনুন"
     override val stopAdhan = "থামান"
     override val vibrationTitle = "কম্পনের ধরন"
-    override val vibeNames = mapOf("short" to "ছোট", "long" to "লম্বা", "heartbeat" to "হৃদস্পন্দন", "pulse" to "3 বার স্পন্দন", "wave" to "ঢেউ")
+    override val vibeNames = mapOf("short" to "ছোট", "double" to "দুবার টোকা", "triple" to "তিনবার টোকা", "long" to "লম্বা", "heartbeat" to "হৃদস্পন্দন", "pulse" to "3 বার স্পন্দন", "wave" to "ঢেউ", "rise" to "ক্রমশ জোরালো", "gentle" to "মৃদু", "strong" to "জোরালো", "knock" to "দরজায় কড়া", "rapid" to "দ্রুত")
     override val tryVibration = "কম্পন পরীক্ষা করুন"
     override val adhanStopHint = "আজান থামাতে বিজ্ঞপ্তিতে “থামান” চাপুন বা ভলিউম বোতাম চাপুন। ফোন নীরব বা কম্পন মোডে থাকলে সতর্কবার্তা সেই মোড মেনে চলে।"
     override val adhanIosNote = "iPhone বিজ্ঞপ্তির শব্দ 30 সেকেন্ডে সীমিত রাখে, তাই বিজ্ঞপ্তিতে আজানের শুরুটা বাজে; নামাজের সময় মিজান খোলা থাকলে পুরো আজান বাজে। বিজ্ঞপ্তি iPhone-এর নিজস্ব ধরনে কাঁপে (Settings › Sounds & Haptics); এখানকার ধরনগুলো মিজান খোলা থাকলে অনুভূত হয়।"

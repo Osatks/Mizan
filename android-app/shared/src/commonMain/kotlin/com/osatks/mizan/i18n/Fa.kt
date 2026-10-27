@@ -203,11 +203,19 @@ object Fa : Strings {
         "mirza" to "معظم‌بیگ میرزا، احمدآباد",
         "adam" to "آدم (ویکی‌انبار)",
         "kalkan_fajr" to "اذان صبح — کالکان، ترکیه",
+        "madinah" to "مسجدالنبی، مدینه",
+        "andrewler" to "اندرولر (ویکی‌انبار)",
+        "aaqib" to "عاقب عزیز",
+        "fouad" to "فؤاد اذان",
+        "fouad_fajr" to "اذان صبح — فؤاد اذان",
+        "kas_fajr" to "اذان صبح — کاش، ترکیه",
+        "malmo_fajr" to "اذان صبح — بسیم عزمی، مالمو",
+        "shalqar" to "مسجد شالقار، قزاقستان",
     )
     override val playAdhan = "پخش اذان"
     override val stopAdhan = "توقف"
     override val vibrationTitle = "الگوی لرزش"
-    override val vibeNames = mapOf("short" to "کوتاه", "long" to "بلند", "heartbeat" to "ضربان قلب", "pulse" to "سه ضربه", "wave" to "موج")
+    override val vibeNames = mapOf("short" to "کوتاه", "double" to "دو تقه", "triple" to "سه تقه", "long" to "بلند", "heartbeat" to "ضربان قلب", "pulse" to "سه ضربه", "wave" to "موج", "rise" to "فزاینده", "gentle" to "ملایم", "strong" to "قوی", "knock" to "در زدن", "rapid" to "تند")
     override val tryVibration = "امتحان لرزش"
     override val adhanStopHint = "برای توقف اذان «توقف» را در اعلان یا یکی از دکمه‌های صدا را بزنید. اگر تلفن روی بی‌صدا یا لرزش باشد، هشدار از همان پیروی می‌کند."
     override val adhanIosNote = "iPhone صدای اعلان را به 30 ثانیه محدود می‌کند، پس در اعلان آغاز اذان پخش می‌شود و اگر میزان هنگام وقت نماز باز باشد اذان کامل پخش می‌شود. اعلان‌ها با الگوی خود iPhone می‌لرزند (Settings › Sounds & Haptics)؛ الگوهای اینجا وقتی میزان باز است حس می‌شوند."

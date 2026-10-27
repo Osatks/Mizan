@@ -203,11 +203,19 @@ object Id : Strings {
         "mirza" to "Moazzambeg Mirza, Ahmedabad",
         "adam" to "Adam-synagda (Wikimedia Commons)",
         "kalkan_fajr" to "Subuh — Kalkan, Turki",
+        "madinah" to "Masjid Nabawi, Madinah",
+        "andrewler" to "Andrewler (Wikimedia Commons)",
+        "aaqib" to "Aaqib Azeez",
+        "fouad" to "Fouad Adan",
+        "fouad_fajr" to "Subuh — Fouad Adan",
+        "kas_fajr" to "Subuh — Kaş, Turki",
+        "malmo_fajr" to "Subuh — Besim Azemi, Malmö",
+        "shalqar" to "Masjid Shalqar, Kazakhstan",
     )
     override val playAdhan = "Putar azan"
     override val stopAdhan = "Hentikan"
     override val vibrationTitle = "Pola getaran"
-    override val vibeNames = mapOf("short" to "Pendek", "long" to "Panjang", "heartbeat" to "Detak jantung", "pulse" to "3 denyut", "wave" to "Gelombang")
+    override val vibeNames = mapOf("short" to "Pendek", "double" to "Ketuk dua kali", "triple" to "Ketuk tiga kali", "long" to "Panjang", "heartbeat" to "Detak jantung", "pulse" to "3 denyut", "wave" to "Gelombang", "rise" to "Makin kuat", "gentle" to "Lembut", "strong" to "Kuat", "knock" to "Ketukan pintu", "rapid" to "Cepat")
     override val tryVibration = "Coba getaran"
     override val adhanStopHint = "Ketuk “Hentikan” di notifikasi atau tekan tombol volume untuk menghentikan azan. Jika ponsel dalam mode senyap atau getar, pengingat mengikuti mode itu."
     override val adhanIosNote = "iPhone membatasi suara notifikasi hingga 30 detik, jadi notifikasi memutar awal azan; azan lengkap diputar jika Mizan terbuka saat waktu salat. Notifikasi bergetar dengan pola iPhone sendiri (Pengaturan › Suara & Haptik); pola di sini terasa saat Mizan terbuka."

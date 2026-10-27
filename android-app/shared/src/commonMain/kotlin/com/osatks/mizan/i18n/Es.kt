@@ -205,11 +205,19 @@ object Es : Strings {
         "mirza" to "Moazzambeg Mirza, Ahmedabad",
         "adam" to "Adam-synagda (Wikimedia Commons)",
         "kalkan_fajr" to "Fajr — Kalkan, Turquía",
+        "madinah" to "Mezquita del Profeta, Medina",
+        "andrewler" to "Andrewler (Wikimedia Commons)",
+        "aaqib" to "Aaqib Azeez",
+        "fouad" to "Fouad Adan",
+        "fouad_fajr" to "Fajr — Fouad Adan",
+        "kas_fajr" to "Fajr — Kaş, Turquía",
+        "malmo_fajr" to "Fajr — Besim Azemi, Malmö",
+        "shalqar" to "Mezquita de Shalqar, Kazajistán",
     )
     override val playAdhan = "Escuchar el adhan"
     override val stopAdhan = "Detener"
     override val vibrationTitle = "Patrón de vibración"
-    override val vibeNames = mapOf("short" to "Corta", "long" to "Larga", "heartbeat" to "Latido", "pulse" to "3 pulsos", "wave" to "Ola")
+    override val vibeNames = mapOf("short" to "Corta", "double" to "Doble toque", "triple" to "Triple toque", "long" to "Larga", "heartbeat" to "Latido", "pulse" to "3 pulsos", "wave" to "Ola", "rise" to "Creciente", "gentle" to "Suave", "strong" to "Fuerte", "knock" to "Toc, toc", "rapid" to "Rápida")
     override val tryVibration = "Probar vibración"
     override val adhanStopHint = "Toca «Detener» en la notificación o pulsa una tecla de volumen para detener el adhan. Si el teléfono está en silencio o vibración, el aviso sigue ese modo."
     override val adhanIosNote = "El iPhone limita los sonidos de notificación a 30 segundos, así que la notificación reproduce el inicio del adhan; el adhan completo suena si Mizan está abierto a la hora de la oración. Las notificaciones vibran con el patrón del propio iPhone (Ajustes › Sonidos y vibraciones); los patrones de aquí se sienten con Mizan abierto."
