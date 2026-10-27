@@ -134,19 +134,43 @@ enum Store {
     /// نبحث في Info.plist الأداة وInfo.plist التطبيق الذي يحويها، ثم الاسم الأصلي.
     static func groups() -> [String] {
         var out: [String] = []
+        // المجموعات التي منحها ملف التوقيع فعلاً: أصدق مصدر، فبعض أدوات التثبيت تعيد التسمية دون ALTAppGroups
+        func profile(_ bundleURL: URL) {
+            let url = bundleURL.appendingPathComponent("embedded.mobileprovision")
+            guard let data = try? Data(contentsOf: url) else { return }
+            out += profileGroups(String(decoding: data, as: UTF8.self))
+        }
         func add(_ info: [String: Any]?) {
             if let alt = info?["ALTAppGroups"] as? [String] {
                 out += alt.filter { $0.lowercased().contains("mizan") } + alt
             }
             if let own = info?["MizanAppGroup"] as? String { out.append(own) }
         }
-        add(Bundle.main.infoDictionary)
         // Mizan.app/PlugIns/MizanWidgets.appex ← التطبيق على بعد مجلدين
         let appURL = Bundle.main.bundleURL.deletingLastPathComponent().deletingLastPathComponent()
+        profile(Bundle.main.bundleURL)
+        profile(appURL)
+        add(Bundle.main.infoDictionary)
         if let app = Bundle(url: appURL) { add(app.infoDictionary) }
         out.append(defaultGroup)
+        let ordered = out.filter { $0.lowercased().contains("mizan") } + out
         var seen = Set<String>()
-        return out.filter { seen.insert($0).inserted }
+        return ordered.filter { seen.insert($0).inserted }
+    }
+
+    /// أسماء App Group في نص ملف التوقيع (plist داخل توقيع CMS)
+    static func profileGroups(_ text: String) -> [String] {
+        guard let key = text.range(of: "<key>com.apple.security.application-groups</key>"),
+              let open = text.range(of: "<array>", range: key.upperBound..<text.endIndex),
+              let close = text.range(of: "</array>", range: open.upperBound..<text.endIndex) else { return [] }
+        var groups: [String] = []
+        var rest = text[open.upperBound..<close.lowerBound]
+        while let a = rest.range(of: "<string>"), let b = rest.range(of: "</string>", range: a.upperBound..<rest.endIndex) {
+            let g = rest[a.upperBound..<b.lowerBound].trimmingCharacters(in: .whitespacesAndNewlines)
+            if g.hasPrefix("group.") { groups.append(g) }
+            rest = rest[b.upperBound...]
+        }
+        return groups
     }
 
     static func container() -> URL? {
@@ -154,6 +178,16 @@ enum Store {
             if let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: g) { return url }
         }
         return nil
+    }
+
+    /// سبب غياب اللقطة: G (لا حاوية مجموعة متاحة لهذا التوقيع) أو F (لا ملف بعد) أو D (ملف لا يُقرأ)، مع عدد المجموعات المعروفة
+    static func diagnosis() -> String {
+        let gs = groups()
+        guard let dir = container() else { return "G · \(gs.count) · \(gs.first ?? "-")" }
+        let url = dir.appendingPathComponent(file)
+        guard let data = try? Data(contentsOf: url) else { return "F · \(gs.count)" }
+        do { _ = try JSONDecoder().decode(Snapshot.self, from: data); return "OK" }
+        catch { return "D · \(String(describing: error).prefix(60))" }
     }
 
     static func load() -> Snapshot? {

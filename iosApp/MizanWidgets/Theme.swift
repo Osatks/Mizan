@@ -261,6 +261,12 @@ struct NeedsApp: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(Mizan.text2)
                 .minimumScaleFactor(0.7)
+            // رمز صغير يبيّن أين توقفت القراءة (للتشخيص): لا مجموعة، أو لا ملف، أو ملف لا يُقرأ
+            if snap == nil {
+                Text(Store.diagnosis())
+                    .font(.system(size: 9, weight: .regular, design: .monospaced))
+                    .foregroundColor(Mizan.text2.opacity(0.6))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

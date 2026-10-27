@@ -2,6 +2,7 @@
 
 package com.osatks.mizan.widget
 
+import com.osatks.mizan.platform.toByteArray
 import com.osatks.mizan.platform.toNSData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -9,6 +10,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import platform.Foundation.NSBundle
+import platform.Foundation.NSData
+import platform.Foundation.dataWithContentsOfFile
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSURL
@@ -34,9 +37,20 @@ object IosWidgets {
      */
     fun groups(): List<String> {
         val b = NSBundle.mainBundle
+        // المجموعات التي منحها ملف التوقيع فعلاً (embedded.mobileprovision): أصدق مصدر، فبعض أدوات التثبيت
+        // (إصدارات من AltStore و SideStore و Sideloadly) تعيد تسمية المجموعة دون أن تكتب ALTAppGroups
+        val granted = b.pathForResource("embedded", "mobileprovision")?.let { NSData.dataWithContentsOfFile(it)?.toByteArray() }
+            ?.let { profileGroups(it.decodeToString()) }.orEmpty()
         val alt = (b.objectForInfoDictionaryKey("ALTAppGroups") as? List<*>)?.filterIsInstance<String>().orEmpty()
         val own = b.objectForInfoDictionaryKey("MizanAppGroup") as? String
-        return (alt.filter { "mizan" in it.lowercase() } + alt + listOfNotNull(own) + DEFAULT_GROUP).distinct()
+        val all = granted + alt + listOfNotNull(own) + DEFAULT_GROUP
+        return (all.filter { "mizan" in it.lowercase() } + all).distinct()
+    }
+
+    /** أسماء App Group في نص ملف التوقيع (plist داخل توقيع CMS) */
+    internal fun profileGroups(text: String): List<String> {
+        val m = Regex("<key>com\\.apple\\.security\\.application-groups</key>\\s*<array>([\\s\\S]*?)</array>").find(text) ?: return emptyList()
+        return Regex("<string>([^<]+)</string>").findAll(m.groupValues[1]).map { it.groupValues[1].trim() }.filter { it.startsWith("group.") }.toList()
     }
 
     /** أول حاوية يسمح بها توقيع التطبيق؛ null إن لم تكن للتطبيق مجموعة (تثبيت بلا App Group) */
