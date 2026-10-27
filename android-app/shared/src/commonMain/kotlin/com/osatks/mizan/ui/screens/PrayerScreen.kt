@@ -35,6 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Notifications
@@ -44,7 +45,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -85,12 +85,13 @@ import com.osatks.mizan.ui.ResultCard
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
 import com.osatks.mizan.ui.StatRow
+import com.osatks.mizan.ui.Stepper
 import com.osatks.mizan.ui.ToolPage
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun PrayerScreen() {
+fun PrayerScreen(open: (String) -> Unit = {}) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     var next by remember { mutableStateOf(PrayerUtil.next()) }
@@ -117,6 +118,7 @@ fun PrayerScreen() {
     val city = place.city
     val subtitle = s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: "")
     ToolPage(s.prayerTitle, subtitle, sharedKey = "prayer", icon = TOOL_ICONS["prayer"]) {
+        if (!AppSettings.placeSet) item { LocationNeededCard() }
         item {
             ResultCard(s.nextPrayerLabel(s.prayer(next.key)), PrayerUtil.hms(next.remaining), s.atTime(s.time(next.at.hour + next.at.minute / 60.0)))
         }
@@ -143,6 +145,7 @@ fun PrayerScreen() {
                     },
                     label = "day"
                 ) { d -> DayTimes(d, next) }
+                Text(s.prayerEndsNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = { day = PrayerUtil.now().toLocalDate() }) { Text(s.today) }
                     TextButton(onClick = { showMonth = !showMonth }) { Text(if (showMonth) s.hideMonthTable else s.monthTable) }
@@ -176,6 +179,15 @@ fun PrayerScreen() {
             }
         }
         item {
+            // الإقامة: دقائق بعد الأذان لكل صلاة كما في مسجد المستخدم
+            SectionCard(s.iqamaTitle) {
+                Text(s.iqamaDesc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                listOf("fajr", "dhuhr", "asr", "maghrib", "isha").forEach { k ->
+                    Stepper(s.prayer(k), AppSettings.iqama[k] ?: 0, { AppSettings.updateIqama(k, it) }, min = 0, max = 90)
+                }
+            }
+        }
+        item {
             SectionCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Notifications, null, tint = MaterialTheme.colorScheme.primary)
@@ -184,7 +196,11 @@ fun PrayerScreen() {
                         Text(s.adhanAlert, fontWeight = FontWeight.Bold)
                         Text(s.adhanAlertDesc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Switch(checked = AppSettings.notify, onCheckedChange = { on -> toggleNotify(on) })
+                    com.osatks.mizan.ui.AppSwitch(checked = AppSettings.notify, onCheckedChange = { on -> toggleNotify(on) })
+                }
+                // الأذان والتنبيهات: المؤذن، وطريقة التنبيه لكل صلاة، والاهتزاز
+                com.osatks.mizan.ui.ClickRow(s.adhanSettings, s.adhanSettingsSub, onClick = { open("adhan") }, leading = Icons.AutoMirrored.Filled.VolumeUp) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Text(s.timesMayDiffer, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -215,13 +231,24 @@ private fun DayTimes(day: LocalDate, next: NextPrayer) {
                 shape = RoundedCornerShape(14.dp), color = bg,
                 border = if (isNext) BorderStroke(1.5.dp, MaterialTheme.colorScheme.secondary) else null
             ) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (isNext) { PulseDot(); Spacer(Modifier.width(10.dp)) }
-                    Text(
-                        s.prayer(key), Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = if (key == "sunrise") 15.sp else 17.sp,
-                        color = if (key == "sunrise") MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(s.time(t[key]), fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+                    // الاسم وتحته نهاية الوقت؛ الأذان وتحته الإقامة
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            s.prayer(key), fontWeight = FontWeight.Bold, fontSize = if (key == "sunrise") 15.sp else 17.sp,
+                            color = if (key == "sunrise") MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+                        )
+                        val end = t.end(key)
+                        if (!end.isNaN()) Text(s.endsAt(s.time(end)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(s.time(t[key]), fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+                        val iq = AppSettings.iqama[key] ?: 0
+                        if (iq > 0 && !t[key].isNaN()) {
+                            Text(s.iqamaAt(s.time(t[key] + iq / 60.0)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
             }
         }

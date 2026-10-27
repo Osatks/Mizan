@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>ar</string>
+	<key>CFBundleDisplayName</key>
+	<string>Mizan</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- حاوية المشاركة مع التطبيق؛ AltStore يضيف ALTAppGroups بالاسم الجديد إن أعاد تسميتها -->
+	<key>MizanAppGroup</key>
+	<string>group.com.mizan.almuslim</string>
+	<!-- موقع الأداة نفسها: تحسب المواقيت وحدها حين لا تصلها لقطة التطبيق (تثبيت بلا App Group)،
+	     فيظهر إذن التطبيق في الإعدادات «أثناء استخدام التطبيق أو الأدوات» -->
+	<key>NSWidgetWantsLocation</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يُستعمل موقعك على جهازك فقط لحساب مواقيت الصلاة في الأدوات. Your location is used on your device only to compute prayer times in the widgets.</string>
+	<!-- خط المصحف لآية اليوم والأذكار -->
+	<key>UIAppFonts</key>
+	<array>
+		<string>amiri_quran.ttf</string>
+	</array>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.widgetkit-extension</string>
+	</dict>
+</dict>
+</plist>

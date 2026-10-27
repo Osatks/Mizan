@@ -6,4 +6,20 @@
     <string name="widget_hijri">Hijri date</string>
     <string name="widget_khatma">My khatma</string>
     <string name="widget_ayah">Ayah of the day</string>
+    <!-- أداة أذكار الوقت، وأوصاف الأدوات في قائمة الأدوات، ونص المعاينة -->
+    <string name="widget_adhkar">Adhkar for now</string>
+    <string name="widget_next_dhikr">Next</string>
+    <string name="widget_next_prayer_desc">The next prayer with a live countdown</string>
+    <string name="widget_prayer_times_desc">Today\'s six times with the next one highlighted</string>
+    <string name="widget_hijri_desc">Hijri and Gregorian date</string>
+    <string name="widget_khatma_desc">Your khatma progress, where to continue and today\'s portion</string>
+    <string name="widget_ayah_desc">A short ayah every day with its meaning</string>
+    <string name="widget_adhkar_desc">The right adhkar for the time: morning, evening, sleep, after prayer and Friday</string>
+    <string name="sample_prayer">Asr</string>
+    <string name="sample_fajr">Fajr</string>
+    <string name="sample_sunrise">Sunrise</string>
+    <string name="sample_dhuhr">Dhuhr</string>
+    <string name="sample_asr">Asr</string>
+    <string name="sample_maghrib">Maghrib</string>
+    <string name="sample_isha">Isha</string>
 </resources>

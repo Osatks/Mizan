@@ -8,7 +8,13 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameMillis
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -45,11 +51,35 @@ fun DrawScope.drawStar8(center: Offset, radius: Float, color: Color, stroke: Flo
     }
 }
 
+/**
+ * زاوية الدوران الزخرفي. الدورة السريعة (مؤشر التحميل) تتقدم مع كل إطار. أما الدورة البطيئة (دقيقة ونصف مثلاً)
+ * فتتقدم بخطوات صغيرة جداً (نحو 0.15°) بضع عشرات من المرات في الثانية: لا يرى الفرق أحد، لكنها لا تجبر
+ * الشاشة كلها على إعادة الرسم 120 مرة في الثانية (ProMotion) ما دامت الصفحة مفتوحة، فتبقى الإطارات
+ * للسحب والتمرير. ولا تدور أصلاً إذا كانت الحركات مُزالة من إعدادات النظام.
+ */
+@Composable
+private fun rotationAngle(periodMs: Int, label: String): State<Float> {
+    if (periodMs < 10_000) {
+        val t = rememberInfiniteTransition(label = label)
+        return t.animateFloat(0f, 360f, infiniteRepeatable(tween(periodMs, easing = LinearEasing), RepeatMode.Restart), label = "angle")
+    }
+    val angle = remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(periodMs) {
+        if (Motion.reduced) return@LaunchedEffect
+        val step = (periodMs / 2400L).coerceIn(16L, 60L)
+        val start = withFrameMillis { it }
+        while (true) {
+            delay(step)
+            withFrameMillis { now -> angle.floatValue = ((now - start) % periodMs) * 360f / periodMs }
+        }
+    }
+    return angle
+}
+
 /** النجمة الزخرفية تدور ببطء شديد في خلفية الرؤوس */
 @Composable
 fun SlowStar(modifier: Modifier, color: Color, periodMs: Int = 60_000, stroke: Float = 3f) {
-    val t = rememberInfiniteTransition(label = "star")
-    val angle by t.animateFloat(0f, 360f, infiniteRepeatable(tween(periodMs, easing = LinearEasing), RepeatMode.Restart), label = "angle")
+    val angle by rotationAngle(periodMs, "star")
     Canvas(modifier.graphicsLayer { rotationZ = if (Motion.reduced) 0f else angle }) {
         drawStar8(Offset(size.width / 2, size.height / 2), size.minDimension / 2 - stroke, color, stroke)
     }
@@ -61,8 +91,7 @@ fun SlowStar(modifier: Modifier, color: Color, periodMs: Int = 60_000, stroke: F
  */
 @Composable
 fun Modifier.starBackdrop(color: Color, radius: Dp, anchor: Alignment, dx: Dp, dy: Dp, periodMs: Int, stroke: Float = 3f): Modifier {
-    val t = rememberInfiniteTransition(label = "backdrop")
-    val angle = t.animateFloat(0f, 360f, infiniteRepeatable(tween(periodMs, easing = LinearEasing), RepeatMode.Restart), label = "angle")
+    val angle = rotationAngle(periodMs, "backdrop")
     return drawBehind {
         val p = anchor.align(IntSize.Zero, IntSize(size.width.toInt(), size.height.toInt()), layoutDirection)
         val sign = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f

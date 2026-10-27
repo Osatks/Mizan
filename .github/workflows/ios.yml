@@ -55,6 +55,28 @@ jobs:
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             build | tail -n 80
           test -d build/Build/Products/Release-iphoneos/Mizan.app
+          # أدوات الشاشة الرئيسية يجب أن تكون داخل التطبيق
+          test -d build/Build/Products/Release-iphoneos/Mizan.app/PlugIns/MizanWidgets.appex
+          # وبيانات حسابها المستقل (حين لا تصلها لقطة التطبيق)
+          test -f build/Build/Products/Release-iphoneos/Mizan.app/PlugIns/MizanWidgets.appex/Static/widget-static.json
+          # أصوات إشعارات الأذان في جذر التطبيق، والأذان الكامل المضمّن في assets
+          ls build/Build/Products/Release-iphoneos/Mizan.app/*.caf
+          test -f build/Build/Products/Release-iphoneos/Mizan.app/mizan_vibrate.caf
+          ls build/Build/Products/Release-iphoneos/Mizan.app/assets/adhan/*.m4a
+
+      # البناء بلا توقيع لا يضع الصلاحيات (entitlements) في الملف التنفيذي، و AltStore/Sideloadly تقرأ منه
+      # صلاحية App Group لتسجّلها للتطبيق والأداة عند التوقيع بحساب Apple. فنضع توقيعاً مؤقتاً (ad-hoc، بلا شهادة)
+      # يحمل الصلاحيات؛ يُستبدل عند التثبيت. إن تعذّر يبقى الملف صالحاً لكن الأدوات لن ترى بيانات التطبيق.
+      - name: Embed entitlements (ad-hoc signature)
+        working-directory: iosApp
+        run: |
+          APP=build/Build/Products/Release-iphoneos/Mizan.app
+          sign() { codesign --force --sign - --timestamp=none "$@" || echo "::warning::codesign failed for ${@: -1}"; }
+          for f in "$APP"/Frameworks/*.framework; do [ -d "$f" ] && sign "$f"; done
+          sign --entitlements MizanWidgets/MizanWidgets.entitlements "$APP/PlugIns/MizanWidgets.appex"
+          sign --entitlements iosApp/Mizan.entitlements "$APP"
+          codesign -d --entitlements - "$APP/PlugIns/MizanWidgets.appex" 2>&1 | tail -n 12 || true
+          codesign -d --entitlements - "$APP" 2>&1 | tail -n 12 || true
 
       - name: Package .ipa
         working-directory: iosApp

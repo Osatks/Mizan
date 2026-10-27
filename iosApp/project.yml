@@ -1,5 +1,8 @@
 # مشروع Xcode لتطبيق ميزان في iOS، يُولَّد بـ XcodeGen (xcodegen generate) فلا يُحفظ ملف .xcodeproj في المستودع.
 # الواجهات والمنطق كلها في وحدة Kotlin المشتركة (android-app/shared) وتُبنى إطاراً اسمه Shared.
+# أدوات الشاشة الرئيسية (MizanWidgets) امتداد WidgetKit بلغة Swift وحدها: تقرأ لقطة JSON يكتبها التطبيق
+# في حاوية App Group (group.com.mizan.almuslim)، فلا تحمّل إطار Kotlin؛ وحين لا تصلها (تثبيت بحساب مجاني بلا App Group)
+# تحسب المواقيت والأذكار وحدها من موقعها والبيانات المضمّنة في MizanWidgets/Static.
 name: Mizan
 options:
   bundleIdPrefix: com.osatks
@@ -18,15 +21,21 @@ targets:
     platform: iOS
     sources:
       - path: iosApp
+      # بديل App Group عبر سلسلة المفاتيح، مشترك مع الأداة
+      - path: Shared
       # نصوص المصحف والتفاسير والأذكار والخطوط وحزم اللغات: المجلد نفسه الذي يضمّنه أندرويد
       - path: ../android-app/shared/src/commonMain/assets
         type: folder
+        buildPhase: resources
+      # أصوات إشعارات الأذان (أقل من 30 ثانية، caf): تُنسخ إلى جذر Mizan.app حيث يبحث عنها UNNotificationSound
+      - path: Sounds
         buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mizan.almuslim
         PRODUCT_NAME: Mizan
         INFOPLIST_FILE: iosApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: iosApp/Mizan.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "1,2"
         FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../android-app/shared/build/bin/iosArm64/releaseFramework"
@@ -35,3 +44,36 @@ targets:
       - framework: ../android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework
         embed: true
         codeSign: false
+      # الأدوات تُضمَّن في Mizan.app/PlugIns
+      - target: MizanWidgets
+        embed: true
+
+  MizanWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: MizanWidgets
+        excludes:
+          - "Static"
+          - "Static/**"
+      # بيانات الحساب المستقل (المدن وجدول الهجري والأذكار وآية اليوم بكل اللغات) حين لا تصل لقطة التطبيق؛
+      # تولّدها WidgetStaticTest من مصادر Kotlin، ويُقرأ المجلد كما هو من حزمة الأداة (Static/…)
+      - path: MizanWidgets/Static
+        type: folder
+        buildPhase: resources
+      - path: Shared
+      # خط المصحف نفسه الذي يستعمله التطبيق (UIAppFonts في Info.plist الأداة)
+      - path: ../android-app/shared/src/commonMain/assets/fonts/amiri_quran.ttf
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mizan.almuslim.widgets
+        PRODUCT_NAME: MizanWidgets
+        INFOPLIST_FILE: MizanWidgets/Info.plist
+        CODE_SIGN_ENTITLEMENTS: MizanWidgets/MizanWidgets.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+        # AppIntents (زر «التالي» في iOS 17) غير موجود في iOS 15: ربط ضعيف حتى تعمل الأدوات هناك
+        OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,AppIntents"

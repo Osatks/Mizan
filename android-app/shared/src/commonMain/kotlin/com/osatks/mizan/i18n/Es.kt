@@ -148,6 +148,11 @@ object Es : Strings {
     override val adhanAlert = "Aviso del adhán"
     override val adhanAlertDesc = "Una notificación al comenzar cada horario de oración"
     override val timesMayDiffer = "Los horarios pueden diferir en uno o dos minutos del calendario oficial de tu país."
+    override fun endsAt(t: String) = "Termina $t"
+    override fun iqamaAt(t: String) = "Iqama $t"
+    override val iqamaTitle = "Horarios de la iqama"
+    override val iqamaDesc = "Minutos entre el adhan y la iqama en tu mezquita; 0 la oculta."
+    override val prayerEndsNote = "El fayr termina con la salida del sol, el dhuhr al entrar el asr, el asr con la puesta del sol (retrasarlo hasta que el sol amarillea es desaconsejable), el magrib al desaparecer el crepúsculo rojo, y el tiempo preferido del isha termina a medianoche, mientras que el de necesidad dura hasta el fayr."
     override val locationFound = "Ubicación encontrada ✓"
     override val locationFailed = "No se pudo obtener tu ubicación. Asegúrate de que los servicios de ubicación estén activados."
     override val locationDenied = "No se concedió el permiso de ubicación. Elige tu ciudad de la lista."
@@ -181,6 +186,34 @@ object Es : Strings {
     override val channelDesc = "Un aviso al comenzar cada horario de oración"
     override fun prayerNowTitle(prayer: String) = "Es la hora de $prayer"
     override fun prayerNowText(city: String) = "$city — ven a la oración"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Adhan y avisos"
+    override val adhanSettingsSub = "Almuédano, aviso para cada oración y vibración"
+    override val alertPerPrayer = "Aviso para cada oración"
+    override val alertModeAdhan = "Adhan"
+    override val alertModeVibrate = "Solo vibración"
+    override val alertModeSilent = "Notificación silenciosa"
+    override val alertModeOff = "Sin aviso"
+    override val alertModesHint = "«Adhan» reproduce el llamado completo, «Solo vibración» vibra sin sonido, «Notificación silenciosa» muestra una notificación sin sonido y «Sin aviso» no envía nada para esa oración."
+    override val muezzinTitle = "Almuédano"
+    override val fajrAdhanTitle = "Adhan del Fajr"
+    override val fajrAdhanHint = "El adhan del Fajr añade «As-salatu jairun min an-naum» (la oración es mejor que el sueño)."
+    override val fajrSameAsOthers = "Igual que las demás oraciones"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "Mezquita del KLCC, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Fajr — Kalkan, Turquía",
+    )
+    override val playAdhan = "Escuchar el adhan"
+    override val stopAdhan = "Detener"
+    override val vibrationTitle = "Patrón de vibración"
+    override val vibeNames = mapOf("short" to "Corta", "long" to "Larga", "heartbeat" to "Latido", "pulse" to "3 pulsos", "wave" to "Ola")
+    override val tryVibration = "Probar vibración"
+    override val adhanStopHint = "Toca «Detener» en la notificación o pulsa una tecla de volumen para detener el adhan. Si el teléfono está en silencio o vibración, el aviso sigue ese modo."
+    override val adhanIosNote = "El iPhone limita los sonidos de notificación a 30 segundos, así que la notificación reproduce el inicio del adhan; el adhan completo suena si Mizan está abierto a la hora de la oración. Las notificaciones vibran con el patrón del propio iPhone (Ajustes › Sonidos y vibraciones); los patrones de aquí se sienten con Mizan abierto."
+    override val recordingSources = "Fuentes de las grabaciones"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Dirección de la qibla"
@@ -657,6 +690,9 @@ object Es : Strings {
     override val obSkip = "Omitir"
     override val obNext = "Siguiente"
     override val obStart = "Empezar"
+    override val obLocationTitle = "¿Dónde estás?"
+    override val obLocationBody = "Necesitamos tu ubicación para calcular con precisión los horarios de oración y la qibla. Se queda en tu dispositivo y nunca se envía a ningún servidor."
+    override val locationNeeded = "Indica tu ubicación para ver los horarios de oración correctos de tu ciudad"
     override val appGuide = "Guía de la app"
     override val appGuideSub = "Un recorrido rápido por lo que Mizan puede hacer"
     override val onboarding = listOf(

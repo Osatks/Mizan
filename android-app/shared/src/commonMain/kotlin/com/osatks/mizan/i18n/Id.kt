@@ -146,6 +146,11 @@ object Id : Strings {
     override val adhanAlert = "Pengingat azan"
     override val adhanAlertDesc = "Notifikasi saat setiap waktu salat tiba"
     override val timesMayDiffer = "Waktu bisa berbeda satu atau dua menit dari jadwal resmi di negara Anda."
+    override fun endsAt(t: String) = "Berakhir $t"
+    override fun iqamaAt(t: String) = "Ikamah $t"
+    override val iqamaTitle = "Waktu ikamah"
+    override val iqamaDesc = "Menit antara azan dan ikamah di masjid Anda; 0 menyembunyikannya."
+    override val prayerEndsNote = "Waktu Subuh berakhir saat matahari terbit, Zuhur saat masuk Asar, Asar saat matahari terbenam (menundanya hingga matahari menguning makruh), Magrib saat mega merah hilang, dan waktu ikhtiar Isya berakhir pada tengah malam, sedangkan waktu daruratnya hingga Subuh."
     override val locationFound = "Lokasi ditemukan ✓"
     override val locationFailed = "Gagal mendapatkan lokasi Anda. Pastikan layanan lokasi aktif."
     override val locationDenied = "Izin lokasi tidak diberikan. Pilih kota Anda dari daftar."
@@ -179,6 +184,34 @@ object Id : Strings {
     override val channelDesc = "Pengingat saat setiap waktu salat tiba"
     override fun prayerNowTitle(prayer: String) = "Waktunya salat $prayer"
     override fun prayerNowText(city: String) = "$city — marilah salat"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Azan & pengingat"
+    override val adhanSettingsSub = "Muazin, pengingat tiap salat, dan getaran"
+    override val alertPerPrayer = "Pengingat tiap salat"
+    override val alertModeAdhan = "Azan"
+    override val alertModeVibrate = "Getar saja"
+    override val alertModeSilent = "Notifikasi senyap"
+    override val alertModeOff = "Tanpa pengingat"
+    override val alertModesHint = "“Azan” memutar azan lengkap, “Getar saja” bergetar tanpa suara, “Notifikasi senyap” menampilkan notifikasi tanpa suara, dan “Tanpa pengingat” tidak mengirim apa pun untuk salat itu."
+    override val muezzinTitle = "Muazin"
+    override val fajrAdhanTitle = "Azan Subuh"
+    override val fajrAdhanHint = "Azan Subuh ditambah “Ash-shalatu khairun minan naum” (salat lebih baik daripada tidur)."
+    override val fajrSameAsOthers = "Sama dengan salat lainnya"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "Masjid KLCC, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Subuh — Kalkan, Turki",
+    )
+    override val playAdhan = "Putar azan"
+    override val stopAdhan = "Hentikan"
+    override val vibrationTitle = "Pola getaran"
+    override val vibeNames = mapOf("short" to "Pendek", "long" to "Panjang", "heartbeat" to "Detak jantung", "pulse" to "3 denyut", "wave" to "Gelombang")
+    override val tryVibration = "Coba getaran"
+    override val adhanStopHint = "Ketuk “Hentikan” di notifikasi atau tekan tombol volume untuk menghentikan azan. Jika ponsel dalam mode senyap atau getar, pengingat mengikuti mode itu."
+    override val adhanIosNote = "iPhone membatasi suara notifikasi hingga 30 detik, jadi notifikasi memutar awal azan; azan lengkap diputar jika Mizan terbuka saat waktu salat. Notifikasi bergetar dengan pola iPhone sendiri (Pengaturan › Suara & Haptik); pola di sini terasa saat Mizan terbuka."
+    override val recordingSources = "Sumber rekaman"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Arah Kiblat"
@@ -655,6 +688,9 @@ object Id : Strings {
     override val obSkip = "Lewati"
     override val obNext = "Lanjut"
     override val obStart = "Mulai"
+    override val obLocationTitle = "Di mana Anda?"
+    override val obLocationBody = "Lokasi Anda diperlukan untuk menghitung waktu salat dan arah kiblat dengan tepat. Lokasi tetap di perangkat Anda dan tidak pernah dikirim ke server."
+    override val locationNeeded = "Tentukan lokasi Anda untuk melihat waktu salat yang tepat di kota Anda"
     override val appGuide = "Panduan aplikasi"
     override val appGuideSub = "Tur singkat tentang apa saja yang bisa dilakukan Mizan"
     override val onboarding = listOf(

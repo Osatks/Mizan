@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- الختمة: النسبة، وموضع المتابعة، وشريط ذهبي للتقدم، وورد اليوم -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/widget_bg" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"
-        android:gravity="center_vertical">
-        <TextView android:id="@+id/title" android:text="@string/widget_khatma" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:textColor="#E0B54A" android:textSize="13sp" android:textStyle="bold" android:maxLines="1" />
-        <TextView android:id="@+id/percent" android:text="42%" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
+    android:background="@drawable/widget_surface" android:clipToOutline="true">
+    <!-- السطح بلون التطبيق، ثم ظل التدرج، ثم لمعة ذهبية وحافة رفيعة، ثم زخرفة النجمة -->
+    <ImageView android:id="@+id/bg" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_surface" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_shade" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_sheen" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="150dp" android:layout_height="150dp" android:layout_gravity="top|end"
+        android:layout_marginTop="-50dp" android:layout_marginEnd="-40dp" android:alpha="0.16"
+        android:src="@drawable/widget_ornament" android:importantForAccessibility="no" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="@dimen/w_pad">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <ImageView android:id="@+id/icon" android:layout_width="15dp" android:layout_height="15dp" android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_w_book" android:tint="@color/w_gold" android:importantForAccessibility="no" />
+            <TextView android:id="@+id/title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="@string/widget_khatma" android:textColor="@color/w_gold" android:textSize="12sp" android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02" android:maxLines="1" android:ellipsize="end" android:textAlignment="viewStart" />
+            <TextView android:id="@+id/percent" android:text="42%" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/w_text" android:textSize="22sp" android:fontFamily="sans-serif-light" android:fontFeatureSettings="tnum" />
+        </LinearLayout>
+
+        <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+        <TextView android:id="@+id/surah" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/w_text" android:textSize="16sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"
+            android:textAlignment="viewStart" />
+        <ProgressBar android:id="@+id/progress" style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent" android:layout_height="7dp" android:layout_marginVertical="9dp"
+            android:max="604" android:progress="250" android:progressDrawable="@drawable/widget_progress" />
+        <TextView android:id="@+id/today" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/w_text2" android:textSize="12sp" android:maxLines="1" android:ellipsize="end" android:textAlignment="viewStart" />
     </LinearLayout>
-    <TextView android:id="@+id/surah" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textColor="#FFFFFF" android:textSize="17sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
-    <ProgressBar android:id="@+id/progress" style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="match_parent" android:layout_height="8dp" android:layout_marginVertical="6dp"
-        android:max="604" android:progressTint="#E0B54A" android:progressBackgroundTint="#55FFFFFF" />
-    <TextView android:id="@+id/today" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textColor="#CCFFFFFF" android:textSize="12sp" android:maxLines="1" />
-</LinearLayout>
+</FrameLayout>

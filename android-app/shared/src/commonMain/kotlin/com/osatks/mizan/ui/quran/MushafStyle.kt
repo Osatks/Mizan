@@ -175,8 +175,11 @@ fun DrawScope.drawCartouche(left: Float, top: Float, right: Float, bottom: Float
     val dot = 1.4.dp.toPx()
     drawCircle(p.goldDeep, dot, Offset((ends[0] + mr + x0) / 2, cy))
     drawCircle(p.goldDeep, dot, Offset((ends[1] - mr + x1) / 2, cy))
-    return x1 - x0 - 2 * tip
+    return cartoucheNameWidth(w, h)
 }
+
+/** عرض لوح الاسم في ترويسة عرضها w وارتفاعها h (بين الميداليتين، بلا طرفيه المدبّبين) */
+fun cartoucheNameWidth(w: Float, h: Float): Float = w - h * 2.16f - h * 0.62f * 0.45f * 2
 
 /** ترويسة السورة خارج صفحة المصحف (عرض آية آية) */
 @Composable

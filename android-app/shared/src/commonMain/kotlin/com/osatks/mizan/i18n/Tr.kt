@@ -146,6 +146,11 @@ object Tr : Strings {
     override val adhanAlert = "Ezan bildirimi"
     override val adhanAlertDesc = "Her namaz vakti girdiğinde bildirim"
     override val timesMayDiffer = "Vakitler, ülkenizin resmî takviminden bir iki dakika farklı olabilir."
+    override fun endsAt(t: String) = "Biter $t"
+    override fun iqamaAt(t: String) = "Kamet $t"
+    override val iqamaTitle = "Kamet vakitleri"
+    override val iqamaDesc = "Camiinizde ezan ile kamet arasındaki dakika; 0 gizler."
+    override val prayerEndsNote = "Sabah namazının vakti güneşin doğuşuyla, öğle ikindinin girişiyle, ikindi güneşin batışıyla (güneş sararıncaya kadar geciktirmek mekruhtur), akşam kızıl şafağın kaybolmasıyla biter; yatsının muhtar vakti gece yarısında sona erer, zaruret vakti ise sabaha kadar sürer."
     override val locationFound = "Konum bulundu ✓"
     override val locationFailed = "Konum alınamadı. Konum hizmetlerinin açık olduğundan emin olun."
     override val locationDenied = "Konum izni verilmedi. Şehrinizi listeden seçin."
@@ -179,6 +184,34 @@ object Tr : Strings {
     override val channelDesc = "Her namaz vakti girdiğinde bildirim"
     override fun prayerNowTitle(prayer: String) = "$prayer vakti girdi"
     override fun prayerNowText(city: String) = "$city — haydi namaza"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Ezan ve uyarılar"
+    override val adhanSettingsSub = "Müezzin, her vakit için uyarı ve titreşim"
+    override val alertPerPrayer = "Her vakit için uyarı"
+    override val alertModeAdhan = "Ezan"
+    override val alertModeVibrate = "Yalnızca titreşim"
+    override val alertModeSilent = "Sessiz bildirim"
+    override val alertModeOff = "Uyarı yok"
+    override val alertModesHint = "“Ezan” ezanın tamamını çalar, “Yalnızca titreşim” sessizce titrer, “Sessiz bildirim” sessiz bir bildirim gösterir, “Uyarı yok” o vakit için hiçbir şey göndermez."
+    override val muezzinTitle = "Müezzin"
+    override val fajrAdhanTitle = "Sabah ezanı"
+    override val fajrAdhanHint = "Sabah ezanında “Es-salâtü hayrun mine’n-nevm” (namaz uykudan hayırlıdır) eklenir."
+    override val fajrSameAsOthers = "Diğer vakitlerle aynı"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "KLCC Camii, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Sabah ezanı — Kalkan",
+    )
+    override val playAdhan = "Ezanı dinle"
+    override val stopAdhan = "Durdur"
+    override val vibrationTitle = "Titreşim türü"
+    override val vibeNames = mapOf("short" to "Kısa", "long" to "Uzun", "heartbeat" to "Kalp atışı", "pulse" to "3 darbe", "wave" to "Dalga")
+    override val tryVibration = "Titreşimi dene"
+    override val adhanStopHint = "Ezanı durdurmak için bildirimdeki “Durdur”a dokunun veya bir ses tuşuna basın. Telefon sessiz ya da titreşim modundaysa uyarı o moda uyar."
+    override val adhanIosNote = "iPhone bildirim seslerini 30 saniyeyle sınırlar; bu yüzden bildirimde ezanın başı çalar, vakit girdiğinde Mizan açıksa ezanın tamamı çalar. Bildirimler iPhone’un kendi titreşimiyle titrer (Ayarlar › Sesler ve Dokunuş); buradaki türler Mizan açıkken hissedilir."
+    override val recordingSources = "Kayıt kaynakları"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Kıble Yönü"
@@ -655,6 +688,9 @@ object Tr : Strings {
     override val obSkip = "Atla"
     override val obNext = "İleri"
     override val obStart = "Başlayın"
+    override val obLocationTitle = "Neredesiniz?"
+    override val obLocationBody = "Namaz vakitlerini ve kıbleyi doğru hesaplamak için konumunuz gerekir. Konumunuz cihazınızda kalır, hiçbir sunucuya gönderilmez."
+    override val locationNeeded = "Şehrinizin doğru namaz vakitlerini görmek için konumunuzu belirleyin"
     override val appGuide = "Uygulama rehberi"
     override val appGuideSub = "Mizan'ın neler yapabildiğine kısa bir bakış"
     override val onboarding = listOf(

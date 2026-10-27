@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- في الوضع الداكن يصير السطح أخضر قاتماً قريباً من الأسود -->
+<resources>
+    <color name="w_base">#1B2D28</color>
+</resources>

@@ -105,12 +105,32 @@ private val DarkColors = darkColorScheme(
 )
 
 private val base = Typography()
+
+/**
+ * بلا تباعد بين الحروف: التباعد الافتراضي في Material يفصل حروف العربية المتصلة (يظهر ذلك في iOS خاصة)،
+ * وخط النظام في iOS (SF) مضبوط التباعد أصلاً.
+ * وفي iOS أحجام أقرب إلى أحجام النظام (النص 17، والثانوي 15، والحواشي 13، والعنوان الكبير 34).
+ */
+private fun TextStyle.tuned(iosSize: Int, iosLine: Int, weight: FontWeight? = fontWeight, iosWeight: FontWeight? = weight): TextStyle =
+    if (com.osatks.mizan.ui.IsIos) copy(fontSize = iosSize.sp, lineHeight = iosLine.sp, letterSpacing = 0.sp, fontWeight = iosWeight)
+    else copy(letterSpacing = 0.sp, fontWeight = weight)
+
 private val AppTypography = Typography(
-    headlineLarge = base.headlineLarge.copy(fontWeight = FontWeight.Bold),
-    headlineMedium = base.headlineMedium.copy(fontWeight = FontWeight.Bold),
-    headlineSmall = base.headlineSmall.copy(fontWeight = FontWeight.Bold),
-    titleLarge = base.titleLarge.copy(fontWeight = FontWeight.Bold),
-    titleMedium = base.titleMedium.copy(fontWeight = FontWeight.Bold),
+    displayLarge = base.displayLarge.tuned(57, 64),
+    displayMedium = base.displayMedium.tuned(45, 52),
+    displaySmall = base.displaySmall.tuned(36, 44),
+    headlineLarge = base.headlineLarge.tuned(34, 41, FontWeight.Bold),
+    headlineMedium = base.headlineMedium.tuned(28, 36, FontWeight.Bold),
+    headlineSmall = base.headlineSmall.tuned(24, 32, FontWeight.Bold),
+    titleLarge = base.titleLarge.tuned(22, 28, FontWeight.Bold),
+    titleMedium = base.titleMedium.tuned(17, 24, FontWeight.Bold),
+    titleSmall = base.titleSmall.tuned(15, 20, iosWeight = FontWeight.SemiBold),
+    bodyLarge = base.bodyLarge.tuned(17, 24),
+    bodyMedium = base.bodyMedium.tuned(15, 21),
+    bodySmall = base.bodySmall.tuned(13, 18),
+    labelLarge = base.labelLarge.tuned(15, 20, iosWeight = FontWeight.SemiBold),
+    labelMedium = base.labelMedium.tuned(13, 17),
+    labelSmall = base.labelSmall.tuned(11, 15),
 )
 
 /** خط للأذكار والآيات بطابع تقليدي */

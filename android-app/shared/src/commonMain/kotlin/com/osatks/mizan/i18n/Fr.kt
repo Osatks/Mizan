@@ -153,6 +153,11 @@ object Fr : Strings {
     override val adhanAlert = "Alerte de l'adhan"
     override val adhanAlertDesc = "Une notification au début de chaque prière"
     override val timesMayDiffer = "Les horaires peuvent différer d'une à deux minutes du calendrier officiel de votre pays."
+    override fun endsAt(t: String) = "Fin $t"
+    override fun iqamaAt(t: String) = "Iqama $t"
+    override val iqamaTitle = "Horaires de l’iqama"
+    override val iqamaDesc = "Minutes entre l’adhan et l’iqama dans votre mosquée ; 0 la masque."
+    override val prayerEndsNote = "Le fajr se termine au lever du soleil, le dhuhr à l’entrée de l’asr, l’asr au coucher du soleil (le retarder jusqu’au jaunissement du soleil est déconseillé), le maghrib à la disparition du crépuscule rouge, et le temps de choix de l’isha à minuit, son temps de nécessité durant jusqu’au fajr."
     override val locationFound = "Position trouvée ✓"
     override val locationFailed = "Impossible d'obtenir votre position. Vérifiez que la localisation est activée."
     override val locationDenied = "L'accès à la position n'a pas été autorisé. Choisissez votre ville dans la liste."
@@ -186,6 +191,34 @@ object Fr : Strings {
     override val channelDesc = "Une alerte au début de chaque prière"
     override fun prayerNowTitle(prayer: String) = "C'est l'heure ${de(prayer)}"
     override fun prayerNowText(city: String) = "$city — venez à la prière"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Adhan et alertes"
+    override val adhanSettingsSub = "Muezzin, alerte pour chaque prière et vibration"
+    override val alertPerPrayer = "Alerte pour chaque prière"
+    override val alertModeAdhan = "Adhan"
+    override val alertModeVibrate = "Vibreur seul"
+    override val alertModeSilent = "Notification silencieuse"
+    override val alertModeOff = "Aucune alerte"
+    override val alertModesHint = "« Adhan » joue l’appel à la prière en entier, « Vibreur seul » vibre sans son, « Notification silencieuse » affiche une notification sans son, et « Aucune alerte » n’envoie rien pour cette prière."
+    override val muezzinTitle = "Muezzin"
+    override val fajrAdhanTitle = "Adhan du Fajr"
+    override val fajrAdhanHint = "L’adhan du Fajr ajoute « As-salatu khayrun min an-nawm » (la prière est meilleure que le sommeil)."
+    override val fajrSameAsOthers = "Comme les autres prières"
+    override val muezzinNames = mapOf(
+        "asim" to "Asim Javed",
+        "klcc" to "Mosquée du KLCC, Kuala Lumpur",
+        "mirza" to "Moazzambeg Mirza, Ahmedabad",
+        "adam" to "Adam-synagda (Wikimedia Commons)",
+        "kalkan_fajr" to "Fajr — Kalkan, Turquie",
+    )
+    override val playAdhan = "Écouter l’adhan"
+    override val stopAdhan = "Arrêter"
+    override val vibrationTitle = "Type de vibration"
+    override val vibeNames = mapOf("short" to "Courte", "long" to "Longue", "heartbeat" to "Battement de cœur", "pulse" to "3 impulsions", "wave" to "Vague")
+    override val tryVibration = "Essayer la vibration"
+    override val adhanStopHint = "Touchez « Arrêter » dans la notification ou appuyez sur une touche de volume pour arrêter l’adhan. Si le téléphone est en mode silencieux ou vibreur, l’alerte suit ce mode."
+    override val adhanIosNote = "L’iPhone limite les sons de notification à 30 secondes : la notification joue le début de l’adhan, et l’adhan complet est joué si Mizan est ouvert à l’heure de la prière. Les notifications vibrent selon le motif de l’iPhone (Réglages › Sons et vibrations) ; les motifs ci-dessus se ressentent quand Mizan est ouvert."
+    override val recordingSources = "Sources des enregistrements"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Direction de la qibla"
@@ -673,6 +706,9 @@ object Fr : Strings {
     override val obSkip = "Passer"
     override val obNext = "Suivant"
     override val obStart = "Commencer"
+    override val obLocationTitle = "Où êtes-vous ?"
+    override val obLocationBody = "Votre position permet de calculer précisément les horaires de prière et la qibla. Elle reste sur votre appareil et n’est jamais envoyée à un serveur."
+    override val locationNeeded = "Indiquez votre position pour obtenir les bons horaires de prière de votre ville"
     override val appGuide = "Guide de l'application"
     override val appGuideSub = "Un aperçu rapide de ce que Mizan peut faire"
     override val onboarding = listOf(

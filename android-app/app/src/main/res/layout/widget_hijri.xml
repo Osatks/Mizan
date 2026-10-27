@@ -1,11 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- التاريخ الهجري: رقم اليوم كبيراً بالذهبي، والشهر والسنة، وتحت خط رفيع التاريخ الميلادي -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/widget_bg" android:orientation="vertical" android:gravity="center" android:padding="12dp">
-    <TextView android:id="@+id/day" android:text="1" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textColor="#E0B54A" android:textSize="40sp" android:textStyle="bold" android:maxLines="1" />
-    <TextView android:id="@+id/hijri" android:text="@string/widget_hijri" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:maxLines="1" />
-    <TextView android:id="@+id/greg" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textColor="#CCFFFFFF" android:textSize="12sp" android:maxLines="1" />
-</LinearLayout>
+    android:background="@drawable/widget_surface" android:clipToOutline="true">
+    <!-- السطح بلون التطبيق، ثم ظل التدرج، ثم لمعة ذهبية وحافة رفيعة، ثم زخرفة النجمة -->
+    <ImageView android:id="@+id/bg" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_surface" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_shade" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_sheen" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="140dp" android:layout_height="140dp" android:layout_gravity="top|end"
+        android:layout_marginTop="-44dp" android:layout_marginEnd="-44dp" android:alpha="0.16"
+        android:src="@drawable/widget_ornament" android:importantForAccessibility="no" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="@dimen/w_pad">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <ImageView android:id="@+id/icon" android:layout_width="15dp" android:layout_height="15dp" android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_w_moon" android:tint="@color/w_gold" android:importantForAccessibility="no" />
+            <TextView android:id="@+id/weekday" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="@string/widget_hijri" android:textColor="@color/w_gold" android:textSize="12sp" android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02" android:maxLines="1" android:ellipsize="end" android:textAlignment="viewStart" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+            android:orientation="vertical" android:gravity="center">
+            <TextView android:id="@+id/day" android:text="5" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/w_gold" android:textSize="50sp" android:fontFamily="sans-serif-light" android:includeFontPadding="false"
+                android:maxLines="1" />
+            <TextView android:id="@+id/hijri" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="2dp" android:gravity="center" android:textColor="@color/w_text" android:textSize="15sp" android:textStyle="bold"
+                android:maxLines="1" android:ellipsize="end" />
+            <ImageView android:layout_width="36dp" android:layout_height="1.5dp" android:layout_marginVertical="7dp"
+                android:src="@drawable/widget_rule" android:scaleType="fitXY" android:importantForAccessibility="no" />
+            <TextView android:id="@+id/greg" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center" android:textColor="@color/w_text2" android:textSize="11sp" android:maxLines="1" android:ellipsize="end" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

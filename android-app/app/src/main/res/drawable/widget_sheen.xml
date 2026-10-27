@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- لمعة ذهبية خافتة في الأعلى وحافة ذهبية رفيعة -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial" android:centerX="0.92" android:centerY="0.0" android:gradientRadius="110%"
+                android:startColor="#30E8C15A" android:endColor="#00E8C15A" />
+            <corners android:radius="@dimen/w_radius" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:angle="270" android:startColor="#14FFFFFF" android:endColor="#00FFFFFF" />
+            <corners android:radius="@dimen/w_radius" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="1dp" android:color="#2EE8C15A" />
+            <corners android:radius="@dimen/w_radius" />
+        </shape>
+    </item>
+</layer-list>

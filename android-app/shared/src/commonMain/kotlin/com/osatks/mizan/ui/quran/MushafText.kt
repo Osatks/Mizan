@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,8 +44,14 @@ import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.arabicDigits
 import com.osatks.mizan.ui.drawStar8
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.min
@@ -298,25 +305,112 @@ internal fun drawAyahEnd(nc: Canvas, paint: GlyphPaint, ayah: Int, left: Float, 
     paint.color = ringColor
     paint.draw(nc, AYAH_END, left, baseline)
     val digits = arabicDigits(ayah)
-    paint.textSize = size * (if (ayah >= 100) 0.38f else 0.5f)
+    paint.textSize = ayahNumberSize(ayah, size)
     paint.color = numColor
     val b = paint.bounds(digits)
     paint.draw(nc, digits, left + size * RING_CX - (b[0] + b[2]) / 2, baseline - size * RING_CY - (b[1] + b[3]) / 2)
     paint.textSize = saved
 }
 
-/** آخر الصفحات المحسوبة، فالرجوع إلى صفحة سابقة فوري */
-private object LayoutCache {
+/**
+ * الصفحات المحسوبة وما يُحسب منها الآن في الخلفية. كل صفحة معروضة تطلب جارتيها فور جاهزيتها،
+ * فتكون الصفحة التالية (والتي بعدها) محسوبة ومشكّلة الكلمات قبل أن يُقلَّب إليها، والرجوع إلى صفحة سابقة فوري.
+ */
+/** عدد الصفحات المحضَّرة مسبقاً في كل جهة من الصفحة المعروضة (3 + 3 = 6 صفحات) */
+private const val PREFETCH_EACH_SIDE = 3
+
+private object PageLayouts {
     private val lock = Lock()
     private val map = LinkedHashMap<String, PageLayout>()
-    fun peek(key: String) = lock.locked { map[key] }
-    fun put(key: String, v: PageLayout) = lock.locked {
-        map.remove(key); map[key] = v
-        while (map.size > 12) map.remove(map.keys.first())
+    private val running = HashMap<String, Deferred<PageLayout>>()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private const val KEEP = 24
+
+    fun key(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float) = "$page:${text.hashCode()}:$w:$h:$spPx"
+
+    fun peek(key: String): PageLayout? = lock.locked { map[key] }
+
+    fun put(key: String, v: PageLayout) {
+        lock.locked {
+            map.remove(key); map[key] = v
+            while (map.size > KEEP) map.remove(map.keys.first())
+        }
+    }
+
+    private fun start(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float): Deferred<PageLayout> {
+        val key = key(page, text, w, h, spPx)
+        return lock.locked {
+            val ready = map[key]
+            if (ready != null) CompletableDeferred(ready)
+            else running.getOrPut(key) {
+                scope.async {
+                    try { preparePage(page, text, w, h, spPx).also { put(key, it) } }
+                    finally { lock.locked { running.remove(key) } }
+                }
+            }
+        }
+    }
+
+    /** الصفحة محسوبة: من الذاكرة، أو بانتظار حسابها في الخلفية (إن كان جارياً لا يُعاد) */
+    suspend fun obtain(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float): PageLayout =
+        start(page, text, w, h, spPx).await()
+
+    /** تحضير صفحة لم تُعرض بعد، دون انتظار */
+    fun prefetch(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float) {
+        if (page in 1..QuranMeta.PAGES.size) start(page, text, w, h, spPx)
     }
 }
 
+/** يقرأ خط المصحف ويهيّئ تشكيله في الخلفية، فلا يتحمله الخيط الرئيسي عند أول صفحة */
+internal suspend fun warmMushafFont() {
+    withContext(Dispatchers.Default) { mushafPaint().measure("بِسْمِ ٱللَّهِ") }
+}
+
 private fun measureWith(paint: GlyphPaint): Measure = Measure { t, size -> paint.textSize = size; paint.measure(t) }
+
+/** حساب الصفحة كاملاً (كلماتها وأسطرها ومقاسها) ثم تشكيل كل ما يُرسم فيها؛ يعمل في الخلفية */
+internal fun preparePage(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float): PageLayout {
+    val paint = mushafPaint()
+    val l = layoutPage(pageBlocks(page, text), w, h, 13 * spPx, 30 * spPx, 0.5f * spPx, measureWith(paint))
+    warmPage(l, paint, text[0], w)
+    return l
+}
+
+/** مقاس رقم الآية داخل علامتها */
+private fun ayahNumberSize(ayah: Int, size: Float) = size * (if (ayah >= 100) 0.38f else 0.5f)
+
+/**
+ * يشكّل مسبقاً كل نص يرسمه [drawPage] بالمقاس نفسه تماماً، فيصير أول رسم للصفحة على الخيط الرئيسي
+ * نسخاً من الذاكرة بلا تشكيل حروف (iOS يشكّل خط المصحف بـ HarfBuzz، وأندرويد يحفظ قياس Minikin).
+ */
+private fun warmPage(l: PageLayout, paint: GlyphPaint, basmala: String, width: Float) {
+    for (row in l.rows) when (row) {
+        is TextRow -> for (pl in row.words) {
+            paint.textSize = l.textSize
+            paint.measure(pl.text)
+            pl.word.pause?.let { paint.bounds(it); paint.measure(it) }
+            if (pl.word.marker != null) {
+                paint.measure(AYAH_END)
+                val digits = arabicDigits(pl.word.ayah)
+                paint.textSize = ayahNumberSize(pl.word.ayah, l.textSize)
+                paint.bounds(digits); paint.measure(digits)
+            }
+        }
+        is BasmalaRow -> { paint.textSize = l.textSize; paint.measure(basmala) }
+        is BannerRow -> paint.measure(bannerTitle(paint, row, l.textSize, width).first)
+    }
+}
+
+/** اسم السورة في ترويستها ومقاسه (يصغر إن ضاق عنه اللوح)، والقلم مضبوط على هذا المقاس */
+private fun bannerTitle(paint: GlyphPaint, row: BannerRow, textSize: Float, width: Float): Pair<String, Float> {
+    val name = "سُورَةُ " + QuranMeta.NAMES_AR[row.surah - 1]
+    var ts = textSize * 0.92f
+    paint.textSize = ts
+    val avail = cartoucheNameWidth(width, row.height * 0.8f) * 0.92f
+    val nw = paint.measure(name)
+    if (nw > avail) { ts *= avail / nw; paint.textSize = ts }
+    return name to ts
+}
 
 /** خط الأساس داخل الصف: وسط ما بين أعلى التشكيل (نحو 1.0) وأسفله (نحو -0.5) */
 private fun baseline(top: Float, h: Float, size: Float) = top + h / 2 + size * 0.27f
@@ -324,6 +418,7 @@ private fun baseline(top: Float, h: Float, size: Float) = top + h / 2 + size * 0
 /**
  * نص صفحة المصحف مرسوماً دفعة واحدة على Canvas: أخف بكثير من عنصر لكل كلمة، فيبقى تقليب الصفحات سلساً.
  * الآية المختارة تُظلَّل بشريط متصل يتلاشى بين آية وأخرى، والضغط المطوّل على أي كلمة يُظهر خيارات آيتها.
+ * الحساب والتشكيل في الخلفية، والأشرطة في طبقة غير طبقة النص فتحريكها لا يعيد رسم الكلمات.
  */
 @Composable
 fun MushafCanvas(
@@ -333,29 +428,35 @@ fun MushafCanvas(
     val p = mushafPalette()
     val density = LocalDensity.current
     val inspection = LocalInspectionMode.current
-    val measurer = remember { mushafPaint() }
-    val blocks = remember(page, text) { pageBlocks(page, text) }
+    // نص الصفحة لقارئ الشاشة يُبنى عند طلبه فقط، لا مع كل صفحة تدخل
     val description = remember(page, text) {
-        QuranMeta.pageRange(page).joinToString(" ") { QuranData.withoutBismillah(text, it) + " (" + QuranMeta.locate(it).second + ")" }
+        lazy { QuranMeta.pageRange(page).joinToString(" ") { QuranData.withoutBismillah(text, it) + " (" + QuranMeta.locate(it).second + ")" } }
     }
     val tapState = rememberUpdatedState(onTap)
     val longState = rememberUpdatedState(onLongPress)
+    val scope = rememberCoroutineScope()
 
     BoxWithConstraints(modifier) {
         val w = constraints.maxWidth.toFloat()
         val h = constraints.maxHeight.toFloat()
         val spPx = with(density) { 1.sp.toPx() }
-        val key = "$page:${text.hashCode()}:$w:$h:$spPx"
-        fun compute() = layoutPage(blocks, w, h, 13 * spPx, 30 * spPx, 0.5f * spPx, measureWith(measurer)).also { LayoutCache.put(key, it) }
-        // تُحسب الصفحة في الخلفية (والصفحات المجاورة قبل أن تظهر). إذا تغيّر المقاس (ظهور الرأس أو اختفاؤه
+        val key = PageLayouts.key(page, text, w, h, spPx)
+        // تُحسب الصفحة في الخلفية (والمجاورة قبل أن تظهر). إذا تغيّر المقاس (ظهور الرأس أو اختفاؤه
         // في وضع التركيز) تبقى الصفحة السابقة معروضة حتى يستقر المقاس، ثم تحل محلها الجديدة بتلاشٍ متقاطع.
-        val current = remember { mutableStateOf(LayoutCache.peek(key) ?: if (inspection) compute() else null) }
+        val current = remember {
+            mutableStateOf(PageLayouts.peek(key) ?: if (inspection) preparePage(page, text, w, h, spPx).also { PageLayouts.put(key, it) } else null)
+        }
         val leaving = remember { mutableStateOf<PageLayout?>(null) }
         val mix = remember { Animatable(1f) }
         LaunchedEffect(key) {
-            val next = LayoutCache.peek(key) ?: run {
+            val next = PageLayouts.peek(key) ?: run {
                 if (current.value != null) delay(140)
-                withContext(Dispatchers.Default) { compute() }
+                PageLayouts.obtain(page, text, w, h, spPx)
+            }
+            // ست صفحات حولها (ثلاث في كل جهة، الأقرب أولاً) تُحضَّر الآن، فلا تُحسب صفحة ولا تُشكَّل كلماتها لحظة وصولها
+            for (d in 1..PREFETCH_EACH_SIDE) {
+                PageLayouts.prefetch(page + d, text, w, h, spPx)
+                PageLayouts.prefetch(page - d, text, w, h, spPx)
             }
             if (next !== current.value) {
                 leaving.value = current.value
@@ -397,9 +498,10 @@ fun MushafCanvas(
             }
         }
 
-        var pressed by remember { mutableIntStateOf(-1) }
+        // اللمس لا يعيد تركيب الصفحة: الآية الملموسة تُقرأ في الرسم فقط وحين يظهر شريطها (بعد لحظة)،
+        // فبدء السحب لتقليب الصفحة لا يعيد رسم شيء
+        val pressed = remember { mutableIntStateOf(-1) }
         val pressA = remember { Animatable(0f) }
-        LaunchedEffect(pressed) { if (pressed >= 0) pressA.animateTo(1f, tween(140, delayMillis = 70)) else pressA.snapTo(0f) }
 
         val paint = remember { mushafPaint() }
         @Composable
@@ -408,12 +510,20 @@ fun MushafCanvas(
             val canvas = area
                 .then(
                     if (!interactive) Modifier else Modifier
-                        .semantics { contentDescription = description }
+                        .semantics { contentDescription = description.value }
                         .pointerInput(l) {
                             detectTapGestures(
                                 onPress = { pos ->
                                     val i = l.hit(pos.x, pos.y)
-                                    if (i >= 0) { pressed = i; tryAwaitRelease(); pressed = -1 }
+                                    if (i >= 0) {
+                                        pressed.intValue = i
+                                        val glow = scope.launch { pressA.animateTo(1f, tween(140, delayMillis = 70)) }
+                                        try { tryAwaitRelease() } finally {
+                                            glow.cancel()
+                                            pressed.intValue = -1
+                                            scope.launch { pressA.snapTo(0f) }
+                                        }
+                                    }
                                 },
                                 onTap = { pos -> val i = l.hit(pos.x, pos.y); if (i >= 0) tapState.value(i) },
                                 // الضغط المطوّل: شريط خيارات الآية (التفسير والاستماع والحفظ والنسخ والمشاركة)
@@ -423,12 +533,15 @@ fun MushafCanvas(
                 )
                 // الصفحة كلها (الترويسات والنص) تظهر وتختفي معاً
                 .graphicsLayer { this.alpha = alpha() }
+                // أشرطة التظليل في هذه الطبقة...
                 .drawBehind {
                     band(l, previous, p.select, 1f - swap.value)
                     band(l, shown, p.select, swap.value)
-                    if (interactive) band(l, pressed, p.press, pressA.value)
-                    drawPage(l, p, paint, text[0], 1f, hide)
+                    if (interactive) { val a = pressA.value; if (a > 0.01f) band(l, pressed.intValue, p.press, a) }
                 }
+                // ...والنص في طبقة فوقها تُسجَّل مرة واحدة ولا تتأثر بحركة الأشرطة
+                .graphicsLayer()
+                .drawBehind { drawPage(l, p, paint, text[0], 1f, hide) }
             if (l.fits) Spacer(canvas) else Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { Spacer(canvas) }
         }
         leaving.value?.let { old -> layer(old, { 1f - mix.value }, interactive = false) }
@@ -477,10 +590,9 @@ private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: GlyphPain
         }
     }
     // الترويسات أولاً، ثم كل النصوص فوقها
-    val plates = HashMap<BannerRow, Float>()
     for (row in l.rows) if (row is BannerRow) {
         val pad = row.height * 0.1f
-        plates[row] = drawCartouche(0f, row.top + pad, size.width, row.top + row.height - pad, p)
+        drawCartouche(0f, row.top + pad, size.width, row.top + row.height - pad, p)
     }
     val ink = p.ink.copy(alpha = p.ink.alpha * alpha).toArgb()
     val marker = p.marker.copy(alpha = p.marker.alpha * alpha).toArgb()
@@ -523,12 +635,7 @@ private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: GlyphPain
                 paint.draw(nc, basmala, (size.width - paint.measure(basmala)) / 2, baseline(row.top, row.height, l.textSize))
             }
             is BannerRow -> {
-                val name = "سُورَةُ " + QuranMeta.NAMES_AR[row.surah - 1]
-                var ts = l.textSize * 0.92f
-                paint.textSize = ts
-                val avail = (plates[row] ?: size.width) * 0.92f
-                val nw = paint.measure(name)
-                if (nw > avail) { ts *= avail / nw; paint.textSize = ts }
+                val (name, ts) = bannerTitle(paint, row, l.textSize, size.width)
                 paint.color = title
                 paint.draw(nc, name, (size.width - paint.measure(name)) / 2, baseline(row.top, row.height, ts * 1.05f))
             }

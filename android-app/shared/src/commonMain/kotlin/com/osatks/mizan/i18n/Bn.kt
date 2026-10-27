@@ -146,6 +146,11 @@ object Bn : Strings {
     override val adhanAlert = "আজানের অ্যালার্ট"
     override val adhanAlertDesc = "প্রতি ওয়াক্ত শুরু হলে একটি নোটিফিকেশন"
     override val timesMayDiffer = "আপনার দেশের সরকারি ক্যালেন্ডারের সাথে সময়ে এক-দুই মিনিট পার্থক্য হতে পারে।"
+    override fun endsAt(t: String) = "শেষ $t"
+    override fun iqamaAt(t: String) = "ইকামত $t"
+    override val iqamaTitle = "ইকামতের সময়"
+    override val iqamaDesc = "আপনার মসজিদে আজান ও ইকামতের মাঝের মিনিট; ০ দিলে লুকানো থাকবে।"
+    override val prayerEndsNote = "ফজরের সময় শেষ হয় সূর্যোদয়ে, জোহরের আসর শুরু হলে, আসরের সূর্যাস্তে (সূর্য হলুদ হওয়া পর্যন্ত দেরি করা মাকরুহ), মাগরিবের লাল আভা মিলিয়ে গেলে; এশার পছন্দনীয় সময় মধ্যরাতে শেষ হয়, আর প্রয়োজনের সময় থাকে ফজর পর্যন্ত।"
     override val locationFound = "অবস্থান পাওয়া গেছে ✓"
     override val locationFailed = "আপনার অবস্থান পাওয়া যায়নি। লোকেশন সার্ভিস চালু আছে কি না দেখে নিন।"
     override val locationDenied = "লোকেশনের অনুমতি দেওয়া হয়নি। তালিকা থেকে আপনার শহর বেছে নিন।"
@@ -179,6 +184,34 @@ object Bn : Strings {
     override val channelDesc = "প্রতি ওয়াক্ত শুরু হলে একটি অ্যালার্ট"
     override fun prayerNowTitle(prayer: String) = "$prayer নামাজের সময় হয়েছে"
     override fun prayerNowText(city: String) = "$city — নামাজের দিকে আসুন"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "আজান ও সতর্কবার্তা"
+    override val adhanSettingsSub = "মুয়াজ্জিন, প্রতিটি নামাজের সতর্কবার্তা ও কম্পন"
+    override val alertPerPrayer = "প্রতিটি নামাজের সতর্কবার্তা"
+    override val alertModeAdhan = "আজান"
+    override val alertModeVibrate = "শুধু কম্পন"
+    override val alertModeSilent = "নীরব বিজ্ঞপ্তি"
+    override val alertModeOff = "সতর্কবার্তা নেই"
+    override val alertModesHint = "“আজান” পুরো আজান বাজায়, “শুধু কম্পন” শব্দ ছাড়া কাঁপে, “নীরব বিজ্ঞপ্তি” শব্দ ছাড়া বিজ্ঞপ্তি দেখায়, আর “সতর্কবার্তা নেই” সেই নামাজের জন্য কিছু পাঠায় না।"
+    override val muezzinTitle = "মুয়াজ্জিন"
+    override val fajrAdhanTitle = "ফজরের আজান"
+    override val fajrAdhanHint = "ফজরের আজানে “আস-সালাতু খাইরুম মিনান নাউম” (ঘুমের চেয়ে নামাজ উত্তম) যুক্ত হয়।"
+    override val fajrSameAsOthers = "অন্যান্য নামাজের মতো"
+    override val muezzinNames = mapOf(
+        "asim" to "আসিম জাভেদ",
+        "klcc" to "KLCC মসজিদ, কুয়ালালামপুর",
+        "mirza" to "মোয়াজ্জম বেগ মির্জা, আহমেদাবাদ",
+        "adam" to "আদম (উইকিমিডিয়া কমন্স)",
+        "kalkan_fajr" to "ফজর — কালকান, তুরস্ক",
+    )
+    override val playAdhan = "আজান শুনুন"
+    override val stopAdhan = "থামান"
+    override val vibrationTitle = "কম্পনের ধরন"
+    override val vibeNames = mapOf("short" to "ছোট", "long" to "লম্বা", "heartbeat" to "হৃদস্পন্দন", "pulse" to "3 বার স্পন্দন", "wave" to "ঢেউ")
+    override val tryVibration = "কম্পন পরীক্ষা করুন"
+    override val adhanStopHint = "আজান থামাতে বিজ্ঞপ্তিতে “থামান” চাপুন বা ভলিউম বোতাম চাপুন। ফোন নীরব বা কম্পন মোডে থাকলে সতর্কবার্তা সেই মোড মেনে চলে।"
+    override val adhanIosNote = "iPhone বিজ্ঞপ্তির শব্দ 30 সেকেন্ডে সীমিত রাখে, তাই বিজ্ঞপ্তিতে আজানের শুরুটা বাজে; নামাজের সময় মিজান খোলা থাকলে পুরো আজান বাজে। বিজ্ঞপ্তি iPhone-এর নিজস্ব ধরনে কাঁপে (Settings › Sounds & Haptics); এখানকার ধরনগুলো মিজান খোলা থাকলে অনুভূত হয়।"
+    override val recordingSources = "রেকর্ডিংয়ের উৎস"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "কিবলার দিক"
@@ -655,6 +688,9 @@ object Bn : Strings {
     override val obSkip = "এড়িয়ে যান"
     override val obNext = "পরবর্তী"
     override val obStart = "শুরু করুন"
+    override val obLocationTitle = "আপনি কোথায়?"
+    override val obLocationBody = "নামাজের সময় ও কিবলার দিক সঠিকভাবে হিসাব করতে আপনার অবস্থান প্রয়োজন। এটি আপনার ডিভাইসেই থাকে, কোনো সার্ভারে পাঠানো হয় না।"
+    override val locationNeeded = "আপনার শহরের সঠিক নামাজের সময় দেখতে অবস্থান নির্ধারণ করুন"
     override val appGuide = "অ্যাপ নির্দেশিকা"
     override val appGuideSub = "মিজান কী কী করতে পারে তার এক ঝলক"
     override val onboarding = listOf(

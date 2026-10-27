@@ -6,7 +6,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.osatks.mizan.core.ALERT_PRAYERS
+import com.osatks.mizan.core.AlertMode
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.Muezzins
 import kotlinx.datetime.LocalDate
 import com.osatks.mizan.core.LocationHelper
 import com.osatks.mizan.core.PrayTimes
@@ -31,6 +34,12 @@ import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionSound
 import platform.UserNotifications.UNCalendarNotificationTrigger
 import platform.UserNotifications.UNMutableNotificationContent
+import platform.UserNotifications.UNNotification
+import platform.UserNotifications.UNNotificationPresentationOptionBanner
+import platform.UserNotifications.UNNotificationPresentationOptionList
+import platform.UserNotifications.UNNotificationPresentationOptionSound
+import platform.UserNotifications.UNNotificationPresentationOptions
+import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNNotificationSound
 import platform.UserNotifications.UNUserNotificationCenter
@@ -39,12 +48,18 @@ import platform.darwin.NSObject
 /**
  * تنبيهات الأذان في iOS: إشعارات محلية مجدولة مسبقاً لأيام قادمة (لا يوجد منبّه يعمل في الخلفية).
  * تُعاد جدولتها عند فتح التطبيق وعند تغيير الإعدادات، والحد الأقصى في iOS 64 إشعاراً.
+ *
+ * صوت الإشعار لا يتجاوز 30 ثانية في iOS، فالأذان في الإشعار مقطع أوله (adhan_<id>.caf)، ويُسمع كاملاً إن كان التطبيق مفتوحاً.
+ * «اهتزاز فقط»: لا يهتز إشعار iOS بلا صوت، فيُعطى صوتاً صامتاً (mizan_vibrate.caf) يصحبه اهتزاز النظام حسب إعدادات الهاتف.
  */
 actual object PrayerAlerts {
     private const val DAYS = 7
+    const val VIBRATE_SOUND = "mizan_vibrate.caf"
 
     actual fun reschedule() {
         val center = UNUserNotificationCenter.currentNotificationCenter()
+        // التطبيق مفتوح عند دخول الوقت: الأذان كاملاً أو نمط الاهتزاز المختار بدل صوت الإشعار
+        if (center.delegate == null) center.delegate = alertPresenter
         center.removeAllPendingNotificationRequests()
         if (!AppSettings.notify) return
         val s = Lang.current.strings
@@ -53,8 +68,9 @@ actual object PrayerAlerts {
         for (offset in 0 until DAYS) {
             val day = today.plusDays(offset)
             val t = PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi)
-            for (key in PrayTimes.PRAYERS) {
-                if (key == "sunrise") continue
+            for (key in ALERT_PRAYERS) {
+                val mode = AppSettings.alertMode(key)
+                if (mode == AlertMode.OFF) continue
                 val h = t[key]
                 if (h.isNaN()) continue
                 val minutes = (h * 60).toInt()
@@ -65,7 +81,14 @@ actual object PrayerAlerts {
                 val content = UNMutableNotificationContent().apply {
                     setTitle(s.prayerNowTitle(s.prayer(key)))
                     setBody(s.prayerNowText(s.placeName(p)))
-                    setSound(UNNotificationSound.defaultSound)
+                    setUserInfo(mapOf<Any?, Any?>("prayer" to key, "mode" to mode.key))
+                    setSound(
+                        when (mode) {
+                            AlertMode.ADHAN -> UNNotificationSound.soundNamed(Muezzins.forPrayer(key).iosSound)
+                            AlertMode.VIBRATE -> UNNotificationSound.soundNamed(VIBRATE_SOUND)
+                            else -> null
+                        }
+                    )
                 }
                 val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
                 center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("adhan-$day-$key", content, trigger), null)
@@ -77,6 +100,30 @@ actual object PrayerAlerts {
 
     actual val hasExactAlarmSettings: Boolean = false
     actual fun openExactAlarmSettings() {}
+}
+
+/** إشعار الأذان والتطبيق في الواجهة: يُعرض بلا صوته، ويُشغَّل الأذان كاملاً أو نمط الاهتزاز المختار */
+// صنف لا object: Kotlin/Native لا يقبل object يرث صنفاً من Objective-C عند الربط. نسخة واحدة تبقى حية
+// (مفوَّض مركز الإشعارات مرجع ضعيف)
+private val alertPresenter = AlertPresenter()
+
+private class AlertPresenter : NSObject(), UNUserNotificationCenterDelegateProtocol {
+    override fun userNotificationCenter(
+        center: UNUserNotificationCenter,
+        willPresentNotification: UNNotification,
+        withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
+    ) {
+        val info = willPresentNotification.request.content.userInfo
+        val prayer = info["prayer"] as? String
+        val show = UNNotificationPresentationOptionBanner or UNNotificationPresentationOptionList
+        if (prayer == null) return withCompletionHandler(show or UNNotificationPresentationOptionSound)
+        when (AlertMode.of(info["mode"] as? String)) {
+            AlertMode.ADHAN -> AdhanAudio.play(Muezzins.forPrayer(prayer), preview = false) {}
+            AlertMode.VIBRATE -> AdhanAudio.vibrate(AppSettings.vibePattern)
+            else -> {}
+        }
+        withCompletionHandler(show)
+    }
 }
 
 @Composable

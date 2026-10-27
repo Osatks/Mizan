@@ -6,4 +6,20 @@
     <string name="widget_hijri">Fecha de la Hégira</string>
     <string name="widget_khatma">Mi khatma</string>
     <string name="widget_ayah">Aya del día</string>
+    <!-- أداة أذكار الوقت، وأوصاف الأدوات في قائمة الأدوات، ونص المعاينة -->
+    <string name="widget_adhkar">Adhkar de ahora</string>
+    <string name="widget_next_dhikr">Siguiente</string>
+    <string name="widget_next_prayer_desc">La próxima oración con cuenta atrás</string>
+    <string name="widget_prayer_times_desc">Los seis horarios del día, el próximo destacado</string>
+    <string name="widget_hijri_desc">Fecha de la Hégira y gregoriana</string>
+    <string name="widget_khatma_desc">Tu progreso del jatm, dónde seguir y la porción de hoy</string>
+    <string name="widget_ayah_desc">Una aleya breve cada día con su significado</string>
+    <string name="widget_adhkar_desc">Los adhkar del momento: mañana, tarde, sueño, tras la oración y viernes</string>
+    <string name="sample_prayer">Asr</string>
+    <string name="sample_fajr">Fajr</string>
+    <string name="sample_sunrise">Salida del sol</string>
+    <string name="sample_dhuhr">Dhuhr</string>
+    <string name="sample_asr">Asr</string>
+    <string name="sample_maghrib">Maghrib</string>
+    <string name="sample_isha">Isha</string>
 </resources>

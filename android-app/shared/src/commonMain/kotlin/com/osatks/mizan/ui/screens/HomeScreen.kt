@@ -71,6 +71,11 @@ import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.i18n.weekday
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.ui.LocalBottomInset
+import com.osatks.mizan.ui.GlassTopBar
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.rememberLazyListState
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import com.osatks.mizan.ui.quran.ContinueCard
 import com.osatks.mizan.ui.quran.quranStyle
 import com.osatks.mizan.ui.RevealState
@@ -114,7 +119,11 @@ fun HomeScreen(open: (String) -> Unit) {
     val reveal = remember { RevealState() }
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) { LazyColumn(contentPadding = PaddingValues(bottom = 20.dp + bottom + LocalBottomInset.current)) {
+    val haze = rememberHazeState()
+    // القائمة مصدر لزجاج الشريط العلوي: يظهر باسم التطبيق حين تمرّ الترويسة تحت شريط الحالة
+    Box(Modifier.fillMaxSize()) { androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) {
+    val list = rememberLazyListState()
+    LazyColumn(state = list, modifier = Modifier.fillMaxSize().hazeSource(haze), contentPadding = PaddingValues(bottom = 20.dp + bottom + LocalBottomInset.current)) {
         item {
             Box(
                 Modifier.fillMaxWidth()
@@ -169,6 +178,10 @@ fun HomeScreen(open: (String) -> Unit) {
                 }
             }
         }
+        if (!AppSettings.placeSet) item {
+            // قبل اختيار الموقع: نطلبه بدل عرض مواقيت مكة على أنها مواقيت المستخدم
+            LocationNeededCard(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp))
+        }
         item {
             // القرآن الكريم: متابعة القراءة من آخر موضع، أو البدء
             Box(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp).reveal(reveal, 4)) {
@@ -176,7 +189,7 @@ fun HomeScreen(open: (String) -> Unit) {
             }
         }
         item {
-            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 5))
+            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 5))
         }
         TOOL_ORDER.chunked(2).forEachIndexed { row, pair ->
             item {
@@ -190,8 +203,8 @@ fun HomeScreen(open: (String) -> Unit) {
             }
         }
     }
-
-}
+    GlassTopBar(list, haze, s.appName, onBack = null)
+} }
     if (showLang) LanguageSheet { showLang = false }
 }
 

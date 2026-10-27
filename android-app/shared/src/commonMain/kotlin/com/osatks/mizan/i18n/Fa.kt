@@ -146,6 +146,11 @@ object Fa : Strings {
     override val adhanAlert = "اعلان اذان"
     override val adhanAlertDesc = "اعلان هنگام فرارسیدن وقت هر نماز"
     override val timesMayDiffer = "ممکن است اوقات یک یا دو دقیقه با تقویم رسمی کشور شما تفاوت داشته باشد."
+    override fun endsAt(t: String) = "پایان $t"
+    override fun iqamaAt(t: String) = "اقامه $t"
+    override val iqamaTitle = "زمان اقامه"
+    override val iqamaDesc = "دقیقه‌های میان اذان و اقامه در مسجد شما؛ ۰ آن را پنهان می‌کند."
+    override val prayerEndsNote = "وقت صبح با طلوع آفتاب، ظهر با دخول عصر، و عصر با غروب آفتاب پایان می‌یابد (تأخیر تا زرد شدن خورشید مکروه است)؛ مغرب با پنهان شدن شفق سرخ، و وقت اختیاری عشاء در نیمه‌شب تمام می‌شود و وقت اضطراری آن تا صبح ادامه دارد."
     override val locationFound = "موقعیت شما پیدا شد ✓"
     override val locationFailed = "موقعیت شما به دست نیامد. مطمئن شوید خدمات مکان‌یابی روشن است."
     override val locationDenied = "اجازه دسترسی به موقعیت داده نشد. شهر خود را از فهرست انتخاب کنید."
@@ -179,6 +184,34 @@ object Fa : Strings {
     override val channelDesc = "اعلان هنگام فرارسیدن وقت هر نماز"
     override fun prayerNowTitle(prayer: String) = "وقت نماز $prayer فرا رسید"
     override fun prayerNowText(city: String) = "$city — حی علی الصلاة"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "اذان و هشدارها"
+    override val adhanSettingsSub = "مؤذن، هشدار هر نماز و لرزش"
+    override val alertPerPrayer = "هشدار هر نماز"
+    override val alertModeAdhan = "اذان"
+    override val alertModeVibrate = "فقط لرزش"
+    override val alertModeSilent = "اعلان بی‌صدا"
+    override val alertModeOff = "بدون هشدار"
+    override val alertModesHint = "«اذان» اذان کامل را پخش می‌کند، «فقط لرزش» بی‌صدا می‌لرزد، «اعلان بی‌صدا» اعلانی بدون صدا نشان می‌دهد و «بدون هشدار» برای آن نماز چیزی نمی‌فرستد."
+    override val muezzinTitle = "مؤذن"
+    override val fajrAdhanTitle = "اذان صبح"
+    override val fajrAdhanHint = "در اذان صبح «الصلاة خير من النوم» (نماز از خواب بهتر است) افزوده می‌شود."
+    override val fajrSameAsOthers = "مانند نمازهای دیگر"
+    override val muezzinNames = mapOf(
+        "asim" to "عاصم جاوید",
+        "klcc" to "مسجد KLCC، کوالالامپور",
+        "mirza" to "معظم‌بیگ میرزا، احمدآباد",
+        "adam" to "آدم (ویکی‌انبار)",
+        "kalkan_fajr" to "اذان صبح — کالکان، ترکیه",
+    )
+    override val playAdhan = "پخش اذان"
+    override val stopAdhan = "توقف"
+    override val vibrationTitle = "الگوی لرزش"
+    override val vibeNames = mapOf("short" to "کوتاه", "long" to "بلند", "heartbeat" to "ضربان قلب", "pulse" to "سه ضربه", "wave" to "موج")
+    override val tryVibration = "امتحان لرزش"
+    override val adhanStopHint = "برای توقف اذان «توقف» را در اعلان یا یکی از دکمه‌های صدا را بزنید. اگر تلفن روی بی‌صدا یا لرزش باشد، هشدار از همان پیروی می‌کند."
+    override val adhanIosNote = "iPhone صدای اعلان را به 30 ثانیه محدود می‌کند، پس در اعلان آغاز اذان پخش می‌شود و اگر میزان هنگام وقت نماز باز باشد اذان کامل پخش می‌شود. اعلان‌ها با الگوی خود iPhone می‌لرزند (Settings › Sounds & Haptics)؛ الگوهای اینجا وقتی میزان باز است حس می‌شوند."
+    override val recordingSources = "منابع ضبط‌ها"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "جهت قبله"
@@ -655,6 +688,9 @@ object Fa : Strings {
     override val obSkip = "رد شدن"
     override val obNext = "بعدی"
     override val obStart = "شروع"
+    override val obLocationTitle = "کجا هستید؟"
+    override val obLocationBody = "برای محاسبهٔ دقیق اوقات نماز و جهت قبله به موقعیت شما نیاز است. موقعیت شما روی دستگاهتان می‌ماند و به هیچ سروری فرستاده نمی‌شود."
+    override val locationNeeded = "موقعیت خود را تعیین کنید تا اوقات درست نماز شهرتان نمایش داده شود"
     override val appGuide = "راهنمای برنامه"
     override val appGuideSub = "آشنایی کوتاه با امکانات میزان"
     override val onboarding = listOf(

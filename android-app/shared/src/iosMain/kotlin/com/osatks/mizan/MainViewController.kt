@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.osatks.mizan.ui.IosHaptics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,20 +25,39 @@ import com.osatks.mizan.platform.IosToast
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.ui.LanguageHost
 import com.osatks.mizan.ui.theme.MizanTheme
+import androidx.compose.ui.ExperimentalComposeUiApi
+import kotlinx.coroutines.MainScope
+import com.osatks.mizan.widget.IosWidgets
+import com.osatks.mizan.widget.WidgetLaunch
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import platform.UIKit.UIViewController
 
 /** نقطة دخول iOS: يستدعيها iOSApp.swift */
+@OptIn(ExperimentalComposeUiApi::class)
 fun MainViewController(): UIViewController {
     AppSettings.init()
-    // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)
-    PrayerAlerts.reschedule()
-    return ComposeUIViewController {
-        LanguageHost {
-            MizanTheme {
-                Box(Modifier.fillMaxSize()) {
-                    MizanApp()
-                    ToastOverlay()
+    // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)،
+    // ولقطة أدوات الشاشة الرئيسية في حاوية App Group (وتُحدَّث أيضاً عند الخروج منه)؛
+    // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت وطلبات الإشعار لا ينتظرها أول إطار
+    MainScope().launch { delay(1200); PrayerAlerts.reschedule(); IosWidgets.refresh() }
+    return ComposeUIViewController(configure = {
+        // ترميز أوامر الرسم لـ Metal على خيط مستقل، فيتفرغ الخيط الرئيسي للتركيب واللمس في كل إطار
+        parallelRendering = true
+        // سحب الحافة للرجوع (كتطبيقات النظام): يقود انتقال الرجوع في NavHost مع حركة الإصبع
+        enableBackGesture = true
+    }) {
+        // اهتزازات بمولّدات UIKit لكل نوع ما يناسبه (التبويبات، العدّادات، المفاتيح)
+        CompositionLocalProvider(LocalHapticFeedback provides IosHaptics) {
+            LanguageHost {
+                MizanTheme {
+                    Box(Modifier.fillMaxSize()) {
+                        // لمس أداة يفتح شاشتها؛ يُمسح الطلب بعد التنقل حتى يعمل اللمس التالي على الشاشة نفسها
+                        val route = WidgetLaunch.route
+                        MizanApp(route)
+                        LaunchedEffect(route) { if (route != null) { delay(400); WidgetLaunch.route = null } }
+                        ToastOverlay()
+                    }
                 }
             }
         }

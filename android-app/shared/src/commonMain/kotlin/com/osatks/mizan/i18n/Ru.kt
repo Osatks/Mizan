@@ -165,6 +165,11 @@ object Ru : Strings {
     override val adhanAlert = "Уведомление об азане"
     override val adhanAlertDesc = "Уведомление при наступлении времени каждого намаза"
     override val timesMayDiffer = "Время может отличаться на минуту-две от официального расписания вашей страны."
+    override fun endsAt(t: String) = "До $t"
+    override fun iqamaAt(t: String) = "Икама $t"
+    override val iqamaTitle = "Время икамы"
+    override val iqamaDesc = "Минуты между азаном и икамой в вашей мечети; 0 скрывает её."
+    override val prayerEndsNote = "Время фаджра заканчивается с восходом солнца, зухра — с наступлением асра, асра — с закатом (откладывать его до пожелтения солнца нежелательно), магриба — с исчезновением красной вечерней зари; избранное время иши заканчивается в полночь, а вынужденное длится до фаджра."
     override val locationFound = "Местоположение определено ✓"
     override val locationFailed = "Не удалось определить местоположение. Убедитесь, что геолокация включена."
     override val locationDenied = "Доступ к местоположению не предоставлен. Выберите город из списка."
@@ -198,6 +203,34 @@ object Ru : Strings {
     override val channelDesc = "Уведомление при наступлении времени каждого намаза"
     override fun prayerNowTitle(prayer: String) = "Наступило время намаза $prayer"
     override fun prayerNowText(city: String) = "$city — спешите на намаз"
+    // ---------- Adhan & alerts ----------
+    override val adhanSettings = "Азан и оповещения"
+    override val adhanSettingsSub = "Муэдзин, оповещение для каждой молитвы и вибрация"
+    override val alertPerPrayer = "Оповещение для каждой молитвы"
+    override val alertModeAdhan = "Азан"
+    override val alertModeVibrate = "Только вибрация"
+    override val alertModeSilent = "Беззвучное уведомление"
+    override val alertModeOff = "Без оповещения"
+    override val alertModesHint = "«Азан» воспроизводит азан полностью, «Только вибрация» вибрирует без звука, «Беззвучное уведомление» показывает уведомление без звука, а «Без оповещения» ничего не присылает для этой молитвы."
+    override val muezzinTitle = "Муэдзин"
+    override val fajrAdhanTitle = "Азан на Фаджр"
+    override val fajrAdhanHint = "В азан на Фаджр добавляется «Ас-саляту хайрун мина-н-наум» (молитва лучше сна)."
+    override val fajrSameAsOthers = "Как для остальных молитв"
+    override val muezzinNames = mapOf(
+        "asim" to "Асим Джавед",
+        "klcc" to "Мечеть KLCC, Куала-Лумпур",
+        "mirza" to "Моаззам-бег Мирза, Ахмадабад",
+        "adam" to "Адам (Викисклад)",
+        "kalkan_fajr" to "Фаджр — Калкан, Турция",
+    )
+    override val playAdhan = "Слушать азан"
+    override val stopAdhan = "Остановить"
+    override val vibrationTitle = "Вибрация"
+    override val vibeNames = mapOf("short" to "Короткая", "long" to "Длинная", "heartbeat" to "Сердцебиение", "pulse" to "3 импульса", "wave" to "Волна")
+    override val tryVibration = "Проверить вибрацию"
+    override val adhanStopHint = "Чтобы остановить азан, нажмите «Остановить» в уведомлении или кнопку громкости. Если телефон в беззвучном режиме или на вибрации, оповещение следует этому режиму."
+    override val adhanIosNote = "iPhone ограничивает звук уведомления 30 секундами, поэтому в уведомлении звучит начало азана, а полностью азан звучит, если Мизан открыт во время молитвы. Уведомления вибрируют по шаблону самого iPhone (Настройки › Звуки, тактильные сигналы); шаблоны здесь ощущаются, когда Мизан открыт."
+    override val recordingSources = "Источники записей"
 
     // ---------- Qibla ----------
     override val qiblaTitle = "Направление киблы"
@@ -674,6 +707,9 @@ object Ru : Strings {
     override val obSkip = "Пропустить"
     override val obNext = "Далее"
     override val obStart = "Начать"
+    override val obLocationTitle = "Где вы находитесь?"
+    override val obLocationBody = "Ваше местоположение нужно, чтобы точно рассчитать время намаза и направление киблы. Оно остаётся на устройстве и никуда не отправляется."
+    override val locationNeeded = "Укажите своё местоположение, чтобы видеть точное время намаза для вашего города"
     override val appGuide = "Обзор приложения"
     override val appGuideSub = "Краткий обзор того, что умеет Мизан"
     override val onboarding = listOf(
