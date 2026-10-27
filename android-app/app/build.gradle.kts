@@ -7,10 +7,11 @@ plugins {
 // مفتاح التوقيع يُمرَّر من أسرار GitHub (انظر README)، ولا يُحفظ في المستودع
 val localKeystore = rootProject.file("mizan-upload-key.jks")
 val keystorePath: String? = System.getenv("MIZAN_KEYSTORE") ?: if (localKeystore.exists()) localKeystore.absolutePath else null
-val storePasswordEnv = System.getenv("MIZAN_STORE_PASSWORD") ?: "mizan2026"
+// كلمات السر من متغيرات البيئة فقط (أسرار GitHub، أو تُصدَّر محلياً قبل البناء)
+val storePasswordEnv: String? = System.getenv("MIZAN_STORE_PASSWORD")
 val keyAliasEnv = System.getenv("MIZAN_KEY_ALIAS") ?: "mizan"
-val keyPasswordEnv = System.getenv("MIZAN_KEY_PASSWORD") ?: "mizan2026"
-val hasReleaseKey = keystorePath != null && file(keystorePath).exists()
+val keyPasswordEnv: String? = System.getenv("MIZAN_KEY_PASSWORD")
+val hasReleaseKey = keystorePath != null && file(keystorePath).exists() && storePasswordEnv != null && keyPasswordEnv != null
 
 // رقم الإصدار يزيد مع كل commit تلقائياً، فكل نسخة جديدة تحمل رقماً أعلى (محلياً وفي GitHub)
 val buildNumber: Int = runCatching {

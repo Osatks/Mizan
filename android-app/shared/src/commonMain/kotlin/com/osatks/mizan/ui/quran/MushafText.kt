@@ -316,6 +316,9 @@ internal fun drawAyahEnd(nc: Canvas, paint: GlyphPaint, ayah: Int, left: Float, 
  * الصفحات المحسوبة وما يُحسب منها الآن في الخلفية. كل صفحة معروضة تطلب جارتيها فور جاهزيتها،
  * فتكون الصفحة التالية (والتي بعدها) محسوبة ومشكّلة الكلمات قبل أن يُقلَّب إليها، والرجوع إلى صفحة سابقة فوري.
  */
+/** عدد الصفحات المحضَّرة مسبقاً في كل جهة من الصفحة المعروضة (3 + 3 = 6 صفحات) */
+private const val PREFETCH_EACH_SIDE = 3
+
 private object PageLayouts {
     private val lock = Lock()
     private val map = LinkedHashMap<String, PageLayout>()
@@ -450,9 +453,11 @@ fun MushafCanvas(
                 if (current.value != null) delay(140)
                 PageLayouts.obtain(page, text, w, h, spPx)
             }
-            // الجارتان تُحضَّران الآن، فلا تُحسب صفحة ولا تُشكَّل كلماتها لحظة وصولها
-            PageLayouts.prefetch(page + 1, text, w, h, spPx)
-            PageLayouts.prefetch(page - 1, text, w, h, spPx)
+            // ست صفحات حولها (ثلاث في كل جهة، الأقرب أولاً) تُحضَّر الآن، فلا تُحسب صفحة ولا تُشكَّل كلماتها لحظة وصولها
+            for (d in 1..PREFETCH_EACH_SIDE) {
+                PageLayouts.prefetch(page + d, text, w, h, spPx)
+                PageLayouts.prefetch(page - d, text, w, h, spPx)
+            }
             if (next !== current.value) {
                 leaving.value = current.value
                 current.value = next
