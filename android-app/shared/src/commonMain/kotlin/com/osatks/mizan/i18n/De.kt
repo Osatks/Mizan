@@ -746,4 +746,19 @@ object De : Strings {
     override val privacyText = "Die App erhebt keine personenbezogenen Daten und nutzt das Internet nur, um die Tafsire herunterzuladen, die du auswählst, und um Rezitationen abzuspielen, wenn du es möchtest. Dein Standort wird nur auf deinem Gerät verwendet, um Gebetszeiten und Qibla zu berechnen, " +
         "und deine Einstellungen und Zahlen bleiben auf deinem Gerät."
     override val disclaimer = "Die Ergebnisse dienen zur Orientierung. Wende dich bei persönlichen religiösen Fragen an qualifizierte Gelehrte und offizielle Stellen."
+    // ---------- المتجر والمشاركة والأذونات ----------
+    override val rateApp = "Mizan bewerten"
+    override val rateAppSub = "Deine Bewertung hilft anderen, die App zu finden"
+    override val shareApp = "Mizan teilen"
+    override val shareAppSub = "Schicke die App an Familie und Freunde"
+    override fun shareAppText(link: String) = "Mizan: Gebetszeiten, Qibla, Koran, Zakat und Erbteilung in einer kostenlosen App ohne Werbung\n$link"
+    override val licenses = "Quellen und Lizenzen"
+    override val licensesSub = "Korantext, Tafsire, Rezitationen, Adhan-Aufnahmen und Schrift"
+    override val openSettings = "Einstellungen öffnen"
+    override val locationOffTitle = "Standortzugriff ist aus"
+    override val locationOffBody = "Mizan darf deinen Standort nicht verwenden. Du kannst es in den Einstellungen erlauben oder deine Stadt aus der Liste wählen."
+    override val notifyOffTitle = "Mitteilungen sind aus"
+    override val notifyOffBody = "Mizan darf keine Mitteilungen senden, daher erreichen dich keine Adhan-Hinweise. Du kannst sie in den Einstellungen erlauben."
+    override val clear = "Löschen"
+    override val close = "Schließen"
 }

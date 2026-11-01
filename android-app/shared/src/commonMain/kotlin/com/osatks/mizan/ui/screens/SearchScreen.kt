@@ -221,7 +221,7 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
                             modifier = Modifier.fillMaxWidth().focusRequester(focus)
                         )
                     }
-                    if (q.isNotEmpty()) IconButton(onClick = { q = "" }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.Close, null) }
+                    if (q.isNotEmpty()) IconButton(onClick = { q = "" }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.Close, s.clear) }
                 }
             }
         }

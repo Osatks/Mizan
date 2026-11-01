@@ -7,10 +7,8 @@ import com.osatks.mizan.core.Muezzin
 import com.osatks.mizan.core.VibePattern
 import platform.AVFAudio.AVAudioPlayer
 import platform.AVFAudio.AVAudioPlayerDelegateProtocol
-import platform.AVFAudio.AVAudioSession
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
 import platform.AVFAudio.AVAudioSessionCategorySoloAmbient
-import platform.AVFAudio.setActive
 import platform.AudioToolbox.AudioServicesPlaySystemSound
 import platform.AudioToolbox.kSystemSoundID_Vibrate
 import platform.CoreHaptics.CHHapticEngine
@@ -43,6 +41,7 @@ import platform.darwin.NSObject
  * و Core Haptics لأنماط الاهتزاز (الإشعارات نفسها تهتز بنمط النظام فقط).
  */
 actual object AdhanAudio {
+    private const val SESSION = "adhan"
     private var player: AVAudioPlayer? = null
     private var delegate: Finish? = null
     private var engine: CHHapticEngine? = null
@@ -62,14 +61,12 @@ actual object AdhanAudio {
         stop()
         val u = url(m) ?: return onEnd()
         // المعاينة تُسمع ولو كان مفتاح الصامت مفعّلاً؛ أذان الوقت يتبع مفتاح الصامت كبقية التنبيهات
-        runCatching {
-            AVAudioSession.sharedInstance().setCategory(if (preview) AVAudioSessionCategoryPlayback else AVAudioSessionCategorySoloAmbient, null)
-            AVAudioSession.sharedInstance().setActive(true, null)
-        }
+        // الجلسة تُعطَّل بعد انتهاء الأذان أو إيقافه (AudioSessions)
+        AudioSessions.begin(SESSION, (if (preview) AVAudioSessionCategoryPlayback else AVAudioSessionCategorySoloAmbient))
         val p = AVAudioPlayer(contentsOfURL = u, error = null)
         val d = Finish(onEnd)
         p.delegate = d
-        if (!p.prepareToPlay() || !p.play()) return onEnd()
+        if (!p.prepareToPlay() || !p.play()) { AudioSessions.end(SESSION); return onEnd() }
         player = p
         delegate = d
     }
@@ -79,6 +76,7 @@ actual object AdhanAudio {
         player?.delegate = null
         player = null
         delegate = null
+        AudioSessions.end(SESSION)
     }
 
     actual fun vibrate(p: VibePattern) {

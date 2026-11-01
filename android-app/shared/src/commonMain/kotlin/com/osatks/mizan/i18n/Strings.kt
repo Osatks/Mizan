@@ -598,4 +598,19 @@ interface Strings {
     val privacy: String
     val privacyText: String
     val disclaimer: String
+    // ---------- Store, sharing, permissions ----------
+    val rateApp: String                // Settings row: "Rate Mizan"
+    val rateAppSub: String             // a review helps others find the app
+    val shareApp: String               // Settings row: "Share Mizan"
+    val shareAppSub: String            // send the app to family and friends
+    fun shareAppText(link: String): String  // share-sheet text: one line about the app, then the store link
+    val licenses: String               // About row: "Sources and licences"
+    val licensesSub: String            // Quran text, tafsirs, recitations, adhan recordings and the font
+    val openSettings: String           // button: open the system Settings app for Mizan
+    val locationOffTitle: String       // dialog title when location permission is denied
+    val locationOffBody: String        // allow it in Settings, or choose the city from the list
+    val notifyOffTitle: String         // dialog title when notification permission is denied
+    val notifyOffBody: String          // allow it in Settings to receive adhan alerts
+    val clear: String                  // icon button: clear the search field
+    val close: String                  // icon button: close
 }

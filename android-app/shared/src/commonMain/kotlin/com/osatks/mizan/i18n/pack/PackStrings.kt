@@ -595,4 +595,18 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val privacy: String by lazy { s("privacy") ?: En.privacy }
     override val privacyText: String by lazy { s("privacyText") ?: En.privacyText }
     override val disclaimer: String by lazy { s("disclaimer") ?: En.disclaimer }
+    override val rateApp: String by lazy { s("rateApp") ?: En.rateApp }
+    override val rateAppSub: String by lazy { s("rateAppSub") ?: En.rateAppSub }
+    override val shareApp: String by lazy { s("shareApp") ?: En.shareApp }
+    override val shareAppSub: String by lazy { s("shareAppSub") ?: En.shareAppSub }
+    override fun shareAppText(link: String): String = f("shareAppText", "link" to link) ?: En.shareAppText(link)
+    override val licenses: String by lazy { s("licenses") ?: En.licenses }
+    override val licensesSub: String by lazy { s("licensesSub") ?: En.licensesSub }
+    override val openSettings: String by lazy { s("openSettings") ?: En.openSettings }
+    override val locationOffTitle: String by lazy { s("locationOffTitle") ?: En.locationOffTitle }
+    override val locationOffBody: String by lazy { s("locationOffBody") ?: En.locationOffBody }
+    override val notifyOffTitle: String by lazy { s("notifyOffTitle") ?: En.notifyOffTitle }
+    override val notifyOffBody: String by lazy { s("notifyOffBody") ?: En.notifyOffBody }
+    override val clear: String by lazy { s("clear") ?: En.clear }
+    override val close: String by lazy { s("close") ?: En.close }
 }

@@ -729,4 +729,19 @@ object Ar : Strings {
     override val privacyText = "لا يجمع التطبيق أي بيانات شخصية ولا يستخدم الإنترنت إلا لتنزيل التفاسير التي تختارها وتشغيل التلاوة حين تطلبها. يُستخدم الموقع على جهازك فقط لحساب المواقيت والقبلة، " +
         "وتُحفظ إعداداتك وأرقامك على الجهاز ولا تُرسل إلى أي جهة."
     override val disclaimer = "النتائج إرشادية، ويُرجع في المسائل الشرعية الخاصة إلى أهل العلم والجهات الرسمية المختصة."
+    // ---------- المتجر والمشاركة والأذونات ----------
+    override val rateApp = "قيّم ميزان"
+    override val rateAppSub = "تقييمك يساعد غيرك على الوصول إلى التطبيق"
+    override val shareApp = "شارك ميزان"
+    override val shareAppSub = "أرسل التطبيق إلى أهلك وأصدقائك"
+    override fun shareAppText(link: String) = "ميزان: مواقيت الصلاة والقبلة والقرآن والزكاة والمواريث في تطبيق واحد مجاني بلا إعلانات\n$link"
+    override val licenses = "المصادر والتراخيص"
+    override val licensesSub = "نص المصحف والتفاسير والتلاوات وتسجيلات الأذان والخط"
+    override val openSettings = "فتح الإعدادات"
+    override val locationOffTitle = "الوصول إلى الموقع متوقف"
+    override val locationOffBody = "لم يُسمح لميزان باستعمال موقعك. يمكنك السماح بذلك من الإعدادات، أو اختيار مدينتك من القائمة."
+    override val notifyOffTitle = "الإشعارات متوقفة"
+    override val notifyOffBody = "لم يُسمح لميزان بإرسال الإشعارات، فلن تصلك تنبيهات الأذان. يمكنك السماح بها من الإعدادات."
+    override val clear = "مسح"
+    override val close = "إغلاق"
 }

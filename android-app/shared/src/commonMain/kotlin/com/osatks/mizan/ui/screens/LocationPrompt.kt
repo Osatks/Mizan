@@ -40,6 +40,10 @@ import com.osatks.mizan.platform.LocationResult
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.platform.rememberLocationRequest
+import com.osatks.mizan.platform.rememberNotifyToggle
+import com.osatks.mizan.platform.AppStore
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import com.osatks.mizan.ui.theme.Gold
 
 /**
@@ -51,14 +55,16 @@ fun LocationButtons(onHero: Boolean, modifier: Modifier = Modifier) {
     val s = LocalStrings.current
     var locating by remember { mutableStateOf(false) }
     var pickCity by remember { mutableStateOf(false) }
+    var denied by remember { mutableStateOf(false) }
     val locate = rememberLocationRequest { r ->
         locating = false
         when (r) {
             is LocationResult.Found -> { AppSettings.updatePlace(r.place); PrayerAlerts.reschedule(); Platform.toast(s.locationFound) }
             LocationResult.Failed -> Platform.toast(s.locationFailed)
-            LocationResult.Denied -> Platform.toast(s.locationDenied)
+            LocationResult.Denied -> denied = true
         }
     }
+    if (denied) LocationDeniedDialog(onPickCity = { denied = false; pickCity = true }, onDismiss = { denied = false })
     Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Button(
             onClick = { locating = true; locate() }, enabled = !locating, modifier = Modifier.fillMaxWidth(),
@@ -106,4 +112,44 @@ fun LocationNeededCard(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+/**
+ * رفض المستخدم إذن الموقع (الآن أو من قبل، فلا يسأل النظام ثانية): التطبيق يبقى صالحاً كله باختيار المدينة،
+ * ومن يريد الموقع التلقائي يُفتح له تطبيق الإعدادات
+ */
+@Composable
+fun LocationDeniedDialog(onPickCity: () -> Unit, onDismiss: () -> Unit) {
+    val s = LocalStrings.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(s.locationOffTitle) },
+        text = { Text(s.locationOffBody) },
+        confirmButton = { TextButton(onClick = onPickCity) { Text(s.pickCity) } },
+        dismissButton = { TextButton(onClick = { onDismiss(); AppStore.openSettings() }) { Text(s.openSettings) } },
+    )
+}
+
+/**
+ * مفتاح تنبيهات الأذان: يطلب إذن الإشعارات عند التفعيل فقط، وإن رفضه النظام (رُفض من قبل فلا يسأل ثانية)
+ * يشرح ذلك ويفتح الإعدادات بطلب المستخدم، بدل مفتاح يعود إلى الإيقاف بلا سبب
+ */
+@Composable
+fun rememberAlertsToggle(): (Boolean) -> Unit {
+    val s = LocalStrings.current
+    var wanted by remember { mutableStateOf(false) }
+    var denied by remember { mutableStateOf(false) }
+    val toggle = rememberNotifyToggle { ok ->
+        AppSettings.updateNotify(ok)
+        PrayerAlerts.reschedule()
+        if (wanted && !ok) denied = true
+    }
+    if (denied) AlertDialog(
+        onDismissRequest = { denied = false },
+        title = { Text(s.notifyOffTitle) },
+        text = { Text(s.notifyOffBody) },
+        confirmButton = { TextButton(onClick = { denied = false; AppStore.openSettings() }) { Text(s.openSettings) } },
+        dismissButton = { TextButton(onClick = { denied = false }) { Text(s.cancel) } },
+    )
+    return remember(toggle) { { on -> wanted = on; toggle(on) } }
 }

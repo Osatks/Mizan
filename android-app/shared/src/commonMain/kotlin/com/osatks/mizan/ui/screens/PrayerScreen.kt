@@ -4,7 +4,6 @@ import com.osatks.mizan.platform.LocationResult
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.platform.rememberLocationRequest
-import com.osatks.mizan.platform.rememberNotifyToggle
 import com.osatks.mizan.core.*
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -99,6 +98,7 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
     var showMonth by remember { mutableStateOf(false) }
     var locating by remember { mutableStateOf(false) }
     var pickCity by remember { mutableStateOf(false) }
+    var locationDenied by remember { mutableStateOf(false) }
     val place = AppSettings.place
 
     LaunchedEffect(place, AppSettings.method, AppSettings.hanafi) {
@@ -110,10 +110,11 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
         when (r) {
             is LocationResult.Found -> { AppSettings.updatePlace(r.place); PrayerAlerts.reschedule(); Platform.toast(s.locationFound) }
             LocationResult.Failed -> Platform.toast(s.locationFailed)
-            LocationResult.Denied -> Platform.toast(s.locationDenied)
+            LocationResult.Denied -> locationDenied = true
         }
     }
-    val toggleNotify = rememberNotifyToggle { ok -> AppSettings.updateNotify(ok); PrayerAlerts.reschedule() }
+    if (locationDenied) LocationDeniedDialog(onPickCity = { locationDenied = false; pickCity = true }, onDismiss = { locationDenied = false })
+    val toggleNotify = rememberAlertsToggle()
 
     val city = place.city
     val subtitle = s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: "")

@@ -31,17 +31,24 @@ import com.osatks.mizan.widget.IosWidgets
 import com.osatks.mizan.widget.WidgetLaunch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import platform.UIKit.UIViewAutoresizingFlexibleHeight
+import platform.UIKit.addChildViewController
+import platform.UIKit.didMoveToParentViewController
+import platform.UIKit.UIViewAutoresizingFlexibleWidth
+import com.osatks.mizan.ui.IosStatusBar
+import platform.UIKit.UIStatusBarAnimation
+import platform.UIKit.UIStatusBarStyle
 import platform.UIKit.UIViewController
 
 /** نقطة دخول iOS: يستدعيها iOSApp.swift */
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 fun MainViewController(): UIViewController {
     AppSettings.init()
     // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)،
     // ولقطة أدوات الشاشة الرئيسية في حاوية App Group (وتُحدَّث أيضاً عند الخروج منه)؛
     // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت وطلبات الإشعار لا ينتظرها أول إطار
     MainScope().launch { delay(1200); PrayerAlerts.reschedule(); IosWidgets.refresh() }
-    return ComposeUIViewController(configure = {
+    val vc = ComposeUIViewController(configure = {
         // ترميز أوامر الرسم لـ Metal على خيط مستقل، فيتفرغ الخيط الرئيسي للتركيب واللمس في كل إطار
         parallelRendering = true
         // سحب الحافة للرجوع (كتطبيقات النظام): يقود انتقال الرجوع في NavHost مع حركة الإصبع
@@ -62,6 +69,28 @@ fun MainViewController(): UIViewController {
             }
         }
     }
+    // المتحكم الجذر يحمل Compose ويجيب النظام عن شريط الحالة (SystemBars.ios.kt)
+    return MizanRootController(vc).also { IosStatusBar.controller = it }
+}
+
+/**
+ * المتحكم الجذر لنافذة التطبيق: واجهة Compose ابنٌ يملأه، وهو يجيب عن شريط الحالة
+ * (نص فاتح فوق الرؤوس الخضراء وداكن فوق السطوح الفاتحة، ومخفي في وضع التركيز)
+ */
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+private class MizanRootController(private val content: UIViewController) : UIViewController(nibName = null, bundle = null) {
+    override fun viewDidLoad() {
+        super.viewDidLoad()
+        addChildViewController(content)
+        content.view.setFrame(view.bounds)
+        content.view.autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
+        view.addSubview(content.view)
+        content.didMoveToParentViewController(this)
+    }
+
+    override fun preferredStatusBarStyle(): UIStatusBarStyle = IosStatusBar.style
+    override fun prefersStatusBarHidden(): Boolean = IosStatusBar.hidden
+    override fun preferredStatusBarUpdateAnimation(): UIStatusBarAnimation = UIStatusBarAnimation.UIStatusBarAnimationFade
 }
 
 /** بديل Toast: رسالة قصيرة أسفل الشاشة تختفي وحدها */

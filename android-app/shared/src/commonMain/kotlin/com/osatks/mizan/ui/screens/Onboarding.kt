@@ -73,6 +73,8 @@ fun Onboarding(onDone: () -> Unit) {
     val pager = rememberPagerState { count }
     val scope = rememberCoroutineScope()
     val last = pager.currentPage == count - 1
+    // خلفية خضراء كاملة: نص شريط الحالة فاتح
+    com.osatks.mizan.ui.StatusBarStyle(lightContent = true)
     Box(Modifier.fillMaxSize().background(HeroBrush)) {
         // نجمة كبيرة تدور ببطء خلف الصفحات
         SlowStar(Modifier.size(420.dp).align(Alignment.TopEnd).graphicsLayer { translationX = 140f; translationY = -80f }, Color.White.copy(alpha = .06f), 90_000, 4f)

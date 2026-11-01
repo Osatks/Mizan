@@ -260,7 +260,7 @@ fun CityPickerSheet(selectedKey: String?, onDismiss: () -> Unit, onPick: (City) 
                 value = q, onValueChange = { q = it }, singleLine = true,
                 placeholder = { Text(s.searchCity) },
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
-                trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, null) } },
+                trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, s.clear) } },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )

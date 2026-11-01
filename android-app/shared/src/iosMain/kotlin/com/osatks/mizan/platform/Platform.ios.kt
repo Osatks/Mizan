@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.useContents
+import platform.CoreGraphics.CGRectMake
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSBundle
@@ -25,13 +27,16 @@ import platform.Foundation.NSURLSession
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.create
-import platform.Foundation.dataTaskWithURL
+import platform.Foundation.NSURLRequest
+import platform.Foundation.NSURLRequestUseProtocolCachePolicy
+import platform.Foundation.dataTaskWithRequest
 import platform.Foundation.dataWithContentsOfFile
 import platform.Foundation.decomposedStringWithCanonicalMapping
 import platform.Foundation.preferredLanguages
 import platform.Foundation.writeToFile
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
+import platform.UIKit.popoverPresentationController
 import platform.posix.memcpy
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -101,9 +106,15 @@ actual object Platform {
     actual fun toast(msg: String) { IosToast.message = msg }
     actual fun share(text: String, title: String) {
         val vc = UIActivityViewController(listOf(text), null)
-        var top = UIApplication.sharedApplication.keyWindow?.rootViewController
-        while (top?.presentedViewController != null) top = top.presentedViewController
-        top?.presentViewController(vc, true, null)
+        var top = UIApplication.sharedApplication.keyWindow?.rootViewController ?: return
+        while (top.presentedViewController != null) top = top.presentedViewController!!
+        // في iPad تُعرض المشاركة نافذة منبثقة، ولا بد لها من موضع وإلا انهار التطبيق: وسط الشاشة بلا سهم
+        vc.popoverPresentationController?.let { pop ->
+            pop.sourceView = top.view
+            top.view.bounds.useContents { pop.sourceRect = CGRectMake(origin.x + size.width / 2, origin.y + size.height / 2, 0.0, 0.0) }
+            pop.permittedArrowDirections = 0u
+        }
+        top.presentViewController(vc, true, null)
     }
 }
 
@@ -126,8 +137,10 @@ actual object Fs {
 }
 
 actual suspend fun httpGet(url: String, onProgress: (Int) -> Unit): ByteArray = suspendCancellableCoroutine { cont ->
-    val u = NSURL(string = url)
-    val task = NSURLSession.sharedSession.dataTaskWithURL(u) { data, response, error ->
+    val u = NSURL.URLWithString(url) ?: throw IllegalArgumentException("bad url $url")
+    // مهلة 30 ثانية بلا بيانات: انقطاع الشبكة يُظهر رسالة الفشل وزر الإعادة بدل انتظار بلا نهاية
+    val request = NSURLRequest.requestWithURL(u, NSURLRequestUseProtocolCachePolicy, 30.0)
+    val task = NSURLSession.sharedSession.dataTaskWithRequest(request) { data, response, error ->
         val code = (response as? NSHTTPURLResponse)?.statusCode?.toInt() ?: 0
         when {
             error != null -> cont.resumeWithException(IllegalStateException(error.localizedDescription))

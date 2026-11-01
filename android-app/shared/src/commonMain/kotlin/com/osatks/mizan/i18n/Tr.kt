@@ -747,4 +747,19 @@ object Tr : Strings {
     override val privacyText = "Uygulama hiçbir kişisel veri toplamaz ve interneti yalnızca seçtiğiniz tefsirleri indirmek ve istediğinizde tilavet çalmak için kullanır. Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıbleyi hesaplamak için kullanılır; " +
         "ayarlarınız ve girdiğiniz rakamlar cihazınızda kalır."
     override val disclaimer = "Sonuçlar yol göstericidir. Kendi dinî sorularınız için yetkin âlimlere ve resmî kurumlara başvurun."
+    // ---------- المتجر والمشاركة والأذونات ----------
+    override val rateApp = "Mizan'ı değerlendir"
+    override val rateAppSub = "Değerlendirmeniz başkalarının uygulamayı bulmasına yardımcı olur"
+    override val shareApp = "Mizan'ı paylaş"
+    override val shareAppSub = "Uygulamayı ailenize ve arkadaşlarınıza gönderin"
+    override fun shareAppText(link: String) = "Mizan: namaz vakitleri, kıble, Kur'an, zekât ve miras tek bir ücretsiz ve reklamsız uygulamada\n$link"
+    override val licenses = "Kaynaklar ve lisanslar"
+    override val licensesSub = "Kur'an metni, tefsirler, tilavetler, ezan kayıtları ve yazı tipi"
+    override val openSettings = "Ayarları aç"
+    override val locationOffTitle = "Konum erişimi kapalı"
+    override val locationOffBody = "Mizan'ın konumunuzu kullanmasına izin verilmedi. Ayarlar'dan izin verebilir veya şehrinizi listeden seçebilirsiniz."
+    override val notifyOffTitle = "Bildirimler kapalı"
+    override val notifyOffBody = "Mizan'ın bildirim göndermesine izin verilmedi, bu yüzden ezan uyarıları size ulaşamaz. Ayarlar'dan izin verebilirsiniz."
+    override val clear = "Temizle"
+    override val close = "Kapat"
 }

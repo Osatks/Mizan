@@ -98,4 +98,26 @@ class StringsTest {
             }
         }
     }
+
+    /**
+     * App Store (2.3.10): لا ذكر لأندرويد أو Google Play في نص يُعرض في iOS. المسموح نصوص أندرويد وحدها
+     * (لا تظهر في iOS: «عدم الإزعاج» في وضع التركيز، وإيقاف الأذان من الإشعار، والمنبهات الدقيقة)
+     */
+    @Test
+    fun noOtherPlatformInIosText() {
+        val androidOnly = setOf("silenceBody", "silenceTitle", "adhanStopHint", "exactAlarm", "exactAlarmDesc")
+        val banned = Regex("(?i)android|google|play store|\\bapk\\b|أندرويد|اندرويد|андроид|андроїд")
+        for (l in Lang.entries) {
+            val s = l.strings
+            for (m in com.osatks.mizan.i18n.Strings::class.java.methods) {
+                if (m.parameterCount != 0 || !m.name.startsWith("get")) continue
+                val key = m.name.removePrefix("get").replaceFirstChar { it.lowercase() }
+                if (key in androidOnly) continue
+                val text = m.invoke(s)?.toString() ?: continue
+                assertFalse("${l.code}.$key mentions another platform: $text", banned.containsMatchIn(text))
+            }
+            val share = s.shareAppText("https://example.org/x")
+            assertTrue("${l.code} share text keeps the link", share.contains("https://example.org/x"))
+        }
+    }
 }
