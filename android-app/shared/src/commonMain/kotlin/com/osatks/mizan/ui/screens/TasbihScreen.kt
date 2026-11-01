@@ -249,7 +249,7 @@ fun TasbihScreen() {
                 }
             }
         }
-        item {
+        side {
             com.osatks.mizan.ui.Reveal(mode == "free") {
                 SectionCard(s.chooseDhikr) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -259,7 +259,7 @@ fun TasbihScreen() {
                 }
             }
         }
-        item {
+        side {
             SectionCard(s.yourStats) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Tile(Fmt.int(rounds.toLong()), s.roundsDone)

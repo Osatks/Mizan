@@ -9,6 +9,12 @@ HOW TO TEST
 6. Home > tools: Adhkar (tap a dhikr to count it; "Evidence" shows its hadith source and grade), Qibla compass (needs a device with a compass), Zakat, Inheritance, Hijri date, Tasbih.
 7. Home Screen widgets: long-press the Home Screen > Edit > Add Widget > Mizan (next prayer, prayer times, adhkar, Hijri date, ayah of the day).
 
+IPAD AND IPHONE DUO
+This is a universal app with layouts designed for each screen size; please test on iPad too.
+- iPad (all orientations, Split View, Slide Over and resizable windows): a sidebar replaces the bottom tab bar; Home shows the tools in 3-4 columns; Zakat, Inheritance and Prayer show inputs and results side by side; menus and sheets appear as centered popovers and windows.
+- Quran on iPad in landscape: open a surah to see two facing pages like a printed Mushaf (odd page on the right). Long-press an ayah > Tafsir opens the tafsir in a side panel next to the pages. In portrait one page is shown at the printed page proportions. Rotating keeps the same page on screen.
+- iPhone Duo: the outer display uses the phone layout; the inner display uses the two-page Quran and sidebar layouts. Folding or unfolding keeps the same page and any open panel.
+
 NETWORK
 The app works offline. It connects only to stream Quran recitation audio (everyayah.com) and, when the user asks, to download extra tafsirs (cdn.jsdelivr.net), language packs and adhan voices (mizan-al-muslem.com). No personal data is sent.
 

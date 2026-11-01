@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- تصدير نسخة المتجر ورفعها مباشرة إلى App Store Connect (ios-release.yml).
+<!-- تصدير نسخة المتجر ملفاً موقَّعاً (.ipa) فقط (ios-release.yml)؛ الرفع خطوة بعدها بـ altool (وإلا fastlane pilot).
+     فصل التوقيع عن الرفع: الرفع المدمج في exportArchive (destination = upload) رفضته App Store Connect بمفتاح API
+     صالح («Cannot verify client's JWT headers» ثم «No Accounts with App Store Connect Access»).
      teamID يُستبدل عند البناء بقيمة APPLE_TEAM_ID (plutil -replace teamID). -->
 <plist version="1.0">
 <dict>
 	<key>method</key>
 	<string>app-store-connect</string>
 	<key>destination</key>
-	<string>upload</string>
+	<string>export</string>
 	<key>teamID</key>
 	<string>TEAM_ID_PLACEHOLDER</string>
 	<key>signingStyle</key>
@@ -15,8 +17,6 @@
 	<key>uploadSymbols</key>
 	<true/>
 	<key>manageAppVersionAndBuildNumber</key>
-	<false/>
-	<key>testFlightInternalTestingOnly</key>
 	<false/>
 </dict>
 </plist>

@@ -111,11 +111,12 @@ fun QuranScreen(open: (String) -> Unit) {
     }
     val ref = remember(q) { QuranSearch.parseRef(q) }
 
-    ToolPage(s.quranTitle, s.quranSubtitle, sharedKey = "quran", icon = Icons.AutoMirrored.Filled.MenuBook, spacing = 10.dp) {
+    // على الشاشة الواسعة: متابعة القراءة والختمة متجاورتان، والسور والأجزاء ونتائج البحث في شبكة بعمودين
+    ToolPage(s.quranTitle, s.quranSubtitle, sharedKey = "quran", icon = Icons.AutoMirrored.Filled.MenuBook, spacing = 10.dp, columns = true) {
         if (QuranPrefs.last >= 0 && q.isBlank()) item(key = "continue") { ContinueCard(QuranPrefs.last, open) }
-        if (q.isBlank()) item(key = "khatma") { KhatmaCard(open) }
+        if (q.isBlank()) side(key = "khatma") { KhatmaCard(open) }
         if (q.isBlank()) item(key = "evidence") { com.osatks.mizan.ui.screens.EvidenceCard(com.osatks.mizan.i18n.Evidence.quran) }
-        item(key = "search") {
+        full(key = "search") {
             OutlinedTextField(
                 value = q, onValueChange = { q = it }, singleLine = true,
                 placeholder = { Text(s.searchQuranHint, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -126,27 +127,27 @@ fun QuranScreen(open: (String) -> Unit) {
             )
         }
         if (q.isNotBlank()) {
-            if (ref != null) item(key = "ref") { AyahHit(ref, text, open) }
+            if (ref != null) full(key = "ref") { AyahHit(ref, text, open) }
             if (surahHits.isNotEmpty()) {
-                item(key = "hs") { GroupTitle(s.searchQuranGroup) }
-                surahHits.forEach { n -> item(key = "s$n") { SurahRow(n, lang, open) } }
+                full(key = "hs") { GroupTitle(s.searchQuranGroup) }
+                cells(surahHits.size, { "s${surahHits[it]}" }) { SurahRow(surahHits[it], lang, open) }
             }
             val hits = ayahHits
-            if (hits == null) item(key = "busy") {
+            if (hits == null) full(key = "busy") {
                 Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp)) }
             } else if (hits.isNotEmpty()) {
-                item(key = "ha") { GroupTitle("${s.searchAyahsGroup} (${hits.size})") }
-                hits.forEach { i -> item(key = "a$i") { AyahHit(i, text, open) } }
-            } else if (surahHits.isEmpty() && ref == null) item(key = "none") { Note(s.searchNoResults(q)) }
+                full(key = "ha") { GroupTitle("${s.searchAyahsGroup} (${hits.size})") }
+                cells(hits.size, { "a${hits[it]}" }) { AyahHit(hits[it], text, open) }
+            } else if (surahHits.isEmpty() && ref == null) full(key = "none") { Note(s.searchNoResults(q)) }
         } else {
-            item(key = "tabs") {
+            full(key = "tabs") {
                 Segmented(listOf("surahs" to s.surahsTab, "juz" to s.juzTab, "saved" to s.bookmarksTab), tab) { tab = it }
             }
             when (tab) {
-                "surahs" -> (1..QuranMeta.SURAHS).forEach { n -> item(key = "s$n") { SurahRow(n, lang, open) } }
-                "juz" -> (1..30).forEach { j -> item(key = "j$j") { JuzRow(j, open) } }
-                else -> if (QuranPrefs.bookmarks.isEmpty()) item(key = "nomarks") { Note(s.noBookmarks) }
-                else QuranPrefs.bookmarks.toList().forEach { i -> item(key = "b$i") { AyahHit(i, text, open, bookmarked = true) } }
+                "surahs" -> cells(QuranMeta.SURAHS, { "s${it + 1}" }) { SurahRow(it + 1, lang, open) }
+                "juz" -> cells(30, { "j${it + 1}" }) { JuzRow(it + 1, open) }
+                else -> if (QuranPrefs.bookmarks.isEmpty()) full(key = "nomarks") { Note(s.noBookmarks) }
+                else QuranPrefs.bookmarks.toList().let { marks -> cells(marks.size, { "b${marks[it]}" }) { AyahHit(marks[it], text, open, bookmarked = true) } }
             }
         }
     }

@@ -1,9 +1,14 @@
 name: iOS Screenshots (App Store)
 
-# لقطات المتجر من محاكي iPhone 17 Pro Max (1320×2868، مقاس 6.9 بوصة الذي يطلبه App Store):
-# يبني التطبيق للمحاكي ثم يفتح كل شاشة بروابط mizan://open?route=… ويلتقطها لكل لغة (iosApp/fastlane/screenshots.sh).
-# النتيجة في iosApp/fastlane/screenshots/<locale>/ ملفاً مرفقاً (artifact)، وتُضاف إلى الفرع إن اخترت commit،
-# فيرفعها ios-release.yml (submit=true) مع النصوص. الأدوات (Widgets) لا تُلتقط هنا.
+# لقطات المتجر من المحاكي لتطبيق عام (iosApp/fastlane/screenshots.sh):
+#   iPhone بشاشة 6.9 بوصة (1320×2868)، و iPad Pro 13 بوصة (2064×2752) ومعها لقطة المصحف بالعرض صفحتين متقابلتين،
+#   و iPhone Duo من محاكي iOS 27.1 (تُرفع إن عرف deliver مقاسها، وإلا تبقى في الملف المرفق وحده).
+# يفتح كل شاشة بروابط mizan://open?route=… ويلتقطها لكل لغة. النتيجة في iosApp/fastlane/screenshots/<locale>/
+# ملفاً مرفقاً (artifact)، وتُضاف إلى الفرع إن اخترت commit، فيرفعها ios-release.yml (submit=true) مع النصوص.
+# الأدوات (Widgets) لا تُلتقط هنا.
+#
+# على مرحلتين: إطار Kotlin للمحاكي على macos-15 بـ Xcode 16 (Kotlin 2.1.21 مختبَر حتى Xcode 16.x)، ثم التطبيق
+# واللقطات على xcode-27 بـ Xcode 27.1 (محاكيات iOS 27 و iPhone Duo بنظام 27.1).
 on:
   workflow_dispatch:
     inputs:
@@ -11,6 +16,10 @@ on:
         description: "App Store locales (space separated)"
         type: string
         default: "ar-SA en-US"
+      devices:
+        description: "Simulators (space separated: iphone ipad duo)"
+        type: string
+        default: "iphone ipad duo"
       commit:
         description: "Commit the screenshots to this branch (iosApp/fastlane/screenshots)"
         type: boolean
@@ -20,9 +29,9 @@ permissions:
   contents: write
 
 jobs:
-  screenshots:
-    runs-on: macos-26
-    timeout-minutes: 60
+  framework:
+    runs-on: macos-15
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
 
@@ -38,18 +47,49 @@ jobs:
       - name: Build Kotlin framework (iosSimulatorArm64)
         working-directory: android-app
         run: |
-          # كما في ios-release.yml: Xcode 16 لإطار Kotlin إن وُجد
-          x16=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n1 || true)
+          x16=$(find /Applications -maxdepth 1 -name 'Xcode_16*.app' 2>/dev/null | sort -V | tail -n1)
           if [ -n "$x16" ]; then export DEVELOPER_DIR="$x16/Contents/Developer"; echo "Kotlin link with $x16"; fi
+          xcodebuild -version
           gradle :shared:linkReleaseFrameworkIosSimulatorArm64 --no-daemon --stacktrace
+
+      - name: Pack framework
+        run: tar -czf "$RUNNER_TEMP/shared-framework-sim.tgz" -C android-app/shared/build/bin/iosSimulatorArm64/releaseFramework Shared.framework
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shared-framework-simulator
+          path: ${{ runner.temp }}/shared-framework-sim.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+  screenshots:
+    needs: framework
+    # صورة Xcode 27 (معاينة arm64): Xcode 27.1 افتراضي، ومحاكي iPhone Duo بنظام iOS 27.1
+    runs-on: xcode-27
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Xcode 27.1
+        run: |
+          x=/Applications/Xcode_27.1.app/Contents/Developer
+          if [ -d "$x" ]; then export DEVELOPER_DIR="$x"; echo "DEVELOPER_DIR=$x" >> "$GITHUB_ENV"; fi
+          xcodebuild -version
+          xcrun simctl list runtimes
+          xcrun simctl list devicetypes | grep -E "iPhone (17|18) Pro Max|iPad Pro 13|iPhone Duo" || true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: shared-framework-simulator
+          path: ${{ runner.temp }}
 
       # project.yml يربط الإطار من مسار iosArm64: نضع نسخة المحاكي مكانه في هذا البناء وحده
       - name: Use the simulator framework
         run: |
-          src=android-app/shared/build/bin/iosSimulatorArm64/releaseFramework/Shared.framework
           dst=android-app/shared/build/bin/iosArm64/releaseFramework
-          test -d "$src"
-          rm -rf "$dst" && mkdir -p "$dst" && cp -R "$src" "$dst/"
+          rm -rf "$dst" && mkdir -p "$dst"
+          tar -xzf "$RUNNER_TEMP/shared-framework-sim.tgz" -C "$dst"
+          test -f "$dst/Shared.framework/Shared"
 
       - name: Generate Xcode project
         working-directory: iosApp
@@ -76,14 +116,35 @@ jobs:
         working-directory: iosApp
         run: |
           chmod +x fastlane/screenshots.sh
-          fastlane/screenshots.sh "$PWD/build/Build/Products/Release-iphonesimulator/Mizan.app" "$PWD/fastlane/screenshots" "$LOCALES"
+          fastlane/screenshots.sh "$PWD/build/Build/Products/Release-iphonesimulator/Mizan.app" "$PWD/fastlane/screenshots" "$LOCALES" "$DEVICES"
         env:
           LOCALES: ${{ inputs.locales }}
+          DEVICES: ${{ inputs.devices }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: iosApp
+
+      # كل لقطة يرفعها deliver يجب أن يعرف مقاسها (fastlane المثبَّت في Gemfile.lock)؛ ما لا يعرفه (لقطات Duo مثلاً)
+      # يُنقل إلى screenshots-extra ويبقى في الملف المرفق وحده، فلا يُلغي رفع اللقطات الأخرى
+      - name: Check display types (fastlane deliver)
+        working-directory: iosApp
+        run: |
+          req=""
+          if [[ " $DEVICES " == *" iphone "* && " $DEVICES " == *" ipad "* ]]; then req="--require-ipad"; fi
+          bundle exec ruby fastlane/check_screenshots.rb fastlane/screenshots --move-unknown fastlane/screenshots-extra $req
+        env:
+          DEVICES: ${{ inputs.devices }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: mizan-app-store-screenshots
-          path: iosApp/fastlane/screenshots
+          path: |
+            iosApp/fastlane/screenshots
+            iosApp/fastlane/screenshots-extra
+            iosApp/fastlane/screenshot-logs
           if-no-files-found: error
 
       - name: Commit screenshots
@@ -95,5 +156,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add iosApp/fastlane/screenshots
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
-          git commit -m "لقطات App Store من المحاكي ($LOCALES)"
+          git commit -m "لقطات App Store من المحاكي ($LOCALES): iPhone و iPad و iPhone Duo"
           git push origin "HEAD:${GITHUB_REF_NAME}"

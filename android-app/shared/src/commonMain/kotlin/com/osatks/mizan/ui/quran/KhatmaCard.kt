@@ -164,26 +164,12 @@ private fun PlanMenu() {
                 Icon(Icons.Filled.ArrowDropDown, s.khatmaPlanLabel, Modifier.size(18.dp))
             }
         }
-        DropdownMenu(expanded, onDismissRequest = { expanded = false }, shape = RoundedCornerShape(16.dp)) {
-            Text(
-                s.khatmaPlanLabel, Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            QuranProgress.PLANS.forEach { d ->
-                DropdownMenuItem(
-                    text = { Text(s.planDays(d), fontWeight = if (d == p.planDays) FontWeight.Bold else FontWeight.Normal) },
-                    trailingIcon = { if (d == p.planDays) Icon(Icons.Filled.Check, null, tint = MaterialTheme.colorScheme.primary) },
-                    onClick = { p.changePlan(d); expanded = false }
-                )
-            }
-            if (p.readCount > 0) {
-                HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                DropdownMenuItem(
-                    text = { Text(s.newKhatma) },
-                    leadingIcon = { Icon(Icons.Filled.Refresh, null) },
-                    onClick = { p.restart(); expanded = false }
-                )
-            }
-        }
+        // المدد في مجموعة، و«ختمة جديدة» في مجموعة بعدها
+        com.osatks.mizan.ui.GlassMenu(
+            expanded, { expanded = false },
+            QuranProgress.PLANS.map { d -> com.osatks.mizan.ui.MenuItem(s.planDays(d), checked = d == p.planDays) { p.changePlan(d) } } +
+                if (p.readCount > 0) listOf(com.osatks.mizan.ui.MenuGroupGap, com.osatks.mizan.ui.MenuItem(s.newKhatma, Icons.Filled.Refresh) { p.restart() }) else emptyList(),
+            title = s.khatmaPlanLabel, width = 240.dp,
+        )
     }
 }
