@@ -57,6 +57,12 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<!-- دورة حياة المشاهد (إلزامية بعد iOS 26 SDK)؛ يضبط AppDelegate الإعداد برمجياً -->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
