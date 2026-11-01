@@ -11,15 +11,16 @@ import com.osatks.mizan.platform.edit
 
 /**
  * موقع المستخدم. key مفتاح مدينة معروفة (يُترجم اسمها حسب اللغة)، أو null لموقع GPS بعيد عن أي مدينة.
+ * [elev]: ارتفاعه عن البحر بالأمتار (من المدينة المعروفة)، للطرق التي تحسب به الشروق والغروب
  */
 data class Place(
     val key: String?, val lat: Double, val lng: Double,
-    val tz: String, val method: String, val gps: Boolean = false
+    val tz: String, val method: String, val gps: Boolean = false, val elev: Int = 0,
 ) {
     val city: City? get() = PrayTimes.city(key)
 
     companion object {
-        fun of(c: City) = Place(c.key, c.lat, c.lng, c.tz, c.method)
+        fun of(c: City) = Place(c.key, c.lat, c.lng, c.tz, c.method, elev = c.elev)
     }
 }
 
@@ -28,6 +29,12 @@ val IQAMA_DEFAULT = mapOf("fajr" to 25, "dhuhr" to 20, "asr" to 20, "maghrib" to
 
 /** إعدادات التطبيق المحفوظة على الجهاز، مع حالة Compose للتحديث الفوري */
 object AppSettings {
+    /**
+     * إصدار قواعد المواقيت: يزيد حين تتغير الطريقة الافتراضية لمدن (2: طرق الجهات الرسمية لكل بلد)، فينتقل إليها
+     * من بقي على طريقة مكانه الافتراضية، ويبقى من اختار طريقة بنفسه على اختياره
+     */
+    private const val RULES_VERSION = 2
+
     private lateinit var sp: Prefs
     val ready: Boolean get() = ::sp.isInitialized
 
@@ -77,10 +84,25 @@ object AppSettings {
                 sp.getString("place_key")?.takeIf { it.isNotEmpty() },
                 (sp.getString("place_lat") ?: "0").toDouble(), (sp.getString("place_lng") ?: "0").toDouble(),
                 (sp.getString("place_tz") ?: systemTimeZoneId()), (sp.getString("place_method") ?: "mwl"),
-                sp.getBool("place_gps", false)
+                sp.getBool("place_gps", false),
+                // ما حُفظ قبل حساب الارتفاع: من المدينة المعروفة القريبة
+                sp.getString("place_elev")?.toIntOrNull()
+                    ?: PrayTimes.elevationNear((sp.getString("place_lat") ?: "0").toDouble(), (sp.getString("place_lng") ?: "0").toDouble()),
             )
         }
         method = (sp.getString("method") ?: place.method)
+        if (sp.getInt("rules_v", 1) < RULES_VERSION) {
+            if (placeSet) {
+                val def = defaultMethod(place)
+                // لم يغيّر الطريقة بعد اختيار مكانه (updatePlace يحفظهما معاً، و updateMethod الطريقة وحدها)
+                if (method == sp.getString("place_method") && def != method) {
+                    place = place.copy(method = def)
+                    method = def
+                    sp.edit().putString("place_method", def).putString("method", def).apply()
+                }
+            }
+            sp.edit().putInt("rules_v", RULES_VERSION).apply()
+        }
         hanafiChoice = if (sp.contains("hanafi")) sp.getBool("hanafi", false) else null
         use24h = sp.getBool("use24h", false)
         iqama = IQAMA_DEFAULT.mapValues { (k, v) -> sp.getInt("iqama_$k", v) }
@@ -108,6 +130,9 @@ object AppSettings {
         e.apply()
     }
 
+    /** الطريقة الافتراضية لمكان: طريقة مدينته المعروفة، أو أقرب مدينة لموقع GPS بعيد */
+    fun defaultMethod(p: Place): String = p.city?.method ?: PrayTimes.nearestCity(p.lat, p.lng).first.method
+
     fun updatePlace(p: Place) {
         place = p
         placeSet = true
@@ -116,6 +141,7 @@ object AppSettings {
             .putString("place_key", p.key ?: "")
             .putString("place_lat", p.lat.toString()).putString("place_lng", p.lng.toString())
             .putString("place_tz", p.tz).putString("place_method", p.method).putBoolean("place_gps", p.gps)
+            .putString("place_elev", p.elev.toString())
             .putString("method", p.method)
             .apply()
     }

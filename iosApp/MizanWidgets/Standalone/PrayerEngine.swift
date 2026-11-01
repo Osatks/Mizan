@@ -171,8 +171,23 @@ struct CalcMethod: Codable {
     let min: [String: Double]?
     /// العصر بمثلَي الظل هو المعتمد في بلاد الطريقة
     let hanafi: Bool?
+    /// معامل انخفاض الأفق بارتفاع المكان (Method.elevation)؛ غائب أو صفر: لا يُعتمد الارتفاع
+    let elev: Double?
+    /// موضع الشمس مرة لليوم عند منتصف الليل بتوقيت غرينتش (Method.dailySun)
+    let daily: Bool?
+    /// الفجر قبل الشروق والعشاء بعد الغروب بدقائق ثابتة ما دامت الشمس لا تبلغ زاوية الفجر (Method.fajrFallback و ishaFallback)
+    let ff: Double?
+    let fi: Double?
+    /// حد لجنة رؤية الهلال العالمية الموسمي (Method.seasonal)
+    let seasonal: Bool?
+    /// نسبتا أعمق انخفاض للشمس للفجر والعشاء في الصيف (Method.depression)
+    let dep: [Double]?
+    /// دقائق تُزاد في رمضان وحده (Method.ramadan)
+    let ram: [String: Double]?
 
-    func minutes(_ prayer: String) -> Double { min?[prayer] ?? 0 }
+    func minutes(_ prayer: String, ramadan: Bool = false) -> Double {
+        (min?[prayer] ?? 0) + (ramadan ? ram?[prayer] ?? 0 : 0)
+    }
 }
 
 /// مواقيت يوم بالساعات العشرية المحلية (PrayerTimes في Kotlin)؛ NaN لما تعذّر حسابه
@@ -243,13 +258,18 @@ enum PrayEngine {
     }
 
     static func compute(_ date: CivilDate, lat: Double, lng: Double, tz: TimeZone, method m: CalcMethod,
-                        hanafi: Bool, hijri: HijriCalendar) -> DayTimes {
+                        hanafi: Bool, hijri: HijriCalendar, elev: Int = 0) -> DayTimes {
+        // الأفق: 0.833° ويزيد بانخفاض الأفق للمرتفع في الطرق التي تعتمد الارتفاع (PrayTimes.compute)
+        let horizon = 0.833 + (elev > 0 ? (m.elev ?? 0) * 0.0347 * Double(elev).squareRoot() : 0.0)
         let offset = Zone.noonOffsetHours(tz, date)
         let jDate = julian(date.y, date.m, date.d) - lng / (15.0 * 24.0)
+        // موضع الشمس عند كل وقت، أو مرة لليوم عند منتصف الليل بتوقيت غرينتش (Method.dailySun)
+        let daily: (decl: Double, eqt: Double)? = (m.daily ?? false) ? sunPosition(julian(date.y, date.m, date.d)) : nil
+        func sun(_ t: Double) -> (decl: Double, eqt: Double) { daily ?? sunPosition(jDate + t) }
 
-        func midDay(_ t: Double) -> Double { fixHour(12 - sunPosition(jDate + t).eqt) }
+        func midDay(_ t: Double) -> Double { fixHour(12 - sun(t).eqt) }
         func sunAngleTime(_ angle: Double, _ t: Double, ccw: Bool = false) -> Double {
-            let decl = sunPosition(jDate + t).decl
+            let decl = sun(t).decl
             let noon = midDay(t)
             let x = (-dsin(angle) - dsin(decl) * dsin(lat)) / (dcos(decl) * dcos(lat))
             if x < -1 || x > 1 { return .nan }
@@ -257,9 +277,19 @@ enum PrayEngine {
             return noon + (ccw ? -tt : tt)
         }
         func asrTime(_ factor: Double, _ t: Double) -> Double {
-            let decl = sunPosition(jDate + t).decl
+            let decl = sun(t).decl
             let angle = -rtd(atan(1.0 / (factor + dtan(abs(lat - decl)))))
             return sunAngleTime(angle, t)
+        }
+
+        // في العروض العليا صيفاً: الزاويتان نسبة من أعمق انخفاض للشمس تلك الليلة إن قلّتا عنه (Method.depression)
+        var fajrAngle = m.fajr
+        var ishaAngle = m.isha
+        if let dep = m.dep, dep.count == 2 {
+            let decl = sunPosition(jDate + 0.5).decl
+            let deepest = 90 - abs(lat) - (lat >= 0 ? decl : -decl)
+            fajrAngle = jmin(fajrAngle, dep[0] * deepest)
+            if let a = ishaAngle { ishaAngle = jmin(a, dep[1] * deepest) }
         }
 
         var fajr = 5.0, sunrise = 6.0, dhuhr = 12.0, asr = 13.0, sunset = 18.0, maghrib = 18.0, isha = 18.0
@@ -268,13 +298,13 @@ enum PrayEngine {
         let shafaqAngle = hanafi ? 18.0 : 17.0
         for _ in 0..<2 {
             func p(_ v: Double) -> Double { (v.isNaN ? 12.0 : v) / 24.0 }
-            let nf = sunAngleTime(m.fajr, p(fajr), ccw: true)
-            let ns = sunAngleTime(0.833, p(sunrise), ccw: true)
+            let nf = sunAngleTime(fajrAngle, p(fajr), ccw: true)
+            let ns = sunAngleTime(horizon, p(sunrise), ccw: true)
             let nd = midDay(p(dhuhr))
             let na = asrTime(hanafi ? 2.0 : 1.0, p(asr))
-            let nss = sunAngleTime(0.833, p(sunset))
+            let nss = sunAngleTime(horizon, p(sunset))
             let nm = m.maghrib != nil ? sunAngleTime(m.maghrib!, p(maghrib)) : nss
-            let ni = m.isha != nil ? sunAngleTime(m.isha!, p(isha)) : Double.nan
+            let ni = ishaAngle.map { sunAngleTime($0, p(isha)) } ?? Double.nan
             let nsh = sunAngleTime(shafaqAngle, p(shafaq))
             fajr = nf; sunrise = ns; dhuhr = nd; asr = na; sunset = nss; maghrib = nm; isha = ni; shafaq = nsh
         }
@@ -282,23 +312,49 @@ enum PrayEngine {
         fajr += adj; sunrise += adj; dhuhr += adj; asr += adj; sunset += adj; maghrib += adj; isha += adj; shafaq += adj
         if maghrib.isNaN { maghrib = sunset }
 
-        // خطوط العرض العليا: طريقة الزاوية
+        // خطوط العرض العليا
         let night = fixHour(sunrise - sunset + 24)
-        let fajrMax = m.fajr / 60.0 * night
-        if fajr.isNaN || fixHour(sunrise - fajr) > fajrMax { fajr = sunrise - fajrMax }
-        if let angle = m.isha {
-            let ishaMax = angle / 60.0 * night
-            if isha.isNaN || fixHour(isha - sunset) > ishaMax { isha = sunset + ishaMax }
+        if m.seasonal ?? false {
+            // لجنة رؤية الهلال العالمية: فوق 55° سُبع الليل، ثم لا يسبق الفجرُ الحدَّ الموسمي ولا يتأخر العشاء عنه
+            if abs(lat) >= 55 {
+                fajr = sunrise - night / 7
+                if ishaAngle != nil { isha = sunset + night / 7 }
+            }
+            let safeFajr = sunrise - seasonalTwilight(lat, date, morning: true) / 60.0
+            if fajr.isNaN || safeFajr > fajr { fajr = safeFajr }
+            if ishaAngle != nil {
+                let safeIsha = sunset + seasonalTwilight(lat, date, morning: false) / 60.0
+                if isha.isNaN || safeIsha < isha { isha = safeIsha }
+            }
+        } else if m.dep != nil {
+            // الزاويتان مخفّضتان أصلاً بانخفاض الشمس فتبلغهما دائماً
+        } else {
+            // مدة ثابتة إن نصّت الجهة عليها (للفجر والعشاء معاً ما دامت الشمس لا تبلغ زاوية الفجر)، وإلا طريقة الزاوية
+            let noDawn = fajr.isNaN
+            if let ff = m.ff {
+                if noDawn { fajr = sunrise - ff / 60.0 }
+            } else {
+                let fajrMax = fajrAngle / 60.0 * night
+                if fajr.isNaN || fixHour(sunrise - fajr) > fajrMax { fajr = sunrise - fajrMax }
+            }
+            if let angle = ishaAngle {
+                if let fi = m.fi {
+                    if noDawn || isha.isNaN { isha = sunset + fi / 60.0 }
+                } else {
+                    let ishaMax = angle / 60.0 * night
+                    if isha.isNaN || fixHour(isha - sunset) > ishaMax { isha = sunset + ishaMax }
+                }
+            }
         }
         // منتصف الليل من الفجر الفلكي (قبل دقائق الجهة الرسمية)
         let astroFajr = fajr
 
-        // دقائق الجهة الرسمية، ثم العشاء بالمدة الثابتة بعد المغرب كما تنشره الجهة (أم القرى وقطر)
-        func mins(_ prayer: String) -> Double { m.minutes(prayer) / 60.0 }
+        // دقائق الجهة الرسمية (وزيادتها في رمضان)، ثم العشاء بالمدة الثابتة بعد المغرب كما تنشره الجهة (أم القرى وقطر)
+        let inRamadan = (!(m.ram ?? [:]).isEmpty || m.key == "makkah") && hijri.toHijri(date)?.m == 9
+        func mins(_ prayer: String) -> Double { m.minutes(prayer, ramadan: inRamadan) / 60.0 }
         fajr += mins("fajr"); sunrise += mins("sunrise"); dhuhr += mins("dhuhr"); asr += mins("asr"); maghrib += mins("maghrib")
         if let minutes = m.ishaMin {
-            let ramadan = hijri.toHijri(date)?.m == 9 && m.key == "makkah"
-            isha = maghrib + Double(ramadan ? 120 : minutes) / 60.0
+            isha = maghrib + Double(inRamadan && m.key == "makkah" ? 120 : minutes) / 60.0
         }
         isha += mins("isha")
 
@@ -306,6 +362,35 @@ enum PrayEngine {
         let midnight = astroFajr.isNaN ? Double.nan : sunset + (astroFajr + 24 - sunset) / 2
         return DayTimes(fajr: fajr, sunrise: sunrise, dhuhr: dhuhr, asr: asr, maghrib: maghrib, isha: isha,
                         sunset: sunset, maghribEnd: maghribEnd, midnight: midnight)
+    }
+
+    /// حد الشفق الموسمي للجنة رؤية الهلال العالمية بالدقائق (PrayTimes.seasonalTwilight)
+    static func seasonalTwilight(_ lat: Double, _ date: CivilDate, morning: Bool) -> Double {
+        let l = abs(lat)
+        let (a, b, c, d) = morning
+            ? (75 + 28.65 / 55 * l, 75 + 19.44 / 55 * l, 75 + 32.74 / 55 * l, 75 + 48.10 / 55 * l)
+            : (75 + 25.6 / 55 * l, 75 + 2.05 / 55 * l, 75 - 9.21 / 55 * l, 75 + 6.14 / 55 * l)
+        let y = date.y
+        let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0
+        let days = leap ? 366 : 365
+        let doy = date.epochDay - CivilDate(y, 1, 1).epochDay + 1
+        var dyy: Int
+        if lat >= 0 {
+            dyy = doy + 10
+            if dyy >= days { dyy -= days }
+        } else {
+            dyy = doy - (leap ? 173 : 172)
+            if dyy < 0 { dyy += days }
+        }
+        let t = Double(dyy)
+        let adj: Double
+        if dyy < 91 { adj = a + (b - a) / 91.0 * t }
+        else if dyy < 137 { adj = b + (c - b) / 46.0 * (t - 91) }
+        else if dyy < 183 { adj = c + (d - c) / 46.0 * (t - 137) }
+        else if dyy < 229 { adj = d + (c - d) / 46.0 * (t - 183) }
+        else if dyy < 275 { adj = c + (b - c) / 46.0 * (t - 229) }
+        else { adj = b + (a - b) / 91.0 * (t - 275) }
+        return (adj * 60).rounded() / 60.0
     }
 
     /// الوقت بصيغة التطبيق: ١٢ ساعة مع ص/م بلغة الواجهة أو ٢٤ ساعة، بأرقام لاتينية

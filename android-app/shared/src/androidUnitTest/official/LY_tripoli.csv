@@ -1,0 +1,12 @@
+# Libya: Dar al-Ifta al-Libiyya (دار الإفتاء الليبية, Tripoli; Grand Mufti) - website ifta.ly prayer box 'مواقيت الصلاة حسب التوقيت لمدينة طرابلس'
+# Source: JSON API used by https://ifta.ly/#home-prayer-times -> https://api.ifta.ly/api/v1/prayer-time (returns today + 7 days only; query params ignored); retrieved 2026-11-01
+# Times copied from the API (HH:MM:SS, seconds always 00). Imsak column (= Fajr - 10 min) omitted. Africa/Tripoli = UTC+2, no DST
+# columns: date,fajr,sunrise,dhuhr,asr,maghrib,isha
+2026-11-01,05:59,07:24,12:54,15:53,18:20,19:41
+2026-11-02,06:00,07:25,12:54,15:52,18:19,19:40
+2026-11-03,06:00,07:26,12:54,15:51,18:18,19:39
+2026-11-04,06:01,07:27,12:54,15:51,18:17,19:39
+2026-11-05,06:02,07:28,12:54,15:50,18:16,19:38
+2026-11-06,06:03,07:29,12:54,15:49,18:15,19:37
+2026-11-07,06:03,07:29,12:54,15:49,18:15,19:37
+2026-11-08,06:04,07:30,12:54,15:48,18:14,19:36

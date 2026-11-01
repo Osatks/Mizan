@@ -82,7 +82,7 @@
   });
   $("qb-city").addEventListener("change", () => {
     const i = +$("qb-city").value; if (i < 0) return;
-    loc = { ...P.CITIES[i], cityIndex: i }; P.setLocation(loc); update();
+    loc = { ...P.CITIES[i], cityIndex: i, rv: 2 }; P.setLocation(loc); update();
   });
 
   renderCity(); update();

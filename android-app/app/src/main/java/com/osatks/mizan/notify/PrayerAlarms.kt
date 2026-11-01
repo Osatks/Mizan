@@ -104,7 +104,7 @@ object PrayerAlarms {
         var target: Pair<LocalDateTime, String>? = null
         for (dayOffset in 0..1) {
             val day: LocalDate = now.toLocalDate().plusDays(dayOffset.toLong())
-            val t = PrayTimes.compute(day.toKotlinLocalDate(), p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi)
+            val t = PrayTimes.compute(day.toKotlinLocalDate(), p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi, p.elev)
             for (key in ALERT_PRAYERS) {
                 if (AppSettings.alertMode(key) == AlertMode.OFF) continue
                 val h = t[key]

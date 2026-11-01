@@ -14,7 +14,7 @@
   $("pt-method").value = loc.method;
   $("pt-asr").value = prefs.asr; $("pt-fmt").value = prefs.fmt;
 
-  const opts = (d) => ({ lat: loc.lat, lng: loc.lng, tz: loc.tz, method: $("pt-method").value, asr: $("pt-asr").value, hijriMonth: M.toHijri(d).m });
+  const opts = (d) => ({ lat: loc.lat, lng: loc.lng, tz: loc.tz, elev: loc.elev || 0, method: $("pt-method").value, asr: $("pt-asr").value, hijriMonth: M.toHijri(d).m });
   const h12 = () => $("pt-fmt").value === "12";
 
   // الوقت الحالي في منطقة المدينة الزمنية
@@ -97,7 +97,7 @@
   $("pt-city").addEventListener("change", () => {
     const i = +$("pt-city").value;
     if (i < 0) return;
-    loc = { ...P.CITIES[i], cityIndex: i };
+    loc = { ...P.CITIES[i], cityIndex: i, rv: 2 };
     $("pt-method").value = loc.method;
     refresh();
   });

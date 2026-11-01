@@ -14,7 +14,7 @@ object PrayerUtil {
 
     fun times(day: LocalDate): PrayerTimes {
         val p = AppSettings.place
-        return PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi)
+        return PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi, p.elev)
     }
 
     fun at(day: LocalDate, hours: Double): LocalDateTime = day.atStartOfDay().plusSeconds((hours * 3600).toLong())
