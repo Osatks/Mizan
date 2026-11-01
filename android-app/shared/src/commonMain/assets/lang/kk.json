@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 7,
+ "version": 8,
  "currency": "KZT",
  "quran": {
   "id": "kk.altai",
@@ -1086,7 +1086,10 @@
   "notifyOffTitle": "Хабарландырулар өшірулі",
   "notifyOffBody": "Мизанға хабарландыру жіберуге рұқсат берілмеген, сондықтан азан ескертулері сізге жетпейді. Оларды баптауларда рұқсат ете аласыз.",
   "clear": "Тазалау",
-  "close": "Жабу"
+  "close": "Жабу",
+  "liveCountdown": "Құлып экранындағы тікелей кері санақ",
+  "liveCountdownDesc": "Намазға 3 сағаттан аз уақыт қалғанда Мизаннан шықсаңыз, оның кері санағы құлып экранында және Dynamic Island-та көрінеді.",
+  "liveActivitiesOff": "Мизан үшін Live Activities өшірулі. Оларды Settings › Mizan бөлімінде қосыңыз."
  },
  "evidence": {
   "Zakat is an obligation": "Зекет – парыз",

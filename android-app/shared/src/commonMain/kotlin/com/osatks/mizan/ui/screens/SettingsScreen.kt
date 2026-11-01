@@ -57,6 +57,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.osatks.mizan.ui.theme.Accent
+import com.osatks.mizan.ui.GlassGroup
+import com.osatks.mizan.ui.GroupDivider
+import com.osatks.mizan.ui.GroupRow
 import com.osatks.mizan.ui.theme.heroBrush
 
 @Composable
@@ -67,92 +70,96 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
     val toggleNotify = rememberAlertsToggle()
     val system = Lang.fromTag(systemLanguageTag())
 
-    ToolPage(s.settingsTitle) {
+    // مجموعات بأسلوب iOS (inset grouped): عنوان صغير فوق كل بطاقة زجاجية، وصفوفها مفصولة بخطوط رفيعة
+    ToolPage(s.settingsTitle, spacing = 18.dp) {
         item {
-            SectionCard(s.language) {
-                ClickRow(
+            GlassGroup(s.language) {
+                GroupRow(
                     lang.native,
                     if (AppSettings.lang == Lang.SYSTEM) "${s.deviceLanguage} · ${system.native}" else null,
                     onClick = { showLang = true },
                     leading = Icons.Filled.Translate
-                ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                ) { Chevron() }
             }
         }
         item {
-            SectionCard {
-                ClickRow(s.appGuide, s.appGuideSub, onClick = { open("guide") }, leading = Icons.Filled.Explore) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            GlassGroup {
+                GroupRow(s.appGuide, s.appGuideSub, onClick = { open("guide") }, leading = Icons.Filled.Explore) { Chevron() }
+            }
+        }
+        item {
+            GlassGroup(s.appearance) {
+                Column(Modifier.padding(16.dp)) {
+                    Segmented(listOf("system" to s.themeAuto, "light" to s.themeLight, "dark" to s.themeDark), AppSettings.theme) { AppSettings.updateTheme(it) }
+                    val accent = Accent.of(AppSettings.accent)
+                    Text(
+                        "${s.appColor} · ${s.accentNames.getOrElse(accent.ordinal) { accent.key }}",
+                        Modifier.padding(top = 16.dp, bottom = 6.dp, start = 4.dp, end = 4.dp),
+                        style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    AccentPicker(accent, s.accentNames) { AppSettings.updateAccent(it.key) }
                 }
-            }
-        }
-        item {
-            SectionCard(s.appearance) {
-                Segmented(listOf("system" to s.themeAuto, "light" to s.themeLight, "dark" to s.themeDark), AppSettings.theme) { AppSettings.updateTheme(it) }
-                val accent = Accent.of(AppSettings.accent)
-                Text(
-                    "${s.appColor} · ${s.accentNames.getOrElse(accent.ordinal) { accent.key }}",
-                    Modifier.padding(top = 16.dp, bottom = 6.dp, start = 4.dp, end = 4.dp),
-                    style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                AccentPicker(accent, s.accentNames) { AppSettings.updateAccent(it.key) }
             }
         }
         item {
             // مكتبة التفاسير: تنزيل التفاسير واختيار ما يظهر منها
-            SectionCard(s.quranTitle) {
-                ClickRow(s.tafsirLibrary, s.tafsirLibrarySub, onClick = { open("tafsirs") }, leading = Icons.AutoMirrored.Filled.LibraryBooks) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+            GlassGroup(s.quranTitle) {
+                GroupRow(s.tafsirLibrary, s.tafsirLibrarySub, onClick = { open("tafsirs") }, leading = Icons.AutoMirrored.Filled.LibraryBooks) { Chevron() }
             }
         }
         item {
-            SectionCard(s.prayerTitle) {
-                ClickRow(s.adhanAlert, s.adhanAlertDesc, onClick = {}, leading = Icons.Filled.NotificationsActive) {
+            GlassGroup(s.prayerTitle) {
+                GroupRow(s.adhanAlert, s.adhanAlertDesc, onClick = { toggleNotify(!AppSettings.notify) }, leading = Icons.Filled.NotificationsActive) {
                     com.osatks.mizan.ui.AppSwitch(checked = AppSettings.notify, onCheckedChange = { on -> toggleNotify(on) })
                 }
-                ClickRow(s.adhanSettings, s.adhanSettingsSub, onClick = { open("adhan") }, leading = Icons.AutoMirrored.Filled.VolumeUp) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                ClickRow(s.use24h, s.use24hDesc, onClick = { AppSettings.updateUse24h(!AppSettings.use24h) }, leading = Icons.Filled.AccessTime) {
+                GroupDivider()
+                GroupRow(s.adhanSettings, s.adhanSettingsSub, onClick = { open("adhan") }, leading = Icons.AutoMirrored.Filled.VolumeUp) { Chevron() }
+                GroupDivider()
+                GroupRow(s.use24h, s.use24hDesc, onClick = { AppSettings.updateUse24h(!AppSettings.use24h) }, leading = Icons.Filled.AccessTime) {
                     com.osatks.mizan.ui.AppSwitch(checked = AppSettings.use24h, onCheckedChange = { AppSettings.updateUse24h(it) })
                 }
                 if (PrayerAlerts.hasExactAlarmSettings) {
-                    ClickRow(s.exactAlarm, s.exactAlarmDesc, leading = Icons.Filled.Alarm, onClick = { PrayerAlerts.openExactAlarmSettings() })
+                    GroupDivider()
+                    GroupRow(s.exactAlarm, s.exactAlarmDesc, leading = Icons.Filled.Alarm, onClick = { PrayerAlerts.openExactAlarmSettings() })
                 }
             }
         }
         item {
             // التقييم والمشاركة: كل نظام إلى متجره (Google Play أو App Store)
-            SectionCard {
-                ClickRow(s.rateApp, s.rateAppSub, onClick = { AppStore.openRating() }, leading = Icons.Filled.StarRate) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                ClickRow(s.shareApp, s.shareAppSub, onClick = { Platform.share(s.shareAppText(StoreLinks.forThisPlatform), s.share) }, leading = Icons.Filled.Share) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+            GlassGroup {
+                GroupRow(s.rateApp, s.rateAppSub, onClick = { AppStore.openRating() }, leading = Icons.Filled.StarRate) { Chevron() }
+                GroupDivider()
+                GroupRow(s.shareApp, s.shareAppSub, onClick = { Platform.share(s.shareAppText(StoreLinks.forThisPlatform), s.share) }, leading = Icons.Filled.Share) { Chevron() }
             }
         }
         item {
-            SectionCard(s.about) {
-                Text(s.aboutName, style = MaterialTheme.typography.titleMedium)
-                Text(s.version(Platform.versionName()), style = MaterialTheme.typography.bodySmall)
-                Text(s.aboutText, style = MaterialTheme.typography.bodyMedium)
-                LinkedText(s.quranSources)
+            GlassGroup(s.about) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(s.aboutName, style = MaterialTheme.typography.titleMedium)
+                    Text(s.version(Platform.versionName()), style = MaterialTheme.typography.bodySmall)
+                    Text(s.aboutText, style = MaterialTheme.typography.bodyMedium)
+                    LinkedText(s.quranSources)
+                }
+                GroupDivider(inset = 16.dp)
                 // المصادر والتراخيص كاملة: المصحف والتفاسير والتلاوات وتسجيلات الأذان والخط
-                ClickRow(s.licenses, s.licensesSub, onClick = { open("licenses") }, leading = Icons.Filled.Info) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+                GroupRow(s.licenses, s.licensesSub, onClick = { open("licenses") }, leading = Icons.Filled.Info) { Chevron() }
             }
         }
         item {
-            SectionCard(s.privacy) {
-                Text(s.privacyText, style = MaterialTheme.typography.bodyMedium)
+            GlassGroup(s.privacy) {
+                Text(s.privacyText, Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
             }
         }
         item { Note(s.disclaimer, warn = true) }
     }
 
     if (showLang) LanguageSheet { showLang = false }
+}
+
+/** سهم الصف الذي يفتح صفحة (يتبع اتجاه اللغة) */
+@Composable
+private fun Chevron() {
+    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .7f))
 }
 
 /** عشرة ألوان للتطبيق في صفين؛ اللون المختار عليه حلقة وعلامة صح */

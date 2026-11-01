@@ -1,0 +1,15 @@
+/* عناوين الاختصارات و Siri وأزرار مركز التحكم (MizanShortcuts.swift و Shared/LiveActivityAttributes.swift) */
+"Next prayer" = "Keyingi namoz";
+"Prayer times" = "Namoz vaqtlari";
+"Qibla" = "Qibla";
+"Continue reading" = "Oʻqishni davom ettirish";
+"Tasbih" = "Tasbeh";
+"Morning adhkar" = "Ertalabki zikrlar";
+"Evening adhkar" = "Kechki zikrlar";
+"Open in Mizan" = "Mizan’da ochish";
+"Screen" = "Ekran";
+"Mizan screen" = "Mizan ekrani";
+"Opens the qibla compass" = "Qibla kompasini ochadi";
+"Opens the tasbih counter" = "Tasbeh hisoblagichini ochadi";
+"Opens today's prayer times" = "Bugungi namoz vaqtlarini ochadi";
+"Opens the Quran where you stopped" = "Qurʼonni toʻxtagan joyingizdan ochadi";

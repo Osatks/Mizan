@@ -761,4 +761,8 @@ object Tr : Strings {
     override val notifyOffBody = "Mizan'ın bildirim göndermesine izin verilmedi, bu yüzden ezan uyarıları size ulaşamaz. Ayarlar'dan izin verebilirsiniz."
     override val clear = "Temizle"
     override val close = "Kapat"
+    // ---------- iPhone: Lock Screen and Dynamic Island ----------
+    override val liveCountdown = "Kilit ekranında canlı geri sayım"
+    override val liveCountdownDesc = "Bir namaza 3 saatten az kala Mizan'dan çıktığınızda geri sayımı kilit ekranında ve Dynamic Island'da görünür."
+    override val liveActivitiesOff = "Mizan için Canlı Etkinlikler kapalı. Ayarlar › Mizan'dan açabilirsiniz."
 }

@@ -4,6 +4,8 @@
 
 ما في المستودع جاهز: سير عمل البناء الموقَّع والرفع (`.github/workflows/ios-release.yml`)، وسير عمل اللقطات (`.github/workflows/ios-screenshots.yml`)، وبيانات الخصوصية (`iosApp/Privacy/`)، ونصوص المتجر بـ12 لغة (`iosApp/fastlane/metadata/`). يبقى عليك إنشاء المفاتيح والضغط على الأزرار أدناه، مرة واحدة.
 
+ميزان **تطبيق عام (Universal): iPhone و iPad**، وجاهز لـ **iPhone Duo** (الشاشتان). الواجهة تتكيف مع مقاس النافذة لا مع نوع الجهاز: على iPad قائمة جانبية بدل الشريط السفلي، وعمودان للمدخلات والنتائج، والمصحف صفحتين متقابلتين بالعرض كالمصحف المطبوع؛ و iPad بالاتجاهات الأربعة مع Split View و Slide Over. يُبنى التطبيق بـ Xcode 27.1 (SDK iOS 27.1) فيملأ الشاشة الداخلية لـ iPhone Duo بدل عرضه بأشرطة جانبية.
+
 ---
 
 ## العربية
@@ -82,8 +84,14 @@
 **التشفير**: لا شيء — `ITSAppUsesNonExemptEncryption = false` في Info.plist، فلا يُسأل عن كل بناء.
 
 ### و) التشغيل
-1. **اللقطات**: GitHub ← **Actions** ← **iOS Screenshots (App Store)** ← **Run workflow** ← الفرع ← locales: `ar-SA en-US` ← commit: ✓ ← Run. (نحو 30–40 دقيقة.) افتح الملف المرفق `mizan-app-store-screenshots` وراجع الصور؛ تُضاف إلى الفرع في `iosApp/fastlane/screenshots/` تلقائياً. إن كان الفرع محمياً من الدفع فاختر commit: ✗ ثم ضع الصور يدوياً في ذلك المجلد. اللغات التي بلا لقطات خاصة يعرض لها المتجر لقطات اللغة الأساسية (العربية)؛ لإضافة لغة: `ar-SA en-US fr-FR tr …`.
-2. **تجربة أولى عبر TestFlight** (مستحسن): **iOS Release (App Store)** ← Run workflow ← submit: ✗. بعد 5–30 دقيقة يظهر البناء في App Store Connect ← TestFlight. أضف نفسك في **Internal Testing** وثبّته من تطبيق TestFlight على iPhone.
+1. **اللقطات**: GitHub ← **Actions** ← **iOS Screenshots (App Store)** ← **Run workflow** ← الفرع ← locales: `ar-SA en-US` ← devices: `iphone ipad duo` ← commit: ✓ ← Run. (نحو 60–90 دقيقة.) تُلتقط لكل لغة:
+   - **iPhone 6.9 بوصة** (1320×2868): `01_…` إلى `08_…`.
+   - **iPad Pro 13 بوصة** (2064×2752، مطلوبة لأن التطبيق يعمل على iPad): `ipad_01_…`، ومنها `ipad_02_quran_spread` بالعرض (2752×2064) للمصحف صفحتين متقابلتين. إن لم يُمكن تدوير المحاكي من سطر الأوامر على المشغّل تُتخطى هذه اللقطة وحدها بتحذير.
+   - **iPhone Duo** من محاكي iOS 27.1: `duo_…`. يُفحص `xcrun simctl help` بحثاً عن أمر لحالة الطي (يُحفظ نصه في `screenshot-logs`)؛ إن لم يوجد تُلتقط الحالة الافتراضية للمحاكي ويُذكر ذلك في ملخص التشغيل. fastlane المثبَّت (2.241.2) يعرف نوع الشاشة `APP_IPHONE_DUO` بمقاساته؛ ما لا يطابقها يُنقل إلى `screenshots-extra` ويبقى في الملف المرفق وحده.
+   كل لقطة يُتحقق من نوع شاشتها بـ deliver نفسه (`fastlane/check_screenshots.rb`) قبل حفظها. افتح الملف المرفق `mizan-app-store-screenshots` وراجع الصور؛ تُضاف إلى الفرع في `iosApp/fastlane/screenshots/` تلقائياً. إن كان الفرع محمياً من الدفع فاختر commit: ✗ ثم ضع الصور يدوياً في ذلك المجلد. اللغات التي بلا لقطات خاصة يعرض لها المتجر لقطات اللغة الأساسية (العربية)؛ لإضافة لغة: `ar-SA en-US fr-FR tr …`.
+2. **تجربة أولى عبر TestFlight** (مستحسن): **iOS Release (App Store)** ← Run workflow ← submit: ✗. بعد 5–30 دقيقة يظهر البناء في App Store Connect ← TestFlight. أضف نفسك في **Internal Testing** وثبّته من تطبيق TestFlight على iPhone أو iPad.
+   - أول مرحلة (**preflight**، على لينكس في أقل من دقيقة) تحذف المسافات والأسطر الزائدة من الأسرار وتفحص شكلها، ثم توقّع JWT بالمفتاح وتطلب سجل التطبيق من App Store Connect API، فتفشل فوراً بسبب واضح: لا سجل للتطبيق `com.mizan.almuslim` (الخطوة ج)، أو مفتاح بلا صلاحية (دور Admin، واتفاقيات معلّقة في Business)، أو **مفتاح فردي (Individual key)** بدل مفتاح الفريق (Team key)، أو معرّفات لا تطابق الملف.
+   - ثم إطار Kotlin على macos-15 (Xcode 16)، والأرشفة والتوقيع على xcode-27 (Xcode 27.1). التصدير يُخرج ملف .ipa موقَّعاً فقط، ثم يُرفع بـ `xcrun altool`، وإن فشل فبـ `fastlane pilot` بالمفتاح نفسه (يُطبع خطأ كل منهما). الرفع المدمج في التصدير رُفض من قبل بالمفتاح نفسه («Cannot verify client's JWT headers»).
 3. **الإرسال للمراجعة**: **iOS Release (App Store)** ← Run workflow ← submit: ✓. يبني ويرفع، ثم يرفع النصوص واللقطات، وينتظر معالجة البناء، ويرسله للمراجعة مع **النشر التلقائي بعد القبول**. (المراجعة عادة 24–48 ساعة.)
    - `metadata_only: ✓` يرفع النصوص واللقطات وحدها دون بناء ولا إرسال.
    - في كل إصدار لاحق: حدّث `release_notes.txt` في كل لغة ثم شغّل submit: ✓ مرة أخرى (رقم البناء = عدد الـ commits فيزيد وحده).
@@ -94,7 +102,8 @@
 - **Guideline 5.1.1 (Location)**: «Location is optional and processed only on the device to compute prayer times and the qibla. Users can pick a city manually instead.»
 - **Guideline 4.2 / 2.3 (Metadata)**: اللقطات من التطبيق الحقيقي؛ لا تذكر أندرويد أو Google Play في النصوص.
 - **Guideline 5.2 (Third-party content / Quran text)**: أرسل مصادر المحتوى وترخيصها: Tanzil (tanzil.net، يسمح بإعادة النشر الحرفي مع ذكر المصدر)، EveryAyah.com، التفسير الميسر (مجمع الملك فهد). المصادر مذكورة في الإعدادات.
-- **iPad**: الإصدار الأول لـ iPhone فقط، لكن Apple تجرب تطبيقات iPhone على iPad أيضاً (في وضع التوافق): تأكد أنه لا يتعطل هناك. دعم iPad لاحقاً: `TARGETED_DEVICE_FAMILY: "1,2"` في project.yml ولقطات iPad 13 بوصة.
+- **iPad (Guideline 2.4.1 و 4.0)**: التطبيق عام (`TARGETED_DEVICE_FAMILY: "1,2"` للتطبيق والأدوات) بتخطيط صُمم لـ iPad: قائمة جانبية، وعمودان، والمصحف صفحتين متقابلتين بالعرض، والقوائم والأوراق نوافذ في الوسط، وكل الاتجاهات مع Split View و Slide Over. لقطات iPad 13 بوصة إلزامية (اللقطات أعلاه). ملاحظات المراجِع تشرح ما يُجرَّب على iPad و iPhone Duo.
+- **iPhone Duo**: الشاشة الخارجية بتخطيط الهاتف، والداخلية بتخطيط الشاشات الواسعة (والمصحف صفحتين)، والطي والفتح يُبقيان الصفحة نفسها وما فُتح من لوحات. النظام يتجاهل اتجاهات التطبيق في الشاشة الداخلية، فكل شاشة مصممة لأي نسبة. لا يُذكر Apple ولا شعاراتها في نصوص المتجر بما يوحي بأنها صانعة التطبيق أو تتبناه (Guideline 5.2.5).
 - **Guideline 2.1 (crash/bug)**: اطلب سجل التعطل (crash log) وجرّب البناء نفسه من TestFlight.
 
 ### ح) كلفة دقائق GitHub Actions
@@ -103,7 +112,7 @@
 - لذلك كل سير عمل iOS يدوي فقط (workflow_dispatch)، ولا تشغّل اللقطات إلا عند تغيّر الواجهة.
 
 ### ما لا يمكن التحقق منه إلا بتشغيل على Mac
-التوقيع التلقائي بالمفتاح (إنشاء الشهادة وملفات التطوير والتوزيع)، ورفع البناء، وتوافق Kotlin 2.1.21 مع Xcode 26، وتنقل اللقطات بالروابط وأزمنة الانتظار، واختيار fastlane للبناء. إن فشلت الأرشفة فسجلها الكامل في الملف المرفق `mizan-ios-release-N`.
+التوقيع التلقائي بالمفتاح (إنشاء الشهادة وملفات التطوير والتوزيع)، ورفع البناء بـ altool، وبناء التطبيق بـ Xcode 27.1 مع إطار Kotlin المربوط بـ Xcode 16 (Kotlin 2.1.21 غير مختبَر مع Xcode 27، فلا يُستعمل Xcode 27 إلا للتطبيق نفسه)، وتنقل اللقطات بالروابط وأزمنة الانتظار، وتدوير محاكي iPad وحالة الطي في محاكي iPhone Duo من سطر الأوامر، واختيار fastlane للبناء. إن فشلت الأرشفة أو الرفع فسجلاتهما (archive و export و altool و pilot) في الملف المرفق `mizan-ios-release-N`.
 - «No profiles / no devices»: سجّل جهازاً (أ‑5).
 - «maximum number of certificates»: في Certificates احذف شهادات Apple Development القديمة التي أنشأها «Xcode (API)».
 - «Cannot create cloud managed certificate / permission»: المفتاح ليس Admin.
@@ -114,6 +123,8 @@
 
 ### 0) Overview
 Everything that does not need your Apple account is in the repo: the signed build + upload workflow (`.github/workflows/ios-release.yml`), the screenshot workflow (`.github/workflows/ios-screenshots.yml`), privacy manifests (`iosApp/Privacy/`), localized Info.plist strings, and App Store metadata in 12 locales (`iosApp/fastlane/metadata/`: ar-SA, en-US, fr-FR, de-DE, es-ES, tr, id, ms, ru, uk, ur-PK, bn-BD). Persian, Uzbek and Kazakh are not App Store locales.
+
+Mizan is a **universal app (iPhone + iPad)** and **iPhone Duo-ready** (both displays). The layout adapts to the window size, not to the device model: on iPad a sidebar replaces the bottom tab bar, calculators show inputs and results side by side, and the Mushaf shows two facing pages in landscape like a printed copy. iPad supports all four orientations, Split View and Slide Over. The app is built with Xcode 27.1 (iOS 27.1 SDK), so it fills the iPhone Duo inner display instead of being pillarboxed.
 
 ### a) developer.apple.com (Certificates, Identifiers & Profiles)
 **Certificates: nothing to do.** Signing is automatic: Xcode on the GitHub runner creates certificates and profiles with the API key. Create the identifiers yourself though: App Store Connect's “New App” form only lists registered bundle IDs, and registering the App Group by hand is more reliable than leaving it to automatic signing.
@@ -149,15 +160,17 @@ Repo → **Settings** → **Secrets and variables** → **Actions** → New repo
 - **Encryption**: `ITSAppUsesNonExemptEncryption = false` is already in Info.plist.
 
 ### f) Run
-1. Actions → **iOS Screenshots (App Store)** → Run workflow (locales `ar-SA en-US`, commit ✓). Check the `mizan-app-store-screenshots` artifact. The run commits the images to `iosApp/fastlane/screenshots/`. On a protected branch, use commit ✗ and add the images yourself. Locales without their own screenshots show the primary-language (Arabic) set. Add more with `locales: ar-SA en-US fr-FR tr …`.
+1. Actions → **iOS Screenshots (App Store)** → Run workflow (locales `ar-SA en-US`, devices `iphone ipad duo`, commit ✓; about 60–90 min). Per locale it captures **6.9-inch iPhone** (1320×2868, `01_…`–`08_…`), **13-inch iPad Pro** (2064×2752, `ipad_…`, required because the app runs on iPad) including a landscape two-page Mushaf shot (`ipad_02_quran_spread`, 2752×2064; skipped with a warning if the runner cannot rotate the simulator from the command line), and **iPhone Duo** from the iOS 27.1 simulator (`duo_…`). The script inspects `xcrun simctl help` for a fold-state command (help text saved in `screenshot-logs`); if there is none it captures the simulator's default state and says so in the run summary. The pinned fastlane (2.241.2) knows the `APP_IPHONE_DUO` display type and its sizes; anything deliver does not recognise is moved to `screenshots-extra` and kept as an artifact only. Every screenshot is checked with deliver itself (`fastlane/check_screenshots.rb`). Check the `mizan-app-store-screenshots` artifact. The run commits the images to `iosApp/fastlane/screenshots/`. On a protected branch, use commit ✗ and add the images yourself. Locales without their own screenshots show the primary-language (Arabic) set. Add more with `locales: ar-SA en-US fr-FR tr …`.
 2. Optional TestFlight check: **iOS Release (App Store)** → submit ✗. The build appears in TestFlight after 5–30 min.
+   - The first job (**preflight**, Linux, under a minute) trims stray spaces/newlines from the secrets, checks their shape, then signs a JWT with the key and asks the App Store Connect API for the app record. It fails fast with the actual cause: no app record for `com.mizan.almuslim` (step c), a key without permission (Admin role, pending agreements in Business), an **Individual key** instead of a Team key, or IDs that do not match the .p8.
+   - Then the Kotlin framework is built on macos-15 (Xcode 16) and the app is archived and signed on xcode-27 (Xcode 27.1). Export only produces the signed .ipa; it is uploaded with `xcrun altool`, falling back to `fastlane pilot` with the same key (both errors are printed). The upload built into `-exportArchive` had been rejected with this same key ("Cannot verify client's JWT headers").
 3. **iOS Release (App Store)** → submit ✓: builds, uploads, uploads metadata and screenshots, waits for processing, submits for review, and releases automatically after approval. `metadata_only` ✓ uploads only the texts and screenshots. For later releases, update each `release_notes.txt` first.
 
 ### g) Common review questions
-Reviewer notes are in `metadata/review_information/notes.txt` and are uploaded automatically. Background audio (2.5.4) is used for Quran recitation on the lock screen. Location (5.1.1) is optional and on-device only. For third-party content (5.2), cite Tanzil, EveryAyah and King Fahd Complex. iPhone-only apps are still tested on iPad in compatibility mode, so make sure the app does not break there. Answer in English in the Resolution Center.
+Reviewer notes are in `metadata/review_information/notes.txt` and are uploaded automatically. Background audio (2.5.4) is used for Quran recitation on the lock screen. Location (5.1.1) is optional and on-device only. For third-party content (5.2), cite Tanzil, EveryAyah and King Fahd Complex. **iPad (2.4.1, 4.0)**: the app is universal (`TARGETED_DEVICE_FAMILY: "1,2"` for the app and the widgets) with layouts designed for iPad (sidebar, two columns, two-page Mushaf in landscape, centered menus and sheets, all orientations, Split View and Slide Over); 13-inch iPad screenshots are mandatory and produced by the screenshot workflow. **iPhone Duo**: the outer display uses the phone layout, the inner display the wide layouts; folding keeps the same page and open panels. The reviewer notes explain what to try on iPad and iPhone Duo. Never use Apple's name or logos in a way that suggests Apple made or endorses the app (5.2.5). Answer in English in the Resolution Center.
 
 ### h) GitHub Actions cost
 In private repos, macOS minutes count 10×. A release run takes about 25–35 min (≈250–350 quota minutes) and a screenshot run about 30–40 min. The free plan's 2,000 minutes ≈ 6 macOS runs per month. Standard runners are free in public repos.
 
 ### Only verifiable on a Mac run
-These can only be confirmed by a real run: automatic signing with the API key (certificate and profile creation), the upload, Kotlin 2.1.21 + Xcode 26 compatibility, screenshot navigation timings, and fastlane picking the build. Archive logs are attached as the `mizan-ios-release-N` artifact. To fix common failures: register a device (a‑5), revoke old “Apple Development” certificates created by Xcode (API), or give the key the Admin role.
+These can only be confirmed by a real run: automatic signing with the API key (certificate and profile creation), the altool upload, building the app with Xcode 27.1 against the Kotlin framework linked with Xcode 16 (Kotlin 2.1.21 is not tested with Xcode 27, so Xcode 27 only builds the app itself), screenshot navigation timings, rotating the iPad simulator and setting the iPhone Duo fold state from the command line, and fastlane picking the build. Archive, export, altool and pilot logs are attached as the `mizan-ios-release-N` artifact. To fix common failures: register a device (a‑5), revoke old “Apple Development” certificates created by Xcode (API), or give the key the Admin role.

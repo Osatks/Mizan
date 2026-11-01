@@ -104,6 +104,10 @@ object Recitation {
     var sleepAt by mutableLongStateOf(0L)
         private set
 
+    /** يُستدعى بعد كل تغيّر في حال التلاوة (iOS: «يُشغَّل الآن» في شاشة القفل ومركز التحكم والجزيرة الديناميكية) */
+    var onChange: (() -> Unit)? = null
+    private fun changed() { onChange?.invoke() }
+
     private var player: ClipPlayer? = null
     private val scope = MainScope()
     /** في وقفة بعد آية ليرددها القارئ: المشغّل متوقف لكن التلاوة مستمرة */
@@ -137,10 +141,11 @@ object Recitation {
                 }
             }
             onClip(Clip.parse(id))
+            changed()
         }
 
-        override fun onPlaying(playing: Boolean) { this@Recitation.playing = playing }
-        override fun onWantsPlay(wants: Boolean) { wantsPlay = wants || gapping }
+        override fun onPlaying(playing: Boolean) { this@Recitation.playing = playing; changed() }
+        override fun onWantsPlay(wants: Boolean) { wantsPlay = wants || gapping; changed() }
         override fun onBuffering(buffering: Boolean) { this@Recitation.buffering = buffering }
         override fun onDuration(ms: Long) { if (ms > 0) clipMs = ms }
         override fun onEnded() = stop()
@@ -183,11 +188,12 @@ object Recitation {
         wantsPlay = start
         active = true
         current = index
+        changed()
     }
 
     fun toggle() {
         val p = player ?: return
-        if (gapping) { cancelGap(); wantsPlay = false; return }
+        if (gapping) { cancelGap(); wantsPlay = false; changed(); return }
         if (p.wantsPlay) p.pause() else p.play()
     }
 
@@ -202,7 +208,7 @@ object Recitation {
     }
 
     fun pause() {
-        if (gapping) { cancelGap(); wantsPlay = false }
+        if (gapping) { cancelGap(); wantsPlay = false; changed() }
         player?.pause()
     }
 
@@ -223,6 +229,7 @@ object Recitation {
         sleepAt = 0L; lastClip = null
         player?.stop()
         active = false; playing = false; buffering = false; wantsPlay = false; current = -1; basmala = false
+        changed()
     }
 
     /** لصور الاختبار: تلاوة ظاهرة دون مشغّل */

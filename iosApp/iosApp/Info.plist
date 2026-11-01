@@ -56,18 +56,44 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<!-- إنهاء العدّ التنازلي الحي بعد دخول الوقت والتطبيق معلّق (BGAppRefreshTask في LiveActivities.swift) -->
+		<string>fetch</string>
 	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.mizan.almuslim.live</string>
+	</array>
+	<!-- الأنشطة الحية: العدّ التنازلي للصلاة القادمة و«يُتلى الآن» على شاشة القفل وفي الجزيرة الديناميكية -->
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<!-- دورة حياة المشاهد (إلزامية بعد iOS 26 SDK)؛ يضبط AppDelegate الإعداد برمجياً -->
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<!-- شاشة الإقلاع: أخضر التطبيق (وقاتم في الوضع الداكن) والميزان الذهبي في الوسط، ثم يذوب في الشاشة الأولى (LaunchCurtain) -->
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+		<key>UIImageName</key>
+		<string>LaunchEmblem</string>
+		<key>UIImageRespectsSafeAreaInsets</key>
+		<false/>
+	</dict>
+	<!-- iPhone بالطول فقط (الشاشة الداخلية لـ iPhone Duo يتجاهل فيها النظام هذا، والواجهة تتكيف مع أي نسبة) -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<!-- iPad بالاتجاهات الأربعة، ومعها Split View و Slide Over ونوافذ iPadOS (لا UIRequiresFullScreen) -->
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 </dict>
 </plist>

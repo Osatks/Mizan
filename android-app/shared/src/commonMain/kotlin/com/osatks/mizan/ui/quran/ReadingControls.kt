@@ -100,6 +100,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.quran.QuranMeta
@@ -392,11 +393,12 @@ private fun AyahPicker(label: String, index: Int, onPick: (Int) -> Unit) {
                 Text(s.surahName(surah), Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Icon(Icons.Filled.ArrowDropDown, null)
             }
-            DropdownMenu(menu, onDismissRequest = { menu = false }, modifier = Modifier.heightIn(max = 360.dp)) {
-                (1..QuranMeta.SURAHS).forEach { n ->
-                    DropdownMenuItem(text = { Text("$n. ${s.surahName(n)}") }, onClick = { menu = false; onPick(QuranMeta.STARTS[n - 1]) })
-                }
-            }
+            // السور الـ114 في قائمة زجاجية تُمرَّر، تبدأ عند السورة المختارة
+            com.osatks.mizan.ui.GlassMenu(
+                menu, { menu = false },
+                (1..QuranMeta.SURAHS).map { n -> com.osatks.mizan.ui.MenuItem("$n. ${s.surahName(n)}", checked = n == surah) { onPick(QuranMeta.STARTS[n - 1]) } },
+                width = 260.dp, maxHeight = 360.dp,
+            )
         }
         IconButton(onClick = { onPick(index - 1) }, enabled = ayah > 1) { Icon(Icons.Filled.Remove, s.decrease) }
         Text("$ayah", Modifier.width(36.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium)
@@ -501,7 +503,11 @@ fun ReadingProgressBar(modifier: Modifier = Modifier) {
             Text("${p.streak}", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = pal.ink)
         }
         // ورد اليوم
-        Text(if (goal > 0) s.todayPortion else s.khatmaTitle, style = MaterialTheme.typography.labelMedium, color = pal.muted, maxLines = 1)
+        // في الشاشات الضيقة (360) واللغات الطويلة يصغر الخط قليلاً بدل أن يأكل الشريط
+        com.osatks.mizan.ui.FitLabel(
+            if (goal > 0) s.todayPortion else s.khatmaTitle, { pal.muted }, MaterialTheme.typography.labelMedium, 10.sp,
+            Modifier.widthIn(max = 124.dp)
+        )
         Box(Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(pal.fillDeep.copy(alpha = .55f))) {
             Box(
                 Modifier.fillMaxHeight().fillMaxWidth(frac).clip(RoundedCornerShape(4.dp))

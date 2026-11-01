@@ -33,6 +33,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import com.osatks.mizan.ui.LocalWindowLayout
+import com.osatks.mizan.ui.GlassTone
+import com.osatks.mizan.ui.IsIos
+import com.osatks.mizan.ui.LocalAppHaze
+import com.osatks.mizan.ui.floatingGlass
+import com.osatks.mizan.ui.glassMaterial
+import com.osatks.mizan.ui.glassTone
+import com.osatks.mizan.ui.squish
+import androidx.compose.material3.ripple
+import dev.chrisbanes.haze.HazeStyle
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -63,6 +82,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.LocalContentColor
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.quran.QuranData
@@ -86,18 +107,23 @@ internal fun AyahActionBar(index: Int, text: Array<String>, onTafsir: () -> Unit
     val (surah, ayah) = QuranMeta.locate(index)
     val ref = s.surahAyah(s.surahName(surah), ayah)
     val ayahText = QuranData.withoutBismillah(text, index)
-    Surface(
-        Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh, shadowElevation = 10.dp, tonalElevation = 2.dp,
+    // كبسولة زجاجية عائمة فوق الصفحة (تموّه ما تحتها وحدها)؛ زوايا الأزرار متّحدة المركز معها (30 − 6 = 24)
+    val shape = RoundedCornerShape(BarRadius)
+    Column(
+        Modifier.fillMaxWidth()
+            .floatingGlass(LocalAppHaze.current, shape, glassMaterial(if (glassTone() == GlassTone.Dark) .60f else .66f))
+            // تمنع لمسات الشريط من الوصول إلى الصفحة تحته
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
+            .padding(BarPad)
     ) {
-        Column(Modifier.padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column {
+            Row(Modifier.padding(start = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 AyahMarker(ayah, Modifier.size(28.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(ref, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 IconButton(onClick = onClose) { Icon(Icons.Filled.Close, s.close, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
-            Row(Modifier.fillMaxWidth().padding(end = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Action(Icons.AutoMirrored.Filled.MenuBook, s.tafsirTitle, primary = true, onClick = onTafsir)
                 Action(Icons.Filled.PlayArrow, s.listen, primary = true, onClick = onListen)
                 val marked = QuranPrefs.isBookmarked(index)
@@ -116,24 +142,32 @@ internal fun AyahActionBar(index: Int, text: Array<String>, onTafsir: () -> Unit
     }
 }
 
+/** زوايا شريط خيارات الآية وهامشه الداخلي */
+private val BarRadius = 30.dp
+private val BarPad = 6.dp
+
 @Composable
 private fun androidx.compose.foundation.layout.RowScope.Action(
     icon: ImageVector, label: String, primary: Boolean = false, tint: Color? = null, onClick: () -> Unit,
 ) {
+    val src = remember { MutableInteractionSource() }
     Column(
-        Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).clickable(onClick = onClick).padding(vertical = 6.dp),
+        Modifier.weight(1f).squish(src).clip(RoundedCornerShape(BarRadius - BarPad))
+            .clickable(interactionSource = src, indication = if (IsIos) null else ripple(), onClick = onClick).padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Box(
-            Modifier.size(44.dp).clip(RoundedCornerShape(14.dp))
-                .background(if (primary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest),
+            Modifier.size(44.dp).clip(RoundedCornerShape(16.dp))
+                .background(if (primary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = .08f)),
             contentAlignment = Alignment.Center,
         ) {
             AnimatedContent(icon, transitionSpec = { scaleIn(spring(dampingRatio = 0.5f)) togetherWith fadeOut(tween(90)) }, label = "act") { ic ->
                 Icon(ic, null, tint = tint ?: if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        Text(label, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+        // الأسماء الطويلة («Поделиться»، «Enregistrer») تصغر قليلاً لتتسع في عرض الشاشة الخارجية لـ iPhone Duo
+        val color = LocalContentColor.current
+        com.osatks.mizan.ui.FitLabel(label, { color }, MaterialTheme.typography.labelMedium.copy(textAlign = TextAlign.Center), 9.sp, Modifier.padding(horizontal = 2.dp))
     }
 }
 
@@ -144,6 +178,11 @@ private fun androidx.compose.foundation.layout.RowScope.Action(
 @Composable
 internal fun BoxScope.ReadingPanel(visible: Boolean, onDismiss: () -> Unit, paper: Boolean = true, content: @Composable () -> Unit) {
     BackHandler(enabled = visible) { onDismiss() }
+    // على iPad والشاشات العريضة لوحة جانبية بجانب الصفحة (أو الصفحتين)، فيبقى النص ظاهراً أثناء قراءة التفسير
+    if (LocalWindowLayout.current.wide) {
+        SidePanel(visible, onDismiss, paper, content)
+        return
+    }
     AnimatedVisibility(visible, Modifier.matchParentSize(), enter = fadeIn(tween(Motion.MEDIUM)), exit = fadeOut(tween(Motion.MEDIUM))) {
         Box(
             Modifier.fillMaxSize().background(Color.Black.copy(alpha = .32f))
@@ -159,11 +198,12 @@ internal fun BoxScope.ReadingPanel(visible: Boolean, onDismiss: () -> Unit, pape
         val scope = rememberCoroutineScope()
         val limit = with(LocalDensity.current) { 120.dp.toPx() }
         LaunchedEffect(Unit) { drag.snapTo(0f) }
-        Surface(
+        val shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        Box(
             Modifier.fillMaxWidth().heightIn(max = 640.dp).offset { IntOffset(0, drag.value.roundToInt()) }
+                .floatingGlass(LocalAppHaze.current, shape, panelMaterial(paper), elevation = 16.dp)
                 // تمنع لمسات اللوحة من الوصول إلى الخلفية
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
-            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), color = if (paper) mushafPalette().paper else MaterialTheme.colorScheme.surfaceContainerLow, shadowElevation = 16.dp,
         ) {
             Column(Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
                 // مقبض السحب
@@ -178,6 +218,51 @@ internal fun BoxScope.ReadingPanel(visible: Boolean, onDismiss: () -> Unit, pape
                     Box(Modifier.size(width = 36.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.outline))
                 }
                 content()
+            }
+        }
+    }
+}
+
+/**
+ * مادة لوحات القراءة: زجاج بلون ورق المصحف كثيف يكاد يكون ورقاً في لوحة التفسير (يُقرأ النص عليه كما على الصفحة)،
+ * وزجاج التطبيق في لوحتي التلاوة والعرض
+ */
+@Composable
+private fun panelMaterial(paper: Boolean): HazeStyle =
+    if (paper) glassMaterial(.93f, color = mushafPalette().paper, fallback = 1f)
+    else glassMaterial(if (glassTone() == GlassTone.Dark) .80f else .84f, fallback = 1f)
+
+/** عرض اللوحة الجانبية في شاشة القراءة على الشاشات العريضة */
+@Composable
+internal fun readingPanelWidth(): Dp = (LocalWindowLayout.current.width * 0.42f).coerceIn(340.dp, 420.dp)
+
+/**
+ * لوحة القراءة على الشاشات العريضة: تنزلق من جهة النهاية (اليسار في العربية) بطول الشاشة وبجانب الصفحة،
+ * بلا ستار يغطي النص، فيبقى المصحف ظاهراً ويمكن لمس آية أخرى ليتبعها التفسير. تُغلق بزرها أو بالرجوع.
+ */
+@Composable
+private fun BoxScope.SidePanel(visible: Boolean, onDismiss: () -> Unit, paper: Boolean, content: @Composable () -> Unit) {
+    val s = LocalStrings.current
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val width = readingPanelWidth()
+    AnimatedVisibility(
+        visible, Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+        enter = slideInHorizontally(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { if (rtl) -it else it } + fadeIn(tween(Motion.SHORT)),
+        exit = slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { if (rtl) -it else it } + fadeOut(tween(Motion.SHORT)),
+    ) {
+        Box(
+            Modifier.width(width).fillMaxHeight()
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.End))
+                .padding(start = 4.dp, end = 12.dp, top = 12.dp, bottom = 12.dp)
+                .floatingGlass(LocalAppHaze.current, RoundedCornerShape(28.dp), panelMaterial(paper), elevation = 16.dp)
+                // تمنع لمسات اللوحة من الوصول إلى الصفحة تحتها
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
+        ) {
+            Column {
+                Box(Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp), contentAlignment = Alignment.CenterEnd) {
+                    IconButton(onClick = onDismiss) { Icon(Icons.Filled.Close, s.close, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                }
+                Box(Modifier.weight(1f)) { content() }
             }
         }
     }

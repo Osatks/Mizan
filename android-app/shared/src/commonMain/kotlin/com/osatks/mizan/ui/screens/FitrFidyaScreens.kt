@@ -57,7 +57,7 @@ fun FitrScreen(onBack: () -> Unit) {
     val perValue = Fmt.parse(value)
 
     ToolPage(s.fitrTitle, s.fitrSubtitle, onBack, sharedKey = "fitr", icon = TOOL_ICONS["fitr"]) {
-        item {
+        side {
             if (mode == "food") ResultCard(s.foodAmountDue, Fmt.num(kg), s.forPeople(people), true, unit = s.unitKg)
             else ResultCard(s.totalCashValue, if (perValue > 0) Fmt.num(perValue * people) else "—", s.forPeople(people), true)
         }
@@ -82,7 +82,7 @@ fun FitrScreen(onBack: () -> Unit) {
                 }
             }
         }
-        item { Note(s.fitrTimingNote) }
+        side { Note(s.fitrTimingNote) }
         item { EvidenceCard(com.osatks.mizan.i18n.Evidence.fitr) }
     }
 }
@@ -131,7 +131,7 @@ fun FidyaScreen(onBack: () -> Unit) {
     val p = Fmt.parse(price)
 
     ToolPage(s.fidyaTitle, s.fidyaSubtitle, onBack, sharedKey = "fidya", icon = TOOL_ICONS["fidya"]) {
-        item { ResultCard(title, Fmt.num(kg), sub, true, unit = s.unitKg) }
+        side { ResultCard(title, Fmt.num(kg), sub, true, unit = s.unitKg) }
         item {
             SectionCard {
                 Segmented(listOf("fidya" to s.tabFidya, "yamin" to s.tabOath, "jima" to s.tabIntercourse), tab) { tab = it }
@@ -146,7 +146,7 @@ fun FidyaScreen(onBack: () -> Unit) {
                 Reveal(p > 0) { StatRow(s.approxValue, Fmt.num(p * kg), strong = true) }
             }
         }
-        item { Note(note) }
+        side { Note(note) }
         item {
             EvidenceCard(when (tab) {
                 "fidya" -> com.osatks.mizan.i18n.Evidence.fidya

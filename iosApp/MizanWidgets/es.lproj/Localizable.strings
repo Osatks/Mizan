@@ -1,0 +1,15 @@
+/* أزرار مركز التحكم (Controls.swift) والنوايا المشتركة مع التطبيق (Shared/LiveActivityAttributes.swift) */
+"Next prayer" = "Próxima oración";
+"Prayer times" = "Horarios de oración";
+"Qibla" = "Qibla";
+"Continue reading" = "Continuar leyendo";
+"Tasbih" = "Tasbih";
+"Morning adhkar" = "Adhkar de la mañana";
+"Evening adhkar" = "Adhkar de la tarde";
+"Open in Mizan" = "Abrir en Mizan";
+"Screen" = "Pantalla";
+"Mizan screen" = "Pantalla de Mizan";
+"Opens the qibla compass" = "Abre la brújula de la qibla";
+"Opens the tasbih counter" = "Abre el contador de tasbih";
+"Opens today's prayer times" = "Abre los horarios de oración de hoy";
+"Opens the Quran where you stopped" = "Abre el Corán donde lo dejaste";

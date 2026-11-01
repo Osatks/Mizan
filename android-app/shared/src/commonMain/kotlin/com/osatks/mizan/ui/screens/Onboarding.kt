@@ -7,6 +7,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -87,23 +93,28 @@ fun Onboarding(onDone: () -> Unit) {
             }
             HorizontalPager(pager, Modifier.weight(1f)) { i ->
                 val (title, body) = pages.getOrNull(i) ?: (s.obLocationTitle to s.obLocationBody)
+                // في النوافذ القصيرة (الشاشة الداخلية لـ iPhone Duo بالعرض، أو هاتف بالعرض) تصغر الشارة وتُمرَّر الصفحة،
+                // وعلى الشاشات العريضة يبقى النص بعرض مريح في الوسط
+                BoxWithConstraints(Modifier.fillMaxSize()) {
+                val short = maxHeight < 560.dp
                 Column(
-                    Modifier.fillMaxSize().padding(horizontal = 32.dp).graphicsLayer {
+                    Modifier.fillMaxSize().verticalScroll(rememberScrollState()).heightIn(min = maxHeight)
+                        .padding(horizontal = 32.dp).wrapContentWidth().widthIn(max = 560.dp).graphicsLayer {
                         val o = ((pager.currentPage - i) + pager.currentPageOffsetFraction).absoluteValue.coerceAtMost(1f)
                         alpha = 1f - 0.6f * o; scaleX = 1f - 0.08f * o; scaleY = 1f - 0.08f * o
                     },
                     horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
                 ) {
                     // الشارة: نجمة ثمانية ذهبية وفي وسطها أيقونة الصفحة
-                    Box(Modifier.size(180.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(if (short) 120.dp else 180.dp), contentAlignment = Alignment.Center) {
                         Canvas(Modifier.fillMaxSize()) {
                             drawCircle(Color.White.copy(alpha = .08f), size.minDimension / 2)
                             drawStar8(Offset(size.width / 2, size.height / 2), size.minDimension * 0.42f, Gold.copy(alpha = .9f), 2.5.dp.toPx(), rings = false)
                             drawCircle(Color.White.copy(alpha = .10f), size.minDimension * 0.27f)
                         }
-                        Icon(if (i == pages.size) Icons.Filled.Place else PAGE_ICONS.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(56.dp), tint = Gold)
+                        Icon(if (i == pages.size) Icons.Filled.Place else PAGE_ICONS.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(if (short) 40.dp else 56.dp), tint = Gold)
                     }
-                    Spacer(Modifier.height(36.dp))
+                    Spacer(Modifier.height(if (short) 20.dp else 36.dp))
                     Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(14.dp))
                     Text(body, style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = .85f), textAlign = TextAlign.Center)
@@ -121,9 +132,10 @@ fun Onboarding(onDone: () -> Unit) {
                         LocationButtons(onHero = true, modifier = Modifier.fillMaxWidth())
                     }
                 }
+                }
             }
-            // النقاط وزر المتابعة
-            Row(Modifier.fillMaxWidth().padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
+            // النقاط وزر المتابعة (بعرض أقصاه 640 في الوسط على الشاشات العريضة)
+            Row(Modifier.fillMaxWidth().wrapContentWidth().widthIn(max = 640.dp).padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     (0 until count).forEach { i ->
                         val on = i == pager.currentPage

@@ -76,6 +76,7 @@ import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.i18n.time
 import com.osatks.mizan.i18n.weekday
+import com.osatks.mizan.ui.LocalPageColumns
 import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.Picker
 import com.osatks.mizan.ui.PickerField
@@ -118,6 +119,7 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
 
     val city = place.city
     val subtitle = s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: "")
+    // على الشاشة الواسعة: مواقيت اليوم وجدول الشهر متجاوران، والجدول ظاهر دائماً يتبع اليوم المختار
     ToolPage(s.prayerTitle, subtitle, sharedKey = "prayer", icon = TOOL_ICONS["prayer"]) {
         if (!AppSettings.placeSet) item { LocationNeededCard() }
         item {
@@ -149,11 +151,11 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
                 Text(s.prayerEndsNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = { day = PrayerUtil.now().toLocalDate() }) { Text(s.today) }
-                    TextButton(onClick = { showMonth = !showMonth }) { Text(if (showMonth) s.hideMonthTable else s.monthTable) }
+                    if (LocalPageColumns.current == 1) TextButton(onClick = { showMonth = !showMonth }) { Text(if (showMonth) s.hideMonthTable else s.monthTable) }
                 }
             }
         }
-        item { Reveal(showMonth) { MonthTable(day) } }
+        side { Reveal(showMonth || LocalPageColumns.current == 2) { MonthTable(day) } }
         item {
             SectionCard(s.locationAndMethod) {
                 Button(
@@ -179,7 +181,7 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
                 StatRow(s.latLng, "${Fmt.num(place.lat)}° / ${Fmt.num(place.lng)}°")
             }
         }
-        item {
+        side {
             // الإقامة: دقائق بعد الأذان لكل صلاة كما في مسجد المستخدم
             SectionCard(s.iqamaTitle) {
                 Text(s.iqamaDesc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -188,7 +190,7 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
                 }
             }
         }
-        item {
+        side {
             SectionCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Notifications, null, tint = MaterialTheme.colorScheme.primary)

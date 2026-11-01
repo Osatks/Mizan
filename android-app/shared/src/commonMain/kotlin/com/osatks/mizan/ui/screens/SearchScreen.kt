@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import com.osatks.mizan.ui.LocalWindowLayout
+import com.osatks.mizan.ui.TextColumnMax
+import com.osatks.mizan.ui.gutters
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -198,8 +201,10 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
     }
 
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    // على الشاشات العريضة: حقل البحث والنتائج في عمود بعرض مريح في الوسط
+    val g = gutters(LocalWindowLayout.current.width, TextColumnMax)
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Row(Modifier.statusBarsPadding().padding(start = 4.dp, end = 12.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.statusBarsPadding().padding(start = g.start - 12.dp, end = g.end - 4.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, s.back) }
             Surface(
                 shape = RoundedCornerShape(18.dp),
@@ -241,7 +246,7 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
             } else {
                 androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) { LazyColumn(
                     Modifier.fillMaxSize().imePadding(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp + bottom)
+                    contentPadding = PaddingValues(start = g.start, end = g.end, top = 4.dp, bottom = 24.dp + bottom)
                 ) {
                     if (blank) item(key = "hint") {
                         Text(s.searchEmpty, Modifier.animateItem().padding(4.dp, 4.dp, 4.dp, 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)

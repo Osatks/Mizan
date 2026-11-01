@@ -67,6 +67,18 @@ platform :ios do
     )
   end
 
+  # رفع الملف الموقَّع إن فشل altool (ios-release.yml): pilot بالمفتاح نفسه، بلا انتظار المعالجة ولا توزيع
+  desc "Upload the signed .ipa (MIZAN_IPA) to App Store Connect / TestFlight without waiting for processing"
+  lane :upload do
+    upload_to_testflight(
+      api_key: asc_key,
+      ipa: ENV.fetch("MIZAN_IPA"),
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false
+    )
+  end
+
   desc "Upload metadata + screenshots for MIZAN_VERSION (no review submission)"
   lane :metadata do
     deliver_common(asc_key, submit: false)

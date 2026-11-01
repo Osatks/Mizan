@@ -17,6 +17,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -62,6 +68,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -129,7 +136,8 @@ fun PageHeader(
             .starBackdrop(Color.White.copy(alpha = .07f), 72.dp, Alignment.TopEnd, (-28).dp, 44.dp, 90_000)
     ) {
         Row(
-            Modifier.statusBarsPadding().padding(start = 8.dp, end = 20.dp, top = 12.dp, bottom = 22.dp),
+            Modifier.statusBarsPadding().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .padding(start = 8.dp, end = 20.dp, top = 12.dp, bottom = 22.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (onBack != null) {
@@ -163,59 +171,182 @@ fun PageHeader(
     }
 }
 
-/** محتوى الصفحة: كل item يظهر متتابعاً عند فتح الصفحة */
-class PageScope internal constructor(private val list: LazyListScope, private val reveal: RevealState) {
-    private var index = 0
-    fun item(key: Any? = null, content: @Composable () -> Unit) {
-        val i = index++
-        list.item(key = key) {
-            Box(Modifier.padding(horizontal = 16.dp).reveal(reveal, i)) { content() }
-        }
-    }
+/**
+ * محتوى الصفحة: كل عنصر يظهر متتابعاً عند فتح الصفحة.
+ * على الهاتف عمود واحد بترتيب الاستدعاء. على الشاشات الواسعة يتوسط المحتوى بعرض مريح للقراءة،
+ * وما أُضيف بـ [side] يصير عموداً ثانياً بجانب عناصر [item] (النتائج بجانب المدخلات) يبقى ظاهراً أثناء التمرير،
+ * و[cells] شبكة بعمودين.
+ */
+class PageScope internal constructor() {
+    internal sealed class Entry
+    internal class One(val place: Int, val key: Any?, val content: @Composable () -> Unit) : Entry()
+    internal class Cells(val count: Int, val key: (Int) -> Any, val content: @Composable (Int) -> Unit) : Entry()
+
+    internal val entries = ArrayList<Entry>()
+
+    /** عنصر في عمود الصفحة (العمود الأول حين تتسع الشاشة لعمودين) */
+    fun item(key: Any? = null, content: @Composable () -> Unit) { entries += One(MAIN, key, content) }
+
+    /** عنصر في العمود الثاني حين تتسع الشاشة لعمودين؛ على الهاتف في مكانه من الترتيب */
+    fun side(key: Any? = null, content: @Composable () -> Unit) { entries += One(SIDE, key, content) }
+
+    /** عنصر بعرض المحتوى كله، ينهي ما قبله من العمودين */
+    fun full(key: Any? = null, content: @Composable () -> Unit) { entries += One(FULL, key, content) }
+
+    /** عناصر متجانسة (السور مثلاً): واحد في كل صف على الهاتف، واثنان على الشاشة الواسعة؛ كل صف عنصر مستقل في القائمة */
+    fun cells(count: Int, key: (Int) -> Any, content: @Composable (Int) -> Unit) { entries += Cells(count, key, content) }
+
+    internal val twoColumnForm get() = entries.any { it is Cells || (it is One && it.place == SIDE) }
+
+    internal companion object { const val MAIN = 0; const val SIDE = 1; const val FULL = 2 }
 }
 
 /** ارتفاع الشريط العلوي المضغوط (دون شريط الحالة) */
 internal val TopBarHeight = 52.dp
 
+/** عدد أعمدة صفحة الأداة الحالية: 2 حين تتسع لعمودين (840 فأكثر)، وإلا 1 */
+val LocalPageColumns = compositionLocalOf { 1 }
+
+/** المسافة بين عمودَي الصفحة العريضة */
+private val ColumnGap = 20.dp
+
 /**
  * صفحة أداة بأسلوب iOS: عنوان كبير في رأس متدرج يمرّ مع المحتوى، وفوقه شريط زجاجي ثابت فيه زر الرجوع.
  * حين يمرّ الرأس تحت الشريط يظهر زجاج الشريط (تمويه ما تحته) وعنوان صغير في وسطه.
  * الرأس يبقى مربوطاً ببطاقة الأداة في الرئيسية (sharedKey) فيتحول أحدهما إلى الآخر.
+ * على iPad وما اتسع: الرأس بعرض الشاشة، والمحتوى في الوسط بعرض أقصاه 720 (أو عمودان بعرض أقصاه 1100
+ * حين تستعمل الصفحة [PageScope.side] أو [PageScope.cells] أو [columns]، والعرض 840 فأكثر)، ونصه بمحاذاة عنوان الرأس.
  */
 @Composable
 fun ToolPage(
     title: String, subtitle: String? = null, onBack: (() -> Unit)? = null,
     sharedKey: String? = null, icon: ImageVector? = null, spacing: Dp = 14.dp,
+    columns: Boolean = false,
     content: PageScope.() -> Unit
 ) {
     val reveal = remember { RevealState() }
     val nav = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val haze = rememberHazeState()
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    val lead = LocalLeadingInset.current
+    val density = LocalDensity.current
+    // أعلى ما يثبت عنده عمود النتائج: تحت الشريط الزجاجي العلوي
+    val stickTop = with(density) { (WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + TopBarHeight + 12.dp).toPx() }
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        val twoColumns = maxWidth - lead >= 840.dp
+        val narrow = gutters(maxWidth, TextColumnMax, lead)
+        val split = gutters(maxWidth, SplitMax, lead)
         androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) {
             val list = rememberLazyListState()
+            CompositionLocalProvider(LocalPageColumns provides if (twoColumns) 2 else 1) {
             LazyColumn(
                 state = list,
                 modifier = Modifier.fillMaxSize().hazeSource(haze).imePadding(),
                 contentPadding = PaddingValues(bottom = 16.dp + nav + LocalBottomInset.current),
                 verticalArrangement = Arrangement.spacedBy(spacing),
             ) {
+                val page = PageScope().apply(content)
+                val wide = twoColumns && (columns || page.twoColumnForm)
+                val g = if (wide) split else narrow
                 item(key = "page-header", contentType = "page-header") {
                     Column {
-                        LargeHeader(title, subtitle, sharedKey, icon, hasBack = onBack != null)
+                        LargeHeader(title, subtitle, sharedKey, icon, hasBack = onBack != null, g)
                         Spacer(Modifier.height((16.dp - spacing).coerceAtLeast(0.dp)))
                     }
                 }
-                PageScope(this, reveal).content()
+                emitPage(page, wide, g, reveal, spacing, list, stickTop)
+            }
             }
             GlassTopBar(list, haze, title, onBack)
         }
     }
 }
 
+/** يضع عناصر [PageScope] في القائمة: عموداً واحداً بترتيبها، أو عمودين على الشاشة الواسعة */
+private fun LazyListScope.emitPage(page: PageScope, wide: Boolean, g: Gutters, reveal: RevealState, spacing: Dp, list: LazyListState, stickTop: Float) {
+    var index = 0
+    val pad = Modifier.padding(start = g.start, end = g.end)
+    fun single(key: Any?, content: @Composable () -> Unit) {
+        val i = index++
+        item(key = key) { Box(pad.reveal(reveal, i)) { content() } }
+    }
+    if (!wide) {
+        page.entries.forEach { e ->
+            when (e) {
+                is PageScope.One -> single(e.key, e.content)
+                is PageScope.Cells -> for (c in 0 until e.count) single(e.key(c)) { e.content(c) }
+            }
+        }
+        return
+    }
+    var block = ArrayList<PageScope.One>()
+    var blocks = 0
+    fun flush() {
+        if (block.isEmpty()) return
+        val b = block
+        block = ArrayList()
+        if (b.none { it.place == PageScope.SIDE }) { b.forEach { single(it.key, it.content) }; return }
+        val first = index
+        index += b.size
+        val key = "split-${blocks++}"
+        item(key = key) { SplitColumns(b, pad, spacing, reveal, first, list, key, stickTop) }
+    }
+    page.entries.forEach { e ->
+        when {
+            e is PageScope.One && e.place != PageScope.FULL -> block += e
+            e is PageScope.One -> { flush(); single(e.key, e.content) }
+            e is PageScope.Cells -> {
+                flush()
+                for (r in 0 until (e.count + 1) / 2) {
+                    val i = index++
+                    item(key = e.key(r * 2)) {
+                        Row(pad.reveal(reveal, i).height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(ColumnGap / 2)) {
+                            Box(Modifier.weight(1f).fillMaxHeight(), propagateMinConstraints = true) { e.content(r * 2) }
+                            Box(Modifier.weight(1f).fillMaxHeight(), propagateMinConstraints = true) { if (r * 2 + 1 < e.count) e.content(r * 2 + 1) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    flush()
+}
+
+/**
+ * عمودا الصفحة العريضة في عنصر واحد من القائمة: [PageScope.item] في الأول و[PageScope.side] في الثاني.
+ * الثاني (النتائج) يثبت تحت الشريط العلوي ما دام الأول (المدخلات) يمرّ تحته، فتبقى النتيجة ظاهرة أثناء الإدخال؛
+ * يُحسب ذلك أثناء الرسم فقط فلا يعيد التمرير بناء الصفحة.
+ */
+@Composable
+private fun SplitColumns(
+    entries: List<PageScope.One>, pad: Modifier, spacing: Dp, reveal: RevealState, first: Int,
+    list: LazyListState, itemKey: Any, stickTop: Float,
+) {
+    var rowH by remember { mutableStateOf(0) }
+    var sideH by remember { mutableStateOf(0) }
+    val (sides, mains) = entries.withIndex().partition { it.value.place == PageScope.SIDE }
+    Row(pad.onSizeChanged { rowH = it.height }, horizontalArrangement = Arrangement.spacedBy(ColumnGap)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(spacing)) {
+            mains.forEachIndexed { n, (k, e) ->
+                androidx.compose.runtime.key(e.key ?: "m$k") { Box(Modifier.reveal(reveal, first + n)) { e.content() } }
+            }
+        }
+        Column(
+            Modifier.weight(1f).onSizeChanged { sideH = it.height }.graphicsLayer {
+                val top = list.layoutInfo.visibleItemsInfo.firstOrNull { it.key == itemKey }?.offset ?: 0
+                translationY = (stickTop - top).coerceIn(0f, (rowH - sideH).coerceAtLeast(0).toFloat())
+            },
+            verticalArrangement = Arrangement.spacedBy(spacing)
+        ) {
+            sides.forEachIndexed { n, (k, e) ->
+                androidx.compose.runtime.key(e.key ?: "s$k") { Box(Modifier.reveal(reveal, first + mains.size + n)) { e.content() } }
+            }
+        }
+    }
+}
+
 /** الرأس الكبير لصفحة الأداة: أيقونة وعنوان كبير وسطر وصف؛ يترك أعلاه مكان الشريط الثابت إن كان فيه زر رجوع */
 @Composable
-private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, icon: ImageVector?, hasBack: Boolean) {
+private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, icon: ImageVector?, hasBack: Boolean, g: Gutters) {
     val shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
     Box(
         Modifier
@@ -225,8 +356,9 @@ private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, ic
             .background(HeroBrush)
             .starBackdrop(Color.White.copy(alpha = .07f), 72.dp, Alignment.TopEnd, (-28).dp, 44.dp, 90_000)
     ) {
+        // العنوان بمحاذاة المحتوى تحته (في الوسط على الشاشات العريضة، وبعد القائمة الجانبية)
         Row(
-            Modifier.statusBarsPadding().padding(start = 20.dp, end = 20.dp, top = if (hasBack) TopBarHeight else 14.dp, bottom = 22.dp),
+            Modifier.statusBarsPadding().padding(start = g.start + 4.dp, end = g.end + 4.dp, top = if (hasBack) TopBarHeight else 14.dp, bottom = 22.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
@@ -283,6 +415,8 @@ internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, on
     StatusBarStyle(lightContent = overHeader || LocalDark.current)
     val style = glassStyle(if (LocalDark.current) .66f else .72f, 24.dp)
     val hairline = MaterialTheme.colorScheme.outlineVariant
+    // العنوان الصغير في وسط المحتوى لا وسط الشاشة حين تشغل القائمة الجانبية جهة البداية
+    val lead = LocalLeadingInset.current
     Box(Modifier.fillMaxWidth()) {
         Box(
             Modifier.matchParentSize()
@@ -292,7 +426,7 @@ internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, on
                 )
                 .drawBehind { if (glass.value > 0f) drawRect(hairline, Offset(0f, size.height - 1f), Size(size.width, 1f), alpha = glass.value * .8f) }
         )
-        Box(Modifier.statusBarsPadding().fillMaxWidth().height(TopBarHeight), contentAlignment = Alignment.Center) {
+        Box(Modifier.statusBarsPadding().padding(start = lead).fillMaxWidth().height(TopBarHeight), contentAlignment = Alignment.Center) {
             Text(
                 title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
@@ -303,7 +437,9 @@ internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, on
                     translationY = (1f - a) * 6.dp.toPx()
                 }
             )
-            if (onBack != null) Box(Modifier.align(Alignment.CenterStart).padding(start = 10.dp)) { BackChip(onBack) { glass.value } }
+            if (onBack != null) Box(Modifier.align(Alignment.CenterStart).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start)).padding(start = 10.dp)) {
+                BackChip(onBack) { glass.value }
+            }
         }
     }
 }
@@ -491,19 +627,19 @@ fun AppSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     )
 }
 
-/** قائمة منسدلة بسيطة */
+/** اختيار من قائمة: حقل يفتح قائمة زجاجية منبثقة تحته بعرضه، والمختار فيها بعلامة صح */
 @Composable
 fun <T> Picker(label: String, options: List<T>, selected: T, text: (T) -> String, onSelect: (T) -> Unit, modifier: Modifier = Modifier) {
     var open by remember { mutableStateOf(false) }
     Column(modifier) {
         Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
-        Box {
+        BoxWithConstraints {
             PickerField(text(selected)) { open = true }
-            DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                options.forEach { o ->
-                    DropdownMenuItem(text = { Text(text(o)) }, onClick = { onSelect(o); open = false })
-                }
-            }
+            GlassMenu(
+                open, { open = false },
+                options.map { o -> MenuItem(text(o), checked = o == selected) { onSelect(o) } },
+                width = maxWidth.coerceIn(220.dp, 360.dp),
+            )
         }
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.CircularProgressIndicator
@@ -69,6 +70,8 @@ import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.platform.AdhanAudio
 import com.osatks.mizan.platform.AdhanPreview
+import com.osatks.mizan.platform.AppStore
+import com.osatks.mizan.platform.LiveCountdown
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.ui.AppSwitch
@@ -115,6 +118,7 @@ fun AdhanScreen(onBack: () -> Unit) {
                 if (PrayerAlerts.hasExactAlarmSettings) {
                     ClickRow(s.exactAlarm, s.exactAlarmDesc, leading = Icons.Filled.Alarm, onClick = { PrayerAlerts.openExactAlarmSettings() })
                 }
+                if (LiveCountdown.supported) LiveCountdownRow()
             }
         }
         item {
@@ -158,6 +162,25 @@ fun AdhanScreen(onBack: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+/**
+ * iPhone: العدّ التنازلي للصلاة القادمة على شاشة القفل وفي الجزيرة الديناميكية حين يغادر المستخدم التطبيق قبلها
+ * بأقل من ثلاث ساعات. إن كانت الأنشطة الحية مطفأة لميزان في إعدادات النظام يقول ذلك ويفتح الإعدادات.
+ */
+@Composable
+private fun LiveCountdownRow() {
+    val s = LocalStrings.current
+    val set = { on: Boolean ->
+        LiveCountdown.update(on)
+        if (on && LiveCountdown.systemOff) AppStore.openSettings()
+    }
+    ClickRow(
+        s.liveCountdown, if (LiveCountdown.systemOff) s.liveActivitiesOff else s.liveCountdownDesc,
+        onClick = { set(!LiveCountdown.enabled) }, leading = Icons.Filled.Timer
+    ) {
+        AppSwitch(checked = LiveCountdown.enabled, onCheckedChange = { on -> set(on) })
     }
 }
 
