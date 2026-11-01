@@ -1,5 +1,6 @@
 package com.osatks.mizan
 
+import com.osatks.mizan.ui.PageMotion
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -145,8 +146,8 @@ fun MizanApp(startRoute: String? = null) {
                 NavHost(
                     nav, startDestination = "home", modifier = Modifier.fillMaxSize(),
                     enterTransition = { enter(rtl) },
-                    exitTransition = { exit() },
-                    popEnterTransition = { popEnter() },
+                    exitTransition = { exit(rtl) },
+                    popEnterTransition = { popEnter(rtl) },
                     popExitTransition = { popExit(rtl) },
                 ) {
                     // مكان شريط التنقل لكل صفحة تبويب بحسبها هي، لا بحسب الصفحة الظاهرة: فلا يقفز محتواها أثناء الانتقال منها وإليها.
@@ -159,7 +160,10 @@ fun MizanApp(startRoute: String? = null) {
                             LocalNavScope provides this,
                             LocalBottomInset provides if (tab && !side) host.bottomInset else 0.dp,
                             LocalLeadingInset provides if (tab && side) host.leadingInset else 0.dp,
-                        ) { content() }
+                        ) {
+                            // كل صفحة معتمة: في iOS تنزلق الصفحتان معاً، فلا تظهر إحداهما من خلال الأخرى
+                            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) { content() }
+                        }
                     }
                     screen("home") { HomeScreen(open = open) }
                     screen("prayer") { PrayerScreen(open = open) }
@@ -242,23 +246,22 @@ private fun AnimatedContentTransitionScope<NavBackStackEntry>.isTabSwitch() =
 
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.enter(rtl: Boolean): EnterTransition =
     if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
-    else slideInHorizontally(tween(Motion.LONG, easing = Motion.Emphasized)) { w -> (if (rtl) -w else w) / 4 } +
-        fadeIn(tween(Motion.MEDIUM, delayMillis = 40))
+    else PageMotion.push(rtl)
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(): ExitTransition =
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(rtl: Boolean): ExitTransition =
     if (isTabSwitch()) fadeOut(tween(90))
+    else if (IsIos) PageMotion.pushUnder(rtl)
     else scaleOut(tween(Motion.LONG, easing = Motion.Emphasized), targetScale = 0.94f) + fadeOut(tween(Motion.MEDIUM))
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(): EnterTransition =
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(rtl: Boolean): EnterTransition =
     if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
+    else if (IsIos) PageMotion.popUnder(rtl)
     else scaleIn(tween(Motion.LONG, easing = Motion.Emphasized), initialScale = 0.94f) + fadeIn(tween(Motion.MEDIUM))
 
-// في iOS تخرج الصفحة كاملة إلى جهة الرجوع: سحب الحافة للرجوع (يتبع الإصبع) يحمل الصفحة معه كما في تطبيقات النظام
+// في iOS: الصفحة كلها تخرج إلى جهة الرجوع وتعود التي تحتها من ثلث العرض، بحركة خطية يقودها سحب الحافة فتبقى تحت الإصبع
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(rtl: Boolean): ExitTransition =
     if (isTabSwitch()) fadeOut(tween(90))
-    else if (IsIos) slideOutHorizontally(tween(Motion.LONG - 80, easing = Motion.Emphasized)) { w -> if (rtl) -w else w }
-    else slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { w -> (if (rtl) -w else w) / 4 } +
-        fadeOut(tween(Motion.SHORT, delayMillis = 60))
+    else PageMotion.pop(rtl)
 
 private fun NavHostController.goTab(route: String) {
     navigate(route) {

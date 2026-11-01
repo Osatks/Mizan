@@ -123,16 +123,12 @@ def svg(kind):
         body.append(f'<path d="{star_path(STAR_R)}" fill="#FFFFFF" fill-opacity=".035" stroke="{GOLD_MID}" stroke-opacity=".32" stroke-width="{STAR_W}" stroke-linejoin="round"/>')
         body.append(emblem_svg("url(#gold)"))
     elif kind == "dark":
-        # إرشادات Apple للأيقونة الداكنة: خلفية ملونة داكنة تعطي أوضح تباين، وألوان الأصل أهدأ قليلاً.
-        # زمرّد قاتم يكاد يكون أسود (أقرب إلى خلفية النظام في الوضع الداكن)، والميزان بذهب أخفت لمعاناً
+        # الأيقونة الداكنة في iOS 18 فما بعده: الشعار وحده على خلفية شفافة، والنظام يضع تحته خلفيته الداكنة
+        # (كأيقونات تطبيقات Apple نفسها في الوضع الداكن)؛ الذهب أخفت لمعاناً قليلاً كي لا يبهر في الظلام
         defs = [gold_gradient("gold", "#EDD07F", "#D9AE4C", "#AE7F25")]
-        defs.append(f'<radialGradient id="bg" cx="{C}" cy="{C - 120}" r="{S * 0.8}" gradientUnits="userSpaceOnUse">'
-                    f'<stop offset="0" stop-color="{DARK_HI}"/><stop offset=".6" stop-color="{DARK_MID}"/>'
-                    f'<stop offset="1" stop-color="{DARK_LO}"/></radialGradient>')
         defs.append('<filter id="lift" x="-20%" y="-20%" width="140%" height="140%">'
                     '<feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity=".5"/></filter>')
-        body.append(f'<rect width="{S}" height="{S}" fill="url(#bg)"/>')
-        body.append(f'<path d="{star_path(STAR_R)}" fill="none" stroke="{GOLD_MID}" stroke-opacity=".22" stroke-width="{STAR_W}" stroke-linejoin="round"/>')
+        body.append(f'<path d="{star_path(STAR_R)}" fill="none" stroke="{GOLD_MID}" stroke-opacity=".30" stroke-width="{STAR_W}" stroke-linejoin="round"/>')
         body.append(emblem_svg("url(#gold)"))
     elif kind == "tinted":
         # يلوّنه النظام بلون المستخدم حسب الإضاءة: أبيض للشعار ورمادي خافت للنجمة على أسود

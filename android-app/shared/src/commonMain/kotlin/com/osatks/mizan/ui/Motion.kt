@@ -68,6 +68,8 @@ val LocalNavScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Modifier.sharedCard(key: String, shape: Shape = RoundedCornerShape(24.dp)): Modifier {
+    // في iOS تنتقل الصفحة كاملة كما في تطبيقات النظام، ويقودها سحب الحافة؛ تحوّل البطاقة إلى الرأس يزاحمها
+    if (IsIos) return this
     val shared = LocalSharedScope.current ?: return this
     val anim = LocalNavScope.current ?: return this
     return with(shared) {
@@ -85,6 +87,7 @@ fun Modifier.sharedCard(key: String, shape: Shape = RoundedCornerShape(24.dp)): 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Modifier.sharedIcon(key: String): Modifier {
+    if (IsIos) return this
     val shared = LocalSharedScope.current ?: return this
     val anim = LocalNavScope.current ?: return this
     return with(shared) {
