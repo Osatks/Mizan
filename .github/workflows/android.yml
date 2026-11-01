@@ -3,6 +3,17 @@ name: Android App
 on:
   # يدوي فقط (Actions ← Run workflow): دقائق GitHub Actions محدودة، وبناء macOS يُحسب بعشرة أضعاف
   workflow_dispatch:
+    inputs:
+      play_track:
+        description: "Google Play: المسار الذي يُرفع إليه الـ AAB (none: بناء فقط)"
+        type: choice
+        options: [production, internal, none]
+        default: production
+      play_status:
+        description: "حالة الإصدار في Play (draft: يبقى مسودة تنشرها بيدك من Play Console)"
+        type: choice
+        options: [completed, draft]
+        default: completed
 
 permissions:
   contents: read
@@ -55,3 +66,15 @@ jobs:
             android-app/app/build/outputs/apk/**/*.apk
             android-app/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
+
+      # الرفع إلى Google Play بحساب الخدمة (PLAY_SERVICE_ACCOUNT_JSON)، بعد نجاح الاختبارات والبناء الموقَّع
+      - name: Upload to Google Play
+        if: inputs.play_track != 'none' && env.KEYSTORE_BASE64 != ''
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.mizan.almuslim
+          releaseFiles: android-app/app/build/outputs/bundle/release/*.aab
+          mappingFile: android-app/app/build/outputs/mapping/release/mapping.txt
+          track: ${{ inputs.play_track }}
+          status: ${{ inputs.play_status }}
