@@ -28,10 +28,13 @@
         android:localeConfig="@xml/locales_config"
         android:theme="@style/Theme.Mizan">
 
+        <!-- تغيّر مقاس النافذة (فتح الجهاز القابل للطي وطيّه، والتدوير، والنوافذ المتعددة) لا يعيد إنشاء النشاط:
+             تتكيف الواجهة وحدها، وتبقى الأوراق المفتوحة وصفحة المصحف كما هي -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:configChanges="locale|layoutDirection"
+            android:configChanges="locale|layoutDirection|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:resizeableActivity="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

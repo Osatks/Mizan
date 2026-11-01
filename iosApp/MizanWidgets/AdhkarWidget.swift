@@ -17,7 +17,7 @@ struct AdhkarWidget: Widget {
         }
         .configurationDisplayName(Fallback.gallery("adhkar"))
         .description(Fallback.gallery("descAdhkar"))
-        .supportedFamilies(Families.make([.systemSmall, .systemMedium, .systemLarge], rectangular: true))
+        .supportedFamilies(Families.make([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge], rectangular: true))
     }
 }
 
@@ -43,7 +43,7 @@ struct AdhkarView: View {
         switch family {
         case .systemSmall: return 110
         case .systemMedium: return 300
-        case .systemLarge: return .max
+        case .systemLarge, .systemExtraLarge: return .max
         default: return 70
         }
     }
@@ -106,7 +106,8 @@ struct AdhkarCard: View {
 
     var body: some View {
         let small = family == .systemSmall
-        let large = family == .systemLarge
+        // الكبيرة جداً (iPad) بتصميم الكبيرة نفسه، وعرضها الواسع يكفي الذكر الطويل بخط أكبر قليلاً
+        let large = family == .systemLarge || family == .systemExtraLarge
         VStack(spacing: 0) {
             Header(symbol: symbol, title: window.title) {
                 if let chip = window.chip, !small {
@@ -121,7 +122,7 @@ struct AdhkarCard: View {
             }
             Spacer(minLength: 6)
             Text(verbatim: dhikr.ar)
-                .font(Mizan.quran(small ? 17 : (large ? 25 : 20)))
+                .font(Mizan.quran(small ? 17 : (family == .systemExtraLarge ? 28 : (large ? 25 : 20))))
                 .multilineTextAlignment(.center)
                 .lineSpacing(large ? 6 : 2)
                 .lineLimit(small ? 5 : (large ? 12 : 4))

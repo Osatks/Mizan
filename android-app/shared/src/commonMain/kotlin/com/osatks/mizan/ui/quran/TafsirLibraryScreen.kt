@@ -90,11 +90,13 @@ fun TafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get") {
     }
 
     confirm?.let { r ->
-        AlertDialog(
+        com.osatks.mizan.ui.PlatformDialog(
             onDismissRequest = { confirm = null },
-            title = { Text(s.deleteTafsirQ(r.name(lang))) },
-            confirmButton = { TextButton(onClick = { TafsirLibrary.delete(r.slug); confirm = null }) { Text(s.delete, color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { confirm = null }) { Text(s.cancel) } },
+            title = s.deleteTafsirQ(r.name(lang)),
+            actions = listOf(
+                com.osatks.mizan.ui.DialogAction(s.cancel, com.osatks.mizan.ui.ActionRole.Cancel) { confirm = null },
+                com.osatks.mizan.ui.DialogAction(s.delete, com.osatks.mizan.ui.ActionRole.Destructive) { TafsirLibrary.delete(r.slug); confirm = null },
+            ),
         )
     }
 }

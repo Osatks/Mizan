@@ -121,12 +121,14 @@ fun LocationNeededCard(modifier: Modifier = Modifier) {
 @Composable
 fun LocationDeniedDialog(onPickCity: () -> Unit, onDismiss: () -> Unit) {
     val s = LocalStrings.current
-    AlertDialog(
+    com.osatks.mizan.ui.PlatformDialog(
         onDismissRequest = onDismiss,
-        title = { Text(s.locationOffTitle) },
-        text = { Text(s.locationOffBody) },
-        confirmButton = { TextButton(onClick = onPickCity) { Text(s.pickCity) } },
-        dismissButton = { TextButton(onClick = { onDismiss(); AppStore.openSettings() }) { Text(s.openSettings) } },
+        title = s.locationOffTitle,
+        message = s.locationOffBody,
+        actions = listOf(
+            com.osatks.mizan.ui.DialogAction(s.openSettings) { onDismiss(); AppStore.openSettings() },
+            com.osatks.mizan.ui.DialogAction(s.pickCity, com.osatks.mizan.ui.ActionRole.Preferred, onPickCity),
+        ),
     )
 }
 
@@ -144,12 +146,14 @@ fun rememberAlertsToggle(): (Boolean) -> Unit {
         PrayerAlerts.reschedule()
         if (wanted && !ok) denied = true
     }
-    if (denied) AlertDialog(
+    if (denied) com.osatks.mizan.ui.PlatformDialog(
         onDismissRequest = { denied = false },
-        title = { Text(s.notifyOffTitle) },
-        text = { Text(s.notifyOffBody) },
-        confirmButton = { TextButton(onClick = { denied = false; AppStore.openSettings() }) { Text(s.openSettings) } },
-        dismissButton = { TextButton(onClick = { denied = false }) { Text(s.cancel) } },
+        title = s.notifyOffTitle,
+        message = s.notifyOffBody,
+        actions = listOf(
+            com.osatks.mizan.ui.DialogAction(s.cancel, com.osatks.mizan.ui.ActionRole.Cancel) { denied = false },
+            com.osatks.mizan.ui.DialogAction(s.openSettings, com.osatks.mizan.ui.ActionRole.Preferred) { denied = false; AppStore.openSettings() },
+        ),
     )
     return remember(toggle) { { on -> wanted = on; toggle(on) } }
 }

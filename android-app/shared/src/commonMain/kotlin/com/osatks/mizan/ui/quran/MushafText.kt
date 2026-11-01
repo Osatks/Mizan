@@ -317,14 +317,21 @@ internal fun drawAyahEnd(nc: Canvas, paint: GlyphPaint, ayah: Int, left: Float, 
  * فتكون الصفحة التالية (والتي بعدها) محسوبة ومشكّلة الكلمات قبل أن يُقلَّب إليها، والرجوع إلى صفحة سابقة فوري.
  */
 /** عدد الصفحات المحضَّرة مسبقاً في كل جهة من الصفحة المعروضة (3 + 3 = 6 صفحات) */
-private const val PREFETCH_EACH_SIDE = 3
+internal const val PREFETCH_EACH_SIDE = 3
+
+/**
+ * في عرض الصفحتين المتقابلتين: كل صفحة تحضّر أربعاً في كل جهة، فتكون صفحتا كل من الكتابين المفتوحين
+ * قبل الحالي وبعده (وما بعدهما) جاهزتين قبل التقليب إليهما
+ */
+internal const val PREFETCH_SPREAD = 4
 
 private object PageLayouts {
     private val lock = Lock()
     private val map = LinkedHashMap<String, PageLayout>()
     private val running = HashMap<String, Deferred<PageLayout>>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private const val KEEP = 24
+    // صفحتان معروضتان وما حولهما (حتى ثماني في كل جهة في عرض الصفحتين) ومقاس سابق أثناء تغيّر النافذة
+    private const val KEEP = 32
 
     fun key(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float) = "$page:${text.hashCode()}:$w:$h:$spPx"
 
@@ -424,6 +431,7 @@ private fun baseline(top: Float, h: Float, size: Float) = top + h / 2 + size * 0
 fun MushafCanvas(
     page: Int, text: Array<String>, selected: Int, onTap: (Int) -> Unit, modifier: Modifier = Modifier,
     hifz: Boolean = false, revealed: Set<Int> = emptySet(), onLongPress: ((Int) -> Unit)? = null,
+    prefetch: Int = PREFETCH_EACH_SIDE,
 ) {
     val p = mushafPalette()
     val density = LocalDensity.current
@@ -443,7 +451,7 @@ fun MushafCanvas(
         val key = PageLayouts.key(page, text, w, h, spPx)
         // تُحسب الصفحة في الخلفية (والمجاورة قبل أن تظهر). إذا تغيّر المقاس (ظهور الرأس أو اختفاؤه
         // في وضع التركيز) تبقى الصفحة السابقة معروضة حتى يستقر المقاس، ثم تحل محلها الجديدة بتلاشٍ متقاطع.
-        val current = remember {
+        val current = remember(page) {
             mutableStateOf(PageLayouts.peek(key) ?: if (inspection) preparePage(page, text, w, h, spPx).also { PageLayouts.put(key, it) } else null)
         }
         val leaving = remember { mutableStateOf<PageLayout?>(null) }
@@ -454,7 +462,7 @@ fun MushafCanvas(
                 PageLayouts.obtain(page, text, w, h, spPx)
             }
             // ست صفحات حولها (ثلاث في كل جهة، الأقرب أولاً) تُحضَّر الآن، فلا تُحسب صفحة ولا تُشكَّل كلماتها لحظة وصولها
-            for (d in 1..PREFETCH_EACH_SIDE) {
+            for (d in 1..prefetch) {
                 PageLayouts.prefetch(page + d, text, w, h, spPx)
                 PageLayouts.prefetch(page - d, text, w, h, spPx)
             }

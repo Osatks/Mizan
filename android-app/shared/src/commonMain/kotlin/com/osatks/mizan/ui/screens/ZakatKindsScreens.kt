@@ -144,7 +144,7 @@ internal fun LivestockZakat(onBack: () -> Unit) {
     val dues = if (ok) rows.flatMap { it.first.third } else emptyList()
     val total = dues.sumOf { it.count }
     ToolPage(s.zkLivestockName, s.zkLivestockDesc, onBack, icon = Icons.Filled.Workspaces) {
-        item {
+        side {
             ResultCard(
                 s.livestockDue, if (total > 0) "$total" else "—",
                 if (!ok) s.conditionsNotMet else if (total > 0) s.nisabReached else s.nothingDue, if (rows.all { it.first.second == 0 }) null else total > 0,
@@ -162,7 +162,7 @@ internal fun LivestockZakat(onBack: () -> Unit) {
         }
         // ما يجب في كل صنف
         rows.filter { it.first.second > 0 }.forEach { (r, nisab) ->
-            item {
+            side(key = r.first) {
                 SectionCard("${r.first} (${r.second})") {
                     when {
                         !ok -> StatRow(s.zkRate, s.nothingDue)
@@ -196,7 +196,7 @@ internal fun CropsZakat(onBack: () -> Unit) {
     val price = Fmt.parse(priceT)
     val nisab = ZakatKinds.CROPS_NISAB_KG
     ToolPage(s.zkCropsName, s.zkCropsDesc, onBack, icon = Icons.Filled.Agriculture) {
-        item {
+        side {
             ResultCard(
                 s.cropsDue, if (due > 0) Fmt.num(due) else "—",
                 when { kg <= 0 -> s.cropsNisab(Fmt.num(nisab, 0)); due > 0 -> s.nisabReached; else -> s.belowNisab },
@@ -228,7 +228,7 @@ internal fun MineralsZakat(onBack: () -> Unit) {
     val mineral = ZakatKinds.mineral(Fmt.parse(mineralT), 85 * gold)
     val total = rikaz + mineral
     ToolPage(s.zkMineralsName, s.zkMineralsDesc, onBack, icon = Icons.Filled.Landscape) {
-        item { ResultCard(s.mineralsDue, if (total > 0) Fmt.num(total) else "—", null, null) }
+        side { ResultCard(s.mineralsDue, if (total > 0) Fmt.num(total) else "—", null, null) }
         item {
             SectionCard {
                 NumField(s.rikazValue, rikazT, setRikaz)

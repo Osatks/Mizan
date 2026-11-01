@@ -1,0 +1,5 @@
+# إعداد actionlint: xcode-27 صورة GitHub التجريبية (Xcode 27، arm64) لبناء التطبيق بـ SDK iOS 27.1
+# (ios.yml و ios-release.yml و ios-screenshots.yml)، ولا يعرفها actionlint بعد بين المشغّلات المستضافة
+self-hosted-runner:
+  labels:
+    - xcode-27
