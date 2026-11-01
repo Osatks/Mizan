@@ -22,7 +22,7 @@ LOCALES="${3:-ar-SA en-US}"
 DEVICES="${4:-iphone ipad duo}"
 BUNDLE=com.mizan.almuslim
 LAUNCH_WAIT="${LAUNCH_WAIT:-10}"   # ثوانٍ بعد التشغيل حتى يستقر أول إطار
-ROUTE_WAIT="${ROUTE_WAIT:-6}"      # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص)
+ROUTE_WAIT="${ROUTE_WAIT:-8}"      # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص)
 LOGS="${LOGS:-$OUT/../screenshot-logs}"
 mkdir -p "$OUT" "$LOGS"
 
