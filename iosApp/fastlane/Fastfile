@@ -1,0 +1,79 @@
+# نشر ميزان على App Store: يستدعيه ios-release.yml بعد رفع البناء (xcodebuild -exportArchive).
+# المفتاح من App Store Connect API (لا حساب Apple ولا رمز تحقق ثنائي): ASC_KEY_ID و ASC_ISSUER_ID و ASC_KEY_P8 (base64).
+#
+#   bundle exec fastlane ios metadata      النصوص واللقطات فقط (بلا إرسال للمراجعة)
+#   bundle exec fastlane ios submit        النصوص واللقطات + اختيار البناء + الإرسال للمراجعة، والنشر تلقائياً بعد القبول
+#
+# MIZAN_VERSION (2.2.N) و MIZAN_BUILD (عدد الـ commits) يمرّرهما سير العمل.
+default_platform(:ios)
+
+APP_ID = "com.mizan.almuslim"
+
+# بيانات التواصل مع المراجِع: اختيارية من الأسرار (REVIEW_FIRST_NAME ...)، وإلا تبقى ما كُتب في App Store Connect
+def review_contact
+  {
+    first_name: ENV["REVIEW_FIRST_NAME"],
+    last_name: ENV["REVIEW_LAST_NAME"],
+    phone_number: ENV["REVIEW_PHONE"],
+    email_address: ENV["REVIEW_EMAIL"]
+  }.reject { |_, v| v.to_s.strip.empty? }
+end
+
+def deliver_common(api_key, submit:)
+  shots = File.expand_path(File.join(FastlaneCore::FastlaneFolder.path, "screenshots"))
+  has_shots = Dir.glob(File.join(shots, "*", "*.png")).any?
+  UI.important("No screenshots in fastlane/screenshots: run ios-screenshots.yml first (the first submission needs them)") unless has_shots
+  deliver(
+    api_key: api_key,
+    app_identifier: APP_ID,
+    platform: "ios",
+    app_version: ENV.fetch("MIZAN_VERSION"),
+    build_number: ENV.fetch("MIZAN_BUILD"),
+    metadata_path: File.expand_path(File.join(FastlaneCore::FastlaneFolder.path, "metadata")),
+    screenshots_path: shots,
+    skip_binary_upload: true,
+    skip_screenshots: !has_shots,
+    overwrite_screenshots: has_shots,
+    app_review_information: review_contact,
+    force: true,                       # بلا معاينة HTML ولا سؤال (CI)
+    run_precheck_before_submit: false, # precheck لا يعمل بمفتاح API مع المشتريات داخل التطبيق، ولا مشتريات أصلاً
+    precheck_include_in_app_purchases: false,
+    submit_for_review: submit,
+    automatic_release: true,           # يُنشر في المتجر فور قبول المراجعة
+    reject_if_possible: submit,        # إن كان إرسال سابق ينتظر المراجعة يُسحب ويُرسل هذا بدلاً منه
+    submission_information: {
+      # Info.plist فيه ITSAppUsesNonExemptEncryption = false (HTTPS من النظام فقط)
+      export_compliance_uses_encryption: false,
+      # لا إعلانات ولا معرّف إعلاني (IDFA)
+      add_id_info_uses_idfa: false,
+      # نص المصحف (Tanzil) والتفاسير والتلاوات (EveryAyah) محتوى من غيرنا، مرخّص بإعادة النشر مع ذكر المصدر
+      content_rights_contains_third_party_content: true,
+      content_rights_has_rights: true
+    }
+  )
+end
+
+platform :ios do
+  private_lane :asc_key do
+    %w[ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8].each do |k|
+      UI.user_error!("Missing #{k}") if ENV[k].to_s.strip.empty?
+    end
+    app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_KEY_P8"].gsub(/\s+/, ""),
+      is_key_content_base64: true,
+      in_house: false
+    )
+  end
+
+  desc "Upload metadata + screenshots for MIZAN_VERSION (no review submission)"
+  lane :metadata do
+    deliver_common(asc_key, submit: false)
+  end
+
+  desc "Upload metadata + screenshots, attach build MIZAN_BUILD (waits for processing) and submit for review with automatic release"
+  lane :submit do
+    deliver_common(asc_key, submit: true)
+  end
+end

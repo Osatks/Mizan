@@ -1,0 +1,16 @@
+Mizan is a free Islamic app: Quran reader, prayer times, qibla, adhkar (supplications) and zakat/inheritance calculators. There is no login, no account, no ads, no in-app purchases and no data collection, so no demo account is needed.
+
+HOW TO TEST
+1. First launch shows a short 5-page tour; tap "Skip" (or swipe to the end). The interface follows the device language (Arabic is the primary language; 15 languages in Settings > Language).
+2. Location is optional. On Home, tap the location card: either allow "While Using" (used only on the device to compute prayer times and the qibla direction, never sent) or tap "Choose a city" and pick any city, e.g. Makkah. Denying location does not block anything.
+3. Prayer tab: today's prayer times and iqama. Adhan alerts are optional local notifications scheduled on the device (enable them from the Prayer screen; the system asks for notification permission at that moment).
+4. Quran tab: open any surah. Long-press an ayah for Tafsir, Listen, Save, Copy or Share.
+5. Background audio (UIBackgroundModes: audio): long-press an ayah > Listen, then lock the device. The Quran recitation keeps playing on the lock screen. This is the only use of background audio.
+6. Home > tools: Adhkar (tap a dhikr to count it; "Evidence" shows its hadith source and grade), Qibla compass (needs a device with a compass), Zakat, Inheritance, Hijri date, Tasbih.
+7. Home Screen widgets: long-press the Home Screen > Edit > Add Widget > Mizan (next prayer, prayer times, adhkar, Hijri date, ayah of the day).
+
+NETWORK
+The app works offline. It connects only to stream Quran recitation audio (everyayah.com) and, when the user asks, to download extra tafsirs (cdn.jsdelivr.net), language packs and adhan voices (mizan-al-muslem.com). No personal data is sent.
+
+CONTENT
+Quran text: Tanzil Project (tanzil.net), redistributed verbatim under its license. Tafsir al-Muyassar (King Fahd Complex) and al-Jalalayn; translations of the meanings from tanzil.net/trans. Recitations: EveryAyah.com. Sources are listed in Settings (About section).

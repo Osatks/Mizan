@@ -186,16 +186,30 @@ actual fun rememberLocationRequest(onResult: (LocationResult) -> Unit): () -> Un
 @Composable
 actual fun systemLanguageTag(): String = Platform.systemLanguage()
 
-/** البوصلة: اتجاه الشمال الحقيقي من CoreLocation (يصحح الانحراف المغناطيسي بنفسه) */
+/**
+ * البوصلة: اتجاه الجهاز من CoreLocation. الاتجاه وحده لا يحتاج إذن الموقع، فلا يُطلب الإذن بفتح شاشة القبلة
+ * (يُطلب فقط بزر «استعمل موقعي»). إن كان الإذن ممنوحاً من قبل تُشغَّل تحديثات موقع تقريبية أيضاً،
+ * فيعطي النظام الشمال الحقيقي؛ وإلا فالشمال المغناطيسي.
+ */
 private class HeadingWatcher(val onHeading: (Float, Boolean) -> Unit) : NSObject(), CLLocationManagerDelegateProtocol {
-    val manager = CLLocationManager()
+    val manager = CLLocationManager().apply { desiredAccuracy = kCLLocationAccuracyKilometer }
+    private var locating = false
     fun start() {
         manager.delegate = this
         manager.headingFilter = 1.0
-        if (manager.authorizationStatus == kCLAuthorizationStatusNotDetermined) manager.requestWhenInUseAuthorization()
+        when (manager.authorizationStatus) {
+            kCLAuthorizationStatusAuthorizedWhenInUse, kCLAuthorizationStatusAuthorizedAlways -> { locating = true; manager.startUpdatingLocation() }
+            else -> {}
+        }
         manager.startUpdatingHeading()
     }
-    fun stop() { manager.stopUpdatingHeading(); manager.delegate = null }
+    fun stop() {
+        manager.stopUpdatingHeading()
+        if (locating) manager.stopUpdatingLocation()
+        manager.delegate = null
+    }
+    override fun locationManager(manager: CLLocationManager, didUpdateLocations: List<*>) {}
+    override fun locationManager(manager: CLLocationManager, didFailWithError: NSError) {}
     override fun locationManager(manager: CLLocationManager, didUpdateHeading: platform.CoreLocation.CLHeading) {
         val h = if (didUpdateHeading.trueHeading >= 0) didUpdateHeading.trueHeading else didUpdateHeading.magneticHeading
         onHeading(h.toFloat(), didUpdateHeading.headingAccuracy < 0 || didUpdateHeading.headingAccuracy > 25)

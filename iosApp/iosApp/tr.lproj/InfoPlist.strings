@@ -1,0 +1,3 @@
+/* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
+"CFBundleDisplayName" = "Mizan";
+"NSLocationWhenInUseUsageDescription" = "Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıble yönünü hesaplamak için kullanılır, hiçbir yere gönderilmez. Bunun yerine şehrinizi elle de seçebilirsiniz.";

@@ -398,9 +398,9 @@ private fun AyahPicker(label: String, index: Int, onPick: (Int) -> Unit) {
                 }
             }
         }
-        IconButton(onClick = { onPick(index - 1) }, enabled = ayah > 1) { Icon(Icons.Filled.Remove, null) }
+        IconButton(onClick = { onPick(index - 1) }, enabled = ayah > 1) { Icon(Icons.Filled.Remove, s.decrease) }
         Text("$ayah", Modifier.width(36.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium)
-        IconButton(onClick = { onPick(index + 1) }, enabled = ayah < count) { Icon(Icons.Filled.Add, null) }
+        IconButton(onClick = { onPick(index + 1) }, enabled = ayah < count) { Icon(Icons.Filled.Add, s.increase) }
     }
 }
 

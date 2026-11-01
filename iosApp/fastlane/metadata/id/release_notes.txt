@@ -1,0 +1,2 @@
+• Widget layar utama: salat berikutnya, jadwal hari ini, zikir, tanggal Hijriah, dan ayat hari ini.
+• Peningkatan Mushaf, murotal, dan performa.

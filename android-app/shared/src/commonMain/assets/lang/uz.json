@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 5,
+ "version": 6,
  "currency": "UZS",
  "quran": {
   "id": "uz.sodik",
@@ -1083,7 +1083,21 @@
   "zkMoneyName": "Pul, oltin va kumush",
   "zkRate": "Miqdori",
   "zkTradeDesc": "Sotiladigan mollar va aksiyalar, yil oxiridagi qiymati boʻyicha",
-  "zkTradeName": "Tijorat mollari va aksiyalar"
+  "zkTradeName": "Tijorat mollari va aksiyalar",
+  "rateApp": "Mizanni baholang",
+  "rateAppSub": "Fikringiz boshqalarga ilovani topishga yordam beradi",
+  "shareApp": "Mizanni ulashing",
+  "shareAppSub": "Ilovani oila va doʻstlaringizga yuboring",
+  "shareAppText": "Mizan: namoz vaqtlari, qibla, Qurʼon, zakot va meros bitta bepul, reklamasiz ilovada\n{link}",
+  "licenses": "Manbalar va litsenziyalar",
+  "licensesSub": "Qurʼon matni, tafsirlar, qiroatlar, azon yozuvlari va shrift",
+  "openSettings": "Sozlamalarni ochish",
+  "locationOffTitle": "Joylashuvga ruxsat yoʻq",
+  "locationOffBody": "Mizanga joylashuvingizdan foydalanishga ruxsat berilmagan. Buni Sozlamalarda yoqishingiz yoki shahringizni roʻyxatdan tanlashingiz mumkin.",
+  "notifyOffTitle": "Bildirishnomalar oʻchiq",
+  "notifyOffBody": "Mizanga bildirishnoma yuborishga ruxsat berilmagan, shuning uchun azon eslatmalari sizga yetib bormaydi. Ularni Sozlamalarda yoqishingiz mumkin.",
+  "clear": "Tozalash",
+  "close": "Yopish"
  },
  "evidence": {
   "Zakat is an obligation": "Zakot farzdir",

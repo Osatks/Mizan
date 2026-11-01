@@ -79,7 +79,7 @@ import com.osatks.mizan.ui.theme.MizanTheme
  * التطبيق كله: التنقل بين الشاشات، وشريط التبويبات، وجولة أول تشغيل.
  * يستضيفه MainActivity في أندرويد و MainViewController في iOS.
  */
-internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan")
+internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -110,6 +110,22 @@ fun MizanApp(startRoute: String? = null) {
     // محتوى الصفحات مصدرٌ للزجاج (شريط التنقل والأوراق السفلية)، إلا صفحة المصحف: لا شريط فوقها، فلا كلفة إضافية على التقليب
     val appHaze = rememberHazeState()
     val glassSource = current != SURAH_ROUTE
+
+    // شريط الحالة كما تطلبه الشاشة الظاهرة
+    com.osatks.mizan.ui.ApplySystemBars()
+    // طلب التقييم بلطف: بعد استعمال حقيقي (ReviewPrompt)، عند العودة إلى الرئيسية من أداة، مرة لكل إصدار
+    val requestReview = com.osatks.mizan.platform.rememberReviewRequest()
+    LaunchedEffect(Unit) { com.osatks.mizan.core.ReviewPrompt.onLaunch() }
+    var lastRoute by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(current) {
+        val from = lastRoute
+        lastRoute = current
+        if (current == "home" && from != null && from != "home" && com.osatks.mizan.core.ReviewPrompt.due()) {
+            kotlinx.coroutines.delay(1200)
+            com.osatks.mizan.core.ReviewPrompt.markAsked()
+            requestReview()
+        }
+    }
 
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         SharedTransitionLayout(Modifier.fillMaxSize().then(if (glassSource) Modifier.hazeSource(appHaze) else Modifier)) {
@@ -161,6 +177,7 @@ fun MizanApp(startRoute: String? = null) {
                     screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
                     screen("guide") { com.osatks.mizan.ui.screens.Onboarding(back) }
                     screen("adhan") { com.osatks.mizan.ui.screens.AdhanScreen(back) }
+                    screen("licenses") { com.osatks.mizan.ui.screens.LicensesScreen(back) }
                     screen("zakat") { ZakatScreen(back) }
                     screen("fitr") { FitrScreen(back) }
                     screen("inheritance") { InheritanceScreen(back) }

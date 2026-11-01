@@ -48,25 +48,26 @@
 	<!-- Compose يرسم بمعدل الشاشة الكامل (120 هرتز في ProMotion) -->
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<!-- النص المترجم لكل لغة في iosApp/<lang>.lproj/InfoPlist.strings؛ هذا احتياط -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>يُستعمل موقعك على جهازك فقط لحساب مواقيت الصلاة واتجاه القبلة. Your location is used on your device only to compute prayer times and the qibla.</string>
-	<!-- التلاوة تستمر وإن أُطفئت الشاشة -->
+	<!-- تلاوة القرآن (ClipPlayer: AVAudioSessionCategoryPlayback) تستمر وإن أُطفئت الشاشة أو خرج المستخدم من التطبيق.
+	     الأذان داخل التطبيق لا يحتاجها (SoloAmbient)، وأذان الإشعار صوت إشعار عادي. -->
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
 	</array>
+	<!-- دورة حياة المشاهد (إلزامية بعد iOS 26 SDK)؛ يضبط AppDelegate الإعداد برمجياً -->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 </dict>
 </plist>

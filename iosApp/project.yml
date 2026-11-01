@@ -15,6 +15,13 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
     ENABLE_BITCODE: NO
+    # التوقيع: تلقائي، وفريق Apple لا يُكتب هنا بل يمرَّر عند البناء (ios-release.yml: DEVELOPMENT_TEAM=$APPLE_TEAM_ID).
+    # نسخة ios.yml بلا توقيع تتجاوزه بـ CODE_SIGNING_ALLOWED=NO
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    # iPhone فقط في الإصدار الأول (iPad يحتاج لقطات iPad وتخطيطاً يليق بالشاشة الكبيرة؛ يضاف لاحقاً بـ "1,2" هنا وفي الهدفين:
+    # إعدادات XcodeGen الافتراضية للهدف تغلب إعداد المشروع، فيُكرَّر في كل هدف)
+    TARGETED_DEVICE_FAMILY: "1"
 targets:
   Mizan:
     type: application
@@ -30,6 +37,9 @@ targets:
       # أصوات إشعارات الأذان (أقل من 30 ثانية، caf): تُنسخ إلى جذر Mizan.app حيث يبحث عنها UNNotificationSound
       - path: Sounds
         buildPhase: resources
+      # بيان الخصوصية (تطلبه مراجعة App Store): لا تتبع ولا جمع بيانات، وأسباب الواجهات المقيّدة
+      - path: Privacy/App/PrivacyInfo.xcprivacy
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mizan.almuslim
@@ -37,13 +47,14 @@ targets:
         INFOPLIST_FILE: iosApp/Info.plist
         CODE_SIGN_ENTITLEMENTS: iosApp/Mizan.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../android-app/shared/build/bin/iosArm64/releaseFramework"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
     dependencies:
       - framework: ../android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework
         embed: true
-        codeSign: false
+        # يوقَّع عند النسخ في نسخة المتجر (لا أثر له مع CODE_SIGNING_ALLOWED=NO في ios.yml)
+        codeSign: true
       # الأدوات تُضمَّن في Mizan.app/PlugIns
       - target: MizanWidgets
         embed: true
@@ -65,13 +76,15 @@ targets:
       # خط المصحف نفسه الذي يستعمله التطبيق (UIAppFonts في Info.plist الأداة)
       - path: ../android-app/shared/src/commonMain/assets/fonts/amiri_quran.ttf
         buildPhase: resources
+      - path: Privacy/Widgets/PrivacyInfo.xcprivacy
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mizan.almuslim.widgets
         PRODUCT_NAME: MizanWidgets
         INFOPLIST_FILE: MizanWidgets/Info.plist
         CODE_SIGN_ENTITLEMENTS: MizanWidgets/MizanWidgets.entitlements
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         APPLICATION_EXTENSION_API_ONLY: YES
         SKIP_INSTALL: YES
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"

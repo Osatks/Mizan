@@ -1,0 +1,3 @@
+/* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
+"CFBundleDisplayName" = "Mizan";
+"NSLocationWhenInUseUsageDescription" = "Joylashuvingiz faqat qurilmangizda namoz vaqtlari va qibla yo‘nalishini hisoblash uchun ishlatiladi va hech qayerga yuborilmaydi. Buning o‘rniga shahringizni qo‘lda tanlashingiz mumkin.";

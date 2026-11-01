@@ -747,4 +747,19 @@ object Ms : Strings {
     override val privacyText = "Aplikasi ini tidak mengumpul sebarang data peribadi dan hanya menggunakan internet untuk memuat turun tafsir yang anda pilih dan memainkan tilawah apabila anda memintanya. Lokasi anda hanya digunakan dalam peranti anda untuk mengira waktu solat dan kiblat, " +
         "dan tetapan serta angka anda kekal dalam peranti anda."
     override val disclaimer = "Keputusan ini sekadar panduan. Untuk persoalan agama anda sendiri, rujuk ulama yang berkelayakan dan pihak berkuasa agama rasmi."
+    // ---------- المتجر والمشاركة والأذونات ----------
+    override val rateApp = "Nilai Mizan"
+    override val rateAppSub = "Ulasan anda membantu orang lain menemui aplikasi ini"
+    override val shareApp = "Kongsi Mizan"
+    override val shareAppSub = "Hantar aplikasi ini kepada keluarga dan rakan"
+    override fun shareAppText(link: String) = "Mizan: waktu solat, kiblat, al-Quran, zakat dan faraid dalam satu aplikasi percuma tanpa iklan\n$link"
+    override val licenses = "Sumber dan lesen"
+    override val licensesSub = "Teks al-Quran, tafsir, bacaan, rakaman azan dan fon"
+    override val openSettings = "Buka Tetapan"
+    override val locationOffTitle = "Akses lokasi dimatikan"
+    override val locationOffBody = "Mizan tidak dibenarkan menggunakan lokasi anda. Anda boleh membenarkannya dalam Tetapan, atau pilih bandar anda daripada senarai."
+    override val notifyOffTitle = "Pemberitahuan dimatikan"
+    override val notifyOffBody = "Mizan tidak dibenarkan menghantar pemberitahuan, jadi peringatan azan tidak dapat sampai kepada anda. Anda boleh membenarkannya dalam Tetapan."
+    override val clear = "Kosongkan"
+    override val close = "Tutup"
 }

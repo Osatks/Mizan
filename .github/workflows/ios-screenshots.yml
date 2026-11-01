@@ -1,0 +1,99 @@
+name: iOS Screenshots (App Store)
+
+# لقطات المتجر من محاكي iPhone 17 Pro Max (1320×2868، مقاس 6.9 بوصة الذي يطلبه App Store):
+# يبني التطبيق للمحاكي ثم يفتح كل شاشة بروابط mizan://open?route=… ويلتقطها لكل لغة (iosApp/fastlane/screenshots.sh).
+# النتيجة في iosApp/fastlane/screenshots/<locale>/ ملفاً مرفقاً (artifact)، وتُضاف إلى الفرع إن اخترت commit،
+# فيرفعها ios-release.yml (submit=true) مع النصوص. الأدوات (Widgets) لا تُلتقط هنا.
+on:
+  workflow_dispatch:
+    inputs:
+      locales:
+        description: "App Store locales (space separated)"
+        type: string
+        default: "ar-SA en-US"
+      commit:
+        description: "Commit the screenshots to this branch (iosApp/fastlane/screenshots)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Build Kotlin framework (iosSimulatorArm64)
+        working-directory: android-app
+        run: |
+          # كما في ios-release.yml: Xcode 16 لإطار Kotlin إن وُجد
+          x16=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n1 || true)
+          if [ -n "$x16" ]; then export DEVELOPER_DIR="$x16/Contents/Developer"; echo "Kotlin link with $x16"; fi
+          gradle :shared:linkReleaseFrameworkIosSimulatorArm64 --no-daemon --stacktrace
+
+      # project.yml يربط الإطار من مسار iosArm64: نضع نسخة المحاكي مكانه في هذا البناء وحده
+      - name: Use the simulator framework
+        run: |
+          src=android-app/shared/build/bin/iosSimulatorArm64/releaseFramework/Shared.framework
+          dst=android-app/shared/build/bin/iosArm64/releaseFramework
+          test -d "$src"
+          rm -rf "$dst" && mkdir -p "$dst" && cp -R "$src" "$dst/"
+
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build app (simulator)
+        working-directory: iosApp
+        run: |
+          set -o pipefail
+          xcodebuild -project Mizan.xcodeproj -scheme Mizan -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tail -n 60
+          APP=build/Build/Products/Release-iphonesimulator/Mizan.app
+          test -d "$APP"
+          # توقيع محلي (ad-hoc) يحمل صلاحية App Group كما في ios.yml، يكفي للمحاكي
+          for f in "$APP"/Frameworks/*.framework; do [ -d "$f" ] && codesign --force --sign - --timestamp=none "$f"; done
+          codesign --force --sign - --timestamp=none --entitlements MizanWidgets/MizanWidgets.entitlements "$APP/PlugIns/MizanWidgets.appex"
+          codesign --force --sign - --timestamp=none --entitlements iosApp/Mizan.entitlements "$APP"
+
+      - name: Capture screenshots
+        working-directory: iosApp
+        run: |
+          chmod +x fastlane/screenshots.sh
+          fastlane/screenshots.sh "$PWD/build/Build/Products/Release-iphonesimulator/Mizan.app" "$PWD/fastlane/screenshots" "$LOCALES"
+        env:
+          LOCALES: ${{ inputs.locales }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mizan-app-store-screenshots
+          path: iosApp/fastlane/screenshots
+          if-no-files-found: error
+
+      - name: Commit screenshots
+        if: ${{ inputs.commit }}
+        env:
+          LOCALES: ${{ inputs.locales }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add iosApp/fastlane/screenshots
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "لقطات App Store من المحاكي ($LOCALES)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
