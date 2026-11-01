@@ -762,8 +762,7 @@ object Fr : Strings {
     override val aboutText = "Une application gratuite qui réunit les outils dont un musulman a besoin au quotidien : zakat, héritage, horaires de prière, qibla, date hégirienne et tasbih. " +
         "Les règles suivent la majorité des juristes, les horaires de prière reposent sur des formules astronomiques et les dates suivent le calendrier Umm al-Qura."
     override val privacy = "Confidentialité"
-    override val privacyText = "L'application ne collecte aucune donnée personnelle et n’utilise Internet que pour télécharger les tafsirs que vous choisissez et lire les récitations que vous demandez. Votre position n'est utilisée que sur votre appareil pour calculer les horaires de prière et la qibla, " +
-        "et vos réglages et chiffres restent sur votre appareil."
+    override val privacyText = "L’application ne collecte aucune donnée personnelle et n’utilise Internet que lorsque vous le demandez : pour écouter les récitations et télécharger les tafsirs, les packs de langue et les enregistrements d’adhan que vous choisissez. Votre position n’est utilisée que sur votre appareil pour calculer les horaires de prière et la qibla, et vos réglages et vos chiffres restent sur votre appareil."
     override val disclaimer = "Les résultats sont indicatifs. Pour vos questions religieuses personnelles, consultez des savants qualifiés et les instances officielles."
     // ---------- المتجر والمشاركة والأذونات ----------
     override val rateApp = "Noter Mizan"

@@ -56,7 +56,7 @@
   </div>
 </header>
 
-<header class="page-hero"><div class="container"><nav class="breadcrumb" aria-label="Laluan navigasi"><a href="/ms/">Utama</a><span class="sep">/</span><span aria-current="page">Dasar Privasi</span></nav><h1>Dasar Privasi</h1><p class="lead">Kemas kini terakhir: 22 Oktober 2026</p></div></header>
+<header class="page-hero"><div class="container"><nav class="breadcrumb" aria-label="Laluan navigasi"><a href="/ms/">Utama</a><span class="sep">/</span><span aria-current="page">Dasar Privasi</span></nav><h1>Dasar Privasi</h1><p class="lead">Kemas kini terakhir: 1 November 2026</p></div></header>
 
 <main id="main" class="container main">
 
@@ -72,14 +72,16 @@
   <ul>
     <li><strong>Bebas sepenuhnya daripada iklan dan penjejakan:</strong> Aplikasi telefon tidak mengandungi sebarang iklan komersial, dan tidak mengandungi sebarang perisian analitik atau pakej penjejakan pihak luar (Zero Ads &amp; Zero Tracking SDKs).</li>
     <li><strong>Kami tidak mengumpul atau berkongsi sebarang data peribadi:</strong> Aplikasi tidak mengumpul, memindahkan, menjual atau berkongsi sebarang data peribadi atau sensitif dengan mana-mana pihak ketiga.</li>
-    <li><strong>Berfungsi tanpa internet (Offline-First):</strong> Mushaf al-Quran dengan Rasm Uthmani, at-Tafsir al-Muyassar dan Tafsir al-Jalalain, 334 zikir, semua kalkulator, waktu solat dan arah kiblat berfungsi tanpa memerlukan sambungan internet.</li>
+    <li><strong>Kebanyakannya berfungsi tanpa internet:</strong> Al-Quran dalam rasm Uthmani, Tafsir al-Muyassar dan Tafsir al-Jalalain, 334 zikir, dua azan yang terbina dalam aplikasi, serta semua kalkulator, waktu solat dan arah kiblat berfungsi tanpa sambungan internet. Bacaan audio, tafsir tambahan, pek bahasa dan rakaman azan tambahan memerlukan sambungan kali pertama anda memintanya.</li>
+    <li><strong>Widget skrin utama:</strong> widget memaparkan waktu solat yang akan datang, tarikh Hijrah, zikir dan ayat hari ini. Aplikasi menyalurkan data ini kepada widget hanya di dalam peranti anda (pada iOS melalui storan kongsi persendirian aplikasi), dan pada iOS widget boleh membaca lokasi anda pada peranti untuk mengira waktu. Tiada apa-apa daripadanya dihantar kepada kami.</li>
+    <li><strong>Permintaan penilaian:</strong> aplikasi sesekali boleh memaparkan tetingkap penilaian rasmi daripada Apple (App Store) atau Google Play. Tetingkap itu dikendalikan sepenuhnya oleh Apple atau Google, dan Mizan tidak menerima sebarang data peribadi daripadanya.</li>
   </ul>
 
   <h3>Kebenaran aplikasi telefon dan cara penggunaannya</h3>
   <p>Aplikasi telefon mungkin meminta kebenaran pilihan berikut untuk menjalankan ciri-ciri tertentu secara setempat pada peranti anda sahaja:</p>
   <ul>
-    <li><strong>Lokasi geografi (<code>ACCESS_COARSE_LOCATION</code> dan <code>ACCESS_FINE_LOCATION</code>):</strong> Kebenaran pilihan yang digunakan secara eksklusif di dalam peranti untuk mengira waktu solat secara astronomi dan menentukan sudut arah kiblat. Koordinat lokasi anda tidak dihantar ke mana-mana pelayan luar dan tidak disimpan di luar peranti anda, dan anda boleh mengabaikan kebenaran ini dengan memilih bandar anda secara manual daripada senarai bandar terbina dalam.</li>
-    <li><strong>Pemberitahuan dan penggera tepat (<code>POST_NOTIFICATIONS</code>, <code>SCHEDULE_EXACT_ALARM</code> dan <code>RECEIVE_BOOT_COMPLETED</code>):</strong> Digunakan secara setempat sahaja untuk menghantar peringatan masuk waktu solat dan azan, serta menjadualkan semula penggera secara automatik apabila peranti dimulakan semula atau zon waktu berubah.</li>
+    <li><strong>Lokasi (<code>ACCESS_COARSE_LOCATION</code> dan <code>ACCESS_FINE_LOCATION</code> pada Android, kebenaran “Semasa Menggunakan Apl” pada iOS):</strong> kebenaran pilihan yang digunakan hanya pada peranti untuk mengira waktu solat secara astronomi dan menentukan sudut kiblat; pada iOS, widget skrin utama juga boleh menggunakannya pada peranti yang sama untuk mengira waktu. Koordinat lokasi anda tidak dihantar ke mana-mana pelayan luar dan tidak disimpan di luar peranti anda, dan anda boleh tidak menggunakan kebenaran ini dengan memilih bandar anda secara manual daripada senarai bandar terbina.</li>
+    <li><strong>Pemberitahuan, penggera dan main azan (<code>POST_NOTIFICATIONS</code>, <code>SCHEDULE_EXACT_ALARM</code>, <code>RECEIVE_BOOT_COMPLETED</code> dan <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code>):</strong> digunakan secara setempat sahaja untuk memaklumkan anda apabila masuk waktu solat, memainkan azan pilihan anda dengan butang untuk menghentikannya, bergetar mengikut corak pilihan anda, dan menjadualkan semula amaran secara automatik apabila peranti dimulakan semula atau zon waktu berubah. Pada iOS, amaran ialah pemberitahuan setempat dengan bunyi azan pendek yang terbina dalam aplikasi.</li>
     <li><strong>Penderia kompas dan gerakan:</strong> Dibaca secara setempat pada peranti untuk menggerakkan kompas kiblat interaktif ke arah Kaabah tanpa merekod atau menghantar sebarang bacaan.</li>
   </ul>
 
@@ -89,6 +91,7 @@
     <li><strong>Bacaan audio al-Quran:</strong> Apabila anda memilih untuk mendengar bacaan ayat, aplikasi mengambil fail audio bagi ayat yang diminta dan menyimpannya dalam storan sementara pada peranti untuk didengar kemudian tanpa sambungan.</li>
     <li><strong>Perpustakaan tafsir tambahan:</strong> Apabila anda ingin memuat turun kitab tafsir tambahan (seperti Tafsir Ibn Kathir, at-Tabari atau as-Sa'di) untuk disimpan dan digunakan pada peranti anda tanpa internet.</li>
     <li><strong>Pakej bahasa tambahan:</strong> Apabila anda membuka senarai bahasa dan memuat turun atau mengemas kini pakej bahasa serta terjemahan makna al-Quran daripada laman web rasmi (<code>https://mizan-al-muslem.com/lang/</code>).</li>
+    <li><strong>Rakaman azan tambahan:</strong> apabila anda memilih muazin yang tidak terbina dalam aplikasi, rakamannya dimuat turun daripada laman web rasmi (<code>https://mizan-al-muslem.com/adhan/</code>) dan disimpan pada peranti anda.</li>
   </ul>
 
   <h2>3. Maklumat yang kami kumpul</h2>

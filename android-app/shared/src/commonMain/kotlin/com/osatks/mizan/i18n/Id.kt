@@ -744,8 +744,7 @@ object Id : Strings {
     override val aboutText = "Aplikasi gratis berisi fitur yang dibutuhkan Muslim setiap hari: zakat, waris, jadwal salat, kiblat, tanggal Hijriah, dan tasbih. " +
         "Hukum mengikuti pendapat jumhur fukaha, jadwal salat menggunakan rumus astronomi, dan tanggal mengikuti kalender Ummul Qura."
     override val privacy = "Privasi"
-    override val privacyText = "Aplikasi ini tidak mengumpulkan data pribadi dan hanya memakai internet untuk mengunduh tafsir yang Anda pilih dan memutar murotal saat Anda memintanya. Lokasi Anda hanya digunakan di perangkat untuk menghitung jadwal salat dan kiblat, " +
-        "serta setelan dan angka Anda tetap tersimpan di perangkat."
+    override val privacyText = "Aplikasi tidak mengumpulkan data pribadi apa pun dan hanya menggunakan internet saat Anda memintanya: untuk memutar murotal serta mengunduh tafsir, paket bahasa, dan rekaman azan yang Anda pilih. Lokasi Anda hanya digunakan di perangkat Anda untuk menghitung waktu salat dan kiblat, dan pengaturan serta angka Anda tetap di perangkat Anda."
     override val disclaimer = "Hasil bersifat panduan. Untuk persoalan agama pribadi Anda, rujuklah kepada ulama yang berkompeten dan lembaga resmi."
     // ---------- المتجر والمشاركة والأذونات ----------
     override val rateApp = "Beri rating Mizan"

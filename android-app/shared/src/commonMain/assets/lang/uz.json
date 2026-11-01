@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 6,
+ "version": 7,
  "currency": "UZS",
  "quran": {
   "id": "uz.sodik",
@@ -693,7 +693,7 @@
   "prevMonth": "Oldingi oy",
   "prevSurah": "Oldingi sura",
   "privacy": "Maxfiylik",
-  "privacyText": "Ilova hech qanday shaxsiy maʼlumot toʻplamaydi va internetdan faqat siz tanlagan tafsirlarni yuklab olish hamda soʻraganingizda qiroatlarni ijro etish uchun foydalanadi. Joylashuvingiz faqat qurilmangizda namoz vaqtlari va qiblani hisoblash uchun ishlatiladi, sozlamalaringiz va raqamlaringiz qurilmangizda qoladi.",
+  "privacyText": "Ilova hech qanday shaxsiy maʼlumot toʻplamaydi va internetdan faqat siz soʻraganingizda foydalanadi: qiroatlarni ijro etish hamda siz tanlagan tafsirlar, til paketlari va azon yozuvlarini yuklab olish uchun. Joylashuvingiz faqat qurilmangizda namoz vaqtlari va qiblani hisoblash uchun ishlatiladi, sozlamalaringiz va raqamlaringiz qurilmangizda qoladi.",
   "proofConsensus": "Ijmoʻ",
   "proofHadith": "Hadis",
   "proofQuran": "Qurʼon",

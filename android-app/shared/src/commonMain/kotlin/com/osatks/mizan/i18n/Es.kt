@@ -746,8 +746,7 @@ object Es : Strings {
     override val aboutText = "Una app gratuita con las herramientas que un musulmán necesita cada día: zakat, herencia, horarios de oración, qibla, la fecha hiyri y un tasbih. " +
         "Los dictámenes siguen a la mayoría de los juristas, los horarios de oración usan fórmulas astronómicas y las fechas siguen el calendario Umm al-Qura."
     override val privacy = "Privacidad"
-    override val privacyText = "La app no recopila ningún dato personal y usa internet solo para descargar los tafsires que elijas y para reproducir recitaciones cuando lo pidas. Tu ubicación se usa únicamente en tu dispositivo para calcular los horarios de oración y la qibla, " +
-        "y tus ajustes y cifras se quedan en tu dispositivo."
+    override val privacyText = "La app no recopila ningún dato personal y solo usa Internet cuando tú lo pides: para reproducir recitaciones y descargar los tafsires, paquetes de idioma y grabaciones de adhan que elijas. Tu ubicación solo se usa en tu dispositivo para calcular los horarios de oración y la qibla, y tus ajustes y cifras se quedan en tu dispositivo."
     override val disclaimer = "Los resultados son una guía. Para tus propias cuestiones religiosas, consulta a sabios cualificados y a los organismos oficiales."
     // ---------- المتجر والمشاركة والأذونات ----------
     override val rateApp = "Valorar Mizan"
