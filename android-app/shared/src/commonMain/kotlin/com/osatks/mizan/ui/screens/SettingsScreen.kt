@@ -2,7 +2,11 @@ package com.osatks.mizan.ui.screens
 
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
-import com.osatks.mizan.platform.rememberNotifyToggle
+import com.osatks.mizan.platform.AppStore
+import com.osatks.mizan.platform.StoreLinks
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -60,7 +64,7 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     var showLang by remember { mutableStateOf(false) }
-    val toggleNotify = rememberNotifyToggle { ok -> AppSettings.updateNotify(ok); PrayerAlerts.reschedule() }
+    val toggleNotify = rememberAlertsToggle()
     val system = Lang.fromTag(systemLanguageTag())
 
     ToolPage(s.settingsTitle) {
@@ -118,11 +122,26 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
             }
         }
         item {
+            // التقييم والمشاركة: كل نظام إلى متجره (Google Play أو App Store)
+            SectionCard {
+                ClickRow(s.rateApp, s.rateAppSub, onClick = { AppStore.openRating() }, leading = Icons.Filled.StarRate) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                ClickRow(s.shareApp, s.shareAppSub, onClick = { Platform.share(s.shareAppText(StoreLinks.forThisPlatform), s.share) }, leading = Icons.Filled.Share) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+        item {
             SectionCard(s.about) {
                 Text(s.aboutName, style = MaterialTheme.typography.titleMedium)
                 Text(s.version(Platform.versionName()), style = MaterialTheme.typography.bodySmall)
                 Text(s.aboutText, style = MaterialTheme.typography.bodyMedium)
                 LinkedText(s.quranSources)
+                // المصادر والتراخيص كاملة: المصحف والتفاسير والتلاوات وتسجيلات الأذان والخط
+                ClickRow(s.licenses, s.licensesSub, onClick = { open("licenses") }, leading = Icons.Filled.Info) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
         item {

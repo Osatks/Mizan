@@ -278,6 +278,9 @@ internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, on
         }
     }
     val shown by remember(glass) { derivedStateOf { glass.value > 0f } }
+    // شريط الحالة: نص فاتح فوق الرأس الأخضر، ويتبع مظهر التطبيق حين يصير الشريط زجاجاً فوق المحتوى
+    val overHeader by remember(glass) { derivedStateOf { glass.value < .5f } }
+    StatusBarStyle(lightContent = overHeader || LocalDark.current)
     val style = glassStyle(if (LocalDark.current) .66f else .72f, 24.dp)
     val hairline = MaterialTheme.colorScheme.outlineVariant
     Box(Modifier.fillMaxWidth()) {
@@ -314,7 +317,7 @@ private fun BackChip(onBack: () -> Unit, progress: () -> Float) {
     val bg = lerp(Color.White.copy(alpha = .16f), MaterialTheme.colorScheme.onSurface.copy(alpha = .06f), p)
     val src = remember { MutableInteractionSource() }
     Box(
-        Modifier.size(40.dp).pressScale(src, 0.88f).clip(CircleShape).background(bg)
+        Modifier.size(44.dp).pressScale(src, 0.88f).clip(CircleShape).background(bg)
             .clickable(interactionSource = src, indication = if (IsIos) null else ripple(), role = Role.Button, onClick = onBack),
         contentAlignment = Alignment.Center
     ) {

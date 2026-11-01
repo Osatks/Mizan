@@ -95,7 +95,7 @@ internal fun AyahActionBar(index: Int, text: Array<String>, onTafsir: () -> Unit
                 AyahMarker(ayah, Modifier.size(28.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(ref, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                IconButton(onClick = onClose) { Icon(Icons.Filled.Close, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                IconButton(onClick = onClose) { Icon(Icons.Filled.Close, s.close, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
             Row(Modifier.fillMaxWidth().padding(end = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                 Action(Icons.AutoMirrored.Filled.MenuBook, s.tafsirTitle, primary = true, onClick = onTafsir)

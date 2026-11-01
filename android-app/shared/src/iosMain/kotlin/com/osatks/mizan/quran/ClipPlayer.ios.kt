@@ -2,9 +2,8 @@
 
 package com.osatks.mizan.quran
 
-import platform.AVFAudio.AVAudioSession
+import com.osatks.mizan.platform.AudioSessions
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
-import platform.AVFAudio.setActive
 import platform.AVFoundation.AVPlayer
 import platform.AVFoundation.AVPlayerItem
 import platform.AVFoundation.AVPlayerItemDidPlayToEndTimeNotification
@@ -20,7 +19,11 @@ import platform.CoreMedia.CMTimeGetSeconds
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSURL
+import platform.darwin.DISPATCH_TIME_NOW
 import platform.darwin.NSObjectProtocol
+import platform.darwin.dispatch_after
+import platform.darwin.dispatch_get_main_queue
+import platform.darwin.dispatch_time
 
 /** تشغيل الآيات واحدة بعد الأخرى عبر AVPlayer (التكرار والانتقال يُداران هنا) */
 private class AvClipPlayer : ClipPlayer {
@@ -45,9 +48,28 @@ private class AvClipPlayer : ClipPlayer {
     private fun load(i: Int, auto: Boolean) {
         current = i
         val url = NSURL(string = list[i].second)
-        player.replaceCurrentItemWithPlayerItem(AVPlayerItem(uRL = url))
+        val item = AVPlayerItem(uRL = url)
+        player.replaceCurrentItemWithPlayerItem(item)
+        watch(item)
         events?.onClip(list[i].first, auto)
         if (wants) player.playImmediatelyAtRate(speed)
+    }
+
+    /**
+     * مقطع لم يُحمَّل أصلاً (لا اتصال، أو خطأ من الخادم) لا يرسل AVPlayerItemFailedToPlayToEndTime:
+     * يُفحص خطؤه كل ثانية ما دام هو المقطع الحالي، فتظهر رسالة الخطأ بدل تلاوة "تعمل" بلا صوت
+     */
+    private var watchToken = 0
+
+    private fun watch(item: AVPlayerItem) {
+        val token = ++watchToken
+        fun check() {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1_000_000_000L), dispatch_get_main_queue()) {
+                if (token != watchToken || player.currentItem != item) return@dispatch_after
+                if (item.error != null) { if (wants) events?.onError() } else check()
+            }
+        }
+        check()
     }
 
     private fun ended() {
@@ -59,7 +81,7 @@ private class AvClipPlayer : ClipPlayer {
             repeat == Repeat.ONE -> load(current, true)
             current + 1 < list.size -> load(current + 1, true)
             repeat == Repeat.ALL && list.isNotEmpty() -> load(0, true)
-            else -> { wants = false; events?.onPlaying(false); events?.onWantsPlay(false); events?.onEnded() }
+            else -> { wants = false; AudioSessions.end(SESSION); events?.onPlaying(false); events?.onWantsPlay(false); events?.onEnded() }
         }
     }
 
@@ -77,10 +99,8 @@ private class AvClipPlayer : ClipPlayer {
     }
 
     override fun play() {
-        runCatching {
-            AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, null)
-            AVAudioSession.sharedInstance().setActive(true, null)
-        }
+        // فئة Playback: التلاوة تُسمع ومفتاح الصامت مفعّل، وتستمر والشاشة مطفأة (وضع الخلفية audio)
+        AudioSessions.begin(SESSION, AVAudioSessionCategoryPlayback)
         wants = true
         player.playImmediatelyAtRate(speed)
         events?.onWantsPlay(true); events?.onPlaying(true)
@@ -89,6 +109,7 @@ private class AvClipPlayer : ClipPlayer {
     override fun pause() {
         wants = false
         player.pause()
+        AudioSessions.end(SESSION)
         events?.onWantsPlay(false); events?.onPlaying(false)
     }
 
@@ -98,7 +119,9 @@ private class AvClipPlayer : ClipPlayer {
 
     override fun stop() {
         wants = false
+        watchToken++
         player.pause()
+        AudioSessions.end(SESSION)
         player.replaceCurrentItemWithPlayerItem(null)
         list.clear(); current = -1
     }
@@ -109,5 +132,7 @@ private class AvClipPlayer : ClipPlayer {
         observers.clear()
     }
 }
+
+private const val SESSION = "recitation"
 
 actual fun createClipPlayer(): ClipPlayer = AvClipPlayer()

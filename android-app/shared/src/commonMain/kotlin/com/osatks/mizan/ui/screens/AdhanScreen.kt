@@ -71,7 +71,6 @@ import com.osatks.mizan.platform.AdhanAudio
 import com.osatks.mizan.platform.AdhanPreview
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
-import com.osatks.mizan.platform.rememberNotifyToggle
 import com.osatks.mizan.ui.AppSwitch
 import com.osatks.mizan.ui.ClickRow
 import com.osatks.mizan.ui.Note
@@ -103,7 +102,7 @@ fun Strings.muezzinName(m: Muezzin) = muezzinNames[m.id] ?: m.id
 @Composable
 fun AdhanScreen(onBack: () -> Unit) {
     val s = LocalStrings.current
-    val toggleNotify = rememberNotifyToggle { ok -> AppSettings.updateNotify(ok); PrayerAlerts.reschedule() }
+    val toggleNotify = rememberAlertsToggle()
     // المعاينة لا تستمر بعد مغادرة الصفحة
     DisposableEffect(Unit) { onDispose { AdhanPreview.stop() } }
 

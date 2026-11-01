@@ -1,36 +1,70 @@
-import SwiftUI
 import UIKit
 import WidgetKit
 import Shared
 
-/// ميزان في iOS: الواجهة كلها من Compose Multiplatform (الوحدة المشتركة مع أندرويد)
+/// ميزان في iOS: الواجهة كلها من Compose Multiplatform (الوحدة المشتركة مع أندرويد).
+/// متحكم Kotlin (MainViewController) هو جذر النافذة مباشرة، لا داخل SwiftUI: فيسأله النظام عن شريط الحالة
+/// (نص فاتح فوق الرؤوس الخضراء، وإخفاؤه في وضع التركيز في المصحف)، وهو ما يتجاهله UIHostingController.
+///
+/// يعمل بدورة المشاهد (UIScene) إن وُجد UIApplicationSceneManifest في Info.plist، وإلا بنافذة التطبيق القديمة.
 @main
-struct iOSApp: App {
-    @Environment(\.scenePhase) var phase
+final class AppDelegate: UIResponder, UIApplicationDelegate {
+    var window: UIWindow?
 
-    init() {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         WidgetSync.shared.start()
+        if !AppDelegate.usesScenes {
+            let w = UIWindow(frame: UIScreen.main.bounds)
+            w.rootViewController = MainViewControllerKt.MainViewController()
+            w.makeKeyAndVisible()
+            window = w
+        }
+        return true
     }
 
-    var body: some Scene {
-        WindowGroup {
-            ComposeView().ignoresSafeArea()
-                // لمس أداة: mizan://open?route=adhkar&section=morning
-                .onOpenURL { url in WidgetSync.open(url) }
-        }
-        .onChange(of: phase) { p in
-            // ما تغير في التطبيق (الموقع واللغة واللون) يصل إلى الأدوات عند الخروج منه
-            if p == .background { WidgetSync.shared.refreshInBackground() }
-        }
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        config.delegateClass = SceneDelegate.self
+        return config
+    }
+
+    // بلا مشاهد: روابط الأدوات والخروج إلى الخلفية تصل إلى التطبيق نفسه
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        WidgetSync.open(url)
+        return true
+    }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        if !AppDelegate.usesScenes { WidgetSync.shared.refreshInBackground() }
+    }
+
+    static var usesScenes: Bool {
+        Bundle.main.object(forInfoDictionaryKey: "UIApplicationSceneManifest") != nil
     }
 }
 
-struct ComposeView: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.MainViewController()
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    var window: UIWindow?
+
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        let w = UIWindow(windowScene: windowScene)
+        w.rootViewController = MainViewControllerKt.MainViewController()
+        w.makeKeyAndVisible()
+        window = w
+        // التطبيق فُتح بلمس أداة وهو مغلق
+        if let url = connectionOptions.urlContexts.first?.url { WidgetSync.open(url) }
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    // لمس أداة: mizan://open?route=adhkar&section=morning
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        if let url = URLContexts.first?.url { WidgetSync.open(url) }
+    }
+
+    // ما تغير في التطبيق (الموقع واللغة واللون) يصل إلى الأدوات عند الخروج منه
+    func sceneDidEnterBackground(_ scene: UIScene) {
+        WidgetSync.shared.refreshInBackground()
+    }
 }
 
 /// يربط Kotlin بـ WidgetKit: Kotlin يكتب اللقطة ثم يرسل MizanWidgetsReload، فنطلب إعادة رسم الأدوات

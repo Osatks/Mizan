@@ -110,6 +110,11 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import com.osatks.mizan.ui.IsIos
+import com.osatks.mizan.ui.StatusBarStyle
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
@@ -197,6 +202,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     var revealed by remember { mutableStateOf(emptySet<Int>()) }
     val hifzOn = hifz && focus && mode == "mushaf"
     FocusEffects(focus)
+    // الرأس الأخضر تحت شريط الحالة: نصه فاتح؛ وفي وضع التركيز يُخفى (iOS؛ وفي أندرويد يخفيه FocusEffects)
+    StatusBarStyle(lightContent = true, hidden = focus)
     ReadingBrightness()
     RecitationLifecycle()
     BackHandler(enabled = focus) { focus = false }
@@ -301,7 +308,11 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     CompositionLocalProvider(LocalReadingPalette provides readingPalette(QuranPrefs.tone)) {
     val pal = mushafPalette()
     Box(Modifier.fillMaxSize().background(pal.backdrop.takeOrElse { MaterialTheme.colorScheme.surfaceContainerLow })) {
-    Column(Modifier.fillMaxSize().then(if (focus) Modifier.windowInsetsPadding(WindowInsets.displayCutout) else Modifier)) {
+    // وضع التركيز بلا أشرطة نظام: المحتوى يبتعد عن الكاميرا فقط (displayCutout)، وفي iOS عن المنطقة الآمنة كلها
+    // (النتوء أو Dynamic Island تبقى ولو أُخفي شريط الحالة)
+    val focusTop = if (IsIos) WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal) else WindowInsets.displayCutout
+    val focusBottom = if (IsIos) WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal) else WindowInsets.displayCutout
+    Column(Modifier.fillMaxSize().then(if (focus) Modifier.windowInsetsPadding(focusTop) else Modifier)) {
         AnimatedVisibility(
             !focus,
             enter = expandVertically(tween(Motion.MEDIUM, easing = Motion.Emphasized)) + fadeIn(tween(Motion.MEDIUM)),
@@ -405,15 +416,15 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         }
     }
     // وضع التركيز: خط رفيع أعلى الشاشة بقدر ورد اليوم
-    if (focus) ReadingProgressLine(Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout))
+    if (focus) ReadingProgressLine(Modifier.align(Alignment.TopCenter).windowInsetsPadding(focusTop))
     // تهنئة حين يكتمل ورد اليوم أثناء القراءة
     AnimatedVisibility(
-        portionPill, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(top = if (focus) 60.dp else 140.dp),
+        portionPill, Modifier.align(Alignment.TopCenter).windowInsetsPadding(focusTop).padding(top = if (focus) 60.dp else 140.dp),
         enter = fadeIn(tween(Motion.MEDIUM)) + scaleIn(tween(Motion.MEDIUM), 0.85f), exit = fadeOut(tween(Motion.MEDIUM)),
     ) { PortionDonePill() }
     // زر الخروج من وضع التركيز
     AnimatedVisibility(
-        showControls, Modifier.align(Alignment.TopCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(top = 14.dp),
+        showControls, Modifier.align(Alignment.TopCenter).windowInsetsPadding(focusTop).padding(top = 14.dp),
         enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { -it },
         exit = fadeOut(tween(Motion.MEDIUM)) + slideOutVertically(tween(Motion.MEDIUM)) { -it },
     ) {
@@ -427,7 +438,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     // أدوات وضع التركيز في الأسفل: التلاوة والحفظ والعرض
     Column(
-        Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.displayCutout).padding(start = 12.dp, end = 12.dp, bottom = 4.dp),
+        Modifier.align(Alignment.BottomCenter).windowInsetsPadding(focusBottom).padding(start = 12.dp, end = 12.dp, bottom = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         AnimatedVisibility(
