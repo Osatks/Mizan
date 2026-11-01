@@ -765,5 +765,4 @@ object Fa : Strings {
     override val liveCountdown = "شمارش معکوس زنده روی صفحهٔ قفل"
     override val liveCountdownDesc = "وقتی کمتر از 3 ساعت مانده به نماز از میزان بیرون می‌روید، شمارش معکوس آن روی صفحهٔ قفل و در Dynamic Island نمایش داده می‌شود."
     override val liveActivitiesOff = "Live Activities برای میزان خاموش است. آن را از Settings › Mizan روشن کنید."
-    override val nowReciting = "در حال تلاوت"
 }

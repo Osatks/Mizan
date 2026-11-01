@@ -765,5 +765,4 @@ object Ms : Strings {
     override val liveCountdown = "Kiraan detik langsung di Skrin Kunci"
     override val liveCountdownDesc = "Apabila anda keluar dari Mizan kurang daripada 3 jam sebelum solat, kiraan detiknya dipaparkan di Skrin Kunci dan Dynamic Island."
     override val liveActivitiesOff = "Aktiviti Langsung dimatikan untuk Mizan. Hidupkannya dalam Tetapan › Mizan."
-    override val nowReciting = "Sedang dibacakan"
 }

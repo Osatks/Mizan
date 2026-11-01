@@ -765,5 +765,4 @@ object Tr : Strings {
     override val liveCountdown = "Kilit ekranında canlı geri sayım"
     override val liveCountdownDesc = "Bir namaza 3 saatten az kala Mizan'dan çıktığınızda geri sayımı kilit ekranında ve Dynamic Island'da görünür."
     override val liveActivitiesOff = "Mizan için Canlı Etkinlikler kapalı. Ayarlar › Mizan'dan açabilirsiniz."
-    override val nowReciting = "Şimdi okunuyor"
 }

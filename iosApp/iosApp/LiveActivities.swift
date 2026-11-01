@@ -7,8 +7,8 @@ import Shared
 /// الأنشطة الحية في التطبيق: Kotlin (IosLive) يرسل حالها بإشعارات فيها JSON، وهنا تُبدأ وتُحدَّث وتُنهى:
 ///  - MizanLivePrayer: العدّ التنازلي للصلاة القادمة (iOS 16.2)، يبدأ عند مغادرة التطبيق قبل الصلاة بأقل من ثلاث ساعات
 ///    إن فعّله المستخدم، ويصير «حان الآن» عند دخول الوقت، وينتهي بعده بعشر دقائق.
-///  - MizanLiveRecitation: «يُتلى الآن» ما دامت التلاوة.
-/// وتصل إليه النوايا المشتركة مع الأداة (فتح شاشة، وزر التلاوة) فيمررها إلى Kotlin.
+/// والتلاوة لا نشاط حياً لها: «يُشغَّل الآن» (مشغّل النظام) يظهر في شاشة القفل والجزيرة الديناميكية كما في تطبيقات Apple.
+/// وتصل إليه النية المشتركة مع الأداة (فتح شاشة) فيمررها إلى Kotlin.
 final class LiveActivities {
     static let shared = LiveActivities()
     /// مهمة الخلفية التي تنهي العدّ التنازلي بعد دخول الوقت (BGTaskSchedulerPermittedIdentifiers في Info.plist)
@@ -25,13 +25,6 @@ final class LiveActivities {
         nc.addObserver(forName: Notification.Name("MizanLivePrayer"), object: nil, queue: nil) { note in
             guard let json = note.object as? String, let message = LiveJSON.prayer(json) else { return }
             if #available(iOS 16.2, *) { PrayerActivity.apply(message) }
-        }
-        nc.addObserver(forName: Notification.Name("MizanLiveRecitation"), object: nil, queue: nil) { note in
-            guard let json = note.object as? String, let state = LiveJSON.recitation(json) else { return }
-            if #available(iOS 16.2, *) { RecitationActivity.apply(state) }
-        }
-        nc.addObserver(forName: MizanBridge.toggleRecitation, object: nil, queue: .main) { _ in
-            IosLive.shared.toggleRecitation()
         }
         nc.addObserver(forName: MizanBridge.openRoute, object: nil, queue: .main) { note in
             guard let route = note.userInfo?["route"] as? String else { return }
@@ -149,40 +142,6 @@ enum PrayerActivity {
                 UserDefaults.standard.removeObject(forKey: startedKey)
             }
             Task { await a.end(nil, dismissalPolicy: .immediate) }
-        }
-    }
-}
-
-/// «يُتلى الآن»: يتبع التلاوة، ولا يُعاد إن أغلقه المستخدم حتى تبدأ تلاوة جديدة
-@available(iOS 16.2, *)
-enum RecitationActivity {
-    private static var ours: String?
-    private static var suppressed = false
-
-    static func apply(_ state: RecitationLiveState?) {
-        let all = Activity<RecitationActivityAttributes>.activities
-        let alive = all.filter { $0.activityState == .active || $0.activityState == .stale }
-        guard let state = state else {
-            ours = nil
-            suppressed = false
-            for a in alive { Task { await a.end(nil, dismissalPolicy: .immediate) } }
-            return
-        }
-        let content = ActivityContent(state: state, staleDate: nil, relevanceScore: 100)
-        if let a = alive.first {
-            if a.content.state != state { Task { await a.update(content) } }
-            for b in alive.dropFirst() { Task { await b.end(nil, dismissalPolicy: .immediate) } }
-            return
-        }
-        // كان لهذه التلاوة نشاط واختفى: أغلقه المستخدم
-        if ours != nil {
-            ours = nil
-            suppressed = true
-        }
-        guard !suppressed, ActivityAuthorizationInfo().areActivitiesEnabled,
-              UIApplication.shared.applicationState != .background else { return }
-        if let a = try? Activity.request(attributes: RecitationActivityAttributes(), content: content, pushType: nil) {
-            ours = a.id
         }
     }
 }

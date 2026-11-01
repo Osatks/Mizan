@@ -1,15 +1,13 @@
 package com.osatks.mizan.quran
 
-import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.platform.NowPlaying
 import com.osatks.mizan.ui.quran.surahName
-import com.osatks.mizan.ui.quran.surahRoute
-import com.osatks.mizan.widget.IosLive
 
 /**
  * iOS: التلاوة خارج التطبيق. عند كل تغيّر في حالها (Recitation.onChange) تُحدَّث «يُشغَّل الآن» في شاشة القفل
- * (السورة والآية والقارئ، وأزرار التشغيل والإيقاف والآية التالية والسابقة)، ويُرسل حالها إلى النشاط الحي «يُتلى الآن».
+ * ومركز التحكم والجزيرة الديناميكية (السورة والآية والقارئ، وأزرار التشغيل والإيقاف والآية التالية والسابقة).
+ * لا نشاط حي خاص بالتلاوة: مشغّل النظام نفسه يظهر هناك، كما في تطبيقات الصوت من Apple، فلا تتكرر البطاقة.
  */
 internal object RecitationLive {
     private var started = false
@@ -35,7 +33,6 @@ internal object RecitationLive {
         val index = Recitation.current
         if (!Recitation.active || index < 0) {
             NowPlaying.recitation(null, false)
-            IosLive.recitation(null)
             return
         }
         val lang = Lang.current
@@ -44,20 +41,6 @@ internal object RecitationLive {
         val count = QuranMeta.COUNTS[surah - 1]
         val reciter = Reciters.byId(QuranPrefs.reciter).name(lang)
         val title = s.surahAyah(s.surahName(surah), ayah)
-        val playing = Recitation.wantsPlay
-        NowPlaying.recitation(NowPlaying.Item(title, reciter, s.appName, ayah - 1, count), playing)
-        IosLive.recitation(
-            linkedMapOf(
-                "playing" to playing,
-                "surah" to surah, "ayah" to ayah, "count" to count,
-                "title" to title,
-                "surahAr" to QuranMeta.NAMES_AR[surah - 1],
-                "reciter" to reciter,
-                "label" to s.nowReciting,
-                "play" to s.playRecitation, "pause" to s.pauseRecitation,
-                "route" to surahRoute(surah, ayah, "widget"),
-                "rtl" to lang.rtl,
-            ) + IosLive.palette(AppSettings.accent)
-        )
+        NowPlaying.recitation(NowPlaying.Item(title, reciter, s.appName, ayah - 1, count), Recitation.wantsPlay)
     }
 }

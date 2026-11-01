@@ -617,5 +617,4 @@ interface Strings {
     val liveCountdown: String          // Adhan & alerts switch: "Live countdown on the Lock Screen"
     val liveCountdownDesc: String      // leaving the app less than 3 hours before a prayer shows its countdown on the Lock Screen and in the Dynamic Island
     val liveActivitiesOff: String      // Live Activities are turned off for Mizan in the iPhone Settings app
-    val nowReciting: String            // Live Activity header while the Quran plays: "Now reciting"
 }

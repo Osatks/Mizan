@@ -783,5 +783,4 @@ object Fr : Strings {
     override val liveCountdown = "Compte à rebours en direct sur l’écran verrouillé"
     override val liveCountdownDesc = "Quand vous quittez Mizan moins de 3 heures avant une prière, son compte à rebours s’affiche sur l’écran verrouillé et dans la Dynamic Island."
     override val liveActivitiesOff = "Les Activités en direct sont désactivées pour Mizan. Activez-les dans Réglages › Mizan."
-    override val nowReciting = "Récitation en cours"
 }

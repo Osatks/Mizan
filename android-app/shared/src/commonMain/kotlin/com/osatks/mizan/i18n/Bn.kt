@@ -765,5 +765,4 @@ object Bn : Strings {
     override val liveCountdown = "লক স্ক্রিনে লাইভ কাউন্টডাউন"
     override val liveCountdownDesc = "নামাজের 3 ঘণ্টারও কম আগে মিজান থেকে বের হলে তার কাউন্টডাউন লক স্ক্রিন ও Dynamic Island-এ দেখা যায়।"
     override val liveActivitiesOff = "মিজানের জন্য Live Activities বন্ধ আছে। Settings › Mizan থেকে চালু করুন।"
-    override val nowReciting = "এখন তিলাওয়াত হচ্ছে"
 }

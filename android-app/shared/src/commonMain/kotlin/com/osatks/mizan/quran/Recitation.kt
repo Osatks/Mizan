@@ -104,7 +104,7 @@ object Recitation {
     var sleepAt by mutableLongStateOf(0L)
         private set
 
-    /** يُستدعى بعد كل تغيّر في حال التلاوة (iOS: «يُشغَّل الآن» في شاشة القفل والنشاط الحي «يُتلى الآن») */
+    /** يُستدعى بعد كل تغيّر في حال التلاوة (iOS: «يُشغَّل الآن» في شاشة القفل ومركز التحكم والجزيرة الديناميكية) */
     var onChange: (() -> Unit)? = null
     private fun changed() { onChange?.invoke() }
 

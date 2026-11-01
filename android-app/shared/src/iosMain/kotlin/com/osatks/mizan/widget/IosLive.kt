@@ -16,7 +16,6 @@ import com.osatks.mizan.platform.LiveCountdown
 import com.osatks.mizan.platform.QuranSpotlight
 import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.QuranPrefs
-import com.osatks.mizan.quran.Recitation
 import com.osatks.mizan.quran.RecitationLive
 import com.osatks.mizan.ui.quran.surahRoute
 import com.osatks.mizan.ui.screens.PrayerUtil
@@ -36,12 +35,10 @@ import platform.darwin.dispatch_time
  * حال كل نشاط بإشعار فيه JSON (كما يفعل IosWidgets مع الأدوات) ويبدؤه LiveActivities.swift أو يحدّثه أو ينهيه:
  *  - MizanLivePrayer: الصلاة القادمة إن بقي عليها أقل من ثلاث ساعات والإعداد مفعّل (عدّ تنازلي على شاشة القفل
  *    وفي الجزيرة الديناميكية)، عند مغادرة التطبيق وما زال في المقدمة (لا يُبدأ نشاط من الخلفية) وعند العودة إليه.
- *  - MizanLiveRecitation: السورة والآية والقارئ ما دامت التلاوة (RecitationLive).
  * ويستدعيه Swift مباشرة: start عند الإقلاع، و open للاختصارات وعناصر البحث، و nextPrayerJson لـ Siri.
  */
 object IosLive {
     const val PRAYER = "MizanLivePrayer"
-    const val RECITATION = "MizanLiveRecitation"
     /** أقصى مدة قبل الصلاة يبدأ فيها العدّ التنازلي الحي */
     private const val WINDOW_SEC = 3 * 3600L
     /** مسار «تابع القراءة»: آخر موضع قرأه المستخدم */
@@ -49,7 +46,6 @@ object IosLive {
 
     private var started = false
     private val observers = ArrayList<NSObjectProtocol>()
-    private var lastRecitation: String? = null
 
     /**
      * عند إقلاع التطبيق (AppDelegate). [supported]: الجهاز يدعم الأنشطة الحية (iOS 16.2 فما بعد)،
@@ -58,6 +54,7 @@ object IosLive {
     fun start(supported: Boolean, systemOff: Boolean) {
         AppSettings.init()
         availability(supported, systemOff)
+        // «يُشغَّل الآن» للتلاوة في شاشة القفل ومركز التحكم والجزيرة الديناميكية (مشغّل النظام نفسه)
         RecitationLive.start()
         if (started) return
         started = true
@@ -67,8 +64,6 @@ object IosLive {
         observers += nc.addObserverForName(UIApplicationWillResignActiveNotification, null, null) { _ -> prayer(start = true) }
         // العودة إلى التطبيق: يُنهى ما انقضى وقته ويُحدَّث الباقي
         observers += nc.addObserverForName(UIApplicationDidBecomeActiveNotification, null, null) { _ -> prayer(start = false) }
-        // لا نشاط تلاوة باقٍ من تشغيل سابق أُغلق فيه التطبيق
-        recitation(null)
         // فهرسة السور في Spotlight بعد أن تستقر الواجهة
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6_000_000_000L), dispatch_get_main_queue()) { QuranSpotlight.index() }
     }
@@ -140,22 +135,6 @@ object IosLive {
     internal fun palette(accent: String): Map<String, Any?> {
         val c = WidgetColors.of(accent)
         return mapOf("hero1" to WidgetData.hex(c.hero1), "hero2" to WidgetData.hex(c.hero2), "gold" to WidgetData.hex(c.gold))
-    }
-
-    // ---------- التلاوة ----------
-
-    /** حال «يُتلى الآن»؛ null حين تنتهي التلاوة. لا يُرسل إلا ما تغيّر */
-    internal fun recitation(state: Map<String, Any?>?) {
-        if (!LiveCountdown.supported) return
-        val json = Json.write(if (state == null) mapOf("active" to false) else mapOf("active" to true) + state)
-        if (json == lastRecitation) return
-        lastRecitation = json
-        post(RECITATION, json)
-    }
-
-    /** زر التشغيل والإيقاف في النشاط الحي (LiveActivityIntent في iOS 17) */
-    fun toggleRecitation() {
-        if (Recitation.active) Recitation.toggle()
     }
 
     // ---------- Siri والاختصارات ----------

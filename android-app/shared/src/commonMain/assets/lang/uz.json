@@ -1100,8 +1100,7 @@
   "close": "Yopish",
   "liveCountdown": "Qulf ekranida jonli teskari sanoq",
   "liveCountdownDesc": "Namozdan 3 soatdan kamroq oldin Mizan’dan chiqsangiz, uning teskari sanogʻi qulf ekranida va Dynamic Island’da koʻrinadi.",
-  "liveActivitiesOff": "Mizan uchun Live Activities oʻchirilgan. Ularni Settings › Mizan boʻlimida yoqing.",
-  "nowReciting": "Hozir qiroat qilinmoqda"
+  "liveActivitiesOff": "Mizan uchun Live Activities oʻchirilgan. Ularni Settings › Mizan boʻlimida yoqing."
  },
  "evidence": {
   "Zakat is an obligation": "Zakot farzdir",

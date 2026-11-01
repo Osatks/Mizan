@@ -784,5 +784,4 @@ object Uk : Strings {
     override val liveCountdown = "Зворотний відлік на екрані блокування"
     override val liveCountdownDesc = "Якщо ви виходите з Мізану менш ніж за 3 години до намазу, зворотний відлік до нього показується на екрані блокування та в Dynamic Island."
     override val liveActivitiesOff = "Live Activities для Мізану вимкнено. Увімкніть їх у Параметрах › Mizan."
-    override val nowReciting = "Зараз звучить"
 }

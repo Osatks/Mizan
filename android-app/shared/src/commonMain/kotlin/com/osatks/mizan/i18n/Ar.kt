@@ -747,5 +747,4 @@ object Ar : Strings {
     override val liveCountdown = "عدّ تنازلي حي على شاشة القفل"
     override val liveCountdownDesc = "حين تغادر ميزان قبل الصلاة بأقل من ثلاث ساعات يظهر العدّ التنازلي لها على شاشة القفل وفي الجزيرة الديناميكية."
     override val liveActivitiesOff = "الأنشطة المباشرة متوقفة لميزان. فعّلها من الإعدادات › ميزان."
-    override val nowReciting = "يُتلى الآن"
 }

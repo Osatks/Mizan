@@ -765,5 +765,4 @@ object Ur : Strings {
     override val liveCountdown = "لاک اسکرین پر براہِ راست الٹی گنتی"
     override val liveCountdownDesc = "جب آپ کسی نماز سے 3 گھنٹے سے کم پہلے میزان سے باہر جائیں تو اس کی الٹی گنتی لاک اسکرین اور Dynamic Island میں دکھائی دیتی ہے۔"
     override val liveActivitiesOff = "میزان کے لیے Live Activities بند ہیں۔ انہیں Settings › Mizan سے آن کریں۔"
-    override val nowReciting = "اب تلاوت ہو رہی ہے"
 }

@@ -765,5 +765,4 @@ object Id : Strings {
     override val liveCountdown = "Hitung mundur langsung di Layar Terkunci"
     override val liveCountdownDesc = "Saat Anda keluar dari Mizan kurang dari 3 jam sebelum salat, hitung mundurnya tampil di Layar Terkunci dan Dynamic Island."
     override val liveActivitiesOff = "Aktivitas Langsung dimatikan untuk Mizan. Nyalakan di Pengaturan › Mizan."
-    override val nowReciting = "Sedang dibacakan"
 }

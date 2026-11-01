@@ -767,5 +767,4 @@ object Es : Strings {
     override val liveCountdown = "Cuenta atrás en directo en la pantalla bloqueada"
     override val liveCountdownDesc = "Cuando sales de Mizan menos de 3 horas antes de una oración, su cuenta atrás aparece en la pantalla bloqueada y en la Dynamic Island."
     override val liveActivitiesOff = "Las Actividades en directo están desactivadas para Mizan. Actívalas en Ajustes › Mizan."
-    override val nowReciting = "Recitando ahora"
 }

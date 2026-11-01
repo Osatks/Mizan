@@ -764,5 +764,4 @@ object De : Strings {
     override val liveCountdown = "Live-Countdown auf dem Sperrbildschirm"
     override val liveCountdownDesc = "Wenn du Mizan weniger als 3 Stunden vor einem Gebet verlässt, erscheint sein Countdown auf dem Sperrbildschirm und in der Dynamic Island."
     override val liveActivitiesOff = "Live-Aktivitäten sind für Mizan ausgeschaltet. Du kannst sie unter Einstellungen › Mizan einschalten."
-    override val nowReciting = "Rezitation läuft"
 }
