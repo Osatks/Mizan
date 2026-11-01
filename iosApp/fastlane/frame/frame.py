@@ -48,6 +48,10 @@ CAPTIONS = {
         "ar": ("احسب زكاتك بسهولة", "المال والذهب والأسهم مع النصاب"),
         "en": ("Zakat made simple", "Cash, gold and shares, with the nisab"),
     },
+    "tafsir": {
+        "ar": ("تفسير كل آية", "تفاسير موثوقة بلمسة على الآية"),
+        "en": ("Tafsir for every ayah", "Trusted commentaries, one tap away"),
+    },
     "tasbih": {
         "ar": ("سبحة في جيبك", "عدّاد للتسبيح مع أذكار جاهزة"),
         "en": ("A tasbih in your pocket", "A dhikr counter with ready-made adhkar"),
@@ -95,6 +99,9 @@ def fit_text(text, path, size, max_w, lang):
 def compose(raw: Path, out: Path, key: str, lang: str, index: int):
     shot = Image.open(raw).convert("RGB")
     W, H = shot.size
+    if W < 1000:
+        # لقطة صغيرة (صور الموقع 540×1137): الصورة بمقاس iPhone 6.9 بوصة، واللقطة بنسبتها داخل الإطار
+        W, H = 1320, 2868
     ipad = W > 1500
     top, bottom, title_c, sub_c, orn_c = PALETTES[index % len(PALETTES)]
     canvas = gradient(W, H, top, bottom).convert("RGBA")
@@ -125,6 +132,8 @@ def compose(raw: Path, out: Path, key: str, lang: str, index: int):
     # اللقطة: مصغّرة بزوايا مستديرة وإطار رفيع وظل
     scale = 0.74 if ipad else 0.78
     sw, shh = round(W * scale), round(H * scale)
+    if abs(shot.width / shot.height - W / H) > 0.01:
+        shh = round(sw * shot.height / shot.width)
     small = shot.resize((sw, shh), Image.LANCZOS)
     radius = round(sw * (0.045 if ipad else 0.11))
     border = max(10, round(sw * 0.018))
