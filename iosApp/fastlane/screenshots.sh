@@ -12,7 +12,8 @@
 #
 # تجاوز جولة أول تشغيل واختيار المدينة بلا كود خاص: وسائط التشغيل «-مفتاح قيمة» تدخل NSArgumentDomain
 # في NSUserDefaults، فيقرؤها Prefs (مفاتيح AppSettings بالبادئة «mizan.») كأنها محفوظة، ولا تُكتب في الجهاز.
-# ثم تُفتح كل شاشة بروابط الأدوات نفسها: mizan://open?route=…
+# وكل شاشة تُفتح عند التشغيل بالوسيط «-mizan.open_route <المسار>» (MainViewController.kt)، لا برابط mizan://
+# يسأل النظام قبل فتحه («فتح في ميزان؟») فتظهر نافذته في اللقطة
 set -euo pipefail
 
 APP="$1"
@@ -21,7 +22,7 @@ LOCALES="${3:-ar-SA en-US}"
 DEVICES="${4:-iphone ipad duo}"
 BUNDLE=com.mizan.almuslim
 LAUNCH_WAIT="${LAUNCH_WAIT:-10}"   # ثوانٍ بعد التشغيل حتى يستقر أول إطار
-ROUTE_WAIT="${ROUTE_WAIT:-6}"      # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص)
+ROUTE_WAIT="${ROUTE_WAIT:-8}"      # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص)
 LOGS="${LOGS:-$OUT/../screenshot-logs}"
 mkdir -p "$OUT" "$LOGS"
 
@@ -131,7 +132,7 @@ shot() {
 }
 
 launch() {
-  local lang="$1"
+  local lang="$1" route="${2:-}"
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   sleep 1
   # مكة المكرمة: مفتاح المدينة وإحداثياتها كما في PrayTimes.CITIES
@@ -139,19 +140,9 @@ launch() {
     -mizan.onboarded YES -mizan.lang "$lang" \
     -mizan.place_key makkah -mizan.place_lat 21.4225 -mizan.place_lng 39.8262 \
     -mizan.place_tz Asia/Riyadh -mizan.place_method makkah -mizan.place_gps NO -mizan.method makkah \
-    -mizan.theme light >/dev/null
+    -mizan.theme light ${route:+-mizan.open_route "$route"} >/dev/null
   sleep "$LAUNCH_WAIT"
-}
-
-open_route() {
-  # الرابط مرمّز: surah/1?ayah=0 يمرّ قيمةً واحدة لـ route
-  local enc
-  enc=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$1")
-  for _ in 1 2 3; do
-    xcrun simctl openurl "$UDID" "mizan://open?route=$enc" && break
-    sleep 2
-  done
-  sleep "$ROUTE_WAIT"
+  [ -z "$route" ] || sleep "$ROUTE_WAIT"
 }
 
 set_locale() {
@@ -170,8 +161,7 @@ take() {
   for s in "$@"; do
     name="${s%%:*}"
     route="${s#*:}"
-    launch "${loc%%-*}"
-    [ "$route" = "home" ] || open_route "$route"
+    if [ "$route" = "home" ]; then launch "${loc%%-*}"; else launch "${loc%%-*}" "$route"; fi
     shot "$OUT/$loc/$prefix$name.png" "$display"
   done
 }
