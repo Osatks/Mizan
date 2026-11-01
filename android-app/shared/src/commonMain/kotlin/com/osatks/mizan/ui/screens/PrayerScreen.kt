@@ -95,8 +95,11 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     var next by remember { mutableStateOf(PrayerUtil.next()) }
-    var day by remember { mutableStateOf(PrayerUtil.now().toLocalDate()) }
-    var showMonth by remember { mutableStateOf(false) }
+    // اليوم المختار وجدول الشهر يبقيان بعد تبديل التبويب أو الرجوع من إعدادات الأذان
+    var day by androidx.compose.runtime.saveable.rememberSaveable(
+        saver = androidx.compose.runtime.saveable.Saver({ it.value.toEpochDays() }, { mutableStateOf(LocalDate.fromEpochDays(it)) })
+    ) { mutableStateOf(PrayerUtil.now().toLocalDate()) }
+    var showMonth by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     var locating by remember { mutableStateOf(false) }
     var pickCity by remember { mutableStateOf(false) }
     var locationDenied by remember { mutableStateOf(false) }

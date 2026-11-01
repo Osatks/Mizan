@@ -83,6 +83,7 @@ fun <T> SubPages(
 ) {
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val state = remember { SeekableTransitionState(page) }
+    val holder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
     val transition = rememberTransition(state, label = "subPages")
     var inGesture by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
@@ -120,8 +121,11 @@ fun <T> SubPages(
         contentKey = contentKey,
         transitionSpec = { subPageTransform(rtl, root) },
     ) { p ->
+        // حالة كل صفحة (موضع التمرير وما أُدخل) تبقى حين تُغطّى وتعود كما تُركت
+        holder.SaveableStateProvider(contentKey(p) ?: "root") {
         // كل صفحة معتمة: لا تظهر الصفحتان متراكبتين أثناء الانزلاق
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) { content(p) }
+        }
     }
 }
 

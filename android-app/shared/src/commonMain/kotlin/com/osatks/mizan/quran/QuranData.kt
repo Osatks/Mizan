@@ -291,7 +291,10 @@ object QuranSearch {
         return QuranMeta.index(surah, ayah)
     }
 
-    suspend fun ayahs(query: String, lang: Lang, limit: Int = 60): List<Int> {
+    suspend fun ayahs(query: String, lang: Lang, limit: Int = 60): List<Int> = withContext(Dispatchers.Default) { ayahsNow(query, lang, limit) }
+
+    /** المرور على ٦٢٣٦ آية في الخلفية: كان يجري على خيط الواجهة مع كل حرف يُكتب في البحث */
+    private suspend fun ayahsNow(query: String, lang: Lang, limit: Int): List<Int> {
         val terms = Search.terms(query)
         if (terms.isEmpty() || terms.sumOf { it.length } < 2) return emptyList()
         val out = LinkedHashSet<Int>()
