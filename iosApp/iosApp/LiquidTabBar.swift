@@ -118,16 +118,14 @@ final class LiquidTabBarController: UIViewController, UITabBarControllerDelegate
         tabs.setViewControllers(list.map { Self.page($0) }, animated: false)
     }
 
-    /// صفحة فارغة شفافة لكل تبويب (الصفحات نفسها في Compose تحت الشريط)، ورمزه ممتلئاً حين يُختار
+    /// صفحة فارغة شفافة لكل تبويب (الصفحات نفسها في Compose تحت الشريط). الرموز ممتلئة في كل التبويبات
+    /// كما في تطبيقات Apple؛ يميّز المختارَ لونُه وعدسة الزجاج
     private static func page(_ tab: LiquidTabBarState.Tab) -> UIViewController {
         let page = UIViewController()
         page.view.backgroundColor = .clear
         page.view.isUserInteractionEnabled = false
-        page.tabBarItem = UITabBarItem(
-            title: tab.title,
-            image: UIImage(systemName: tab.symbol),
-            selectedImage: UIImage(systemName: tab.symbol + ".fill")
-        )
+        let symbol = UIImage(systemName: tab.symbol + ".fill") ?? UIImage(systemName: tab.symbol)
+        page.tabBarItem = UITabBarItem(title: tab.title, image: symbol, selectedImage: symbol)
         return page
     }
 

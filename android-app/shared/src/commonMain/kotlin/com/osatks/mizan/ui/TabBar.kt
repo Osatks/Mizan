@@ -90,7 +90,7 @@ import androidx.compose.ui.unit.min
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.Strings
 
-/** [symbol]: رمز SF Symbols للتبويب في شريط النظام (iOS 26)، والمختار بنسخته الممتلئة ([symbol].fill) */
+/** [symbol]: رمز SF Symbols للتبويب في شريط النظام (iOS 26)، ويُعرض بنسخته الممتلئة ([symbol].fill) كما في تطبيقات Apple */
 data class TabItem(val route: String, val label: (Strings) -> String, val on: ImageVector, val off: ImageVector, val symbol: String)
 
 val TABS = listOf(

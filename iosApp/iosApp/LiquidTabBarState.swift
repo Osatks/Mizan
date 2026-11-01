@@ -6,7 +6,7 @@ struct LiquidTabBarState: Decodable, Equatable {
     struct Tab: Decodable, Equatable {
         let route: String
         let title: String
-        /// رمز SF Symbols؛ وللمختار نسخته الممتلئة (symbol.fill)
+        /// رمز SF Symbols؛ يُعرض بنسخته الممتلئة (symbol.fill) في كل التبويبات
         let symbol: String
     }
 
