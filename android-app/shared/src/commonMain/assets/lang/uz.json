@@ -6,7 +6,7 @@
  "rtl": false,
  "decimal": ",",
  "group": " ",
- "version": 7,
+ "version": 8,
  "currency": "UZS",
  "quran": {
   "id": "uz.sodik",
@@ -1097,7 +1097,11 @@
   "notifyOffTitle": "Bildirishnomalar oʻchiq",
   "notifyOffBody": "Mizanga bildirishnoma yuborishga ruxsat berilmagan, shuning uchun azon eslatmalari sizga yetib bormaydi. Ularni Sozlamalarda yoqishingiz mumkin.",
   "clear": "Tozalash",
-  "close": "Yopish"
+  "close": "Yopish",
+  "liveCountdown": "Qulf ekranida jonli teskari sanoq",
+  "liveCountdownDesc": "Namozdan 3 soatdan kamroq oldin Mizan’dan chiqsangiz, uning teskari sanogʻi qulf ekranida va Dynamic Island’da koʻrinadi.",
+  "liveActivitiesOff": "Mizan uchun Live Activities oʻchirilgan. Ularni Settings › Mizan boʻlimida yoqing.",
+  "nowReciting": "Hozir qiroat qilinmoqda"
  },
  "evidence": {
   "Zakat is an obligation": "Zakot farzdir",

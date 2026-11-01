@@ -1,0 +1,16 @@
+/* أزرار مركز التحكم (Controls.swift) والنوايا المشتركة مع التطبيق (Shared/LiveActivityAttributes.swift) */
+"Next prayer" = "اگلی نماز";
+"Prayer times" = "اوقاتِ نماز";
+"Qibla" = "قبلہ";
+"Continue reading" = "تلاوت جاری رکھیں";
+"Tasbih" = "تسبیح";
+"Morning adhkar" = "صبح کے اذکار";
+"Evening adhkar" = "شام کے اذکار";
+"Open in Mizan" = "میزان میں کھولیں";
+"Screen" = "اسکرین";
+"Mizan screen" = "میزان کی اسکرین";
+"Play or pause the recitation" = "تلاوت چلائیں یا روکیں";
+"Opens the qibla compass" = "قبلہ نما کھولتا ہے";
+"Opens the tasbih counter" = "تسبیح کاؤنٹر کھولتا ہے";
+"Opens today's prayer times" = "آج کے اوقاتِ نماز کھولتا ہے";
+"Opens the Quran where you stopped" = "قرآن وہیں سے کھولتا ہے جہاں آپ رکے تھے";

@@ -761,4 +761,9 @@ object Ur : Strings {
     override val notifyOffBody = "میزان کو اطلاعات بھیجنے کی اجازت نہیں ملی، اس لیے اذان کے الرٹ آپ تک نہیں پہنچ سکتے۔ آپ سیٹنگز میں اجازت دے سکتے ہیں۔"
     override val clear = "صاف کریں"
     override val close = "بند کریں"
+    // ---------- iPhone: Lock Screen and Dynamic Island ----------
+    override val liveCountdown = "لاک اسکرین پر براہِ راست الٹی گنتی"
+    override val liveCountdownDesc = "جب آپ کسی نماز سے 3 گھنٹے سے کم پہلے میزان سے باہر جائیں تو اس کی الٹی گنتی لاک اسکرین اور Dynamic Island میں دکھائی دیتی ہے۔"
+    override val liveActivitiesOff = "میزان کے لیے Live Activities بند ہیں۔ انہیں Settings › Mizan سے آن کریں۔"
+    override val nowReciting = "اب تلاوت ہو رہی ہے"
 }

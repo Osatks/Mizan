@@ -5,6 +5,9 @@ package com.osatks.mizan.platform
 import com.osatks.mizan.core.AdhanSounds
 import com.osatks.mizan.core.Muezzin
 import com.osatks.mizan.core.VibePattern
+import com.osatks.mizan.i18n.Lang
+import com.osatks.mizan.i18n.prayer
+import com.osatks.mizan.ui.screens.muezzinName
 import platform.AVFAudio.AVAudioPlayer
 import platform.AVFAudio.AVAudioPlayerDelegateProtocol
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
@@ -57,8 +60,13 @@ actual object AdhanAudio {
         return if (NSFileManager.defaultManager.fileExistsAtPath(path)) NSURL.fileURLWithPath(path) else null
     }
 
+    /** صلاة الأذان الذي يُشغَّل الآن (يضبطه AlertPresenter)، لعنوانه في شاشة القفل؛ null للمعاينة */
+    internal var alertPrayer: String? = null
+
     actual fun play(m: Muezzin, preview: Boolean, onEnd: () -> Unit) {
+        val forPrayer = if (preview) null else alertPrayer
         stop()
+        alertPrayer = null
         val u = url(m) ?: return onEnd()
         // المعاينة تُسمع ولو كان مفتاح الصامت مفعّلاً؛ أذان الوقت يتبع مفتاح الصامت كبقية التنبيهات
         // الجلسة تُعطَّل بعد انتهاء الأذان أو إيقافه (AudioSessions)
@@ -69,6 +77,16 @@ actual object AdhanAudio {
         if (!p.prepareToPlay() || !p.play()) { AudioSessions.end(SESSION); return onEnd() }
         player = p
         delegate = d
+        nowPlaying(m, forPrayer, p.duration)
+    }
+
+    /** الأذان في شاشة القفل: «حان الآن وقت صلاة العصر» والمؤذن، وزر الإيقاف */
+    private fun nowPlaying(m: Muezzin, forPrayer: String?, duration: Double) {
+        val s = Lang.current.strings
+        val item = if (forPrayer != null) NowPlaying.Item(s.prayerNowTitle(s.prayer(forPrayer)), s.muezzinName(m), s.appName)
+        else NowPlaying.Item(s.muezzinName(m), s.alertModeAdhan, s.appName)
+        val stop = { AdhanPreview.stop() }
+        NowPlaying.adhan(item, duration, NowPlaying.Controls(play = null, pause = stop, toggle = stop, next = null, previous = null, stop = stop))
     }
 
     actual fun stop() {
@@ -77,6 +95,7 @@ actual object AdhanAudio {
         player = null
         delegate = null
         AudioSessions.end(SESSION)
+        NowPlaying.adhanEnded()
     }
 
     actual fun vibrate(p: VibePattern) {

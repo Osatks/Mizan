@@ -1,7 +1,8 @@
 """
 أيقونة ميزان: الميزان الذهبي على زمرّد عميق، وخلفه نجمة ثمانية (ربع الحزب) خافتة.
 مصممة بمقاييس iOS (مربع 1024 ممتلئ بلا شفافية، يقصّه النظام بزواياه المستديرة)، ومنها تُولَّد:
-  - مجموعة أيقونة iOS (عادي، وداكن بخلفية شفافة، وملوَّن بتدرج رمادي) جاهزة لـ Xcode
+  - مجموعة أيقونة iOS (عادي، وداكن على زمرّد قاتم، وملوَّن بتدرج رمادي) جاهزة لـ Xcode،
+    والميزان وحده لشاشة الإقلاع (LaunchEmblem) والأيقونة صورةً لشاشة القفل أثناء التلاوة (NowPlayingArtwork)
   - أيقونات الموقع (apple-touch-icon وأيقونات التطبيق المثبّت maskable)
   - طبقات الأيقونة التكيفية لأندرويد (Vector) من الأشكال نفسها
 الاستعمال:  python3 branding/icon.py   ثم   node branding/render.mjs   (يحتاج Playwright وChromium لتصدير PNG)
@@ -18,6 +19,8 @@ C = S / 2
 # الألوان: زمرّد التطبيق وذهب التذهيب
 GREEN_LIGHT, GREEN_MID, GREEN_DEEP = "#16846C", "#0C5C4A", "#063A2F"
 GOLD_HI, GOLD_MID, GOLD_LO = "#F8E08F", "#E5BA52", "#BF8B27"
+# خلفية الأيقونة الداكنة في iOS: زمرّد قاتم يكاد يكون أسود
+DARK_HI, DARK_MID, DARK_LO = "#123A31", "#0A231D", "#040D0B"
 
 # ---------- الأشكال (إحداثيات اللوحة 1024) ----------
 DY = 14                             # إنزال الشعار قليلاً ليتوسط بصرياً (الكفتان أثقل من الرأس)
@@ -89,7 +92,18 @@ def emblem_svg(fill, shadow=True, chain_color=None):
     return f'<g filter="url(#lift)">{g}</g>' if shadow else f"<g>{g}</g>"
 
 def svg(kind):
-    """kind: any (الأصل) | rounded (بزوايا مستديرة للحاسوب) | dark (خلفية شفافة) | tinted (تدرج رمادي) """
+    """kind: any (الأصل) | rounded (بزوايا مستديرة للحاسوب) | dark (على أخضر قاتم) | tinted (تدرج رمادي)
+    | emblem (الميزان والنجمة وحدهما على شفاف، لشاشة الإقلاع في iOS) """
+    if kind == "emblem":
+        # مربع النجمة وحده (بهامش للظل): يُعرض في وسط شاشة الإقلاع فوق لون LaunchBackground
+        m = STAR_R + STAR_W + 26
+        defs = [gold_gradient("gold"),
+                '<filter id="lift" x="-20%" y="-20%" width="140%" height="140%">'
+                '<feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#021F19" flood-opacity=".35"/></filter>']
+        body = [f'<path d="{star_path(STAR_R)}" fill="none" stroke="{GOLD_MID}" stroke-opacity=".30" stroke-width="{STAR_W}" stroke-linejoin="round"/>',
+                emblem_svg("url(#gold)")]
+        return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{C - m} {C - m} {2 * m} {2 * m}" width="{2 * m}" height="{2 * m}">'
+                f'<defs>{"".join(defs)}</defs>{"".join(body)}</svg>\n')
     if kind == "rounded":
         # أيقونة الموقع العادية (any): زوايا مستديرة كأيقونات التطبيقات، وما خارجها شفاف
         inner = svg("any").split(">", 1)[1].rsplit("</svg>", 1)[0]
@@ -109,10 +123,17 @@ def svg(kind):
         body.append(f'<path d="{star_path(STAR_R)}" fill="#FFFFFF" fill-opacity=".035" stroke="{GOLD_MID}" stroke-opacity=".32" stroke-width="{STAR_W}" stroke-linejoin="round"/>')
         body.append(emblem_svg("url(#gold)"))
     elif kind == "dark":
-        # iOS يضع خلفيته الداكنة خلفها، فالشعار وحده بالذهب
-        defs.append('<filter id="lift"/>')
-        body.append(f'<path d="{star_path(STAR_R)}" fill="none" stroke="{GOLD_MID}" stroke-opacity=".30" stroke-width="{STAR_W}" stroke-linejoin="round"/>')
-        body.append(emblem_svg("url(#gold)", shadow=False))
+        # إرشادات Apple للأيقونة الداكنة: خلفية ملونة داكنة تعطي أوضح تباين، وألوان الأصل أهدأ قليلاً.
+        # زمرّد قاتم يكاد يكون أسود (أقرب إلى خلفية النظام في الوضع الداكن)، والميزان بذهب أخفت لمعاناً
+        defs = [gold_gradient("gold", "#EDD07F", "#D9AE4C", "#AE7F25")]
+        defs.append(f'<radialGradient id="bg" cx="{C}" cy="{C - 120}" r="{S * 0.8}" gradientUnits="userSpaceOnUse">'
+                    f'<stop offset="0" stop-color="{DARK_HI}"/><stop offset=".6" stop-color="{DARK_MID}"/>'
+                    f'<stop offset="1" stop-color="{DARK_LO}"/></radialGradient>')
+        defs.append('<filter id="lift" x="-20%" y="-20%" width="140%" height="140%">'
+                    '<feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity=".5"/></filter>')
+        body.append(f'<rect width="{S}" height="{S}" fill="url(#bg)"/>')
+        body.append(f'<path d="{star_path(STAR_R)}" fill="none" stroke="{GOLD_MID}" stroke-opacity=".22" stroke-width="{STAR_W}" stroke-linejoin="round"/>')
+        body.append(emblem_svg("url(#gold)"))
     elif kind == "tinted":
         # يلوّنه النظام بلون المستخدم حسب الإضاءة: أبيض للشعار ورمادي خافت للنجمة على أسود
         defs = [gold_gradient("gray", "#FFFFFF", "#E6E6E6", "#B8B8B8"), '<filter id="lift"/>']
@@ -227,7 +248,7 @@ def write(path, text):
         f.write(text)
 
 if __name__ == "__main__":
-    for kind in ("any", "rounded", "dark", "tinted"):
+    for kind in ("any", "rounded", "dark", "tinted", "emblem"):
         write(os.path.join(ROOT, "icon", f"mizan-icon-{kind}.svg"), svg(kind))
     write(os.path.join(ROOT, "ios", "AppIcon.appiconset", "Contents.json"), json.dumps(IOS_CONTENTS, indent=2) + "\n")
     res = os.path.join(REPO, "android-app", "app", "src", "main", "res", "drawable")

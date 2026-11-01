@@ -743,4 +743,9 @@ object Ar : Strings {
     override val notifyOffBody = "لم يُسمح لميزان بإرسال الإشعارات، فلن تصلك تنبيهات الأذان. يمكنك السماح بها من الإعدادات."
     override val clear = "مسح"
     override val close = "إغلاق"
+    // ---------- iPhone: شاشة القفل والجزيرة الديناميكية ----------
+    override val liveCountdown = "عدّ تنازلي حي على شاشة القفل"
+    override val liveCountdownDesc = "حين تغادر ميزان قبل الصلاة بأقل من ثلاث ساعات يظهر العدّ التنازلي لها على شاشة القفل وفي الجزيرة الديناميكية."
+    override val liveActivitiesOff = "الأنشطة المباشرة متوقفة لميزان. فعّلها من الإعدادات › ميزان."
+    override val nowReciting = "يُتلى الآن"
 }

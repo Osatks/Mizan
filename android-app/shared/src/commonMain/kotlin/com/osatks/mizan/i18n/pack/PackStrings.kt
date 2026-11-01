@@ -609,4 +609,8 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val notifyOffBody: String by lazy { s("notifyOffBody") ?: En.notifyOffBody }
     override val clear: String by lazy { s("clear") ?: En.clear }
     override val close: String by lazy { s("close") ?: En.close }
+    override val liveCountdown: String by lazy { s("liveCountdown") ?: En.liveCountdown }
+    override val liveCountdownDesc: String by lazy { s("liveCountdownDesc") ?: En.liveCountdownDesc }
+    override val liveActivitiesOff: String by lazy { s("liveActivitiesOff") ?: En.liveActivitiesOff }
+    override val nowReciting: String by lazy { s("nowReciting") ?: En.nowReciting }
 }

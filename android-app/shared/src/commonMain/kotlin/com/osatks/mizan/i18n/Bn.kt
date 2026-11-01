@@ -761,4 +761,9 @@ object Bn : Strings {
     override val notifyOffBody = "মিজানকে নোটিফিকেশন পাঠানোর অনুমতি দেওয়া হয়নি, তাই আজানের সতর্কবার্তা আপনার কাছে পৌঁছাবে না। সেটিংসে অনুমতি দিতে পারেন।"
     override val clear = "মুছুন"
     override val close = "বন্ধ করুন"
+    // ---------- iPhone: Lock Screen and Dynamic Island ----------
+    override val liveCountdown = "লক স্ক্রিনে লাইভ কাউন্টডাউন"
+    override val liveCountdownDesc = "নামাজের 3 ঘণ্টারও কম আগে মিজান থেকে বের হলে তার কাউন্টডাউন লক স্ক্রিন ও Dynamic Island-এ দেখা যায়।"
+    override val liveActivitiesOff = "মিজানের জন্য Live Activities বন্ধ আছে। Settings › Mizan থেকে চালু করুন।"
+    override val nowReciting = "এখন তিলাওয়াত হচ্ছে"
 }

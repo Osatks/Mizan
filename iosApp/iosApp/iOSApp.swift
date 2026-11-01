@@ -13,13 +13,22 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         WidgetSync.shared.start()
+        // الأنشطة الحية و«يُشغَّل الآن» والاختصارات و Spotlight (LiveActivities.swift)
+        LiveActivities.shared.start()
         if !AppDelegate.usesScenes {
             let w = UIWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()
             w.makeKeyAndVisible()
+            LaunchCurtain.cover(w)
             window = w
         }
         return true
+    }
+
+    // نتيجة من بحث iPhone (سورة في Spotlight)
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity,
+                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        SpotlightLink.open(userActivity)
     }
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
@@ -51,9 +60,16 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let w = UIWindow(windowScene: windowScene)
         w.rootViewController = MainViewControllerKt.MainViewController()
         w.makeKeyAndVisible()
+        LaunchCurtain.cover(w)
         window = w
         // التطبيق فُتح بلمس أداة وهو مغلق
         if let url = connectionOptions.urlContexts.first?.url { WidgetSync.open(url) }
+        if let activity = connectionOptions.userActivities.first { SpotlightLink.open(activity) }
+    }
+
+    // نتيجة من بحث iPhone (سورة في Spotlight) والتطبيق يعمل
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        SpotlightLink.open(userActivity)
     }
 
     // لمس أداة: mizan://open?route=adhkar&section=morning

@@ -779,4 +779,9 @@ object Fr : Strings {
     override val notifyOffBody = "Mizan n’est pas autorisé à envoyer des notifications : les alertes de l’adhan ne peuvent pas vous parvenir. Vous pouvez les autoriser dans les réglages."
     override val clear = "Effacer"
     override val close = "Fermer"
+    // ---------- iPhone: Lock Screen and Dynamic Island ----------
+    override val liveCountdown = "Compte à rebours en direct sur l’écran verrouillé"
+    override val liveCountdownDesc = "Quand vous quittez Mizan moins de 3 heures avant une prière, son compte à rebours s’affiche sur l’écran verrouillé et dans la Dynamic Island."
+    override val liveActivitiesOff = "Les Activités en direct sont désactivées pour Mizan. Activez-les dans Réglages › Mizan."
+    override val nowReciting = "Récitation en cours"
 }

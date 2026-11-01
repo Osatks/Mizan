@@ -1,0 +1,16 @@
+/* أزرار مركز التحكم (Controls.swift) والنوايا المشتركة مع التطبيق (Shared/LiveActivityAttributes.swift) */
+"Next prayer" = "Следующий намаз";
+"Prayer times" = "Время намаза";
+"Qibla" = "Кибла";
+"Continue reading" = "Продолжить чтение";
+"Tasbih" = "Тасбих";
+"Morning adhkar" = "Утренние азкары";
+"Evening adhkar" = "Вечерние азкары";
+"Open in Mizan" = "Открыть в Мизане";
+"Screen" = "Экран";
+"Mizan screen" = "Экран Мизана";
+"Play or pause the recitation" = "Воспроизвести или приостановить чтение";
+"Opens the qibla compass" = "Открывает компас киблы";
+"Opens the tasbih counter" = "Открывает счётчик тасбиха";
+"Opens today's prayer times" = "Открывает время намаза на сегодня";
+"Opens the Quran where you stopped" = "Открывает Коран там, где вы остановились";

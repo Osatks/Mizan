@@ -761,4 +761,9 @@ object Ms : Strings {
     override val notifyOffBody = "Mizan tidak dibenarkan menghantar pemberitahuan, jadi peringatan azan tidak dapat sampai kepada anda. Anda boleh membenarkannya dalam Tetapan."
     override val clear = "Kosongkan"
     override val close = "Tutup"
+    // ---------- iPhone: Lock Screen and Dynamic Island ----------
+    override val liveCountdown = "Kiraan detik langsung di Skrin Kunci"
+    override val liveCountdownDesc = "Apabila anda keluar dari Mizan kurang daripada 3 jam sebelum solat, kiraan detiknya dipaparkan di Skrin Kunci dan Dynamic Island."
+    override val liveActivitiesOff = "Aktiviti Langsung dimatikan untuk Mizan. Hidupkannya dalam Tetapan › Mizan."
+    override val nowReciting = "Sedang dibacakan"
 }

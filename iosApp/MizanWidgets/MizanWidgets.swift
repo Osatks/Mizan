@@ -12,5 +12,17 @@ struct MizanWidgets: WidgetBundle {
         AdhkarWidget()
         HijriWidget()
         AyahWidget()
+        // الأنشطة الحية: العدّ التنازلي للصلاة القادمة و«يُتلى الآن» (LiveActivityViews.swift)
+        if #available(iOS 16.2, *) {
+            PrayerActivityWidget()
+            RecitationActivityWidget()
+        }
+        // أزرار مركز التحكم (Controls.swift)
+        if #available(iOS 18.0, *) {
+            QiblaControl()
+            TasbihControl()
+            NextPrayerControl()
+            ContinueQuranControl()
+        }
     }
 }

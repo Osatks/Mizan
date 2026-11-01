@@ -50,6 +50,9 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../android-app/shared/build/bin/iosArm64/releaseFramework"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
+        # الأنشطة الحية (ActivityKit، iOS 16.1) والاختصارات و Siri (AppIntents، iOS 16) غير موجودة في iOS 15:
+        # ربط ضعيف حتى يعمل التطبيق هناك بدونها (LiveActivities.swift و MizanShortcuts.swift)
+        OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,ActivityKit -Wl,-weak_framework,AppIntents"
     dependencies:
       - framework: ../android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework
         embed: true
@@ -88,5 +91,6 @@ targets:
         APPLICATION_EXTENSION_API_ONLY: YES
         SKIP_INSTALL: YES
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
-        # AppIntents (زر «التالي» في iOS 17) غير موجود في iOS 15: ربط ضعيف حتى تعمل الأدوات هناك
-        OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,AppIntents"
+        # AppIntents (زر «التالي» في iOS 17، وأزرار مركز التحكم في iOS 18) و ActivityKit (الأنشطة الحية في iOS 16.2)
+        # غير موجودين في iOS 15: ربط ضعيف حتى تعمل الأدوات هناك
+        OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,AppIntents -Wl,-weak_framework,ActivityKit"

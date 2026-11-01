@@ -118,7 +118,7 @@ private class AlertPresenter : NSObject(), UNUserNotificationCenterDelegateProto
         val show = UNNotificationPresentationOptionBanner or UNNotificationPresentationOptionList
         if (prayer == null) return withCompletionHandler(show or UNNotificationPresentationOptionSound)
         when (AlertMode.of(info["mode"] as? String)) {
-            AlertMode.ADHAN -> AdhanAudio.play(Muezzins.forPrayer(prayer), preview = false) {}
+            AlertMode.ADHAN -> { AdhanAudio.alertPrayer = prayer; AdhanAudio.play(Muezzins.forPrayer(prayer), preview = false) {} }
             AlertMode.VIBRATE -> AdhanAudio.vibrate(AppSettings.vibePattern)
             else -> {}
         }

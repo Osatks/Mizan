@@ -1,0 +1,14 @@
+/* عبارات Siri للاختصارات الجاهزة (MizanShortcuts.swift)؛ ${applicationName} اسم التطبيق */
+"Next prayer in ${applicationName}" = "Следующий намаз в ${applicationName}";
+"When is the next prayer in ${applicationName}" = "Когда следующий намаз в ${applicationName}";
+"${applicationName} next prayer" = "${applicationName} следующий намаз";
+"Prayer times in ${applicationName}" = "Время намаза в ${applicationName}";
+"Show prayer times in ${applicationName}" = "Покажи время намаза в ${applicationName}";
+"Qibla in ${applicationName}" = "Кибла в ${applicationName}";
+"Find the qibla with ${applicationName}" = "Найди киблу в ${applicationName}";
+"Continue reading in ${applicationName}" = "Продолжить чтение в ${applicationName}";
+"Continue reading the Quran in ${applicationName}" = "Продолжить чтение Корана в ${applicationName}";
+"Tasbih in ${applicationName}" = "Тасбих в ${applicationName}";
+"Open the tasbih in ${applicationName}" = "Открой тасбих в ${applicationName}";
+"Morning adhkar in ${applicationName}" = "Утренние азкары в ${applicationName}";
+"Evening adhkar in ${applicationName}" = "Вечерние азкары в ${applicationName}";
