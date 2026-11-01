@@ -76,9 +76,10 @@ fun InheritanceScreen(onBack: () -> Unit) {
     val result = Inheritance.solve(active, gender)
 
     val arrow = if (LocalLayoutDirection.current == LayoutDirection.Rtl) "←" else "→"
+    // على الشاشة الواسعة: الورثة والتركة في عمود، والقسمة بجانبها ثابتة أثناء الإدخال
     ToolPage(s.inhTitle, s.inhSubtitle, onBack, sharedKey = "inheritance", icon = TOOL_ICONS["inheritance"]) {
         if (result != null) {
-            item {
+            side {
                 ResultCard(
                     s.aslLabel,
                     if (result.awl != null) "${result.asl} $arrow ${result.awl}" else "${result.asl}",
@@ -88,7 +89,7 @@ fun InheritanceScreen(onBack: () -> Unit) {
                     if (result.tashih != result.asl) Text(s.tashihFrom(result.tashih), color = Color.White.copy(alpha = .85f))
                 }
             }
-            item {
+            side {
                 SectionCard(s.sharesTitle) {
                     var ci = 0
                     Inheritance.HEIRS.forEach { h ->
@@ -145,8 +146,8 @@ fun InheritanceScreen(onBack: () -> Unit) {
                     }, modifier = Modifier.fillMaxWidth()) { Text(s.shareDivision) }
                 }
             }
-            result.notes.forEach { n -> item { Note(s.inhNote(n)) } }
-        } else item { ResultCard(s.aslLabel, "—", s.addHeirs) }
+            result.notes.forEach { n -> side { Note(s.inhNote(n)) } }
+        } else side { ResultCard(s.aslLabel, "—", s.addHeirs) }
 
         item {
             SectionCard(s.deceasedAndEstate) {

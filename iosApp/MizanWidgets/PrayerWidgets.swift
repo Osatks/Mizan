@@ -376,7 +376,8 @@ struct AyahWidget: Widget {
         }
         .configurationDisplayName(Fallback.gallery("ayah"))
         .description(Fallback.gallery("descAyah"))
-        .supportedFamilies([.systemMedium, .systemLarge])
+        // الكبيرة جداً على iPad (وما يعرضها من الشاشات الواسعة) بعرض ضعف الكبيرة
+        .supportedFamilies([.systemMedium, .systemLarge, .systemExtraLarge])
     }
 }
 
@@ -386,7 +387,7 @@ struct AyahView: View {
 
     var body: some View {
         let ayah = entry.snap?.day(at: entry.date)?.ayah
-        let large = family == .systemLarge
+        let large = family == .systemLarge || family == .systemExtraLarge
         Shell(snap: entry.snap, url: Deep.url(ayah?.route ?? "quran")) {
             if let snap = entry.snap, let ayah = ayah {
                 VStack(spacing: 0) {
@@ -395,7 +396,7 @@ struct AyahView: View {
                     }
                     Spacer(minLength: 6)
                     Text(verbatim: "﴿\(ayah.text)﴾")
-                        .font(Mizan.quran(large ? 30 : 22))
+                        .font(Mizan.quran(family == .systemExtraLarge ? 34 : (large ? 30 : 22)))
                         .multilineTextAlignment(.center)
                         .lineSpacing(large ? 8 : 4)
                         .lineLimit(large ? 9 : 4)

@@ -12,11 +12,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -45,7 +44,10 @@ import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.quran.QuranData
-import com.osatks.mizan.ui.FloatingTabBar
+import com.osatks.mizan.ui.LocalTabBarHost
+import com.osatks.mizan.ui.LocalLeadingInset
+import com.osatks.mizan.ui.LocalWindowLayout
+import com.osatks.mizan.ui.WindowLayout
 import com.osatks.mizan.ui.IsIos
 import com.osatks.mizan.ui.LocalAppHaze
 import dev.chrisbanes.haze.hazeSource
@@ -127,12 +129,17 @@ fun MizanApp(startRoute: String? = null) {
         }
     }
 
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    // مقاس النافذة كما هو متاح للتطبيق (يتغير بتدوير iPad و Split View وفتح iPhone Duo وطيّه)
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        val layout = remember(maxWidth, maxHeight) { WindowLayout(maxWidth, maxHeight) }
+        // على الشاشات الواسعة (وبالعرض في المتوسطة) قائمة تنقل جانبية بدل الشريط السفلي
+        val rail = layout.rail
+        val bars = LocalTabBarHost.current
+        CompositionLocalProvider(LocalWindowLayout provides layout, LocalAppHaze provides appHaze) {
         SharedTransitionLayout(Modifier.fillMaxSize().then(if (glassSource) Modifier.hazeSource(appHaze) else Modifier)) {
             // لون النص الافتراضي يتبع الخلفية، وإلا ظهر نص بلا لون محدد أسود في الوضع الداكن
             CompositionLocalProvider(
-                LocalSharedScope provides this, LocalBottomInset provides if (onTab) 92.dp else 0.dp,
-                LocalAppHaze provides appHaze,
+                LocalSharedScope provides this,
                 androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground,
             ) {
                 NavHost(
@@ -142,8 +149,17 @@ fun MizanApp(startRoute: String? = null) {
                     popEnterTransition = { popEnter() },
                     popExitTransition = { popExit(rtl) },
                 ) {
+                    // مكان شريط التنقل لكل صفحة تبويب بحسبها هي، لا بحسب الصفحة الظاهرة: فلا يقفز محتواها أثناء الانتقال منها وإليها.
+                    // مقاس النافذة يُقرأ هنا (لا في منشئ الشبكة) فلا يُعاد بناء شبكة التنقل حين تتغير النافذة
                     fun screen(route: String, content: @Composable () -> Unit) = composable(route) {
-                        CompositionLocalProvider(LocalNavScope provides this) { content() }
+                        val tab = route in TAB_ROUTES
+                        val side = LocalWindowLayout.current.rail
+                        val host = LocalTabBarHost.current
+                        CompositionLocalProvider(
+                            LocalNavScope provides this,
+                            LocalBottomInset provides if (tab && !side) host.bottomInset else 0.dp,
+                            LocalLeadingInset provides if (tab && side) host.leadingInset else 0.dp,
+                        ) { content() }
                     }
                     screen("home") { HomeScreen(open = open) }
                     screen("prayer") { PrayerScreen(open = open) }
@@ -200,14 +216,19 @@ fun MizanApp(startRoute: String? = null) {
         AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
             com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
         }
-        // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)
+        // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية.
+        // يُستدعى دائماً: شريط النظام في iOS 26 يُخبَر بالإخفاء ويتولى حركته بنفسه
+        bars.Bottom(onTab && !firstRun && !rail, current, Modifier.align(Alignment.BottomCenter)) { nav.goTab(it) }
+        // القائمة الجانبية تدخل من جهة البداية (اليمين في العربية) وتخرج إليها
         AnimatedVisibility(
-            visible = onTab && !firstRun,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enter = slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it } + fadeIn(),
-            exit = slideOutVertically(tween(Motion.SHORT, easing = Motion.Accelerate)) { it } + fadeOut(),
+            visible = onTab && !firstRun && rail,
+            modifier = Modifier.align(Alignment.CenterStart),
+            enter = slideInHorizontally(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { if (rtl) it else -it } + fadeIn(),
+            exit = slideOutHorizontally(tween(Motion.SHORT, easing = Motion.Accelerate)) { if (rtl) it else -it } + fadeOut(),
         ) {
-            FloatingTabBar(current, appHaze) { nav.goTab(it) }
+            // الأسماء تحت الأيقونات ما دام الارتفاع يتسع لها (لا في هاتف بالعرض)
+            bars.Rail(current, labels = maxHeight >= 440.dp) { nav.goTab(it) }
+        }
         }
     }
 }

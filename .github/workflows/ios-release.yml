@@ -1,12 +1,21 @@
 name: iOS Release (App Store)
 
-# نسخة المتجر: تُبنى وتوقَّع تلقائياً بمفتاح App Store Connect API ثم تُرفع مباشرة إلى App Store Connect (TestFlight).
+# نسخة المتجر: تُبنى وتوقَّع تلقائياً بمفتاح App Store Connect API ثم تُرفع إلى App Store Connect (TestFlight).
 # مع submit=true: تُرفع نصوص المتجر ولقطاته من iosApp/fastlane وتُرسل النسخة للمراجعة، وتُنشر تلقائياً بعد القبول.
 # نسخة التثبيت الجانبي بلا توقيع باقية في ios.yml. الخطوات كاملة في iosApp/APP_STORE.md.
 #
-# الأسرار (Settings ← Secrets and variables ← Actions):
-#   ASC_KEY_ID      معرّف المفتاح (Key ID)
-#   ASC_ISSUER_ID   Issuer ID من صفحة المفاتيح نفسها
+# تطبيق عام (iPhone و iPad) على ثلاث مراحل:
+#   preflight: على لينكس في ثوانٍ: الأسرار وشكلها، ثم توقيع JWT بالمفتاح وطلب سجل التطبيق من App Store Connect API،
+#              فيُعرف سبب الرفض (مفتاح فردي، أو بلا صلاحية، أو لا سجل للتطبيق، أو معرّفات لا تتطابق) قبل أي دقيقة macOS
+#   framework: اختبارات الكود المشترك وإطار Kotlin على macos-15 بـ Xcode 16 (Kotlin 2.1.21 مختبَر حتى Xcode 16.x)
+#   release:   الأرشفة والتوقيع والرفع ونصوص المتجر على xcode-27 بـ Xcode 27.1، فالتطبيق مبني بـ SDK iOS 27.1:
+#              يملأ الشاشة الداخلية لـ iPhone Duo (وما بُني بـ SDK أقدم يُعرض فيها بأشرطة جانبية)
+# التوقيع منفصل عن الرفع: exportArchive يُخرج ملف .ipa موقَّعاً فقط (destination = export)، ثم يُرفع بـ altool،
+# وإن فشل فبـ fastlane pilot. (الرفع المدمج في exportArchive رفضه App Store Connect بالمفتاح نفسه: CDWebService 3004.)
+#
+# الأسرار (Settings ← Secrets and variables ← Actions)؛ تُحذف منها المسافات والأسطر الزائدة قبل الاستعمال:
+#   ASC_KEY_ID      معرّف المفتاح (Key ID، عشرة أحرف وأرقام)
+#   ASC_ISSUER_ID   Issuer ID من صفحة المفاتيح نفسها (UUID)
 #   ASC_KEY_P8      ملف AuthKey_XXXX.p8 بترميز base64
 #   APPLE_TEAM_ID   Team ID من صفحة Membership (10 أحرف)
 #   اختيارية لبيانات التواصل مع المراجِع: REVIEW_FIRST_NAME و REVIEW_LAST_NAME و REVIEW_PHONE و REVIEW_EMAIL
@@ -29,34 +38,125 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    # Xcode 26 / iOS 26 SDK: شرط App Store Connect لكل رفع منذ 28 أبريل 2026
-    runs-on: macos-26
-    timeout-minutes: 90
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     env:
-      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      RAW_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      RAW_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      RAW_ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      RAW_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: iosApp/fastlane
+
+      # المسافات والأسطر الزائدة (من النسخ واللصق) تُحذف، ثم يُفحص شكل كل سر دون طباعة قيمته
       - name: Check secrets
         run: |
           missing=""
           for k in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do
-            [ -n "${!k}" ] || missing="$missing $k"
+            raw="RAW_$k"
+            v=$(printf '%s' "${!raw}" | tr -d '[:space:]')
+            if [ -n "$v" ]; then echo "::add-mask::$v"; else missing="$missing $k"; fi
+            printf -v "$k" '%s' "$v"
+            echo "$k=$v" >> "$GITHUB_ENV"
           done
           if [ -n "$missing" ]; then
             echo "::error title=Missing secrets::Add these repository secrets (Settings → Secrets and variables → Actions):$missing. See iosApp/APP_STORE.md."
             exit 1
           fi
+          bad=0
+          if ! printf '%s' "$ASC_KEY_ID" | grep -Eq '^[A-Z0-9]{10}$'; then
+            echo "::error title=ASC_KEY_ID::ASC_KEY_ID does not look like a Key ID (10 characters A–Z/0–9, shown next to the key in App Store Connect → Users and Access → Integrations)"; bad=1
+          fi
+          if ! printf '%s' "$ASC_ISSUER_ID" | grep -Eiq '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'; then
+            echo "::error title=ASC_ISSUER_ID::ASC_ISSUER_ID does not look like an Issuer ID (a UUID shown above the keys table)"; bad=1
+          fi
           if ! printf '%s' "$APPLE_TEAM_ID" | grep -Eq '^[A-Z0-9]{10}$'; then
-            echo "::error title=APPLE_TEAM_ID::APPLE_TEAM_ID must be the 10-character Team ID from developer.apple.com → Membership details"
-            exit 1
+            echo "::error title=APPLE_TEAM_ID::APPLE_TEAM_ID must be the 10-character Team ID from developer.apple.com → Membership details"; bad=1
           fi
           if ! printf '%s' "$ASC_KEY_P8" | base64 --decode 2>/dev/null | grep -q "BEGIN PRIVATE KEY"; then
-            echo "::error title=ASC_KEY_P8::ASC_KEY_P8 must be the base64 of the whole AuthKey_XXXX.p8 file (see APP_STORE.md for the PowerShell one-liner)"
-            exit 1
+            echo "::error title=ASC_KEY_P8::ASC_KEY_P8 must be the base64 of the whole AuthKey_XXXX.p8 file (see APP_STORE.md for the PowerShell one-liner)"; bad=1
           fi
+          exit "$bad"
+
+      # JWT بالمفتاح (Team key ثم Individual key عند 401) وطلب سجل التطبيق: يفشل هنا بسبب واضح بدل فشل الرفع بعد عشر دقائق
+      - name: App Store Connect API key
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check pyjwt cryptography
+          python3 iosApp/fastlane/asc_preflight.py com.mizan.almuslim
+
+  framework:
+    needs: preflight
+    if: ${{ !inputs.metadata_only }}
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Shared unit tests
+        working-directory: android-app
+        run: gradle :shared:testDebugUnitTest --no-daemon
+
+      # Kotlin 2.1.21 مختبَر حتى Xcode 16.x: أحدث Xcode 16 على المشغّل يربط إطار Kotlin وحده،
+      # ويُبنى التطبيق نفسه بـ Xcode 27.1 في المرحلة التالية (شرط المتجر و iPhone Duo يخص SDK التطبيق)
+      - name: Build Kotlin framework (iosArm64)
+        working-directory: android-app
+        run: |
+          x16=$(find /Applications -maxdepth 1 -name 'Xcode_16*.app' 2>/dev/null | sort -V | tail -n1)
+          if [ -n "$x16" ]; then export DEVELOPER_DIR="$x16/Contents/Developer"; echo "Kotlin link with $x16"; fi
+          xcodebuild -version
+          gradle :shared:linkReleaseFrameworkIosArm64 --no-daemon --stacktrace
+
+      # إطار Kotlin ملف تنفيذي مستقل داخل التطبيق: بيان خصوصيته معه (stat/fstat و mach_absolute_time من Kotlin/Native و Skia)
+      - name: Privacy manifest for Shared.framework
+        run: |
+          cp iosApp/Privacy/Shared/PrivacyInfo.xcprivacy android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/
+          plutil -lint android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/PrivacyInfo.xcprivacy
+
+      # tar يحفظ أذونات الملفات (upload-artifact لا يحفظها)
+      - name: Pack framework
+        run: tar -czf "$RUNNER_TEMP/shared-framework.tgz" -C android-app/shared/build/bin/iosArm64/releaseFramework Shared.framework
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shared-framework-release
+          path: ${{ runner.temp }}/shared-framework.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+  release:
+    needs: [preflight, framework]
+    # metadata_only: لا إطار ولا بناء، النصوص واللقطات وحدها
+    if: ${{ !cancelled() && needs.preflight.result == 'success' && (needs.framework.result == 'success' || (inputs.metadata_only && needs.framework.result == 'skipped')) }}
+    # صورة Xcode 27 (معاينة arm64): Xcode 27.1 افتراضي و SDK iOS 27.1
+    runs-on: xcode-27
+    timeout-minutes: 90
+    env:
+      RAW_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      RAW_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      RAW_ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      RAW_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      # القيم نفسها التي فحصتها مرحلة preflight، بلا مسافات ولا أسطر زائدة
+      - name: Secrets
+        run: |
+          for k in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do
+            raw="RAW_$k"
+            v=$(printf '%s' "${!raw}" | tr -d '[:space:]')
+            [ -z "$v" ] || echo "::add-mask::$v"
+            echo "$k=$v" >> "$GITHUB_ENV"
+          done
 
       - uses: actions/checkout@v5
         with:
@@ -70,48 +170,40 @@ jobs:
           echo "name=2.2.$(( n > 53 ? n - 53 : 1 ))" >> "$GITHUB_OUTPUT"
           echo "Version 2.2.$(( n > 53 ? n - 53 : 1 )) ($n)" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Xcode
+      # المتجر يطلب Xcode 26 فما بعده، و iPhone Duo يطلب SDK iOS 27.1 فما بعده
+      - name: Xcode 27.1
         if: ${{ !inputs.metadata_only }}
         run: |
+          x=/Applications/Xcode_27.1.app/Contents/Developer
+          if [ -d "$x" ]; then export DEVELOPER_DIR="$x"; echo "DEVELOPER_DIR=$x" >> "$GITHUB_ENV"; fi
           xcodebuild -version
           major=$(xcodebuild -version | head -n1 | sed -E 's/Xcode ([0-9]+).*/\1/')
           if [ "$major" -lt 26 ]; then
             echo "::error::App Store Connect needs Xcode 26+ (found $major). Select a newer Xcode on this runner image."
             exit 1
           fi
+          sdk=$(xcrun --sdk iphoneos --show-sdk-version)
+          if [ "$(printf '%s\n' 27.1 "$sdk" | sort -V | head -n1)" != "27.1" ]; then
+            echo "::error::iPhone Duo full screen needs the iOS 27.1 SDK or newer (found $sdk)"
+            exit 1
+          fi
+          echo "Xcode $(xcodebuild -version | head -n1 | cut -d' ' -f2), iOS SDK $sdk" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/setup-java@v5
+      - uses: actions/download-artifact@v4
         if: ${{ !inputs.metadata_only }}
         with:
-          distribution: temurin
-          java-version: "17"
+          name: shared-framework-release
+          path: ${{ runner.temp }}
 
-      - uses: gradle/actions/setup-gradle@v4
-        if: ${{ !inputs.metadata_only }}
-        with:
-          gradle-version: "8.14.3"
-
-      - name: Shared unit tests
-        if: ${{ !inputs.metadata_only }}
-        working-directory: android-app
-        run: gradle :shared:testDebugUnitTest --no-daemon
-
-      # Kotlin 2.1.21 مختبَر حتى Xcode 16.x: إن وُجد Xcode 16 على المشغّل يُربط به إطار Kotlin وحده،
-      # ويبقى التطبيق نفسه على Xcode 26 (شرط المتجر يخص SDK التطبيق). وإلا فبالافتراضي.
-      - name: Build Kotlin framework (iosArm64)
-        if: ${{ !inputs.metadata_only }}
-        working-directory: android-app
-        run: |
-          x16=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n1 || true)
-          if [ -n "$x16" ]; then export DEVELOPER_DIR="$x16/Contents/Developer"; echo "Kotlin link with $x16"; fi
-          gradle :shared:linkReleaseFrameworkIosArm64 --no-daemon --stacktrace
-
-      # إطار Kotlin ملف تنفيذي مستقل داخل التطبيق: بيان خصوصيته معه (stat/fstat و mach_absolute_time من Kotlin/Native و Skia)
-      - name: Privacy manifest for Shared.framework
+      # project.yml يربط الإطار من مكانه في بناء Gradle
+      - name: Unpack framework
         if: ${{ !inputs.metadata_only }}
         run: |
-          cp iosApp/Privacy/Shared/PrivacyInfo.xcprivacy android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/
-          plutil -lint android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/PrivacyInfo.xcprivacy
+          dst=android-app/shared/build/bin/iosArm64/releaseFramework
+          mkdir -p "$dst"
+          tar -xzf "$RUNNER_TEMP/shared-framework.tgz" -C "$dst"
+          test -f "$dst/Shared.framework/Shared"
+          plutil -lint "$dst/Shared.framework/PrivacyInfo.xcprivacy"
 
       - name: Generate Xcode project
         if: ${{ !inputs.metadata_only }}
@@ -121,12 +213,16 @@ jobs:
           xcodegen --version
           xcodegen generate
 
+      # المفتاح لـ xcodebuild (مسار صريح)، وفي المكان الذي يبحث فيه altool عنه
       - name: App Store Connect API key
         if: ${{ !inputs.metadata_only }}
         run: |
           key="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
           printf '%s' "$ASC_KEY_P8" | base64 --decode > "$key"
           chmod 600 "$key"
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          cp "$key" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
           echo "ASC_KEY_PATH=$key" >> "$GITHUB_ENV"
 
       # التوقيع التلقائي: Xcode ينشئ الشهادة وملفات التوقيع (للتطبيق والأداة مع App Group) بالمفتاح نفسه.
@@ -154,23 +250,63 @@ jobs:
           test -f "$APP/PrivacyInfo.xcprivacy"
           test -f "$APP/PlugIns/MizanWidgets.appex/PrivacyInfo.xcprivacy"
           test -f "$APP/Frameworks/Shared.framework/PrivacyInfo.xcprivacy"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" -c "Print :CFBundleVersion" -c "Print :UIDeviceFamily" "$APP/Info.plist"
+          # تطبيق عام: UIDeviceFamily = 1 (iPhone) و 2 (iPad)، مبني بـ SDK iOS 27.1
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" -c "Print :CFBundleVersion" -c "Print :UIDeviceFamily" -c "Print :DTSDKName" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :UIDeviceFamily" "$APP/Info.plist" | grep -q 2 || { echo "::error::Not a universal build (no iPad in UIDeviceFamily)"; exit 1; }
           codesign -d --entitlements - "$APP" 2>&1 | tail -n 15
           codesign -d --entitlements - "$APP/PlugIns/MizanWidgets.appex" 2>&1 | tail -n 15
 
-      - name: Export and upload to App Store Connect
+      # ملف .ipa موقَّع بشهادة التوزيع (يُنشئها App Store Connect بالمفتاح، وتحتاج دور Admin) دون رفع
+      - name: Export signed .ipa
         if: ${{ !inputs.metadata_only }}
         working-directory: iosApp
         run: |
           set -o pipefail
           cp ExportOptions.plist "$RUNNER_TEMP/ExportOptions.plist"
           plutil -replace teamID -string "$APPLE_TEAM_ID" "$RUNNER_TEMP/ExportOptions.plist"
+          plutil -replace destination -string export "$RUNNER_TEMP/ExportOptions.plist"
           xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Mizan.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             2>&1 | tee "$RUNNER_TEMP/export.log" | tail -n 60
-          grep -qE "Upload succeeded|Uploaded Mizan|EXPORT SUCCEEDED" "$RUNNER_TEMP/export.log" || { echo "::error::Upload to App Store Connect failed (see log above)"; exit 1; }
+          ipa=$(find "$RUNNER_TEMP/export" -maxdepth 1 -name '*.ipa' | head -n1)
+          if [ -z "$ipa" ]; then echo "::error::Export failed: no .ipa in $RUNNER_TEMP/export (see export.log in the mizan-ios-release artifact)"; exit 1; fi
+          echo "MIZAN_IPA=$ipa" >> "$GITHUB_ENV"
+          ls -la "$RUNNER_TEMP/export"
+
+      # pilot (احتياط الرفع) والنصوص واللقطات من fastlane المثبَّت في Gemfile.lock
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: iosApp
+
+      # الرفع بـ altool بالمفتاح نفسه؛ وإن فشل فبـ fastlane pilot (upload_to_testflight)، ويُطبع خطأ كل منهما
+      - name: Upload to App Store Connect
+        if: ${{ !inputs.metadata_only }}
+        working-directory: iosApp
+        env:
+          FASTLANE_SKIP_UPDATE_CHECK: "1"
+          FASTLANE_HIDE_CHANGELOG: "1"
+          FASTLANE_DISABLE_COLORS: "1"
+          FASTLANE_OPT_OUT_USAGE: "YES"
+          LC_ALL: en_US.UTF-8
+          LANG: en_US.UTF-8
+        run: |
+          if xcrun altool --upload-app --type ios --file "$MIZAN_IPA" \
+              --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" --output-format normal > "$RUNNER_TEMP/altool.log" 2>&1; then
+            cat "$RUNNER_TEMP/altool.log"
+            echo "Uploaded with altool" >> "$GITHUB_STEP_SUMMARY"
+          else
+            cat "$RUNNER_TEMP/altool.log"
+            echo "::warning title=altool::altool upload failed (log above); retrying with fastlane pilot"
+            if ! bundle exec fastlane ios upload 2>&1 | tee "$RUNNER_TEMP/pilot.log"; then
+              echo "::error title=Upload failed::Both uploads failed. altool: $(grep -iE 'error|fail' "$RUNNER_TEMP/altool.log" | head -n 3 | tr '\n' ' ') — pilot: $(grep -iE 'error|fail' "$RUNNER_TEMP/pilot.log" | tail -n 3 | tr '\n' ' ')"
+              exit 1
+            fi
+            echo "Uploaded with fastlane pilot (altool failed)" >> "$GITHUB_STEP_SUMMARY"
+          fi
           echo "Uploaded build ${{ steps.v.outputs.build }} — it appears in App Store Connect → TestFlight after processing (5–30 min)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep dSYMs and logs
@@ -182,6 +318,8 @@ jobs:
             ${{ runner.temp }}/Mizan.xcarchive/dSYMs
             ${{ runner.temp }}/archive.log
             ${{ runner.temp }}/export.log
+            ${{ runner.temp }}/altool.log
+            ${{ runner.temp }}/pilot.log
           if-no-files-found: ignore
           retention-days: 30
 
@@ -189,12 +327,16 @@ jobs:
         if: ${{ inputs.submit || inputs.metadata_only }}
         run: python3 iosApp/fastlane/check_metadata.py
 
-      - uses: ruby/setup-ruby@v1
+      # تطبيق عام: لقطات iPhone 6.9 و iPad 13 لازمة لكل لغة فيها لقطات (يُفحص هنا بـ deliver نفسه قبل الرفع)
+      - name: Check screenshot display types
         if: ${{ inputs.submit || inputs.metadata_only }}
-        with:
-          ruby-version: "3.3"
-          bundler-cache: true
-          working-directory: iosApp
+        working-directory: iosApp
+        run: |
+          if compgen -G "fastlane/screenshots/*/*.png" > /dev/null; then
+            bundle exec ruby fastlane/check_screenshots.rb fastlane/screenshots --require-ipad
+          else
+            echo "::warning::No screenshots in iosApp/fastlane/screenshots — run ios-screenshots.yml first (iPad screenshots are required for a universal app)"
+          fi
 
       # النصوص (iosApp/fastlane/metadata) واللقطات (iosApp/fastlane/screenshots، من ios-screenshots.yml)،
       # ثم انتظار معالجة البناء واختياره للنسخة وإرسالها للمراجعة مع النشر التلقائي بعد القبول
@@ -225,4 +367,6 @@ jobs:
 
       - name: Remove API key
         if: always()
-        run: rm -f "$RUNNER_TEMP"/AuthKey_*.p8
+        run: |
+          rm -f "$RUNNER_TEMP"/AuthKey_*.p8
+          rm -f "$HOME"/.appstoreconnect/private_keys/AuthKey_*.p8

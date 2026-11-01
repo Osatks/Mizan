@@ -2,18 +2,22 @@ name: iOS App
 
 # نسخة تطوير لـ iOS: تُبنى على macOS بلا توقيع (ملف .ipa)، ويوقّعها المستخدم بحسابه عند التثبيت
 # (Sideloadly أو AltStore بحساب Apple مجاني). الواجهات والمنطق من وحدة Kotlin المشتركة مع أندرويد.
+#
+# على مرحلتين:
+#   framework: اختبارات الكود المشترك وإطار Kotlin (Shared.framework) على macos-15 بـ Xcode 16
+#              (Kotlin 2.1.21 مختبَر حتى Xcode 16.x)، ويُرفع الإطار ملفاً مرفقاً
+#   build:     التطبيق نفسه على xcode-27 بـ Xcode 27.1: التطبيق المبني بـ SDK iOS 27.1 يملأ الشاشة الداخلية
+#              لـ iPhone Duo (وما بُني بـ SDK أقدم يُعرض فيها بأشرطة جانبية)
 on:
   # يدوي فقط (Actions ← Run workflow): دقائق GitHub Actions محدودة، وبناء macOS يُحسب بعشرة أضعاف
   workflow_dispatch:
 
 jobs:
-  build:
+  framework:
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0  # رقم الإصدار = عدد الـ commits (كما في أندرويد)
 
       - uses: actions/setup-java@v5
         with:
@@ -24,13 +28,6 @@ jobs:
         with:
           gradle-version: "8.14.3"
 
-      - name: Version
-        id: v
-        run: |
-          n=$(git rev-list --count HEAD)
-          echo "build=$n" >> "$GITHUB_OUTPUT"
-          echo "name=2.2.$(( n > 53 ? n - 53 : 1 ))" >> "$GITHUB_OUTPUT"
-
       # اختبارات الكود المشترك (JVM) قبل البناء
       - name: Shared unit tests
         working-directory: android-app
@@ -38,7 +35,70 @@ jobs:
 
       - name: Build Kotlin framework (iosArm64)
         working-directory: android-app
-        run: gradle :shared:linkReleaseFrameworkIosArm64 --no-daemon --stacktrace
+        run: |
+          xcodebuild -version
+          gradle :shared:linkReleaseFrameworkIosArm64 --no-daemon --stacktrace
+
+      # إطار Kotlin ملف تنفيذي مستقل داخل التطبيق: بيان خصوصيته معه (stat/fstat و mach_absolute_time من Kotlin/Native و Skia)
+      - name: Privacy manifest for Shared.framework
+        run: |
+          cp iosApp/Privacy/Shared/PrivacyInfo.xcprivacy android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/
+          plutil -lint android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/PrivacyInfo.xcprivacy
+
+      # tar يحفظ أذونات الملفات (upload-artifact لا يحفظها)
+      - name: Pack framework
+        run: tar -czf "$RUNNER_TEMP/shared-framework.tgz" -C android-app/shared/build/bin/iosArm64/releaseFramework Shared.framework
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shared-framework-iosarm64
+          path: ${{ runner.temp }}/shared-framework.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+  build:
+    needs: framework
+    # صورة Xcode 27 (معاينة arm64): Xcode 27.1 افتراضي و SDK iOS 27.1
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # رقم الإصدار = عدد الـ commits (كما في أندرويد)
+
+      - name: Version
+        id: v
+        run: |
+          n=$(git rev-list --count HEAD)
+          echo "build=$n" >> "$GITHUB_OUTPUT"
+          echo "name=2.2.$(( n > 53 ? n - 53 : 1 ))" >> "$GITHUB_OUTPUT"
+
+      # SDK iOS 27.1 فما بعده شرط ملء الشاشة الداخلية لـ iPhone Duo
+      - name: Xcode 27.1
+        run: |
+          x=/Applications/Xcode_27.1.app/Contents/Developer
+          if [ -d "$x" ]; then export DEVELOPER_DIR="$x"; echo "DEVELOPER_DIR=$x" >> "$GITHUB_ENV"; fi
+          xcodebuild -version
+          sdk=$(xcrun --sdk iphoneos --show-sdk-version)
+          echo "iOS SDK $sdk"
+          if [ "$(printf '%s\n' 27.1 "$sdk" | sort -V | head -n1)" != "27.1" ]; then
+            echo "::error::iPhone Duo full screen needs the iOS 27.1 SDK or newer (found $sdk)"
+            exit 1
+          fi
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: shared-framework-iosarm64
+          path: ${{ runner.temp }}
+
+      # project.yml يربط الإطار من مكانه في بناء Gradle
+      - name: Unpack framework
+        run: |
+          dst=android-app/shared/build/bin/iosArm64/releaseFramework
+          mkdir -p "$dst"
+          tar -xzf "$RUNNER_TEMP/shared-framework.tgz" -C "$dst"
+          test -f "$dst/Shared.framework/Shared"
+          test -f "$dst/Shared.framework/PrivacyInfo.xcprivacy"
 
       - name: Generate Xcode project
         working-directory: iosApp
@@ -54,15 +114,18 @@ jobs:
             MARKETING_VERSION=${{ steps.v.outputs.name }} CURRENT_PROJECT_VERSION=${{ steps.v.outputs.build }} \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             build | tail -n 80
-          test -d build/Build/Products/Release-iphoneos/Mizan.app
+          APP=build/Build/Products/Release-iphoneos/Mizan.app
+          test -d "$APP"
           # أدوات الشاشة الرئيسية يجب أن تكون داخل التطبيق
-          test -d build/Build/Products/Release-iphoneos/Mizan.app/PlugIns/MizanWidgets.appex
+          test -d "$APP/PlugIns/MizanWidgets.appex"
           # وبيانات حسابها المستقل (حين لا تصلها لقطة التطبيق)
-          test -f build/Build/Products/Release-iphoneos/Mizan.app/PlugIns/MizanWidgets.appex/Static/widget-static.json
+          test -f "$APP/PlugIns/MizanWidgets.appex/Static/widget-static.json"
           # أصوات إشعارات الأذان في جذر التطبيق، والأذان الكامل المضمّن في assets
-          ls build/Build/Products/Release-iphoneos/Mizan.app/*.caf
-          test -f build/Build/Products/Release-iphoneos/Mizan.app/mizan_vibrate.caf
-          ls build/Build/Products/Release-iphoneos/Mizan.app/assets/adhan/*.m4a
+          ls "$APP"/*.caf
+          test -f "$APP/mizan_vibrate.caf"
+          ls "$APP"/assets/adhan/*.m4a
+          # تطبيق عام (1 = iPhone، 2 = iPad) مبني بـ SDK iOS 27.1
+          /usr/libexec/PlistBuddy -c "Print :UIDeviceFamily" -c "Print :DTPlatformVersion" "$APP/Info.plist"
 
       # البناء بلا توقيع لا يضع الصلاحيات (entitlements) في الملف التنفيذي، و AltStore/Sideloadly تقرأ منه
       # صلاحية App Group لتسجّلها للتطبيق والأداة عند التوقيع بحساب Apple. فنضع توقيعاً مؤقتاً (ad-hoc، بلا شهادة)
@@ -71,7 +134,7 @@ jobs:
         working-directory: iosApp
         run: |
           APP=build/Build/Products/Release-iphoneos/Mizan.app
-          sign() { codesign --force --sign - --timestamp=none "$@" || echo "::warning::codesign failed for ${@: -1}"; }
+          sign() { codesign --force --sign - --timestamp=none "$@" || echo "::warning::codesign failed for ${*: -1}"; }
           for f in "$APP"/Frameworks/*.framework; do [ -d "$f" ] && sign "$f"; done
           sign --entitlements MizanWidgets/MizanWidgets.entitlements "$APP/PlugIns/MizanWidgets.appex"
           sign --entitlements iosApp/Mizan.entitlements "$APP"
@@ -84,7 +147,7 @@ jobs:
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/Mizan.app Payload/
           zip -qry "mizan-${{ steps.v.outputs.name }}-ios-unsigned.ipa" Payload
-          ls -la *.ipa
+          ls -la ./*.ipa
 
       - uses: actions/upload-artifact@v4
         with:

@@ -140,8 +140,9 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
             NumField(s.tradeGoods, v["goods"] ?: "", { set("goods", it) }, cur)
         }
     }
+    // على الشاشة الواسعة: المدخلات في عمود، والنتيجة وتفصيلها بجانبها ثابتة أثناء الإدخال
     ToolPage(if (tradeFirst) s.zkTradeName else s.zkMoneyName, s.zakatSubtitle, onBack, icon = TOOL_ICONS["zakat"]) {
-        item {
+        side {
             ResultCard(s.zakatDue, Fmt.num(zakat), badge, if (nisab <= 0 || net <= 0) null else due, unit = cur) {
                 if (nisab > 0) {
                     LinearProgressIndicator(
@@ -154,7 +155,7 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
                 }
             }
         }
-        item {
+        side {
             SectionCard {
                 StatRow(s.totalAssets, "${Fmt.num(total)} $cur")
                 StatRow(s.deductedDebts, "${Fmt.num(debts)} $cur")
@@ -209,7 +210,7 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
                 NumField(s.debtsField, v["debts"] ?: "", { set("debts", it) }, cur, s.debtsHint)
             }
         }
-        item {
+        side {
             Reveal(zakat > 0 && parts.count { it.second > 0 } > 1) {
                 SectionCard(s.breakdownTitle) {
                     val ratio = if (total > 0) net / total else 0.0

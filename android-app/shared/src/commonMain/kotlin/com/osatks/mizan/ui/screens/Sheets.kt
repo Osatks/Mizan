@@ -55,6 +55,21 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.ui.graphics.Color
 import com.osatks.mizan.ui.LocalAppHaze
+import com.osatks.mizan.ui.LocalWindowLayout
+import com.osatks.mizan.ui.GlassTone
+import com.osatks.mizan.ui.floatingGlass
+import com.osatks.mizan.ui.glassMaterial
+import com.osatks.mizan.ui.glassTone
+import com.osatks.mizan.ui.PlatformDialog
+import com.osatks.mizan.ui.DialogAction
+import com.osatks.mizan.ui.ActionRole
+import androidx.compose.animation.core.Animatable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.osatks.mizan.ui.glass
 import com.osatks.mizan.ui.glassRim
 import com.osatks.mizan.ui.glassStyle
@@ -170,12 +185,13 @@ internal fun LanguageList(state: LazyListState = rememberLazyListState(), pick: 
         }
     }
     confirmDelete?.let { l ->
-        AlertDialog(
+        PlatformDialog(
             onDismissRequest = { confirmDelete = null },
-            shape = RoundedCornerShape(30.dp), containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text(s.deleteTafsirQ(l.native)) },
-            confirmButton = { TextButton(onClick = { LanguagePacks.delete(l.code); confirmDelete = null }) { Text(s.delete, color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text(s.cancel) } },
+            title = s.deleteTafsirQ(l.native),
+            actions = listOf(
+                DialogAction(s.cancel, ActionRole.Cancel) { confirmDelete = null },
+                DialogAction(s.delete, ActionRole.Destructive) { LanguagePacks.delete(l.code); confirmDelete = null },
+            ),
         )
     }
 }
@@ -210,6 +226,11 @@ private fun OptionRow(title: String, subtitle: String?, selected: Boolean, trail
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlassSheet(onDismissRequest: () -> Unit, sheetState: SheetState, content: @Composable ColumnScope.() -> Unit) {
+    // على iPad والشاشات العريضة: نافذة في الوسط لا ورقة بعرض الشاشة (sheetState.hide() بلا ورقة ينتهي فوراً، فيُغلق بعده)
+    if (LocalWindowLayout.current.wide) {
+        GlassSheetDialog(onDismissRequest, content)
+        return
+    }
     val dark = LocalDark.current
     val shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
     ModalBottomSheet(
@@ -230,6 +251,34 @@ fun GlassSheet(onDismissRequest: () -> Unit, sheetState: SheetState, content: @C
                     .size(width = 36.dp, height = 5.dp).clip(CircleShape)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = if (dark) .32f else .22f))
             )
+            content()
+        }
+    }
+}
+
+/**
+ * الورقة نفسها على iPad والشاشات العريضة: نافذة زجاجية في الوسط بزوايا مستديرة 32، بعرض أقصاه 560 وارتفاع أقصاه
+ * نحو أربعة أخماس النافذة، تُغلق بلمس ما حولها أو بالرجوع (كأوراق iPadOS التي تظهر في الوسط).
+ */
+@Composable
+private fun GlassSheetDialog(onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    val shape = RoundedCornerShape(32.dp)
+    val maxH = LocalWindowLayout.current.height * 0.84f
+    val haze = LocalAppHaze.current
+    // تدخل بنابض خفيف من حجم أصغر قليلاً كنوافذ iPadOS
+    val shown = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { shown.animateTo(1f, spring(dampingRatio = .74f, stiffness = 420f)) }
+    Dialog(onDismissRequest = onDismissRequest, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Column(
+            Modifier
+                .padding(24.dp)
+                .widthIn(max = 560.dp)
+                .fillMaxWidth()
+                .heightIn(max = maxH)
+                .graphicsLayer { val k = .92f + .08f * shown.value; scaleX = k; scaleY = k; alpha = shown.value.coerceIn(0f, 1f) }
+                .floatingGlass(haze, shape, glassMaterial(if (glassTone() == GlassTone.Dark) .80f else .84f, fallback = 1f), elevation = 24.dp)
+                .padding(top = 22.dp, bottom = 8.dp)
+        ) {
             content()
         }
     }

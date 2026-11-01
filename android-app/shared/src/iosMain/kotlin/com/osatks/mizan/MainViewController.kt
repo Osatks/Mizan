@@ -36,6 +36,10 @@ import platform.UIKit.addChildViewController
 import platform.UIKit.didMoveToParentViewController
 import platform.UIKit.UIViewAutoresizingFlexibleWidth
 import com.osatks.mizan.ui.IosStatusBar
+import com.osatks.mizan.ui.ComposeTabBar
+import com.osatks.mizan.ui.LocalTabBarHost
+import com.osatks.mizan.ui.NativeTabBar
+import com.osatks.mizan.ui.NativeTabBarHost
 import platform.UIKit.UIStatusBarAnimation
 import platform.UIKit.UIStatusBarStyle
 import platform.UIKit.UIViewController
@@ -54,8 +58,12 @@ fun MainViewController(): UIViewController {
         // سحب الحافة للرجوع (كتطبيقات النظام): يقود انتقال الرجوع في NavHost مع حركة الإصبع
         enableBackGesture = true
     }) {
-        // اهتزازات بمولّدات UIKit لكل نوع ما يناسبه (التبويبات، العدّادات، المفاتيح)
-        CompositionLocalProvider(LocalHapticFeedback provides IosHaptics) {
+        // اهتزازات بمولّدات UIKit لكل نوع ما يناسبه (التبويبات، العدّادات، المفاتيح)؛
+        // وفي iOS 26 شريط التبويبات من النظام نفسه (NativeTabBar) بدل شريط Compose السفلي
+        CompositionLocalProvider(
+            LocalHapticFeedback provides IosHaptics,
+            LocalTabBarHost provides if (NativeTabBar.active) NativeTabBarHost else ComposeTabBar,
+        ) {
             LanguageHost {
                 MizanTheme {
                     Box(Modifier.fillMaxSize()) {
@@ -81,11 +89,19 @@ fun MainViewController(): UIViewController {
 private class MizanRootController(private val content: UIViewController) : UIViewController(nibName = null, bundle = null) {
     override fun viewDidLoad() {
         super.viewDidLoad()
-        addChildViewController(content)
-        content.view.setFrame(view.bounds)
-        content.view.autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
-        view.addSubview(content.view)
-        content.didMoveToParentViewController(this)
+        // شريط التبويبات من النظام (iOS 26) يُنشأ قبل أول تركيب لـ Compose، فلا يظهر شريط Compose لحظةً
+        val bar = NativeTabBar.makeOverlay()
+        embed(content)
+        // فوق Compose، وتحت نوافذها المنبثقة وأوراقها (تضيفها Compose إلى هذا المتحكم فوق كل شيء حين تظهر)
+        bar?.let { embed(it) }
+    }
+
+    private fun embed(child: UIViewController) {
+        addChildViewController(child)
+        child.view.setFrame(view.bounds)
+        child.view.autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
+        view.addSubview(child.view)
+        child.didMoveToParentViewController(this)
     }
 
     override fun preferredStatusBarStyle(): UIStatusBarStyle = IosStatusBar.style

@@ -71,6 +71,11 @@ import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.i18n.weekday
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.ui.LocalBottomInset
+import com.osatks.mizan.ui.LocalLeadingInset
+import com.osatks.mizan.ui.SizeClass
+import com.osatks.mizan.ui.gutters
+import com.osatks.mizan.ui.widthClassOf
+import androidx.compose.foundation.layout.BoxWithConstraints
 import com.osatks.mizan.ui.GlassTopBar
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -120,8 +125,13 @@ fun HomeScreen(open: (String) -> Unit) {
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     val haze = rememberHazeState()
+    val lead = LocalLeadingInset.current
     // القائمة مصدر لزجاج الشريط العلوي: يظهر باسم التطبيق حين تمرّ الترويسة تحت شريط الحالة
-    Box(Modifier.fillMaxSize()) { androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) {
+    BoxWithConstraints(Modifier.fillMaxSize()) { androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) {
+    // الأدوات عمودان على الهاتف، وثلاثة في العرض المتوسط، وأربعة في الواسع؛ والمحتوى في الوسط بعرض أقصاه 1040
+    val region = maxWidth - lead
+    val cols = when (widthClassOf(region)) { SizeClass.Compact -> 2; SizeClass.Medium -> 3; SizeClass.Expanded -> 4 }
+    val g = gutters(maxWidth, HomeMax, lead)
     val list = rememberLazyListState()
     LazyColumn(state = list, modifier = Modifier.fillMaxSize().hazeSource(haze), contentPadding = PaddingValues(bottom = 20.dp + bottom + LocalBottomInset.current)) {
         item {
@@ -131,7 +141,7 @@ fun HomeScreen(open: (String) -> Unit) {
                     .background(HeroBrush)
                     .starBackdrop(Color.White.copy(alpha = .08f), 120.dp, Alignment.TopEnd, (-60).dp, 90.dp, 80_000, stroke = 4f)
             ) {
-                Column(Modifier.statusBarsPadding().padding(horizontal = 20.dp, vertical = 18.dp)) {
+                Column(Modifier.statusBarsPadding().padding(start = g.start + 4.dp, end = g.end + 4.dp, top = 18.dp, bottom = 18.dp)) {
                     Row(verticalAlignment = Alignment.Top) {
                         Column(Modifier.weight(1f).reveal(reveal, 0)) {
                             Text(s.appName, color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.ExtraBold)
@@ -151,54 +161,54 @@ fun HomeScreen(open: (String) -> Unit) {
                         }
                     }
                     Spacer(Modifier.height(10.dp))
-                    Column(Modifier.reveal(reveal, 1)) {
-                        Text(s.hijri(Hijri.toHijri(today)), color = Color.White, style = MaterialTheme.typography.titleMedium)
-                        Text("${s.weekday(today)} ${s.greg(today)}", color = Color.White.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    SearchBarButton(s.searchHint, Modifier.reveal(reveal, 2)) { open("search") }
-                    Spacer(Modifier.height(12.dp))
-                    val src = remember { MutableInteractionSource() }
-                    Surface(
-                        onClick = { open("prayer") },
-                        shape = RoundedCornerShape(20.dp),
-                        color = Color.White.copy(alpha = .12f),
-                        border = BorderStroke(1.dp, Color.White.copy(alpha = .2f)),
-                        interactionSource = src,
-                        modifier = Modifier.fillMaxWidth().reveal(reveal, 3).pressScale(src, 0.97f)
-                    ) {
-                        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(s.nextPrayerIn(s.placeName(AppSettings.place)), color = Color.White.copy(alpha = .8f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                RollingText(s.prayer(next.key), MaterialTheme.typography.headlineSmall, Color.White)
-                            }
-                            RollingText(PrayerUtil.hms(next.remaining), MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold), Gold)
+                    val dates: @Composable () -> Unit = {
+                        Column(Modifier.reveal(reveal, 1)) {
+                            Text(s.hijri(Hijri.toHijri(today)), color = Color.White, style = MaterialTheme.typography.titleMedium)
+                            Text("${s.weekday(today)} ${s.greg(today)}", color = Color.White.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
                         }
+                    }
+                    val prayer: @Composable (Modifier) -> Unit = { m -> NextPrayerCard(next, m.reveal(reveal, 3)) { open("prayer") } }
+                    if (cols == 4) {
+                        // على الشاشة الواسعة جزءان: التاريخ والبحث في جهة، والصلاة القادمة في الأخرى
+                        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                            Column(Modifier.weight(1f)) {
+                                dates()
+                                Spacer(Modifier.height(16.dp))
+                                SearchBarButton(s.searchHint, Modifier.reveal(reveal, 2)) { open("search") }
+                            }
+                            prayer(Modifier.weight(1f))
+                        }
+                    } else {
+                        dates()
+                        Spacer(Modifier.height(16.dp))
+                        SearchBarButton(s.searchHint, Modifier.reveal(reveal, 2)) { open("search") }
+                        Spacer(Modifier.height(12.dp))
+                        prayer(Modifier)
                     }
                 }
             }
         }
         if (!AppSettings.placeSet) item {
             // قبل اختيار الموقع: نطلبه بدل عرض مواقيت مكة على أنها مواقيت المستخدم
-            LocationNeededCard(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp))
+            LocationNeededCard(Modifier.padding(start = g.start, end = g.end, top = 16.dp))
         }
         item {
             // القرآن الكريم: متابعة القراءة من آخر موضع، أو البدء
-            Box(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp).reveal(reveal, 4)) {
+            Box(Modifier.padding(start = g.start, end = g.end, top = 16.dp).reveal(reveal, 4)) {
                 if (QuranPrefs.last >= 0) ContinueCard(QuranPrefs.last, open) else QuranStartCard { open("quran") }
             }
         }
         item {
-            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 5))
+            Text(s.toolsTitle, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(start = g.start + 4.dp, top = 20.dp, bottom = 8.dp).reveal(reveal, 5))
         }
-        TOOL_ORDER.chunked(2).forEachIndexed { row, pair ->
+        TOOL_ORDER.chunked(cols).forEachIndexed { row, chunk ->
             item {
                 Row(
-                    Modifier.padding(horizontal = 16.dp, vertical = 6.dp).reveal(reveal, 6 + row).height(IntrinsicSize.Max),
+                    Modifier.padding(start = g.start, end = g.end, top = 6.dp, bottom = 6.dp).reveal(reveal, 6 + row).height(IntrinsicSize.Max),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    pair.forEach { key -> ToolTile(key, Modifier.weight(1f)) { open(key) } }
-                    if (pair.size == 1) Spacer(Modifier.weight(1f))
+                    chunk.forEach { key -> ToolTile(key, Modifier.weight(1f)) { open(key) } }
+                    repeat(cols - chunk.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
@@ -206,6 +216,32 @@ fun HomeScreen(open: (String) -> Unit) {
     GlassTopBar(list, haze, s.appName, onBack = null)
 } }
     if (showLang) LanguageSheet { showLang = false }
+}
+
+/** أقصى عرض لمحتوى الرئيسية على الشاشات العريضة */
+private val HomeMax = 1040.dp
+
+/** الصلاة القادمة والعدّ التنازلي لها في الترويسة؛ تفتح صفحة الصلاة */
+@Composable
+private fun NextPrayerCard(next: NextPrayer, modifier: Modifier, onClick: () -> Unit) {
+    val s = LocalStrings.current
+    val src = remember { MutableInteractionSource() }
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        color = Color.White.copy(alpha = .12f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = .2f)),
+        interactionSource = src,
+        modifier = modifier.fillMaxWidth().pressScale(src, 0.97f)
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(s.nextPrayerIn(s.placeName(AppSettings.place)), color = Color.White.copy(alpha = .8f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                RollingText(s.prayer(next.key), MaterialTheme.typography.headlineSmall, Color.White)
+            }
+            RollingText(PrayerUtil.hms(next.remaining), MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold), Gold)
+        }
+    }
 }
 
 @Composable

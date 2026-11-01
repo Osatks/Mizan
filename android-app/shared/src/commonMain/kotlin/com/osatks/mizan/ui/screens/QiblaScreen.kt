@@ -13,6 +13,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -70,7 +72,8 @@ fun QiblaScreen(onBack: (() -> Unit)? = null) {
     ToolPage(s.qiblaTitle, s.placeName(place), onBack, sharedKey = "qibla", icon = TOOL_ICONS["qibla"]) {
         item {
             SectionCard {
-                Box(Modifier.fillMaxWidth().aspectRatio(1f).padding(8.dp), contentAlignment = Alignment.Center) {
+                // البوصلة بعرض أقصاه 440 في الوسط (لا تملأ عرض iPad فتتجاوز ارتفاع الشاشة)
+                Box(Modifier.fillMaxWidth().wrapContentWidth().widthIn(max = 440.dp).aspectRatio(1f).padding(8.dp), contentAlignment = Alignment.Center) {
                     Compass(heading = if (hasSensor) heading else 0f, qibla = qibla.toFloat(), aligned = aligned)
                 }
                 val hintColor by animateColorAsState(

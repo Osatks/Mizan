@@ -1,6 +1,14 @@
 #!/bin/bash
-# لقطات App Store من محاكي iPhone بشاشة 6.9 بوصة (1320×2868): يستدعيه ios-screenshots.yml على macOS.
-#   screenshots.sh <Mizan.app للمحاكي> <مجلد الإخراج> "<ar-SA en-US ...>"
+# لقطات App Store من المحاكي (يستدعيه ios-screenshots.yml على macOS بصورة xcode-27):
+#   iphone  iPhone بشاشة 6.9 بوصة (1320×2868)                       → <المجلد>/<اللغة>/NN_*.png
+#   ipad    iPad Pro 13 بوصة (2064×2752) بالطول، ولقطة المصحف بالعرض صفحتين متقابلتين (2752×2064)
+#                                                                      → <المجلد>/<اللغة>/ipad_NN_*.png
+#   duo     iPhone Duo من محاكي iOS 27.1 (الشاشة الداخلية، والخارجية إن أمكن اختيارها)
+#                                                                      → <المجلد>/<اللغة>/duo_*.png
+#   screenshots.sh <Mizan.app للمحاكي> <مجلد الإخراج> "<ar-SA en-US ...>" ["iphone ipad duo"]
+#
+# أسماء الملفات تحدد ترتيبها في المتجر، ومقاسها يحدد نوع الشاشة عند deliver (fastlane/check_screenshots.rb يتحقق منه،
+# وينقل ما لا يعرفه deliver إلى ملف مرفق فقط).
 #
 # تجاوز جولة أول تشغيل واختيار المدينة بلا كود خاص: وسائط التشغيل «-مفتاح قيمة» تدخل NSArgumentDomain
 # في NSUserDefaults، فيقرؤها Prefs (مفاتيح AppSettings بالبادئة «mizan.») كأنها محفوظة، ولا تُكتب في الجهاز.
@@ -10,43 +18,87 @@ set -euo pipefail
 APP="$1"
 OUT="$2"
 LOCALES="${3:-ar-SA en-US}"
+DEVICES="${4:-iphone ipad duo}"
 BUNDLE=com.mizan.almuslim
 LAUNCH_WAIT="${LAUNCH_WAIT:-10}"   # ثوانٍ بعد التشغيل حتى يستقر أول إطار
 ROUTE_WAIT="${ROUTE_WAIT:-6}"      # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص)
+LOGS="${LOGS:-$OUT/../screenshot-logs}"
+mkdir -p "$OUT" "$LOGS"
 
 log() { echo "▸ $*"; }
+
+# الترتيب = ترتيب ظهورها في المتجر (أول ثلاث هي الأهم)
+IPHONE_SHOTS=(
+  "01_home:home"
+  "02_quran_page:surah/1?ayah=0&from=row"
+  "03_prayer:prayer"
+  "04_adhkar:adhkar"
+  "05_quran_index:quran"
+  "06_qibla:qibla"
+  "07_zakat:zakat"
+  "08_tasbih:tasbih"
+)
+# iPad: القائمة الجانبية والأعمدة؛ والثانية (المصحف صفحتين متقابلتين) تُلتقط بالعرض
+IPAD_SHOTS=(
+  "ipad_01_home:home"
+  "ipad_03_prayer:prayer"
+  "ipad_04_quran_index:quran"
+  "ipad_05_quran_page:surah/2?ayah=255&from=row"
+  "ipad_06_adhkar:adhkar"
+  "ipad_07_tasbih:tasbih"
+)
+IPAD_LANDSCAPE=(
+  "ipad_02_quran_spread:surah/1?ayah=0&from=row"
+)
+DUO_SHOTS=(
+  "01_home:home"
+  "02_quran_page:surah/1?ayah=0&from=row"
+  "03_prayer:prayer"
+)
 
 # ---------- المحاكي ----------
 pick_device_type() {
   xcrun simctl list devicetypes -j | python3 -c '
 import json, sys
 types = {t["name"]: t["identifier"] for t in json.load(sys.stdin)["devicetypes"]}
-for name in ("iPhone 17 Pro Max", "iPhone 16 Pro Max", "iPhone 16 Plus", "iPhone 15 Pro Max"):
+for name in sys.argv[1:]:
     if name in types:
         print(types[name]); break
 else:
-    sys.exit("no 6.9-inch/6.7-inch iPhone device type")'
+    sys.exit("none of these device types: " + ", ".join(sys.argv[1:]))' "$@"
 }
+
+# أحدث نظام iOS في المحاكي يدعم نوع الجهاز (نظام 27.1 قد يكون لـ iPhone Duo وحده)
 pick_runtime() {
   xcrun simctl list runtimes -j | python3 -c '
 import json, sys
+want = sys.argv[1]
 rs = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("platform", "iOS") == "iOS" and "iOS" in r["name"]]
+def ok(r):
+    types = r.get("supportedDeviceTypes")
+    return types is None or any(t.get("identifier") == want for t in types)
+rs = [r for r in rs if ok(r)]
 rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")])
-if not rs: sys.exit("no iOS simulator runtime")
-print(rs[-1]["identifier"])'
+if not rs: sys.exit("no iOS simulator runtime for " + want)
+print(rs[-1]["identifier"])' "$1"
 }
 
-TYPE=$(pick_device_type)
-RUNTIME=$(pick_runtime)
-log "Device type $TYPE, runtime $RUNTIME"
-UDID=$(xcrun simctl create "Mizan Screenshots" "$TYPE" "$RUNTIME")
-trap 'xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true; xcrun simctl delete "$UDID" >/dev/null 2>&1 || true' EXIT
+CREATED=()
+cleanup() {
+  for u in "${CREATED[@]:-}"; do
+    [ -n "$u" ] || continue
+    xcrun simctl shutdown "$u" >/dev/null 2>&1 || true
+    xcrun simctl delete "$u" >/dev/null 2>&1 || true
+  done
+  osascript -e 'quit app "Simulator"' >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
 
 boot() {
   xcrun simctl boot "$UDID" 2>/dev/null || true
   xcrun simctl bootstatus "$UDID" -b
   # شريط الحالة كما في صور Apple
-  for i in 1 2 3; do
+  for _ in 1 2 3; do
     xcrun simctl status_bar "$UDID" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 \
       --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100 && break
     sleep 3
@@ -62,14 +114,14 @@ region_of() {
   esac
 }
 
+size_of() { echo "$(sips -g pixelWidth "$1" | awk '/pixelWidth/ {print $2}')x$(sips -g pixelHeight "$1" | awk '/pixelHeight/ {print $2}')"; }
+
+# لقطة الشاشة؛ [$2] اسم شاشة الجهاز إن كان له أكثر من شاشة
 shot() {
-  local file="$1"
-  for i in 1 2 3; do
-    if xcrun simctl io "$UDID" screenshot --type=png "$file" >/dev/null 2>&1 && [ -s "$file" ]; then
-      local w h
-      w=$(sips -g pixelWidth "$file" | awk '/pixelWidth/ {print $2}')
-      h=$(sips -g pixelHeight "$file" | awk '/pixelHeight/ {print $2}')
-      log "  $(basename "$file") ${w}x${h}"
+  local file="$1" display="${2:-}"
+  for _ in 1 2 3; do
+    if xcrun simctl io "$UDID" screenshot --type=png ${display:+--display="$display"} "$file" >/dev/null 2>&1 && [ -s "$file" ]; then
+      log "  $(basename "$file") $(size_of "$file")${display:+ ($display)}"
       return 0
     fi
     sleep 2
@@ -95,53 +147,198 @@ open_route() {
   # الرابط مرمّز: surah/1?ayah=0 يمرّ قيمةً واحدة لـ route
   local enc
   enc=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$1")
-  for i in 1 2 3; do
+  for _ in 1 2 3; do
     xcrun simctl openurl "$UDID" "mizan://open?route=$enc" && break
     sleep 2
   done
   sleep "$ROUTE_WAIT"
 }
 
-# الترتيب = ترتيب ظهورها في المتجر (أول ثلاث هي الأهم)
-SHOTS=(
-  "01_home:home"
-  "02_quran_page:surah/1?ayah=0&from=row"
-  "03_prayer:prayer"
-  "04_adhkar:adhkar"
-  "05_quran_index:quran"
-  "06_qibla:qibla"
-  "07_zakat:zakat"
-  "08_tasbih:tasbih"
-)
-
-boot
-xcrun simctl install "$UDID" "$APP"
-# إذن الموقع مسبقاً (لا نافذة إذن فوق القبلة)، وموقع المحاكي مكة
-xcrun simctl privacy "$UDID" grant location "$BUNDLE" || true
-xcrun simctl location "$UDID" set 21.4225,39.8262 || true
-
-# تشغيل أول للتهيئة (نسخ الخطوط والقاعدة إلى الذاكرة) قبل أول لقطة
-launch ar
-sleep 5
-
-for loc in $LOCALES; do
-  lang="${loc%%-*}"
-  region=$(region_of "$loc")
-  log "Locale $loc (app language $lang)"
+set_locale() {
+  local loc="$1"
   # لغة النظام نفسها (أسماء الأيام وتنسيق الأرقام من NSLocale)، تتطلب إعادة تشغيل المحاكي
-  xcrun simctl spawn "$UDID" defaults write -g AppleLanguages -array "$lang"
-  xcrun simctl spawn "$UDID" defaults write -g AppleLocale -string "$region"
+  xcrun simctl spawn "$UDID" defaults write -g AppleLanguages -array "${loc%%-*}"
+  xcrun simctl spawn "$UDID" defaults write -g AppleLocale -string "$(region_of "$loc")"
   xcrun simctl shutdown "$UDID" || true
   boot
-  mkdir -p "$OUT/$loc"
-  rm -f "$OUT/$loc"/*.png
-  for s in "${SHOTS[@]}"; do
+}
+
+# اللقطات [$3...] بأسمائها [prefix] في مجلد اللغة، كل واحدة من تشغيل جديد
+take() {
+  local loc="$1" prefix="$2" display="$3"; shift 3
+  local s name route
+  for s in "$@"; do
     name="${s%%:*}"
     route="${s#*:}"
-    launch "$lang"
+    launch "${loc%%-*}"
     [ "$route" = "home" ] || open_route "$route"
-    shot "$OUT/$loc/$name.png"
+    shot "$OUT/$loc/$prefix$name.png" "$display"
   done
+}
+
+prepare() {
+  boot
+  xcrun simctl install "$UDID" "$APP"
+  # إذن الموقع مسبقاً (لا نافذة إذن فوق القبلة)، وموقع المحاكي مكة
+  xcrun simctl privacy "$UDID" grant location "$BUNDLE" || true
+  xcrun simctl location "$UDID" set 21.4225,39.8262 || true
+  # تشغيل أول للتهيئة (نسخ الخطوط والقاعدة إلى الذاكرة) قبل أول لقطة
+  launch ar
+  sleep 5
+}
+
+new_device() {
+  local kind="$1" type="$2" runtime
+  runtime=$(pick_runtime "$type")
+  log "$kind: device type $type, runtime $runtime"
+  UDID=$(xcrun simctl create "Mizan $kind" "$type" "$runtime")
+  CREATED+=("$UDID")
+}
+
+# ---------- اتجاه iPad ----------
+# simctl لا يدير الجهاز في كل إصدار: أمر اتجاه إن وُجد في هذا الإصدار، وإلا تطبيق Simulator بتفضيل الاتجاه لهذا الجهاز،
+# وإلا اختصار التدوير (يحتاج إذن الوصول). يُتحقق من النتيجة بمقاس اللقطة (العرض أكبر من الارتفاع).
+SIMPREFS_DOMAIN=com.apple.iphonesimulator
+simulator_orientation() {
+  local orientation="$1" angle="$2" tmp
+  tmp=$(mktemp -t simprefs)
+  defaults export "$SIMPREFS_DOMAIN" "$tmp" 2>/dev/null || printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' \
+    '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+    '<plist version="1.0"><dict/></plist>' > "$tmp"
+  /usr/libexec/PlistBuddy -c "Add :DevicePreferences dict" "$tmp" >/dev/null 2>&1 || true
+  /usr/libexec/PlistBuddy -c "Add :DevicePreferences:$UDID dict" "$tmp" >/dev/null 2>&1 || true
+  /usr/libexec/PlistBuddy -c "Delete :DevicePreferences:$UDID:SimulatorWindowOrientation" "$tmp" >/dev/null 2>&1 || true
+  /usr/libexec/PlistBuddy -c "Add :DevicePreferences:$UDID:SimulatorWindowOrientation string $orientation" "$tmp"
+  /usr/libexec/PlistBuddy -c "Delete :DevicePreferences:$UDID:SimulatorWindowRotationAngle" "$tmp" >/dev/null 2>&1 || true
+  /usr/libexec/PlistBuddy -c "Add :DevicePreferences:$UDID:SimulatorWindowRotationAngle real $angle" "$tmp"
+  defaults import "$SIMPREFS_DOMAIN" "$tmp"
+  rm -f "$tmp"
+}
+
+is_landscape() {
+  local probe="$LOGS/probe-$UDID.png" w h
+  xcrun simctl io "$UDID" screenshot --type=png "$probe" >/dev/null 2>&1 || return 1
+  w=$(sips -g pixelWidth "$probe" | awk '/pixelWidth/ {print $2}')
+  h=$(sips -g pixelHeight "$probe" | awk '/pixelHeight/ {print $2}')
+  rm -f "$probe"
+  [ "$w" -gt "$h" ]
+}
+
+rotate_landscape() {
+  local help cmd arg
+  help=$(xcrun simctl help 2>&1 || true)
+  printf '%s\n' "$help" > "$LOGS/simctl-help.txt"
+  for cmd in $(printf '%s\n' "$help" | awk 'NF {print $1}' | grep -ixE 'orientation|rotate|rotation' || true); do
+    log "simctl has '$cmd':"
+    xcrun simctl help "$cmd" 2>&1 | sed 's/^/    /' || true
+    for arg in landscape-left landscapeLeft LandscapeLeft landscape left; do
+      if xcrun simctl "$cmd" "$UDID" "$arg" >/dev/null 2>&1; then sleep 3; is_landscape && { log "rotated with simctl $cmd $arg"; return 0; }; fi
+    done
+  done
+  simulator_orientation LandscapeLeft 90
+  open -a Simulator --args -CurrentDeviceUDID "$UDID" || true
+  sleep 15
+  if is_landscape; then log "rotated with Simulator.app preferences"; return 0; fi
+  osascript -e 'tell application "Simulator" to activate' -e 'delay 1' \
+    -e 'tell application "System Events" to key code 123 using command down' >/dev/null 2>&1 || true
+  sleep 4
+  if is_landscape; then log "rotated with the Simulator rotate shortcut"; return 0; fi
+  return 1
+}
+
+rotate_portrait() {
+  simulator_orientation Portrait 0
+  osascript -e 'quit app "Simulator"' >/dev/null 2>&1 || true
+  sleep 3
+}
+
+# ---------- iPhone Duo ----------
+# حالة الطي من سطر الأوامر إن كان في simctl أمر لها (يُطبع نص المساعدة في السجل)، وإلا الحالة الافتراضية للمحاكي
+DUO_FOLD="default"
+duo_unfold() {
+  local help cmd arg
+  help=$(xcrun simctl help 2>&1 || true)
+  printf '%s\n' "$help" > "$LOGS/simctl-help.txt"
+  cmd=$(printf '%s\n' "$help" | awk 'NF {print $1}' | grep -ixE 'fold|unfold|posture|hinge|foldstate|fold-state|fold_state' | head -n1 || true)
+  if [ -z "$cmd" ]; then
+    echo "::notice title=iPhone Duo::simctl on $(xcodebuild -version | head -n1) has no fold or posture command (full help in screenshot-logs/simctl-help.txt); the Duo screenshots use the simulator's default display state"
+    return 0
+  fi
+  log "simctl has '$cmd':"
+  xcrun simctl help "$cmd" 2>&1 | tee "$LOGS/simctl-help-$cmd.txt" | sed 's/^/    /' || true
+  for arg in unfolded open unfold inner flat expanded; do
+    if xcrun simctl "$cmd" "$UDID" "$arg" >/dev/null 2>&1; then DUO_FOLD="$cmd $arg"; log "fold state: simctl $DUO_FOLD"; sleep 3; return 0; fi
+  done
+  echo "::notice title=iPhone Duo::could not set the fold state with 'simctl $cmd' (see screenshot-logs/simctl-help-$cmd.txt); the Duo screenshots use the simulator's default display state"
+}
+
+# شاشتا الجهاز القابل للطي إن ذكرهما «simctl io screenshot --display» (internal و external المعتادتان ليستا منهما)
+duo_displays() {
+  xcrun simctl help io > "$LOGS/simctl-help-io.txt" 2>&1 || true
+  grep -oiE '\b(inner|outer|cover)\b' "$LOGS/simctl-help-io.txt" | tr 'A-Z' 'a-z' | sort -u | tr '\n' ' ' || true
+}
+
+# ---------- التشغيل ----------
+run_iphone() {
+  new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
+  prepare
+  for loc in $LOCALES; do
+    log "iPhone · $loc"
+    set_locale "$loc"
+    mkdir -p "$OUT/$loc"
+    take "$loc" "" "" "${IPHONE_SHOTS[@]}"
+  done
+}
+
+run_ipad() {
+  new_device ipad "$(pick_device_type "iPad Pro 13-inch (M5)" "iPad Pro 13-inch (M4)" "iPad Air 13-inch (M4)" "iPad Air 13-inch (M3)")"
+  prepare
+  for loc in $LOCALES; do
+    log "iPad · $loc"
+    set_locale "$loc"
+    mkdir -p "$OUT/$loc"
+    take "$loc" "" "" "${IPAD_SHOTS[@]}"
+    if rotate_landscape; then
+      take "$loc" "" "" "${IPAD_LANDSCAPE[@]}"
+    else
+      echo "::warning title=iPad landscape::could not rotate the iPad simulator from the command line on this runner; the landscape mushaf spread shot was skipped for $loc"
+    fi
+    rotate_portrait
+    boot
+  done
+}
+
+run_duo() {
+  local type displays d
+  if ! type=$(pick_device_type "iPhone Duo" 2>/dev/null); then
+    echo "::warning title=iPhone Duo::no iPhone Duo device type in $(xcodebuild -version | head -n1)"
+    return 0
+  fi
+  new_device duo "$type"
+  prepare
+  duo_unfold
+  displays=$(duo_displays)
+  log "Duo displays offered by simctl io: ${displays:-none listed} (fold state: $DUO_FOLD)"
+  for loc in $LOCALES; do
+    log "iPhone Duo · $loc"
+    set_locale "$loc"
+    [ "$DUO_FOLD" = "default" ] || duo_unfold
+    mkdir -p "$OUT/$loc"
+    if [ -n "$displays" ]; then
+      for d in $displays; do take "$loc" "duo_${d}_" "$d" "${DUO_SHOTS[@]}" || true; done
+    else
+      take "$loc" "duo_" "" "${DUO_SHOTS[@]}"
+    fi
+  done
+}
+
+for device in $DEVICES; do
+  case "$device" in
+    iphone) run_iphone ;;
+    ipad) run_ipad ;;
+    duo) run_duo || echo "::warning title=iPhone Duo::Duo screenshots failed (see log); iPhone and iPad screenshots are unaffected" ;;
+    *) echo "::error::unknown device $device"; exit 1 ;;
+  esac
 done
 
 log "Done"

@@ -103,6 +103,19 @@ fun DrawScope.drawPaper(p: MushafPalette) {
     drawRect(Brush.radialGradient(listOf(p.paper, p.paper, p.paperEdge), center = center, radius = size.maxDimension * 0.75f))
 }
 
+/**
+ * ظل الكعب في الكتاب المفتوح: الورقة تنحني قليلاً عند الخياطة بين الصفحتين.
+ * [innerAtLeft]: الكعب في الطرف الأيسر من هذه الصفحة (الصفحة اليمنى)، وإلا ففي طرفها الأيمن.
+ */
+fun DrawScope.drawSpine(innerAtLeft: Boolean) {
+    val w = 26.dp.toPx().coerceAtMost(size.width / 4)
+    val shade = Color.Black.copy(alpha = .09f)
+    val x0 = if (innerAtLeft) 0f else size.width - w
+    val brush = if (innerAtLeft) Brush.horizontalGradient(listOf(shade, Color.Transparent), x0, x0 + w)
+    else Brush.horizontalGradient(listOf(Color.Transparent, shade), x0, x0 + w)
+    drawRect(brush, Offset(x0, 0f), Size(w, size.height))
+}
+
 /** المسافة بين أسفل الورقة وخطَّي الإطار السفليين: يجلس رقم الصفحة عليهما في وسطهما تماماً */
 val FRAME_FOOT = 13.dp
 
