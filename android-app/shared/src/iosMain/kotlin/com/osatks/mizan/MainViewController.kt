@@ -48,6 +48,10 @@ import platform.UIKit.UIViewController
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.cinterop.ExperimentalForeignApi::class)
 fun MainViewController(): UIViewController {
     AppSettings.init()
+    // يفتح شاشة عند التشغيل بوسيط «-mizan.open_route <المسار>» (لقطات المتجر من المحاكي، fastlane/screenshots.sh):
+    // بلا رابط mizan:// يسأل النظام قبل فتحه. وسائط التشغيل لا تُحفظ في الجهاز
+    platform.Foundation.NSUserDefaults.standardUserDefaults.stringForKey("mizan.open_route")
+        ?.takeIf { it.isNotBlank() }?.let { IosWidgets.open(it, null) }
     // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)،
     // ولقطة أدوات الشاشة الرئيسية في حاوية App Group (وتُحدَّث أيضاً عند الخروج منه)؛
     // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت وطلبات الإشعار لا ينتظرها أول إطار
