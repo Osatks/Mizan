@@ -1,0 +1,3 @@
+/* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
+"CFBundleDisplayName" = "Mizan";
+"NSLocationWhenInUseUsageDescription" = "Votre position est utilisée uniquement sur votre appareil pour calculer les horaires de prière et la direction de la qibla. Elle n'est jamais envoyée. Vous pouvez aussi choisir votre ville manuellement.";

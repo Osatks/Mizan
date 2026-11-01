@@ -1,0 +1,4 @@
+# أدوات النشر على App Store (fastlane deliver) بإصدار ثابت؛ Gemfile.lock يثبّت الاعتماديات كلها
+source "https://rubygems.org"
+
+gem "fastlane", "2.241.2"

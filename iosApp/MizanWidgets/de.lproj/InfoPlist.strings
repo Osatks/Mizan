@@ -1,0 +1,3 @@
+/* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
+"CFBundleDisplayName" = "Mizan";
+"NSLocationWhenInUseUsageDescription" = "Ihr Standort wird nur auf Ihrem Gerät verwendet, um die Gebetszeiten in den Widgets zu berechnen, und wird nirgendwohin gesendet.";

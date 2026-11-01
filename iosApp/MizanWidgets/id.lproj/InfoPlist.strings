@@ -1,0 +1,3 @@
+/* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
+"CFBundleDisplayName" = "Mizan";
+"NSLocationWhenInUseUsageDescription" = "Lokasi Anda hanya digunakan di perangkat Anda untuk menghitung waktu salat di widget, dan tidak pernah dikirim ke mana pun.";
