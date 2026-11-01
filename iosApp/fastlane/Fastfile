@@ -10,11 +10,27 @@ default_platform(:ios)
 APP_ID = "com.mizan.almuslim"
 
 # بيانات التواصل مع المراجِع: اختيارية من الأسرار (REVIEW_FIRST_NAME ...)، وإلا تبقى ما كُتب في App Store Connect
+# الهاتف بصيغة Apple: + ثم رمز الدولة والرقم. يُنظَّف ما يدخل مع النسخ من واجهة عربية: الأرقام العربية الهندية،
+# وعلامات الاتجاه الخفية، والمسافات والشرطات والأقواس، و 00 في أوله بدل +. لا يُطبع الرقم في السجل
+def review_phone
+  raw = ENV["REVIEW_PHONE"].to_s.dup.force_encoding(Encoding::UTF_8)
+  return nil if raw.strip.empty?
+  s = raw.tr("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789").gsub("＋", "+")
+  plus = s.strip.sub(/\A[^0-9+]+/, "").start_with?("+")
+  digits = s.gsub(/[^0-9]/, "")
+  digits = digits.sub(/\A00/, "") unless plus
+  plus ||= s.gsub(/[^0-9]/, "").start_with?("00")
+  unless plus && digits.length.between?(8, 15) && !digits.start_with?("0")
+    UI.user_error!("REVIEW_PHONE must start with + and the country code (e.g. +962 7X XXX XXXX); found #{digits.length} digits, #{plus ? "with" : "without"} a country-code prefix")
+  end
+  "+#{digits}"
+end
+
 def review_contact
   {
     first_name: ENV["REVIEW_FIRST_NAME"],
     last_name: ENV["REVIEW_LAST_NAME"],
-    phone_number: ENV["REVIEW_PHONE"],
+    phone_number: review_phone,
     email_address: ENV["REVIEW_EMAIL"]
   }.reject { |_, v| v.to_s.strip.empty? }
 end
