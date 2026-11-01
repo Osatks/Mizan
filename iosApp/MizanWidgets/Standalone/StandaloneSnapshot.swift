@@ -40,12 +40,14 @@ enum StandaloneSnapshot {
         let methodKey = near?.0.m ?? "mwl"
         let method = c.methods.first { $0.key == methodKey } ?? c.methods.first { $0.key == "mwl" } ?? c.methods[0]
         let placeName = (near.map { $0.1 < 1.5 } ?? false) ? (l.cities[near!.0.k] ?? near!.0.k) : l.myLocation
+        // ارتفاع المدينة المعروفة إن كان الموقع فيها أو قريباً منها (PrayTimes.elevationNear)
+        let elev = (near.map { $0.1 < 0.3 * 0.3 } ?? false) ? (near!.0.e ?? 0) : 0
         let hijriCal = HijriCalendar(first: c.hijri.first, epoch: c.hijri.epoch, lengths: c.hijri.lengths)
 
         var cache: [Int: DayTimes] = [:]
         func times(_ d: CivilDate) -> DayTimes {
             if let t = cache[d.epochDay] { return t }
-            let t = PrayEngine.compute(d, lat: lat, lng: lng, tz: tz, method: method, hanafi: false, hijri: hijriCal)
+            let t = PrayEngine.compute(d, lat: lat, lng: lng, tz: tz, method: method, hanafi: method.hanafi ?? false, hijri: hijriCal, elev: elev)
             cache[d.epochDay] = t
             return t
         }

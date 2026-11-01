@@ -99,9 +99,16 @@ object WidgetStatic {
         return linkedMapOf(
             "v" to 1,
             "methods" to PrayTimes.METHODS.map { m ->
-                linkedMapOf("key" to m.key, "fajr" to m.fajr, "isha" to m.ishaAngle, "ishaMin" to m.ishaMinutes, "maghrib" to m.maghribAngle)
+                linkedMapOf(
+                    "key" to m.key, "fajr" to m.fajr, "isha" to m.ishaAngle, "ishaMin" to m.ishaMinutes, "maghrib" to m.maghribAngle,
+                    "min" to m.minutes, "hanafi" to m.hanafi, "elev" to m.elevation, "daily" to m.dailySun,
+                    "ff" to m.fajrFallback, "fi" to m.ishaFallback, "seasonal" to m.seasonal, "dep" to m.depression?.toList(),
+                    "ram" to m.ramadan,
+                )
             },
-            "cities" to PrayTimes.CITIES.map { linkedMapOf("k" to it.key, "lat" to it.lat, "lng" to it.lng, "m" to it.method) },
+            "cities" to PrayTimes.CITIES.map {
+                linkedMapOf<String, Any?>("k" to it.key, "lat" to it.lat, "lng" to it.lng, "m" to it.method).apply { if (it.elev > 0) put("e", it.elev) }
+            },
             "hijri" to linkedMapOf(
                 "first" to 1300,
                 "epoch" to Hijri.toGregorian(1300, 1, 1)!!.toEpochDay(),
@@ -269,6 +276,7 @@ object WidgetFixtures {
         Loc("sydney", -33.8688, 151.2093, "Australia/Sydney"), Loc("auckland", -36.8485, 174.7633, "Pacific/Auckland"),
         Loc("capetown", -33.9249, 18.4241, "Africa/Johannesburg"), Loc("buenosaires", -34.6037, -58.3816, "America/Argentina/Buenos_Aires"),
         Loc("tashkent", 41.2995, 69.2401, "Asia/Tashkent"), Loc("almaty", 43.222, 76.8512, "Asia/Almaty"),
+        Loc("amman", 31.9454, 35.9284, "Asia/Amman"), Loc("bandung", -6.9175, 107.6191, "Asia/Jakarta"),
     )
 
     private fun times(v: com.osatks.mizan.core.PrayerTimes) =
@@ -284,10 +292,11 @@ object WidgetFixtures {
         val from = LocalDate(2026, 1, 1)
         for (l in LOCS) {
             val method = PrayTimes.nearestCity(l.lat, l.lng).first.method
+            val elev = PrayTimes.elevationNear(l.lat, l.lng)
             for (i in 0 until 365 * 3 step 3) {
                 val d = from.plusDays(i)
-                prayer += linkedMapOf("lat" to l.lat, "lng" to l.lng, "tz" to l.tz, "m" to method, "h" to false, "d" to d.toString(),
-                    "t" to times(PrayTimes.compute(d, l.lat, l.lng, l.tz, method, false)))
+                prayer += linkedMapOf("lat" to l.lat, "lng" to l.lng, "tz" to l.tz, "m" to method, "h" to false, "e" to elev, "d" to d.toString(),
+                    "t" to times(PrayTimes.compute(d, l.lat, l.lng, l.tz, method, false, elev)))
             }
         }
         for (l in LOCS.filter { it.name in setOf("makkah", "london", "oslo", "reykjavik", "tromso", "sydney", "jakarta", "newyork") }) {
@@ -330,7 +339,8 @@ object WidgetFixtures {
         val snaps = cases.map { (l, now, lang) ->
             val p = LocationHelper.placeFrom(l.lat, l.lng).copy(tz = l.tz)
             linkedMapOf("lat" to l.lat, "lng" to l.lng, "tz" to l.tz, "now" to now, "lang" to lang.code,
-                "snap" to WidgetData.snapshot(7, LocalDateTime.parse(now), lang, p, p.method, false, false, "emerald", "system"))
+                // الأداة المستقلة لا تعرف اختيار المستخدم للعصر: المعتمد في الطريقة
+                "snap" to WidgetData.snapshot(7, LocalDateTime.parse(now), lang, p, p.method, PrayTimes.method(p.method).hanafi, false, "emerald", "system"))
         }
         File(dir, "snapshots.json").writeText(Compact.write(snaps))
     }

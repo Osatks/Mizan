@@ -67,7 +67,7 @@ actual object PrayerAlerts {
         val today = LocalDate.now()
         for (offset in 0 until DAYS) {
             val day = today.plusDays(offset)
-            val t = PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi)
+            val t = PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi, p.elev)
             for (key in ALERT_PRAYERS) {
                 val mode = AppSettings.alertMode(key)
                 if (mode == AlertMode.OFF) continue

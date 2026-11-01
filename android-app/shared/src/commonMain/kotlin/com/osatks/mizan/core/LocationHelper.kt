@@ -11,7 +11,8 @@ object LocationHelper {
         val near = dist < 1.5
         return Place(
             key = if (near) city.key else null,
-            lat = lat, lng = lng, tz = systemTimeZoneId(), method = city.method, gps = true
+            lat = lat, lng = lng, tz = systemTimeZoneId(), method = city.method, gps = true,
+            elev = PrayTimes.elevationNear(lat, lng),
         )
     }
 }

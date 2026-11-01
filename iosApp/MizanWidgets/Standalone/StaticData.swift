@@ -9,6 +9,8 @@ struct StaticCommon: Codable {
         let lat: Double
         let lng: Double
         let m: String
+        /// الارتفاع عن البحر بالأمتار (City.elev)؛ غائب حين يكون صفراً
+        let e: Int?
     }
     struct HijriTable: Codable {
         let first: Int

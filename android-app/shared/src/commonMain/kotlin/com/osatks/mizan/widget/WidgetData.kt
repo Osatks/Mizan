@@ -168,7 +168,7 @@ object WidgetData {
         val z = runCatching { TimeZone.of(place.tz) }.getOrElse { TimeZone.currentSystemDefault() }
         val today = now.date
         val c = WidgetColors.of(accent)
-        val times = { d: LocalDate -> PrayTimes.compute(d, place.lat, place.lng, place.tz, method, hanafi) }
+        val times = { d: LocalDate -> PrayTimes.compute(d, place.lat, place.lng, place.tz, method, hanafi, place.elev) }
         fun time(h: Double) = PrayTimes.format(h, h24, s.am, s.pm)
 
         val quran = runCatching { QuranData.uthmani() }.getOrNull()
