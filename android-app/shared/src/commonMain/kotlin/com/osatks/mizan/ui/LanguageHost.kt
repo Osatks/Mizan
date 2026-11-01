@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,12 @@ import com.osatks.mizan.ui.theme.HeroBrush
 import com.osatks.mizan.ui.theme.Gold
 
 /**
+ * ستار تبديل اللغة نازل (من بدء إسداله حتى بدء رفعه): ما يُرسم خارج Compose فوقها
+ * (شريط التبويبات من النظام في iOS 26) يختفي معه ثم يعود بالأسماء الجديدة
+ */
+val LocalLanguageVeil = compositionLocalOf { false }
+
+/**
  * يوفّر نصوص اللغة واتجاه الكتابة. عند تبديل اللغة يُسدل ستار بلون ميزان عليه النجمة واسم اللغة الجديدة،
  * فتتبدل الواجهة (وقد ينقلب اتجاهها) خلفه ثم ينكشف، بدل القفزة المفاجئة.
  */
@@ -45,6 +53,7 @@ fun LanguageHost(content: @Composable () -> Unit) {
     val target = Lang.resolve(AppSettings.lang, systemLanguageTag())
     var shown by remember { mutableStateOf(target) }
     val veil = remember { Animatable(0f) }
+    val veiled by remember { derivedStateOf { veil.targetValue > 0f } }
 
     LaunchedEffect(target) {
         if (target != shown) {
@@ -63,6 +72,7 @@ fun LanguageHost(content: @Composable () -> Unit) {
             LocalStrings provides shown.strings,
             LocalLang provides shown,
             LocalLayoutDirection provides if (shown.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+            LocalLanguageVeil provides veiled,
         ) { content() }
 
         if (veil.value > 0f) {

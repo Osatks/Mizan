@@ -12,9 +12,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -218,15 +216,9 @@ fun MizanApp(startRoute: String? = null) {
         AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
             com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
         }
-        // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)
-        AnimatedVisibility(
-            visible = onTab && !firstRun && !rail,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enter = slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it } + fadeIn(),
-            exit = slideOutVertically(tween(Motion.SHORT, easing = Motion.Accelerate)) { it } + fadeOut(),
-        ) {
-            bars.Bottom(current) { nav.goTab(it) }
-        }
+        // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية.
+        // يُستدعى دائماً: شريط النظام في iOS 26 يُخبَر بالإخفاء ويتولى حركته بنفسه
+        bars.Bottom(onTab && !firstRun && !rail, current, Modifier.align(Alignment.BottomCenter)) { nav.goTab(it) }
         // القائمة الجانبية تدخل من جهة البداية (اليمين في العربية) وتخرج إليها
         AnimatedVisibility(
             visible = onTab && !firstRun && rail,

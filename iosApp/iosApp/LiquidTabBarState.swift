@@ -1,0 +1,35 @@
+import Foundation
+
+/// حالة شريط التبويبات كما يرسلها Kotlin (tabBarStateJson في TabBar.kt) مع الإشعار MizanTabBarChanged.
+/// Foundation وحدها، فتُختبر خارج Xcode أيضاً.
+struct LiquidTabBarState: Decodable, Equatable {
+    struct Tab: Decodable, Equatable {
+        let route: String
+        let title: String
+        /// رمز SF Symbols؛ وللمختار نسخته الممتلئة (symbol.fill)
+        let symbol: String
+    }
+
+    let tabs: [Tab]
+    /// التبويب المختار؛ nil في صفحة ليست تبويباً (يبقى اختيار الشريط كما هو وهو يختفي)
+    let selected: String?
+    let visible: Bool
+    /// اتجاه لغة التطبيق لا لغة النظام: العربية من اليمين وإن كان النظام بالإنجليزية
+    let rtl: Bool
+    /// مظهر التطبيق (قد يخالف مظهر النظام)
+    let dark: Bool
+    /// لون التطبيق #RRGGBB
+    let accent: String
+
+    static func decode(_ json: String) -> LiquidTabBarState? {
+        guard let data = json.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(LiquidTabBarState.self, from: data)
+    }
+
+    /// مكوّنات لون التطبيق من 0 إلى 1 (sRGB)
+    var accentRGB: (red: Double, green: Double, blue: Double)? {
+        let hex = accent.hasPrefix("#") ? String(accent.dropFirst()) : accent
+        guard hex.count == 6, hex.allSatisfy(\.isHexDigit), let v = UInt32(hex, radix: 16) else { return nil }
+        return (Double((v >> 16) & 0xFF) / 255, Double((v >> 8) & 0xFF) / 255, Double(v & 0xFF) / 255)
+    }
+}

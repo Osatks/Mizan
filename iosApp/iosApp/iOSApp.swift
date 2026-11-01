@@ -13,6 +13,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         WidgetSync.shared.start()
+        // iOS 26: شريط التبويبات من النظام بزجاج Liquid Glass بدل شريط Compose (LiquidTabBar.swift)
+        LiquidTabBar.install()
         if !AppDelegate.usesScenes {
             let w = UIWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()

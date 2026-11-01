@@ -10,6 +10,8 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.drawscope.Stroke
 import com.osatks.mizan.ui.theme.LocalDark
 import dev.chrisbanes.haze.HazeState
@@ -87,14 +90,15 @@ import androidx.compose.ui.unit.min
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.Strings
 
-data class TabItem(val route: String, val label: (Strings) -> String, val on: ImageVector, val off: ImageVector)
+/** [symbol]: رمز SF Symbols للتبويب في شريط النظام (iOS 26)، والمختار بنسخته الممتلئة ([symbol].fill) */
+data class TabItem(val route: String, val label: (Strings) -> String, val on: ImageVector, val off: ImageVector, val symbol: String)
 
 val TABS = listOf(
-    TabItem("home", { it.tabHome }, Icons.Filled.Home, Icons.Outlined.Home),
-    TabItem("prayer", { it.tabPrayer }, Icons.Filled.Schedule, Icons.Outlined.Schedule),
-    TabItem("quran", { it.tabQuran }, Icons.AutoMirrored.Filled.MenuBook, Icons.AutoMirrored.Outlined.MenuBook),
-    TabItem("tasbih", { it.tabTasbih }, Icons.Filled.TouchApp, Icons.Outlined.TouchApp),
-    TabItem("settings", { it.tabSettings }, Icons.Filled.Settings, Icons.Outlined.Settings),
+    TabItem("home", { it.tabHome }, Icons.Filled.Home, Icons.Outlined.Home, "house"),
+    TabItem("prayer", { it.tabPrayer }, Icons.Filled.Schedule, Icons.Outlined.Schedule, "clock"),
+    TabItem("quran", { it.tabQuran }, Icons.AutoMirrored.Filled.MenuBook, Icons.AutoMirrored.Outlined.MenuBook, "book"),
+    TabItem("tasbih", { it.tabTasbih }, Icons.Filled.TouchApp, Icons.Outlined.TouchApp, "hand.tap"),
+    TabItem("settings", { it.tabSettings }, Icons.Filled.Settings, Icons.Outlined.Settings, "gearshape"),
 )
 
 /** أقصى عرض لشريط التنقل السفلي: على iPad بالطول وما شابهه كبسولة في الوسط لا شريطاً بعرض الشاشة */
@@ -251,14 +255,17 @@ private fun DrawScope.drawLens(c: LensColors, alpha: Float, radius: Float) {
 
 /**
  * شريط التنقل بين التبويبات خلف واجهة صغيرة: التبويب الحالي، والاختيار، والمساحة التي يشغلها.
- * يُرسم الآن بـ Compose ([ComposeTabBar])، ويمكن لاحقاً أن تحل محله نسخة أصلية في iOS 26 (شريط SwiftUI بزجاج النظام)
- * يوفّرها MainViewController عبر [LocalTabBarHost]، دون أي تغيير في الصفحات: فهي تعرف مكانه من
- * [LocalBottomInset] و[LocalLeadingInset] وحدهما.
+ * يُرسم بـ Compose ([ComposeTabBar])، وفي iOS 26 فما بعده يحل محل الشريط السفلي شريط النظام نفسه
+ * (UITabBarController بزجاج Liquid Glass، NativeTabBar في iosMain) يوفّره MainViewController عبر [LocalTabBarHost]،
+ * دون أي تغيير في الصفحات: فهي تعرف مكانه من [LocalBottomInset] و[LocalLeadingInset] وحدهما.
  */
 interface TabBarHost {
-    /** الشريط السفلي (الهاتف، والنوافذ المتوسطة بالطول) */
+    /**
+     * الشريط السفلي (الهاتف، والنوافذ المتوسطة بالطول). يُستدعى دائماً، و[visible] يُظهره ويخفيه
+     * (صفحات التبويبات وحدها، لا فوق جولة أول تشغيل ولا مع القائمة الجانبية)، وحركة ظهوره واختفائه عليه هو.
+     */
     @Composable
-    fun Bottom(current: String?, onSelect: (String) -> Unit)
+    fun Bottom(visible: Boolean, current: String?, modifier: Modifier, onSelect: (String) -> Unit)
 
     /** القائمة الجانبية في جهة البداية (iPad، والنوافذ الواسعة أو المتوسطة بالعرض)؛ [labels]: الأسماء تحت الأيقونات */
     @Composable
@@ -274,7 +281,15 @@ interface TabBarHost {
 /** شريط التنقل الزجاجي المرسوم بـ Compose (الشريط السفلي العائم والقائمة الجانبية) */
 object ComposeTabBar : TabBarHost {
     @Composable
-    override fun Bottom(current: String?, onSelect: (String) -> Unit) = FloatingTabBar(current, LocalAppHaze.current, onSelect)
+    override fun Bottom(visible: Boolean, current: String?, modifier: Modifier, onSelect: (String) -> Unit) {
+        AnimatedVisibility(
+            visible, modifier,
+            enter = slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it } + fadeIn(),
+            exit = slideOutVertically(tween(Motion.SHORT, easing = Motion.Accelerate)) { it } + fadeOut(),
+        ) {
+            FloatingTabBar(current, LocalAppHaze.current, onSelect)
+        }
+    }
 
     @Composable
     override fun Rail(current: String?, labels: Boolean, onSelect: (String) -> Unit) = FloatingNavRail(current, LocalAppHaze.current, labels, onSelect)
@@ -284,6 +299,23 @@ object ComposeTabBar : TabBarHost {
 }
 
 val LocalTabBarHost = staticCompositionLocalOf<TabBarHost> { ComposeTabBar }
+
+/**
+ * حالة شريط النظام في iOS 26 (NativeTabBar في iosMain، ويقرؤها LiquidTabBarState.swift) نصاً JSON:
+ * التبويبات بأسمائها ورموزها، والمختار (null في صفحة ليست تبويباً فيبقى اختيار الشريط كما هو)، والظهور،
+ * واتجاه الكتابة، والوضع الداكن، ولون التطبيق (#RRGGBB).
+ */
+internal fun tabBarStateJson(s: Strings, current: String?, visible: Boolean, rtl: Boolean, dark: Boolean, accent: Color): String =
+    com.osatks.mizan.i18n.pack.Json.write(
+        mapOf(
+            "tabs" to TABS.map { mapOf("route" to it.route, "title" to it.label(s), "symbol" to it.symbol) },
+            "selected" to current?.takeIf { r -> TABS.any { it.route == r } },
+            "visible" to visible,
+            "rtl" to rtl,
+            "dark" to dark,
+            "accent" to "#" + (accent.toArgb() and 0xFFFFFF).toString(16).padStart(6, '0').uppercase(),
+        )
+    )
 
 // ---------- قائمة التنقل الجانبية ----------
 
