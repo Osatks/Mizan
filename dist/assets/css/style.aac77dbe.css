@@ -871,3 +871,21 @@ a.store-badge:focus-visible { outline: 3px solid #f1cf72; outline-offset: 3px; }
 .brand-text { min-width: 0; }
 .brand-text small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 420px) { :root:not([lang="ar"]) .brand-text small { display: none; } }
+
+/* فيديو التطبيق (صفحة التطبيق): قصير بالطول، صورة وزر تشغيل حتى الضغط */
+.app-video { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 8px; }
+.video-facade, .video-frame {
+  width: min(320px, 82vw); aspect-ratio: 9 / 16; border-radius: 28px; overflow: hidden;
+  border: 0; padding: 0; box-shadow: var(--shadow-lg); background: #0b3b30;
+}
+.video-facade { position: relative; cursor: pointer; display: block; }
+.video-facade img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(.82); transition: filter .2s; }
+.video-facade:hover img, .video-facade:focus-visible img { filter: brightness(.7); }
+.video-play {
+  position: absolute; inset: 0; margin: auto; width: 76px; height: 76px; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(255, 255, 255, .92); color: #0c5c4a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .3); transition: transform .2s;
+}
+.video-play svg { width: 34px; height: 34px; margin-left: 4px; } /* رمز التشغيل يشير يميناً في كل اللغات */
+.video-facade:hover .video-play { transform: scale(1.06); }
+.video-note { margin: 0; font-size: .85rem; color: var(--muted, #6b7a76); }
