@@ -14,8 +14,24 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
 
-/** طريقة حساب؛ maghribAngle للطرق التي تؤخر المغرب بزاوية بعد الغروب (طهران) */
-data class Method(val key: String, val fajr: Double, val ishaAngle: Double?, val ishaMinutes: Int?, val maghribAngle: Double? = null)
+/**
+ * طريقة حساب: زاوية الفجر، وزاوية العشاء أو مدته بعد المغرب، و [maghribAngle] للطرق التي تؤخر المغرب بزاوية (طهران).
+ * [minutes]: ما تضيفه الجهة الرسمية من دقائق إلى كل وقت بعد حسابه (احتياط وتقريب)، فيطابق الوقتُ جدولَها المنشور؛
+ * مفاتيحها fajr و sunrise و dhuhr و asr و maghrib و isha، والغائب صفر. قيمها من مقارنة الحساب بالجدول الرسمي يوماً بيوم
+ * (لذلك قد تكون كسوراً: تجمع الاحتياط وطريقة التقريب في رقم واحد). [hanafi]: العصر بمثلَي الظل هو المعتمد رسمياً
+ * في بلاد الطريقة، ما لم يختر المستخدم غيره.
+ */
+data class Method(
+    val key: String, val fajr: Double, val ishaAngle: Double?, val ishaMinutes: Int?, val maghribAngle: Double? = null,
+    val minutes: Map<String, Double> = DHUHR_PRECAUTION, val hanafi: Boolean = false,
+) {
+    fun minutes(prayer: String): Double = minutes[prayer] ?: 0.0
+
+    companion object {
+        /** ما لم يُطابَق بجدول رسمي: دقيقة احتياط للظهر وحده (كما كان التطبيق يفعل لكل الطرق) */
+        val DHUHR_PRECAUTION = mapOf("dhuhr" to 1.0)
+    }
+}
 
 data class PrayerTimes(
     val fajr: Double, val sunrise: Double, val dhuhr: Double,
@@ -56,7 +72,12 @@ object PrayTimes {
         Method("dubai", 18.2, 18.2, null),
         Method("kuwait", 18.0, 17.5, null),
         Method("qatar", 18.0, null, 90),
-        Method("jordan", 18.0, 18.0, null),
+        // وزارة الأوقاف الأردنية (awqaf.gov.jo، جدول عمّان 1–10 تشرين الثاني 2026): الشروق قبل الفلكي بست دقائق وربع،
+        // والمغرب بعد الغروب بست دقائق ونصف، والبقية تقريب إلى الدقيقة التالية
+        Method(
+            "jordan", 18.0, 18.0, null,
+            minutes = mapOf("fajr" to -0.25, "sunrise" to -6.27, "dhuhr" to 0.36, "asr" to 0.4, "maghrib" to 6.45, "isha" to 0.34),
+        ),
         Method("morocco", 19.0, 17.0, null),
         Method("algeria", 18.0, 17.0, null),
         Method("tunisia", 18.0, 18.0, null),
@@ -142,10 +163,6 @@ object PrayTimes {
         val adj = offset - lng / 15.0
         fajr += adj; sunrise += adj; dhuhr += adj; asr += adj; sunset += adj; maghrib += adj; isha += adj; shafaq += adj
         if (maghrib.isNaN()) maghrib = sunset
-        if (m.ishaMinutes != null) {
-            val ramadan = Hijri.toHijri(date)?.m == 9 && m.key == "makkah"
-            isha = maghrib + (if (ramadan) 120 else m.ishaMinutes) / 60.0
-        }
 
         // خطوط العرض العليا: طريقة الزاوية
         val night = fixHour(sunrise - sunset + 24)
@@ -155,7 +172,17 @@ object PrayTimes {
             val ishaMax = m.ishaAngle / 60.0 * night
             if (isha.isNaN() || fixHour(isha - sunset) > ishaMax) isha = sunset + ishaMax
         }
-        dhuhr += 1.0 / 60.0 // احتياط دقيقة
+        // منتصف الليل من الفجر الفلكي (قبل دقائق الجهة الرسمية)
+        val astroFajr = fajr
+
+        // دقائق الجهة الرسمية، ثم العشاء بالمدة الثابتة بعد المغرب كما تنشره الجهة (أم القرى وقطر)
+        fun mins(prayer: String) = m.minutes(prayer) / 60.0
+        fajr += mins("fajr"); sunrise += mins("sunrise"); dhuhr += mins("dhuhr"); asr += mins("asr"); maghrib += mins("maghrib")
+        if (m.ishaMinutes != null) {
+            val ramadan = Hijri.toHijri(date)?.m == 9 && m.key == "makkah"
+            isha = maghrib + (if (ramadan) 120 else m.ishaMinutes) / 60.0
+        }
+        isha += mins("isha")
 
         // نهاية المغرب: في الطرق التي تحسب العشاء بزاوية يدخل العشاء بمغيب الشفق نفسه، وفي طرق المدة الثابتة
         // (أم القرى وقطر) قد يغيب الشفق قبل موعد العشاء المعلن بكثير
@@ -164,7 +191,7 @@ object PrayTimes {
             else -> minOf(isha, shafaq)
         }
         // منتصف الليل الشرعي: منتصف ما بين الغروب والفجر التالي (فجر الغد ≈ فجر اليوم + 24 ساعة)
-        val midnight = if (fajr.isNaN()) Double.NaN else sunset + (fajr + 24 - sunset) / 2
+        val midnight = if (astroFajr.isNaN()) Double.NaN else sunset + (astroFajr + 24 - sunset) / 2
         return PrayerTimes(fajr, sunrise, dhuhr, asr, maghrib, isha, sunset, maghribEnd, midnight)
     }
 

@@ -167,6 +167,12 @@ struct CalcMethod: Codable {
     let isha: Double?
     let ishaMin: Int?
     let maghrib: Double?
+    /// دقائق الجهة الرسمية لكل وقت (Method.minutes في Kotlin)؛ الغائب صفر
+    let min: [String: Double]?
+    /// العصر بمثلَي الظل هو المعتمد في بلاد الطريقة
+    let hanafi: Bool?
+
+    func minutes(_ prayer: String) -> Double { min?[prayer] ?? 0 }
 }
 
 /// مواقيت يوم بالساعات العشرية المحلية (PrayerTimes في Kotlin)؛ NaN لما تعذّر حسابه
@@ -275,10 +281,6 @@ enum PrayEngine {
         let adj = offset - lng / 15.0
         fajr += adj; sunrise += adj; dhuhr += adj; asr += adj; sunset += adj; maghrib += adj; isha += adj; shafaq += adj
         if maghrib.isNaN { maghrib = sunset }
-        if let minutes = m.ishaMin {
-            let ramadan = hijri.toHijri(date)?.m == 9 && m.key == "makkah"
-            isha = maghrib + Double(ramadan ? 120 : minutes) / 60.0
-        }
 
         // خطوط العرض العليا: طريقة الزاوية
         let night = fixHour(sunrise - sunset + 24)
@@ -288,10 +290,20 @@ enum PrayEngine {
             let ishaMax = angle / 60.0 * night
             if isha.isNaN || fixHour(isha - sunset) > ishaMax { isha = sunset + ishaMax }
         }
-        dhuhr += 1.0 / 60.0 // احتياط دقيقة
+        // منتصف الليل من الفجر الفلكي (قبل دقائق الجهة الرسمية)
+        let astroFajr = fajr
+
+        // دقائق الجهة الرسمية، ثم العشاء بالمدة الثابتة بعد المغرب كما تنشره الجهة (أم القرى وقطر)
+        func mins(_ prayer: String) -> Double { m.minutes(prayer) / 60.0 }
+        fajr += mins("fajr"); sunrise += mins("sunrise"); dhuhr += mins("dhuhr"); asr += mins("asr"); maghrib += mins("maghrib")
+        if let minutes = m.ishaMin {
+            let ramadan = hijri.toHijri(date)?.m == 9 && m.key == "makkah"
+            isha = maghrib + Double(ramadan ? 120 : minutes) / 60.0
+        }
+        isha += mins("isha")
 
         let maghribEnd = (m.isha != nil || shafaq.isNaN) ? isha : jmin(isha, shafaq)
-        let midnight = fajr.isNaN ? Double.nan : sunset + (fajr + 24 - sunset) / 2
+        let midnight = astroFajr.isNaN ? Double.nan : sunset + (astroFajr + 24 - sunset) / 2
         return DayTimes(fajr: fajr, sunrise: sunrise, dhuhr: dhuhr, asr: asr, maghrib: maghrib, isha: isha,
                         sunset: sunset, maghribEnd: maghribEnd, midnight: midnight)
     }

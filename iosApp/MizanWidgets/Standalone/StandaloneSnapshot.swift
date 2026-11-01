@@ -45,7 +45,7 @@ enum StandaloneSnapshot {
         var cache: [Int: DayTimes] = [:]
         func times(_ d: CivilDate) -> DayTimes {
             if let t = cache[d.epochDay] { return t }
-            let t = PrayEngine.compute(d, lat: lat, lng: lng, tz: tz, method: method, hanafi: false, hijri: hijriCal)
+            let t = PrayEngine.compute(d, lat: lat, lng: lng, tz: tz, method: method, hanafi: method.hanafi ?? false, hijri: hijriCal)
             cache[d.epochDay] = t
             return t
         }

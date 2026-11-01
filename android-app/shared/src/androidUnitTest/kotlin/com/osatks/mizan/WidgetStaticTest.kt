@@ -99,7 +99,10 @@ object WidgetStatic {
         return linkedMapOf(
             "v" to 1,
             "methods" to PrayTimes.METHODS.map { m ->
-                linkedMapOf("key" to m.key, "fajr" to m.fajr, "isha" to m.ishaAngle, "ishaMin" to m.ishaMinutes, "maghrib" to m.maghribAngle)
+                linkedMapOf(
+                    "key" to m.key, "fajr" to m.fajr, "isha" to m.ishaAngle, "ishaMin" to m.ishaMinutes, "maghrib" to m.maghribAngle,
+                    "min" to m.minutes, "hanafi" to m.hanafi,
+                )
             },
             "cities" to PrayTimes.CITIES.map { linkedMapOf("k" to it.key, "lat" to it.lat, "lng" to it.lng, "m" to it.method) },
             "hijri" to linkedMapOf(
@@ -269,6 +272,7 @@ object WidgetFixtures {
         Loc("sydney", -33.8688, 151.2093, "Australia/Sydney"), Loc("auckland", -36.8485, 174.7633, "Pacific/Auckland"),
         Loc("capetown", -33.9249, 18.4241, "Africa/Johannesburg"), Loc("buenosaires", -34.6037, -58.3816, "America/Argentina/Buenos_Aires"),
         Loc("tashkent", 41.2995, 69.2401, "Asia/Tashkent"), Loc("almaty", 43.222, 76.8512, "Asia/Almaty"),
+        Loc("amman", 31.9454, 35.9284, "Asia/Amman"),
     )
 
     private fun times(v: com.osatks.mizan.core.PrayerTimes) =

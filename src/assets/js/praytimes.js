@@ -16,7 +16,8 @@
     dubai: { name: t("الإمارات (دبي)"), fajr: 18.2, isha: 18.2 },
     kuwait: { name: t("الكويت|بلد"), fajr: 18, isha: 17.5 },
     qatar: { name: t("قطر"), fajr: 18, isha: { min: 90 } },
-    jordan: { name: t("الأردن وفلسطين"), fajr: 18, isha: 18 },
+    // وزارة الأوقاف الأردنية (جدول عمّان الرسمي): الشروق قبل الفلكي بست دقائق وربع، والمغرب بعد الغروب بست ونصف
+    jordan: { name: t("الأردن وفلسطين"), fajr: 18, isha: 18, min: { fajr: -0.25, sunrise: -6.27, dhuhr: 0.36, asr: 0.4, maghrib: 6.45, isha: 0.34 } },
     morocco: { name: t("المغرب|بلد"), fajr: 19, isha: 17 },
     algeria: { name: t("الجزائر|بلد"), fajr: 18, isha: 17 },
     tunisia: { name: t("تونس|بلد"), fajr: 18, isha: 18 },
@@ -149,7 +150,6 @@
     const adj = tz - lng / 15;
     for (const k in t) t[k] += adj;
     t.maghrib = t.sunset;
-    if (typeof m.isha === "object") t.isha = t.maghrib + (opts.hijriMonth === 9 && opts.method === "makkah" ? 120 : m.isha.min) / 60;
 
     // تعديل خطوط العرض العليا (طريقة الزاوية)
     const night = fixHour(t.sunrise - t.sunset + 24);
@@ -159,8 +159,12 @@
       const ishaMax = (m.isha / 60) * night;
       if (isNaN(t.isha) || fixHour(t.isha - t.sunset) > ishaMax) t.isha = t.sunset + ishaMax;
     }
-    // احتياط دقيقة واحدة للظهر كما تفعل أغلب التقاويم
-    t.dhuhr += 1 / 60;
+    // دقائق الجهة الرسمية (احتياط وتقريب) كما في جدولها المنشور؛ وما لم يُطابَق بجدول رسمي: دقيقة احتياط للظهر وحده.
+    // ثم العشاء بالمدة الثابتة بعد المغرب (أم القرى وقطر). مثل Method.minutes في التطبيق
+    const mins = m.min || { dhuhr: 1 };
+    for (const k of ["fajr", "sunrise", "dhuhr", "asr", "maghrib"]) t[k] += (mins[k] || 0) / 60;
+    if (typeof m.isha === "object") t.isha = t.maghrib + (opts.hijriMonth === 9 && opts.method === "makkah" ? 120 : m.isha.min) / 60;
+    t.isha += (mins.isha || 0) / 60;
     delete t.sunset;
     return t;
   }

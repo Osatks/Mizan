@@ -38,8 +38,10 @@ object AppSettings {
         private set
     var method by mutableStateOf("makkah")
         private set
-    var hanafi by mutableStateOf(false)
-        private set
+    /** ما اختاره المستخدم لوقت العصر؛ null: لم يختر شيئاً، فيتبع المعتمد رسمياً في طريقة الحساب ([Method.hanafi]) */
+    private var hanafiChoice by mutableStateOf<Boolean?>(null)
+    /** العصر بمثلَي الظل (الحنفي): اختيار المستخدم إن اختار، وإلا المعتمد في بلده */
+    val hanafi: Boolean get() = hanafiChoice ?: PrayTimes.method(method).hanafi
     var use24h by mutableStateOf(false)
         private set
     /** الإقامة بعد الأذان بالدقائق لكل صلاة (0 = لا تُعرض)، ويغيّرها المستخدم */
@@ -79,7 +81,7 @@ object AppSettings {
             )
         }
         method = (sp.getString("method") ?: place.method)
-        hanafi = sp.getBool("hanafi", false)
+        hanafiChoice = if (sp.contains("hanafi")) sp.getBool("hanafi", false) else null
         use24h = sp.getBool("use24h", false)
         iqama = IQAMA_DEFAULT.mapValues { (k, v) -> sp.getInt("iqama_$k", v) }
         theme = (sp.getString("theme") ?: "system")
@@ -119,7 +121,7 @@ object AppSettings {
     }
 
     fun updateMethod(v: String) { method = v; sp.edit().putString("method", v).apply() }
-    fun updateHanafi(v: Boolean) { hanafi = v; sp.edit().putBoolean("hanafi", v).apply() }
+    fun updateHanafi(v: Boolean) { hanafiChoice = v; sp.edit().putBoolean("hanafi", v).apply() }
     fun updateUse24h(v: Boolean) { use24h = v; sp.edit().putBoolean("use24h", v).apply() }
     fun updateIqama(prayer: String, minutes: Int) {
         iqama = iqama + (prayer to minutes)
