@@ -744,8 +744,7 @@ object Tr : Strings {
     override val aboutText = "Bir Müslümanın her gün ihtiyaç duyduğu araçları sunan ücretsiz bir uygulama: zekât, miras, namaz vakitleri, kıble, Hicri tarih ve tespih. " +
         "Hükümler fakihlerin çoğunluğunun görüşüne dayanır; namaz vakitleri astronomik formüllerle hesaplanır, tarihler Ümmü'l-Kurâ takvimini esas alır."
     override val privacy = "Gizlilik"
-    override val privacyText = "Uygulama hiçbir kişisel veri toplamaz ve interneti yalnızca seçtiğiniz tefsirleri indirmek ve istediğinizde tilavet çalmak için kullanır. Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıbleyi hesaplamak için kullanılır; " +
-        "ayarlarınız ve girdiğiniz rakamlar cihazınızda kalır."
+    override val privacyText = "Uygulama hiçbir kişisel veri toplamaz ve internete yalnızca siz istediğinizde başvurur: tilavetleri dinletmek ve seçtiğiniz tefsirleri, dil paketlerini ve ezan kayıtlarını indirmek için. Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıbleyi hesaplamak için kullanılır; ayarlarınız ve rakamlarınız cihazınızda kalır."
     override val disclaimer = "Sonuçlar yol göstericidir. Kendi dinî sorularınız için yetkin âlimlere ve resmî kurumlara başvurun."
     // ---------- المتجر والمشاركة والأذونات ----------
     override val rateApp = "Mizan'ı değerlendir"

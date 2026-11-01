@@ -743,8 +743,7 @@ object De : Strings {
     override val aboutText = "Eine kostenlose App mit den Tools, die Muslime täglich brauchen: Zakat, Erbe, Gebetszeiten, Qibla, Hidschra-Datum und Tasbih. " +
         "Die Regeln folgen der Mehrheit der Rechtsgelehrten, die Gebetszeiten beruhen auf astronomischen Formeln und die Daten auf dem Umm-al-Qura-Kalender."
     override val privacy = "Datenschutz"
-    override val privacyText = "Die App erhebt keine personenbezogenen Daten und nutzt das Internet nur, um die Tafsire herunterzuladen, die du auswählst, und um Rezitationen abzuspielen, wenn du es möchtest. Dein Standort wird nur auf deinem Gerät verwendet, um Gebetszeiten und Qibla zu berechnen, " +
-        "und deine Einstellungen und Zahlen bleiben auf deinem Gerät."
+    override val privacyText = "Die App erhebt keine personenbezogenen Daten und nutzt das Internet nur, wenn du es willst: zum Abspielen von Rezitationen und zum Herunterladen der Tafsire, Sprachpakete und Adhan-Aufnahmen, die du auswählst. Dein Standort wird nur auf deinem Gerät verwendet, um Gebetszeiten und Qibla zu berechnen, und deine Einstellungen und Zahlen bleiben auf deinem Gerät."
     override val disclaimer = "Die Ergebnisse dienen zur Orientierung. Wende dich bei persönlichen religiösen Fragen an qualifizierte Gelehrte und offizielle Stellen."
     // ---------- المتجر والمشاركة والأذونات ----------
     override val rateApp = "Mizan bewerten"

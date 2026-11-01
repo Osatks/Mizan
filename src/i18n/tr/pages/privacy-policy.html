@@ -1,5 +1,5 @@
 <!--META
-{"title": "Gizlilik Politikası", "h1": "Gizlilik Politikası", "description": "Mizan sitesi ve uygulaması (com.mizan.almuslim) için gizlilik politikası: gizliliğinizi nasıl koruduğumuz, internetsiz çalışma, yerel izinler, yerel depolama ve çerezler.", "path": "/privacy-policy/", "type": "page", "nav": "", "breadcrumb": "Gizlilik Politikası", "lead": "Son güncelleme: 22 Ekim 2026"}
+{"title": "Gizlilik Politikası", "h1": "Gizlilik Politikası", "description": "Mizan sitesi ve uygulaması (com.mizan.almuslim) için gizlilik politikası: gizliliğinizi nasıl koruduğumuz, internetsiz çalışma, yerel izinler, yerel depolama ve çerezler.", "path": "/privacy-policy/", "type": "page", "nav": "", "breadcrumb": "Gizlilik Politikası", "lead": "Son güncelleme: 1 Kasım 2026"}
 -->
 <section class="prose card">
   <p><strong>Son güncelleme: 22 Ekim 2026</strong></p>
@@ -13,14 +13,16 @@
   <ul>
     <li><strong>Reklam ve izlemeden tamamen arınmış:</strong> Telefon uygulaması hiçbir ticari reklam içermez; herhangi bir analiz yazılımı veya harici izleme paketi barındırmaz (Zero Ads &amp; Zero Tracking SDKs).</li>
     <li><strong>Hiçbir kişisel veriyi toplamıyor veya paylaşmıyoruz:</strong> Uygulama, hiçbir kişisel veya hassas veriyi toplamaz, aktarmaz, satmaz veya üçüncü taraflarla paylaşmaz.</li>
-    <li><strong>İnternetsiz çalışma (Offline-First):</strong> Osmanlı hattıyla Mushaf-ı Şerif, et-Tefsîru'l-Müyesser ve Celâleyn tefsiri, 334 zikir, tüm hesaplayıcılar, namaz vakitleri ve kıble yönü internet bağlantısına ihtiyaç duymadan çalışır.</li>
+    <li><strong>Büyük ölçüde çevrimdışı çalışır:</strong> Osmanî hatla Kur’an-ı Kerim, Tefsîr el-Müyesser ve Celâleyn Tefsiri, 334 zikir, uygulamaya dahil iki ezan ile tüm hesaplayıcılar, namaz vakitleri ve kıble yönü internet bağlantısı olmadan çalışır. Sesli tilavetler, ek tefsirler, dil paketleri ve ek ezan kayıtları ise ilk kez istediğinizde bağlantı gerektirir.</li>
+    <li><strong>Ana ekran widget’ları:</strong> widget’lar yaklaşan namaz vakitlerini, hicri tarihi, zikirleri ve günün ayetini gösterir. Uygulama bu verileri onlara yalnızca cihazınızın içinde aktarır (iOS’ta uygulamanın özel paylaşımlı depolama alanı üzerinden); iOS’ta bir widget vakitleri hesaplamak için konumunuzu cihazda okuyabilir. Bunların hiçbiri bize gönderilmez.</li>
+    <li><strong>Değerlendirme isteği:</strong> uygulama zaman zaman Apple (App Store) veya Google Play’in resmî değerlendirme penceresini gösterebilir. Bu pencereyi tamamen Apple veya Google yönetir; Mizan bundan hiçbir kişisel veri almaz.</li>
   </ul>
 
   <h3>Telefon uygulamasının izinleri ve nasıl kullanıldıkları</h3>
   <p>Telefon uygulaması, belirli özellikleri yalnızca cihazınızda yerel olarak çalıştırmak için aşağıdaki isteğe bağlı izinleri isteyebilir:</p>
   <ul>
-    <li><strong>Coğrafi konum (<code>ACCESS_COARSE_LOCATION</code> ve <code>ACCESS_FINE_LOCATION</code>):</strong> Yalnızca cihaz içinde, namaz vakitlerini astronomik olarak hesaplamak ve kıble açısını belirlemek için kullanılan isteğe bağlı bir izindir. Konum koordinatlarınız hiçbir harici sunucuya gönderilmez ve cihazınızın dışında saklanmaz; gömülü şehir listesinden şehrinizi elle seçerek bu izne gerek duymayabilirsiniz.</li>
-    <li><strong>Bildirimler ve tam zamanlı alarmlar (<code>POST_NOTIFICATIONS</code>, <code>SCHEDULE_EXACT_ALARM</code> ve <code>RECEIVE_BOOT_COMPLETED</code>):</strong> Yalnızca yerel olarak, namaz vaktinin girişi ve ezan bildirimlerini göndermek ve cihaz yeniden başlatıldığında veya saat dilimi değiştiğinde alarmları otomatik olarak yeniden planlamak için kullanılır.</li>
+    <li><strong>Konum (Android’de <code>ACCESS_COARSE_LOCATION</code> ve <code>ACCESS_FINE_LOCATION</code>, iOS’ta “Uygulamayı Kullanırken” izni):</strong> namaz vakitlerini astronomik olarak hesaplamak ve kıble açısını belirlemek için yalnızca cihazda kullanılan isteğe bağlı bir izindir; iOS’ta ana ekran widget’ları da vakitleri hesaplamak için onu aynı cihazda kullanabilir. Konum koordinatlarınız hiçbir harici sunucuya gönderilmez ve cihazınızın dışında saklanmaz; şehrinizi yerleşik şehir listesinden elle seçerek bu izin olmadan da kullanabilirsiniz.</li>
+    <li><strong>Bildirimler, alarmlar ve ezan çalma (<code>POST_NOTIFICATIONS</code>, <code>SCHEDULE_EXACT_ALARM</code>, <code>RECEIVE_BOOT_COMPLETED</code> ve <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code>):</strong> yalnızca yerel olarak; namaz vakti girdiğinde sizi uyarmak, seçtiğiniz ezanı durdurma düğmesiyle çalmak, seçtiğiniz desenle titreşmek ve cihaz yeniden başladığında ya da saat dilimi değiştiğinde uyarıları otomatik olarak yeniden planlamak için kullanılır. iOS’ta uyarılar, uygulamaya dahil kısa bir ezan sesiyle gelen yerel bildirimlerdir.</li>
     <li><strong>Pusula ve hareket sensörü:</strong> Etkileşimli kıble pusulasını Kâbe-i Müşerrefe'ye doğru döndürmek için cihazda yerel olarak okunur; hiçbir ölçüm kaydedilmez veya gönderilmez.</li>
   </ul>
 
@@ -30,6 +32,7 @@
     <li><strong>Kur'an-ı Kerim'in sesli tilavetleri:</strong> Âyetlerin tilavetini dinlemeyi seçtiğinizde, uygulama istenen âyetlerin ses dosyalarını getirir ve daha sonra çevrimdışı dinlemek için cihazdaki önbelleğe kaydeder.</li>
     <li><strong>Ek tefsir kütüphanesi:</strong> Cihazınızda saklayıp internetsiz kullanmak üzere ek tefsir kitapları (İbn Kesîr, Taberî veya Sa'dî tefsiri gibi) indirmek istediğinizde.</li>
     <li><strong>Ek dil paketleri:</strong> Dil menüsünü açıp resmî siteden (<code>{{site_url}}/lang/</code>) bir dil paketini ve Kur'an mealini indirdiğinizde veya güncellediğinizde.</li>
+    <li><strong>Ek ezan kayıtları:</strong> uygulamaya dahil olmayan bir müezzin seçtiğinizde, kaydı resmî web sitesinden (<code>{{site_url}}/adhan/</code>) indirilir ve cihazınıza kaydedilir.</li>
   </ul>
 
   <h2>3. Topladığımız bilgiler</h2>
