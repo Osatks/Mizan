@@ -329,7 +329,10 @@ private object PageLayouts {
     private val lock = Lock()
     private val map = LinkedHashMap<String, PageLayout>()
     private val running = HashMap<String, Deferred<PageLayout>>()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    // خيطان فقط لحساب الصفحات وتشكيلها: ست صفحات مجاورة كانت تُحسب معاً على كل أنوية المعالج فتزاحم
+    // خيط الواجهة وخيط الرسم أثناء التقليب (التعليق في iPhone)
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default.limitedParallelism(2))
     // صفحتان معروضتان وما حولهما (حتى ثماني في كل جهة في عرض الصفحتين) ومقاس سابق أثناء تغيّر النافذة
     private const val KEEP = 32
 

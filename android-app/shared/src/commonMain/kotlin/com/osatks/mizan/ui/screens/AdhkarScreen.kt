@@ -147,13 +147,11 @@ private fun doneToday(id: String) = AppSettings.getInt(doneKey(id), -1) == Local
 @Composable
 fun AdhkarScreen(onBack: () -> Unit, start: String = com.osatks.mizan.widget.WidgetLaunch.takeAdhkarSection()) {
     var open by rememberSaveable { mutableStateOf(start) }
-    BackHandler(open.isNotEmpty()) { open = "" }
     val sections by produceState(Adhkar.loaded()) { if (value == null) value = withContext(Dispatchers.IO) { Adhkar.sections() } }
     val list = sections
-    AnimatedContent(
-        open to (list != null), label = "adhkar",
-        transitionSpec = { (fadeIn(tween(Motion.MEDIUM, 60)) + scaleIn(tween(Motion.MEDIUM), 0.97f)) togetherWith fadeOut(tween(Motion.SHORT)) },
-    ) { (id, ready) ->
+    // القسم صفحة فوق الأقسام (رجوع بالزر أو بسحب الحافة الذي يتبع الإصبع)؛ تحميل الأقسام لا يحرّك الصفحة
+    com.osatks.mizan.ui.SubPages(open, root = "", onBack = { open = "" }) { id ->
+        val ready = list != null
         val sec = if (ready) list!!.firstOrNull { it.id == id } else null
         if (sec != null) AdhkarSectionPage(sec) { open = "" } else AdhkarHome(list.orEmpty(), ready, onBack) { open = it }
     }

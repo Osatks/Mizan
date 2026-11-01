@@ -121,7 +121,7 @@ fun HomeScreen(open: (String) -> Unit) {
         while (true) { next = PrayerUtil.next(); delay(1000) }
     }
     val today = LocalDate.now()
-    val reveal = remember { RevealState() }
+    val reveal = com.osatks.mizan.ui.rememberRevealState()
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     val haze = rememberHazeState()

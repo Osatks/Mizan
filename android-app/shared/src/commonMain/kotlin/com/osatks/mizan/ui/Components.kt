@@ -224,7 +224,7 @@ fun ToolPage(
     columns: Boolean = false,
     content: PageScope.() -> Unit
 ) {
-    val reveal = remember { RevealState() }
+    val reveal = rememberRevealState()
     val nav = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val haze = rememberHazeState()
     val lead = LocalLeadingInset.current

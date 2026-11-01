@@ -1,5 +1,7 @@
 package com.osatks.mizan
 
+import androidx.compose.ui.input.pointer.pointerInput
+import com.osatks.mizan.ui.PageMotion
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -90,6 +92,10 @@ fun MizanApp(startRoute: String? = null) {
     val nav = rememberNavController()
     LaunchedEffect(startRoute) {
         if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) {
+            // ما فوق الرئيسية يُغلق دون حفظ: لمس أداة أو اختصار لا يترك الشاشة السابقة مخبّأة في تبويب يعود بها لاحقاً،
+            // ولا يكدّس الشاشة نفسها مرتين (لمس أداة الشاشة الظاهرة)
+            val home = nav.graph.findStartDestination().id
+            nav.popBackStack(home, inclusive = false)
             if (startRoute in TAB_ROUTES) nav.goTab(startRoute) else nav.navigate(startRoute)
         }
     }
@@ -97,17 +103,15 @@ fun MizanApp(startRoute: String? = null) {
     val current = entry?.destination?.route
     val onTab = current == null || current in TAB_ROUTES
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    // الرجوع فقط من شاشة مستقرة: ضغطة ثانية (أو سحب الحافة) أثناء انتقال لم يكتمل كانت تُخرج شاشتين
-    // وتترك المكدّس في منتصف انتقال، فتبدو الواجهة معلّقة
+    // الرجوع لا يُخرج الرئيسية نفسها (مكدّس فارغ = شاشة بيضاء)، ويعمل فوراً ولو أثناء انتقال، كما في iOS
     val back: () -> Unit = {
-        if (nav.currentBackStackEntry?.lifecycle?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED) == true) nav.popBackStack()
+        if (nav.previousBackStackEntry != null) nav.popBackStack()
     }
     // فتح تبويب من داخل شاشة (مثل «القرآن» من الرئيسية) يمرّ بالتبويبات نفسها، لا يُكدَّس فوق الرئيسية،
     // وإلا حفظ التبويب الرئيسي هذه الشاشة في حالته فبدا شريط التنقل وكأنه لا يعمل
     val open: (String) -> Unit = { r ->
-        // نقرتان سريعتان على أداة كانتا تفتحانها مرتين فوق بعض
-        val settled = nav.currentBackStackEntry?.lifecycle?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED) != false
-        if (r in TAB_ROUTES) nav.goTab(r) else if (settled) nav.navigate(r)
+        // نقرتان سريعتان على أداة لا تفتحانها مرتين: المكدّس يتغير مع النقرة الأولى فوراً، فالثانية تجدها في أعلاه
+        if (r in TAB_ROUTES) nav.goTab(r) else if (nav.currentBackStackEntry?.destination?.route != r) nav.navigate(r)
     }
     // محتوى الصفحات مصدرٌ للزجاج (شريط التنقل والأوراق السفلية)، إلا صفحة المصحف: لا شريط فوقها، فلا كلفة إضافية على التقليب
     val appHaze = rememberHazeState()
@@ -145,8 +149,8 @@ fun MizanApp(startRoute: String? = null) {
                 NavHost(
                     nav, startDestination = "home", modifier = Modifier.fillMaxSize(),
                     enterTransition = { enter(rtl) },
-                    exitTransition = { exit() },
-                    popEnterTransition = { popEnter() },
+                    exitTransition = { exit(rtl) },
+                    popEnterTransition = { popEnter(rtl) },
                     popExitTransition = { popExit(rtl) },
                 ) {
                     // مكان شريط التنقل لكل صفحة تبويب بحسبها هي، لا بحسب الصفحة الظاهرة: فلا يقفز محتواها أثناء الانتقال منها وإليها.
@@ -159,7 +163,13 @@ fun MizanApp(startRoute: String? = null) {
                             LocalNavScope provides this,
                             LocalBottomInset provides if (tab && !side) host.bottomInset else 0.dp,
                             LocalLeadingInset provides if (tab && side) host.leadingInset else 0.dp,
-                        ) { content() }
+                        ) {
+                            // في iOS لا رجوع بالسحب من صفحة تبويب إلى الرئيسية (التبويبات لا تتكدس في تطبيقات النظام)،
+                            // وكان يُفقد حالة التبويب. في أندرويد يبقى زر الرجوع يعود إلى الرئيسية كالمعتاد
+                            if (IsIos && tab && route != "home") com.osatks.mizan.ui.BackHandler {}
+                            // كل صفحة معتمة: في iOS تنزلق الصفحتان معاً، فلا تظهر إحداهما من خلال الأخرى
+                            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) { content() }
+                        }
                     }
                     screen("home") { HomeScreen(open = open) }
                     screen("prayer") { PrayerScreen(open = open) }
@@ -183,7 +193,7 @@ fun MizanApp(startRoute: String? = null) {
                                 onBack = back,
                                 openSurah = { n -> nav.navigate(surahRoute(n, 0, "nav")) { popUpTo(SURAH_ROUTE) { inclusive = true } } },
                                 startInFocus = from == "focus",
-                                openLibrary = { nav.navigate("tafsirs") }
+                                openLibrary = { if (nav.currentBackStackEntry?.destination?.route != "tafsirs") nav.navigate("tafsirs") }
                             )
                         }
                     }
@@ -203,6 +213,8 @@ fun MizanApp(startRoute: String? = null) {
                     screen("fidya") { FidyaScreen(back) }
                     screen("search") {
                         SearchScreen(back) { route ->
+                            // نقرة ثانية على نتيجة أثناء خروج البحث كانت تفتح الشاشة مرتين
+                            if (nav.currentBackStackEntry?.destination?.route != "search") return@SearchScreen
                             if (route in TAB_ROUTES) { nav.popBackStack(); nav.goTab(route) }
                             else nav.navigate(route) { popUpTo("search") { inclusive = true } }
                         }
@@ -214,7 +226,10 @@ fun MizanApp(startRoute: String? = null) {
         // جولة أول تشغيل فوق كل شيء، مرة واحدة
         var firstRun by remember { mutableStateOf(!AppSettings.getBool("onboarded", false) && startRoute == null) }
         AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
-            com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
+            // لا يصل لمس الأماكن الفارغة من الجولة إلى الرئيسية تحتها
+            Box(Modifier.fillMaxSize().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } } }) {
+                com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
+            }
         }
         // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية.
         // يُستدعى دائماً: شريط النظام في iOS 26 يُخبَر بالإخفاء ويتولى حركته بنفسه
@@ -242,23 +257,22 @@ private fun AnimatedContentTransitionScope<NavBackStackEntry>.isTabSwitch() =
 
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.enter(rtl: Boolean): EnterTransition =
     if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
-    else slideInHorizontally(tween(Motion.LONG, easing = Motion.Emphasized)) { w -> (if (rtl) -w else w) / 4 } +
-        fadeIn(tween(Motion.MEDIUM, delayMillis = 40))
+    else PageMotion.push(rtl)
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(): ExitTransition =
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(rtl: Boolean): ExitTransition =
     if (isTabSwitch()) fadeOut(tween(90))
+    else if (IsIos) PageMotion.pushUnder(rtl)
     else scaleOut(tween(Motion.LONG, easing = Motion.Emphasized), targetScale = 0.94f) + fadeOut(tween(Motion.MEDIUM))
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(): EnterTransition =
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(rtl: Boolean): EnterTransition =
     if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
+    else if (IsIos) PageMotion.popUnder(rtl)
     else scaleIn(tween(Motion.LONG, easing = Motion.Emphasized), initialScale = 0.94f) + fadeIn(tween(Motion.MEDIUM))
 
-// في iOS تخرج الصفحة كاملة إلى جهة الرجوع: سحب الحافة للرجوع (يتبع الإصبع) يحمل الصفحة معه كما في تطبيقات النظام
+// في iOS: الصفحة كلها تخرج إلى جهة الرجوع وتعود التي تحتها من ثلث العرض، بحركة خطية يقودها سحب الحافة فتبقى تحت الإصبع
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(rtl: Boolean): ExitTransition =
     if (isTabSwitch()) fadeOut(tween(90))
-    else if (IsIos) slideOutHorizontally(tween(Motion.LONG - 80, easing = Motion.Emphasized)) { w -> if (rtl) -w else w }
-    else slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { w -> (if (rtl) -w else w) / 4 } +
-        fadeOut(tween(Motion.SHORT, delayMillis = 60))
+    else PageMotion.pop(rtl)
 
 private fun NavHostController.goTab(route: String) {
     navigate(route) {

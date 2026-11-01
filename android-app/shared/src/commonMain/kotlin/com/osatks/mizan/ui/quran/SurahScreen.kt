@@ -167,9 +167,9 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val size = QuranPrefs.textSize
     val startIndex = QuranMeta.index(surah, startAyah.coerceAtLeast(1))
     // «تابع في وضع التركيز» يفتح الصفحة نفسها دون تظليل آية
-    var selIdx by remember { mutableIntStateOf(if (startAyah > 0 && from != "focus") startIndex else -1) }
+    var selIdx by rememberSaveable { mutableIntStateOf(if (startAyah > 0 && from != "focus") startIndex else -1) }
     var sheetIdx by remember { mutableStateOf<Int?>(null) }
-    var listSurah by remember { mutableIntStateOf(surah) }
+    var listSurah by rememberSaveable { mutableIntStateOf(surah) }
     val list = rememberLazyListState()
     // صفحة واحدة أو صفحتان متقابلتان بحسب النافذة (iPad بالعرض، والشاشة الداخلية لـ iPhone Duo)
     val window = LocalWindowLayout.current
@@ -201,7 +201,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
 
     // الانتقال إلى الآية المطلوبة في عرض آية آية
-    var jumped by remember { mutableStateOf(false) }
+    var jumped by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(text != null) {
         if (text != null && !jumped) { jumped = true; if (mode == "list" && startAyah > 1) list.scrollToItem(listItemOf(startAyah)) }
     }

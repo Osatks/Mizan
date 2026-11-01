@@ -18,8 +18,8 @@ const launch = path.join(assets, 'LaunchEmblem.imageset');
 const jobs = [
   // [المصدر، الناتج، المقاس، شفاف؟، المجموعة]
   ['any', path.join(ios, 'AppIcon-1024.png'), 1024, false, 'icons'],
-  ['dark', path.join(ios, 'AppIcon-1024-dark.png'), 1024, false, 'dark'],
-  ['dark', path.join(assets, 'AppIcon.appiconset', 'AppIcon-1024-dark.png'), 1024, false, 'dark'],
+  ['dark', path.join(ios, 'AppIcon-1024-dark.png'), 1024, true, 'dark'],
+  ['dark', path.join(assets, 'AppIcon.appiconset', 'AppIcon-1024-dark.png'), 1024, true, 'dark'],
   ['tinted', path.join(ios, 'AppIcon-1024-tinted.png'), 1024, false, 'icons'],
   ['any', path.join(web, 'icon-180.png'), 180, false, 'icons'],           // apple-touch-icon: مربع ممتلئ يقصّه iOS
   ['any', path.join(web, 'icon-maskable-512.png'), 512, false, 'icons'],  // الشعار داخل الدائرة الآمنة (80%)

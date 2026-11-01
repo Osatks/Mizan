@@ -68,6 +68,8 @@ val LocalNavScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Modifier.sharedCard(key: String, shape: Shape = RoundedCornerShape(24.dp)): Modifier {
+    // في iOS تنتقل الصفحة كاملة كما في تطبيقات النظام، ويقودها سحب الحافة؛ تحوّل البطاقة إلى الرأس يزاحمها
+    if (IsIos) return this
     val shared = LocalSharedScope.current ?: return this
     val anim = LocalNavScope.current ?: return this
     return with(shared) {
@@ -85,6 +87,7 @@ fun Modifier.sharedCard(key: String, shape: Shape = RoundedCornerShape(24.dp)): 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Modifier.sharedIcon(key: String): Modifier {
+    if (IsIos) return this
     val shared = LocalSharedScope.current ?: return this
     val anim = LocalNavScope.current ?: return this
     return with(shared) {
@@ -98,9 +101,21 @@ fun Modifier.sharedIcon(key: String): Modifier {
 // ---------- ظهور متتابع لعناصر الصفحة ----------
 
 /** يتذكر لحظة فتح الصفحة: العناصر الأولى تظهر متتابعة، وما يظهر لاحقاً (بالتمرير) يظهر فوراً */
-class RevealState {
+class RevealState(private val enabled: Boolean = true) {
     private val start = kotlin.time.TimeSource.Monotonic.markNow()
-    fun shouldAnimate(index: Int) = !Motion.reduced && index < 10 && start.elapsedNow().inWholeMilliseconds < 450
+    fun shouldAnimate(index: Int) = enabled && !Motion.reduced && index < 10 && start.elapsedNow().inWholeMilliseconds < 450
+}
+
+/**
+ * الظهور المتتابع في أول فتح للصفحة فقط: حين تعود إليها (رجوع، أو سحب الحافة الذي يكشفها تحت الإصبع،
+ * أو تبديل التبويب) تظهر كما تُركت، لا تُعاد حركتها
+ */
+@Composable
+fun rememberRevealState(): RevealState {
+    val seen = androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    val state = remember { RevealState(enabled = !seen.value) }
+    LaunchedEffect(Unit) { seen.value = true }
+    return state
 }
 
 fun Modifier.reveal(state: RevealState, index: Int): Modifier = composed {

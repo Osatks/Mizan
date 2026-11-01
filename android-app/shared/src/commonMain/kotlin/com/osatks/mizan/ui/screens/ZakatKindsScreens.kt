@@ -63,12 +63,9 @@ import com.osatks.mizan.ui.theme.Gold
 @Composable
 fun ZakatScreen(onBack: () -> Unit) {
     var type by rememberSaveable { mutableStateOf("") }
-    BackHandler(type.isNotEmpty()) { type = "" }
     val back = { type = "" }
-    AnimatedContent(
-        type, label = "zakatType",
-        transitionSpec = { (fadeIn(tween(Motion.MEDIUM, 60)) + scaleIn(tween(Motion.MEDIUM), 0.97f)) togetherWith fadeOut(tween(Motion.SHORT)) },
-    ) { t ->
+    // نوع الزكاة صفحة فوق الأنواع: يُرجع منها بزر الرجوع أو بسحب الحافة الذي يتبع الإصبع
+    com.osatks.mizan.ui.SubPages(type, root = "", onBack = back) { t ->
         when (t) {
             "money" -> ZakatMoneyScreen(back)
             "trade" -> ZakatMoneyScreen(back, tradeFirst = true)
