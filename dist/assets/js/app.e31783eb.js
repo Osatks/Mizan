@@ -13,3 +13,19 @@
     if (note) { note.textContent = t("نسخة iPhone وiPad قيد التطوير وستصدر قريبًا على App Store. يمكنك الآن استخدام أدوات ميزان من المتصفح."); note.hidden = false; }
   }
 })();
+
+// فيديو التطبيق: صورة وزر تشغيل، ولا يُحمَّل شيء من YouTube قبل الضغط (youtube-nocookie)
+(function () {
+  "use strict";
+  document.querySelectorAll(".video-facade[data-yt]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const f = document.createElement("iframe");
+      f.src = `https://www.youtube-nocookie.com/embed/${btn.dataset.yt}?autoplay=1&playsinline=1&rel=0`;
+      f.title = btn.getAttribute("aria-label") || "";
+      f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      f.allowFullscreen = true;
+      f.className = "video-frame";
+      btn.replaceWith(f);
+    }, { once: true });
+  });
+})();
