@@ -290,7 +290,18 @@ run_watch() {
   # محاكي watchOS ليس مثبّتاً دائماً في صورة المشغّل: يُنزَّل إن غاب
   if ! xcrun simctl list runtimes | grep -q watchOS; then
     log "downloading the watchOS simulator runtime"
-    xcodebuild -downloadPlatform watchOS || { echo "::warning title=Apple Watch::could not download the watchOS simulator"; return 0; }
+    xcodebuild -downloadPlatform watchOS 2>&1 | tail -n 20 || true
+  fi
+  if ! xcrun simctl list runtimes | grep -q watchOS; then
+    local rt="$LOGS/watch-runtime"
+    mkdir -p "$rt"
+    xcodebuild -downloadPlatform watchOS -exportPath "$rt" 2>&1 | tail -n 20 || true
+    for f in "$rt"/*.dmg; do [ -f "$f" ] && xcrun simctl runtime add "$f"; done
+    rm -rf "$rt"
+  fi
+  if ! xcrun simctl list runtimes | grep -q watchOS; then
+    echo "::warning title=Apple Watch::no watchOS simulator runtime on this runner; watch screenshots skipped"
+    return 0
   fi
   # أحدث watchOS مثبّت وساعة يدعمها (Ultra 2 أولاً: 410×502)
   read -r runtime type < <(xcrun simctl list runtimes -j | python3 "$(dirname "$0")/pick_watch.py")

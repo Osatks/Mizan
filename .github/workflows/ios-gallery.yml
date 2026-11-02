@@ -185,15 +185,26 @@ jobs:
           codesign --force --sign - --timestamp=none --entitlements MizanWatchWidgets/MizanWatchWidgets.entitlements build/Debug-watchsimulator/MizanWatch.app/PlugIns/MizanWatchWidgets.appex
           codesign --force --sign - --timestamp=none --entitlements MizanWatch/MizanWatch.entitlements build/Debug-watchsimulator/MizanWatch.app
 
-      # محاكي watchOS ليس مثبّتاً دائماً في صورة المشغّل (أداة البناء موجودة): يُنزَّل إن غاب
+      # محاكي watchOS ليس مثبّتاً في كل مشغّل (أداة البناء موجودة): يُنزَّل إن غاب، وإلا تُتخطّى الصور بتحذير
       - name: watchOS simulator runtime
+        id: rt
         run: |
           if ! xcrun simctl list runtimes | grep -q watchOS; then
-            xcodebuild -downloadPlatform watchOS
+            xcodebuild -downloadPlatform watchOS 2>&1 | tail -n 20 || true
           fi
-          xcrun simctl list runtimes | grep watchOS
+          if ! xcrun simctl list runtimes | grep -q watchOS; then
+            mkdir -p "$RUNNER_TEMP/rt"
+            xcodebuild -downloadPlatform watchOS -exportPath "$RUNNER_TEMP/rt" 2>&1 | tail -n 20 || true
+            for f in "$RUNNER_TEMP"/rt/*.dmg; do [ -f "$f" ] && xcrun simctl runtime add "$f"; done
+          fi
+          if xcrun simctl list runtimes | grep watchOS; then
+            echo "ok=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Apple Watch::no watchOS simulator runtime on this runner; watch screenshots skipped (the watch app was built)"
+          fi
 
       - name: Watch screenshots
+        if: ${{ steps.rt.outputs.ok == '1' }}
         working-directory: iosApp
         run: |
           mkdir -p "$RUNNER_TEMP/watch"
