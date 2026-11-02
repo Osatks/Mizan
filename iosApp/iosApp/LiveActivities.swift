@@ -343,7 +343,8 @@ enum AppLive {
     @MainActor
     static func run(_ action: LiveAction) async -> LiveOutcome {
         switch action {
-        case .tasbihCount: return await tasbih(IosTasbih.shared.count(), start: true)
+        // التسبيحة من الأداة وزر شاشة القفل ومركز التحكم وزر النشاط: تُعدّ، ويُحدَّث النشاط إن كان ظاهراً ولا يُفتح
+        case .tasbihCount: return await tasbih(IosTasbih.shared.count(), start: false)
         case .tasbihReset: return await tasbih(IosTasbih.shared.reset(), start: false)
         case .tasbihShow: return await tasbih(IosTasbih.shared.current(), start: true)
         case .tasbihEnd:
