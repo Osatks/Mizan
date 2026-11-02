@@ -72,6 +72,23 @@ adb shell input swipe 540 1250 540 1250 900; sleep 2
 tap_text "استماع"
 sleep 3
 adb exec-out screencap -p > "$OUT/19c-listen-options.png"; echo "captured 19c-listen-options"
+# مشاركة الآية صورة: لوحة البطاقة، ثم قائمة المشاركة بالصورة نفسها (PNG عبر FileProvider)
+adb shell input keyevent KEYCODE_BACK; sleep 1
+adb shell input swipe 540 1250 540 1250 900; sleep 2
+tap_text "مشاركة"
+sleep 4
+adb exec-out screencap -p > "$OUT/19d-share-card.png"; echo "captured 19d-share-card"
+tap_text "صورة"
+sleep 5
+adb exec-out screencap -p > "$OUT/19e-share-sheet.png"; echo "captured 19e-share-sheet"
+adb shell input keyevent KEYCODE_BACK; sleep 1
+# بالإنجليزية: البطاقة ومعنى الآية تحتها
+shot "surah/2?ayah=255&from=row" 19f-surah-en en
+adb shell input swipe 540 1250 540 1250 900; sleep 2
+tap_text "Share"
+sleep 4
+adb exec-out screencap -p > "$OUT/19g-share-card-en.png"; echo "captured 19g-share-card-en"
+adb shell input keyevent KEYCODE_BACK; sleep 1
 shot quran          16-quran-en en
 
 # ألوان التطبيق
