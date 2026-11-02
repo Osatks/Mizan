@@ -107,7 +107,8 @@ targets:
         # غير موجودين في iOS 15: ربط ضعيف حتى تعمل الأدوات هناك
         OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,AppIntents -Wl,-weak_framework,ActivityKit"
 
-  # ميزان على Apple Watch (watchOS 10 فما بعد، هدف واحد): الصلاة القادمة ومواقيت اليوم، والمسبحة بالتاج الرقمي.
+  # ميزان على Apple Watch (watchOS 10 فما بعد، هدف واحد): الصلاة القادمة ومواقيت اليوم، والمسبحة بالتاج الرقمي،
+  # واتجاه القبلة ببوصلة الساعة.
   # البيانات من iPhone (WatchSync.swift): لقطة المواقيت نفسها التي تقرؤها الأدوات
   MizanWatch:
     type: application
@@ -118,6 +119,8 @@ targets:
           - "*.entitlements"
           - "Info.plist"
       - path: Shared/SnapshotModel.swift
+      # رسم المضاعفات لمعرضها في التطبيق (ComplicationGallery: صور المحاكي)
+      - path: MizanWatchWidgets/ComplicationViews.swift
       - path: Privacy/Watch/PrivacyInfo.xcprivacy
         buildPhase: resources
     settings:
@@ -133,7 +136,7 @@ targets:
       - target: MizanWatchWidgets
         embed: true
 
-  # مضاعفات وجه الساعة (WidgetKit): الصلاة القادمة، واختصار المسبحة
+  # مضاعفات وجه الساعة والمكدس الذكي (WidgetKit): الصلاة القادمة، ومواقيت اليوم، والقبلة، والتاريخ الهجري، والمسبحة
   MizanWatchWidgets:
     type: app-extension
     platform: watchOS

@@ -28,6 +28,9 @@
 	<string>com.mizan.almuslim</string>
 	<key>WKRunsIndependentlyOfCompanionApp</key>
 	<false/>
+	<!-- القبلة: الموقع يصحّح البوصلة إلى الشمال الجغرافي فقط (القبلة نفسها من موقع التطبيق على iPhone) -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يُستعمل موقعك على ساعتك فقط لتوجيه بوصلة القبلة نحو الشمال الجغرافي، ولا يُرسل إلى أي جهة. Your location is used only on your watch to point the qibla compass at true north. It is never sent anywhere.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

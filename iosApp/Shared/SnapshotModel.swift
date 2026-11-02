@@ -19,6 +19,32 @@ struct Snapshot: Codable {
     var items: [String: Dhikr]
     /// الختمة لأداة الورد (لقطة التطبيق فقط؛ الأداة المستقلة لا تعرف ما قرأه المستخدم)
     var khatma: Khatma? = nil
+    /// ما تقرؤه الساعة وحدها: القبلة والإقامة ورمضان (لقطة التطبيق فقط؛ WidgetData.watch في Kotlin)
+    var watch: WatchExtras? = nil
+}
+
+/// للساعة: القبلة من موقع المستخدم في التطبيق، ودقائق الإقامة بعد كل أذان، وأيام رمضان ونصوصها، واسم الشهر الهجري
+struct WatchExtras: Codable {
+    /// زاوية القبلة من الشمال الجغرافي بالدرجات (0 إلى 360)
+    var qibla: Double
+    /// «157°» بأرقام لغة التطبيق
+    var qiblaText: String
+    /// «الجنوب الشرقي»
+    var qiblaDir: String
+    /// «1,234 كم»
+    var qiblaKm: String
+    var qiblaTitle: String
+    /// «أنت متجه نحو القبلة»
+    var facing: String
+    /// دقائق الإقامة بعد أذان كل صلاة (الصلوات التي لها إقامة فقط)
+    var iqama: [String: Int]
+    var iqamaIn: String
+    var iftar: String
+    var suhoor: String
+    /// أيام رمضان في اللقطة (Day.date)
+    var ramadan: [String]
+    /// اسم الشهر الهجري لكل يوم (Day.date) بلا السنة
+    var months: [String: String]
 }
 
 /// ورد اليوم وتقدّم الختمة (WidgetData.khatma في Kotlin)

@@ -1,0 +1,3 @@
+/* سبب طلب الموقع في الساعة: بوصلة القبلة */
+"CFBundleDisplayName" = "Mizan";
+"NSLocationWhenInUseUsageDescription" = "Your location is used only on your watch to point the qibla compass at true north. It is never sent anywhere.";
