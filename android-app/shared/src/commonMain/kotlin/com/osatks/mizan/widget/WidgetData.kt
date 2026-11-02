@@ -139,13 +139,44 @@ object WidgetData {
         PrayTimes.format(t.time.toSecondOfDay() / 3600.0, h24, s.am, s.pm)
 
     /** عناوين الأدوات ونصوصها الثابتة بلغة الواجهة (في اللقطة، وفي بيانات الأداة المستقلة في iOS) */
-    fun labels(s: Strings, wt: WidgetText): Map<String, String> = linkedMapOf(
+    fun labels(s: Strings, wt: WidgetText, lt: LiveText = LiveText.EN): Map<String, String> = linkedMapOf(
         "adhkar" to wt.adhkar, "nextPrayer" to wt.nextPrayer, "prayerTimes" to wt.prayerTimes, "hijri" to wt.hijri,
         "ayah" to s.ayahOfDay, "next" to wt.next, "in" to wt.inTime, "openApp" to wt.openApp,
         "descNext" to wt.descNext, "descTimes" to wt.descTimes, "descHijri" to wt.descHijri,
         "descAyah" to wt.descAyah, "descAdhkar" to wt.descAdhkar,
         "allowLocation" to wt.allowLocation, "locationHint" to wt.locationHint,
+        // أداتا المسبحة والورد (iOS)
+        "tasbih" to lt.tasbih, "descTasbih" to lt.descTasbih, "wird" to lt.wird, "descWird" to lt.descWird,
     )
+
+    /**
+     * الختمة لأداة الورد: صفحات اليوم من ورده، والمقروء من المصحف، والأيام المتتالية، وموضع المتابعة.
+     * null قبل تهيئة الإعدادات (الاختبارات)؛ النصوص منسقة بلغة التطبيق
+     */
+    fun khatma(s: Strings): Map<String, Any?>? = runCatching {
+        if (!AppSettings.ready) return@runCatching null
+        com.osatks.mizan.quran.QuranProgress.ensure()
+        com.osatks.mizan.quran.QuranPrefs.ensure()
+        val qp = com.osatks.mizan.quran.QuranProgress
+        val total = com.osatks.mizan.quran.QuranProgress.PAGES
+        val read = qp.readCount
+        val goal = qp.dailyGoal()
+        val today = qp.todayCount
+        val last = com.osatks.mizan.quran.QuranPrefs.last
+        val route = if (last >= 0) QuranMeta.locate(last).let { (sn, an) -> surahRoute(sn, an, "widget") } else "quran"
+        val pct = (read * 100 / total).coerceIn(0, 100)
+        mapOf(
+            "read" to read, "total" to total, "percent" to pct, "today" to today, "goal" to goal,
+            "streak" to qp.streak, "done" to qp.finished, "route" to route,
+            "title" to s.todayPortion, "khatma" to s.khatmaTitle,
+            "pages" to if (goal > 0) s.pagesRead(today, goal) else s.pagesRead(read, total),
+            "streakText" to s.streakDays(qp.streak),
+            "percentText" to "$pct%",
+            "portionDone" to (goal > 0 && today >= goal),
+            "doneText" to if (qp.finished) s.khatmaDone else s.portionDone,
+            "continue" to s.continuePortion,
+        )
+    }.getOrNull()
 
     private fun epoch(t: LocalDateTime, z: TimeZone) = t.toInstant(z).epochSeconds
 
@@ -240,7 +271,8 @@ object WidgetData {
             ),
             "place" to s.placeName(place),
             "rotateSec" to AdhkarClock.ROTATE_SEC,
-            "labels" to labels(s, wt),
+            "labels" to labels(s, wt, LiveText.of(lang.code)),
+            "khatma" to khatma(s),
             "days" to dayList,
             "windows" to winList,
             "items" to itemMap,

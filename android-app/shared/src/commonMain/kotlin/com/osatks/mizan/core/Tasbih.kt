@@ -93,6 +93,9 @@ object Tasbih {
     /** iOS: الجزيرة الديناميكية والأداة ومركز التحكم تتبع كل تغيير (IosTasbih) */
     var onChange: (() -> Unit)? = null
 
+    /** تغيير يأتي من خارج الشاشة (زر الإجراء ومركز التحكم والأداة): يتولى صاحبه نشر الحال، فلا يُرسل [onChange] */
+    internal var muted = false
+
     fun ensure() {
         if (!loaded) {
             loaded = true
@@ -119,7 +122,7 @@ object Tasbih {
         AppSettings.putString("ts_mode", s.mode); AppSettings.putInt("ts_idx", s.idx); AppSettings.putInt("ts_step", s.step)
         AppSettings.putInt("ts_count", s.count); AppSettings.putInt("ts_target", s.target); AppSettings.putInt("ts_rounds", s.rounds)
         AppSettings.putInt("ts_total", s.total); AppSettings.putInt("ts_today", s.today); AppSettings.putString("ts_day", s.day)
-        if (notify) onChange?.invoke()
+        if (notify && !muted) onChange?.invoke()
     }
 
     /** تسبيحة واحدة؛ يعيد ما حدث (لاهتزاز إتمام الدورة ورسالته) */

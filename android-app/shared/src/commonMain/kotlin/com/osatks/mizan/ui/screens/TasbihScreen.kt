@@ -33,6 +33,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -207,6 +208,17 @@ fun TasbihScreen() {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)) {
                     OutlinedButton(onClick = { Tasbih.reset() }) { Icon(Icons.Filled.RestartAlt, null); Text(" " + s.reset) }
                     OutlinedButton(onClick = { Tasbih.undo() }) { Icon(Icons.AutoMirrored.Filled.Undo, null); Text(" " + s.undo) }
+                }
+                // iOS: العدّاد على شاشة القفل وفي الجزيرة الديناميكية (يعدّ منها زر الإجراء ومركز التحكم أيضاً)
+                if (com.osatks.mizan.platform.LiveTasbih.supported) {
+                    val lt = com.osatks.mizan.widget.LiveText.of(com.osatks.mizan.i18n.LocalLang.current.code)
+                    androidx.compose.material3.TextButton(
+                        onClick = { com.osatks.mizan.platform.LiveTasbih.show?.invoke() },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Filled.Smartphone, null)
+                        Text(" " + lt.showLive)
+                    }
                 }
             }
         }

@@ -161,7 +161,7 @@ object WidgetStatic {
             "prayers" to PrayTimes.PRAYERS.associateWith { s.prayer(it) },
             "myLocation" to s.myLocation,
             "cities" to PrayTimes.CITIES.associate { it.key to s.city(it.key) },
-            "labels" to WidgetData.labels(s, wt),
+            "labels" to WidgetData.labels(s, wt, com.osatks.mizan.widget.LiveText.of(lang.code)),
             "titles" to KINDS.associateWith { WidgetData.title(AdhkarWindow(it, probe, probe, "", emptyList()), lang, wt, tr) },
             "chips" to linkedMapOf("friday" to s.weekdays[4], "fridayEve" to wt.fridayEve, "lastTen" to wt.lastTen),
             "until" to wt.until,
