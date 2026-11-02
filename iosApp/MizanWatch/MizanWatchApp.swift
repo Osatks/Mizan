@@ -10,25 +10,27 @@ import WidgetKit
 @main
 struct MizanWatchApp: App {
     @StateObject private var model = WatchModel()
-    /// الصفحة الأولى: المواقيت (0) أو المسبحة (1) أو القبلة (2)؛ وسيط التشغيل -watch.page لالتقاط الصور في المحاكي،
-    /// و 3 و 4 معرض المضاعفات (ComplicationGallery) للصور وحدها
+    /// الصفحة الأولى: المواقيت (0) أو الأذكار (3) أو المسبحة (1) أو القبلة (2)؛ وسيط التشغيل -watch.page لالتقاط الصور
+    /// في المحاكي، و 10 فما بعد معرض المضاعفات (ComplicationGallery) للصور وحدها
     @State private var page = UserDefaults.standard.integer(forKey: "watch.page")
 
     var body: some Scene {
         WindowGroup {
-            if page >= 3 {
+            if page >= 10 {
                 ComplicationGallery(payload: model.payload, sheet: page)
             } else {
                 TabView(selection: $page) {
                     PrayerPage(model: model).tag(0)
+                    AdhkarPage(model: model).tag(3)
                     TasbihPage(labels: model.payload?.tasbih, rtl: model.rtl).tag(1)
                     QiblaPage(model: model, active: page == 2).tag(2)
                 }
                 .tabViewStyle(.verticalPage)
                 .environment(\.layoutDirection, model.rtl ? .rightToLeft : .leftToRight)
-                // من المضاعفات: mizan-watch://prayer و tasbih و qibla
+                // من المضاعفات: mizan-watch://prayer و adhkar و tasbih و qibla
                 .onOpenURL { url in
                     switch url.host {
+                    case "adhkar": page = 3
                     case "tasbih": page = 1
                     case "qibla": page = 2
                     default: page = 0
@@ -67,7 +69,14 @@ final class WatchModel: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     private func apply(_ context: [String: Any]) {
-        guard let data = context["payload"] as? Data, let p = try? JSONDecoder().decode(WatchPayload.self, from: data) else { return }
+        // مضغوطة (WatchSync)، أو غير مضغوطة من نسخة سابقة
+        let data: Data?
+        if let z = context["payloadz"] as? Data {
+            data = try? (z as NSData).decompressed(using: .zlib) as Data
+        } else {
+            data = context["payload"] as? Data
+        }
+        guard let data = data, let p = try? JSONDecoder().decode(WatchPayload.self, from: data) else { return }
         WatchData.save(data)
         WidgetCenter.shared.reloadAllTimelines()
         DispatchQueue.main.async { self.payload = p }
@@ -109,19 +118,23 @@ struct PrayerContent: View {
                         .minimumScaleFactor(0.7)
                 }
                 .foregroundStyle(gold)
-                HStack(alignment: .firstTextBaseline) {
+                // اسم الصلاة ووقتها متجاوران
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(verbatim: next.name)
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(size: 30, weight: .bold, design: .rounded))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
-                    Spacer(minLength: 4)
+                        .layoutPriority(1)
                     // بعد الأذان مضى وقته: العدّ إلى الإقامة وحده
                     if phase.kind != .iqama {
                         Text(verbatim: next.t)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.8))
+                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.65))
+                            .monospacedDigit()
+                            .lineLimit(1)
                             .environment(\.layoutDirection, .leftToRight)
                     }
+                    Spacer(minLength: 0)
                 }
                 // العدّ في بداية السطر كاسم الصلاة فوقه (يمين الشاشة بالعربية): أرقامه من اليسار إلى اليمين، والنص يملأ
                 // عرضه فيُحاذى داخله، والإطار حوله في اتجاه اللغة
@@ -153,7 +166,12 @@ struct PrayerContent: View {
                         }
                         .font(.system(size: 14, weight: isNext ? .bold : .regular, design: .rounded))
                         .foregroundStyle(isNext ? gold : (t.at < now.timeIntervalSince1970 ? .white.opacity(0.5) : .white))
-                        .padding(.vertical, 1)
+                        .padding(.vertical, 3)
+                        .padding(.horizontal, 7)
+                        // التالية في شريحة ذهبية خفيفة
+                        .background {
+                            if isNext { RoundedRectangle(cornerRadius: 8, style: .continuous).fill(gold.opacity(0.16)) }
+                        }
                     }
                 }
             }

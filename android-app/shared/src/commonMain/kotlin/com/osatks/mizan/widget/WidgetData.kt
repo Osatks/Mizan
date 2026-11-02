@@ -191,7 +191,7 @@ object WidgetData {
     /**
      * ما تقرؤه ميزان على Apple Watch وحدها (WatchExtras في SnapshotModel.swift): القبلة من موقع المستخدم في التطبيق
      * (زاويتها من الشمال الجغرافي واتجاهها ومسافتها منسقة بلغته)، ودقائق الإقامة بعد كل أذان، وأيام رمضان من [dates]
-     * ونصوص العدّ فيها (الإفطار عند المغرب ونهاية السحور عند الفجر)، واسم الشهر الهجري لكل يوم.
+     * ونصوص العدّ فيها (الإفطار عند المغرب ونهاية السحور عند الفجر)، واسم الشهر الهجري لكل يوم، ونصوص صفحة الأذكار.
      */
     fun watch(lang: Lang, place: Place, iqama: Map<String, Int>, dates: List<LocalDate>): Map<String, Any?> {
         val s = lang.strings
@@ -211,6 +211,10 @@ object WidgetData {
             "suhoor" to lt.suhoor,
             "ramadan" to hijri.filterValues { it?.m == 9 }.keys.toList(),
             "months" to hijri.mapNotNull { (d, h) -> h?.let { d to s.hijriMonths[it.m - 1] } }.toMap(),
+            // صفحة الأذكار في الساعة: «أتممت %s ✓» و«من جديد» و«التالي»
+            "adhkarDone" to lt.adhkarDone,
+            "again" to lt.again,
+            "next" to WidgetText.of(lang.code).next,
         )
     }
 

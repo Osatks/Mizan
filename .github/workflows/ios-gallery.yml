@@ -149,8 +149,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-  # تطبيق الساعة على محاكي Apple Watch: المواقيت والمسبحة والقبلة ومعرض المضاعفات بالعربية والإنجليزية، بلقطة حقيقية من Kotlin
-  # (كما يرسلها iPhone: بلا الأذكار، والأوقات منقولة إلى الآن) تُمرَّر وسيطَ تشغيل (UserDefaults: watch.json)
+  # تطبيق الساعة على محاكي Apple Watch: المواقيت والأذكار والمسبحة والقبلة ومعرض المضاعفات بالعربية والإنجليزية، بلقطة حقيقية من Kotlin
+  # (كما يرسلها iPhone: الأذكار بنصوصها العربية فقط، والأوقات منقولة إلى الآن) تُمرَّر وسيطَ تشغيل (UserDefaults: watch.json)
   watch:
     needs: fixtures
     runs-on: xcode-27
@@ -228,9 +228,10 @@ jobs:
           fi
           xcrun simctl status_bar "$udid" override --time "9:41" || true
           xcrun simctl install "$udid" build/Debug-watchsimulator/MizanWatch.app
-          # 0 المواقيت، 1 المسبحة، 2 القبلة (بلا بوصلة في المحاكي: القرص ثابت والشمال أعلاه)، 3 و 4 معرض المضاعفات
+          # 0 المواقيت، 3 الأذكار، 1 المسبحة، 2 القبلة (بلا بوصلة في المحاكي: القرص ثابت والشمال أعلاه)،
+          # ومعرض المضاعفات: 10 وجه Modular، 11 المكدس الذكي، 12 الإقامة والإفطار والسحور
           for lang in ar en; do
-            for page in 0 1 2 3 4; do
+            for page in 0 3 1 2 10 11 12; do
               xcrun simctl terminate "$udid" com.mizan.almuslim.watchkitapp >/dev/null 2>&1 || true
               xcrun simctl launch "$udid" com.mizan.almuslim.watchkitapp -watch.json "$(cat "$RUNNER_TEMP/watch/payload-$lang.txt")" -watch.page "$page" >/dev/null
               sleep 6
