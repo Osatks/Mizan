@@ -46,6 +46,8 @@ object IosTasbih {
         Tasbih.ensure()
         Tasbih.onChange = { publish(null) }
         LiveTasbih.show = { post(SHOW, message(null)) }
+        // مفتاح «على شاشة القفل»: مطفأً يُنهي Swift الأنشطة الظاهرة (LiveActivities.swift)
+        LiveTasbih.onChange = { on -> post("MizanLiveCounters", if (on) "on" else "off") }
         applyPending()
         write()
     }

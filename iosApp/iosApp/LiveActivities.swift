@@ -62,6 +62,14 @@ final class LiveActivities {
             TasbihSync.saved(m.state, immediate: false)
             if #available(iOS 16.2, *) { Task { @MainActor in _ = await TasbihActivity.apply(m, start: false, alert: false) } }
         }
+        // مفتاح «العدّاد على شاشة القفل» في شاشة المسبحة: مطفأً تُنهى المسبحة والأذكار الظاهرة
+        nc.addObserver(forName: Notification.Name("MizanLiveCounters"), object: nil, queue: .main) { note in
+            guard (note.object as? String) == "off", #available(iOS 16.2, *) else { return }
+            Task { @MainActor in
+                await TasbihActivity.end()
+                await AdhkarActivity.end()
+            }
+        }
         // زر «على شاشة القفل» في شاشة المسبحة
         nc.addObserver(forName: Notification.Name("MizanTasbihShow"), object: nil, queue: .main) { note in
             guard let m = LiveJSON.tasbih(note.object as? String) else { return }
@@ -306,6 +314,8 @@ enum TasbihActivity {
     /// يحدّث النشاط الظاهر، أو يبدؤه إن طُلب [start]. عند إتمام دورة: تنبيه قصير (صوت واهتزاز وتتسع الجزيرة)
     @MainActor
     static func apply(_ m: LiveMessage<TasbihLiveState>, start: Bool, alert: Bool) async -> LiveOutcome {
+        // أطفأ المستخدم العدّاد على شاشة القفل: يُعدّ بلا نشاط حي
+        guard LiveCounters.onLockScreen else { await end(); return .ok }
         // يبقى حتى ثماني ساعات بلا تسبيح، ثم يزيله النظام (العدد محفوظ في التطبيق)
         let content = ActivityContent(state: m.state, staleDate: Date().addingTimeInterval(8 * 3600), relevanceScore: 80)
         if let a = current {
@@ -352,6 +362,7 @@ enum AdhkarActivity {
 
     @MainActor
     static func apply(_ m: LiveMessage<AdhkarLiveState>, start: Bool) async -> LiveOutcome {
+        guard LiveCounters.onLockScreen else { await end(); return .ok }
         let content = ActivityContent(state: m.state, staleDate: Date().addingTimeInterval(4 * 3600), relevanceScore: 70)
         if let a = current, a.attributes.section == m.state.section {
             LiveDebug.note("adhkar updated \(m.state.position) count=\(m.state.count)")
@@ -552,5 +563,12 @@ enum LiveOffAlert {
         var vc = scene?.windows.first { $0.isKeyWindow }?.rootViewController
         while let p = vc?.presentedViewController { vc = p }
         return vc
+    }
+}
+
+/// مفتاح «العدّاد على شاشة القفل والجزيرة» (LiveTasbih.KEY في Kotlin، مخزن AppSettings «mizan»): مفعّل افتراضياً
+enum LiveCounters {
+    static var onLockScreen: Bool {
+        UserDefaults.standard.object(forKey: "mizan.live_counters") as? Bool ?? true
     }
 }
