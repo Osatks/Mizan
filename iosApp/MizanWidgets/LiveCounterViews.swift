@@ -215,8 +215,15 @@ struct TasbihActivityWidget: Widget {
                     .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
                 }
             } compactLeading: {
-                ProgressRing(progress: s.progress, color: gold, width: 3) { EmptyView() }
-                    .frame(width: 20, height: 20)
+                // اسم الذكر في الجزيرة المصغّرة، والعدد في الجهة الأخرى (الطويل يصغر ثم يُختصر)
+                Text(verbatim: s.text)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(Mizan.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: 92)
+                    .environment(\.layoutDirection, .rightToLeft)
             } compactTrailing: {
                 Text(verbatim: s.countText)
                     .font(Mizan.rounded(14, .semibold))
