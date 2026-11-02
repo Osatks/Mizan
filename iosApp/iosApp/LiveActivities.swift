@@ -2,16 +2,18 @@ import Foundation
 import UIKit
 import BackgroundTasks
 import ActivityKit
+import os
 import Shared
 
 /// الأنشطة الحية في التطبيق: Kotlin يرسل حالها JSON، وهنا تُبدأ وتُحدَّث وتُنهى:
 ///  - الصلاة القادمة (iOS 16.2): يبدأ عند مغادرة التطبيق قبل الصلاة بأقل من ثلاث ساعات إن فعّله المستخدم، أو متى شاء
-///    بزر الإجراء و Siri (ShowNextPrayerIntent)؛ يصير «حان الآن» عند دخول الوقت ثم يعدّ إلى الإقامة، وينتهي بعدها.
+///    بزر الإجراء و Siri (ActionPrayerCountdownIntent، NextPrayerIntent)؛ يصير «حان الآن» عند دخول الوقت ثم يعدّ إلى الإقامة، وينتهي بعدها.
 ///  - المسبحة وعدّاد الأذكار (iOS 17 لأزرارها): تبدؤها النوايا (Shared/LiveIntents.swift) من زر الإجراء ومركز التحكم
 ///    والأداة و Siri، وتعدّ في الحال نفسها التي تعدّ فيها الشاشة (AppLive).
 /// والتلاوة لا نشاط حياً لها: «يُشغَّل الآن» (مشغّل النظام) يظهر في شاشة القفل والجزيرة الديناميكية كما في تطبيقات Apple.
 /// وتصل إليه النية المشتركة مع الأداة (فتح شاشة) فيمررها إلى Kotlin.
 final class LiveActivities {
+    static let log = Logger(subsystem: "com.mizan.almuslim", category: "live")
     static let shared = LiveActivities()
     /// مهمة الخلفية التي تنهي العدّ التنازلي بعد دخول الوقت (BGTaskSchedulerPermittedIdentifiers في Info.plist)
     static let refreshTask = "com.mizan.almuslim.live"
@@ -105,7 +107,8 @@ enum PrayerActivity {
         Activity<PrayerActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
     }
 
-    static func apply(_ message: PrayerLiveMessage) {
+    @discardableResult
+    static func apply(_ message: PrayerLiveMessage) -> LiveOutcome {
         let defaults = UserDefaults.standard
         let forced = defaults.string(forKey: forcedKey)
         guard message.on || message.force == true else {
@@ -113,20 +116,20 @@ enum PrayerActivity {
             defaults.removeObject(forKey: startedKey)
             defaults.removeObject(forKey: dismissedKey)
             end(alive.filter { $0.attributes.id != forced })
-            return
+            return .ok
         }
         let now = Date()
         let expired = alive.filter { $0.content.state.endsAt <= now }
         end(expired)
         let current = alive.filter { a in !expired.contains { $0.id == a.id } }
-        guard let state = message.prayer else { return }
+        guard let state = message.prayer else { return .needsPlace }
         let content = ActivityContent(state: state, staleDate: state.at, relevanceScore: 50)
         if let same = current.first(where: { $0.attributes.id == state.id }) {
             if same.content.state != state { Task { await same.update(content) } }
             end(current.filter { $0.id != same.id })
             scheduleEnd(state.endsAt)
             scheduleArrival(state.at)
-            return
+            return .ok
         }
         // بدأناه لهذه الصلاة ولم يعد ظاهراً: أغلقه المستخدم من شاشة القفل، فلا يُعاد تلقائياً
         if defaults.string(forKey: startedKey) == state.id {
@@ -136,7 +139,7 @@ enum PrayerActivity {
         // نشاط جديد عند مغادرة التطبيق (والتطبيق ما زال في المقدمة)، أو حين يطلبه المستخدم (زر الإجراء، Siri)
         let force = message.force == true
         guard force || (message.start == true && defaults.string(forKey: dismissedKey) != state.id),
-              ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+              ActivityAuthorizationInfo().areActivitiesEnabled else { return .ok }
         end(current)
         do {
             _ = try Activity.request(attributes: PrayerActivityAttributes(id: state.id), content: content, pushType: nil)
@@ -147,8 +150,11 @@ enum PrayerActivity {
             }
             scheduleEnd(state.endsAt)
             scheduleArrival(state.at)
+            return .ok
         } catch {
-            // لا إذن، أو التطبيق في الخلفية بلا نية: يُعاد في المغادرة التالية
+            // لا إذن، أو التطبيق في الخلفية بلا نية: يُعاد في المغادرة التالية (وزر الإجراء يعرض السبب)
+            LiveActivities.log.error("prayer Activity.request failed: \(String(describing: error), privacy: .public)")
+            return .failed(String(describing: error))
         }
     }
 
@@ -167,8 +173,18 @@ enum PrayerActivity {
             await same.end(nil, dismissalPolicy: .immediate)
             return .ok
         }
-        apply(message)
-        return .ok
+        return apply(message)
+    }
+
+    /// «الصلاة القادمة» من زر الإجراء: يُظهر العدّ التنازلي (ولا يخفيه إن كان ظاهراً)
+    @MainActor
+    static func show() async -> LiveOutcome {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return .activitiesOff }
+        guard let json = IosLive.shared.prayerNowJson(), let message = LiveJSON.prayer(json), let state = message.prayer else {
+            return .needsPlace
+        }
+        if alive.contains(where: { $0.attributes.id == state.id }) { return .ok }
+        return apply(message)
     }
 
     /// عند دخول الوقت والتطبيق يعمل: يُرسم النشاط من جديد («حان الآن» والعدّ إلى الإقامة) دون انتظار النظام،
@@ -263,7 +279,8 @@ enum TasbihActivity {
             _ = try Activity.request(attributes: TasbihActivityAttributes(), content: content, pushType: nil)
             return .ok
         } catch {
-            return .activitiesOff
+            LiveActivities.log.error("Activity.request failed: \(String(describing: error), privacy: .public)")
+            return .failed(String(describing: error))
         }
     }
 
@@ -308,7 +325,8 @@ enum AdhkarActivity {
             _ = try Activity.request(attributes: AdhkarActivityAttributes(section: m.state.section), content: content, pushType: nil)
             return .ok
         } catch {
-            return .activitiesOff
+            LiveActivities.log.error("Activity.request failed: \(String(describing: error), privacy: .public)")
+            return .failed(String(describing: error))
         }
     }
 
@@ -338,6 +356,24 @@ enum AppLive {
             await AdhkarActivity.end()
             return .ok
         case .prayerToggle: return await PrayerActivity.toggle()
+        }
+    }
+
+    /// زر الإجراء والاختصارات (نوايا في التطبيق وحده، MizanShortcuts.swift)
+    enum ActionKind { case tasbih, adhkar, prayerToggle, nextPrayer }
+
+    @MainActor
+    static func button(_ b: ActionKind) async -> LiveOutcome {
+        switch b {
+        case .tasbih:
+            // تسبيحة بكل ضغطة، بلا بطاقة على شاشة القفل: يُحدَّث النشاط إن كان ظاهراً (بدأه المستخدم من التطبيق) ولا يُبدأ
+            return await tasbih(IosTasbih.shared.count(), start: false)
+        case .adhkar:
+            // الضغطة الأولى تُظهر الذكر الحالي في الجزيرة وعلى شاشة القفل، والتالية تعدّ
+            if AdhkarActivity.current == nil { return await adhkar(IosAdhkar.shared.current(section: nil)) }
+            return await run(.adhkarCount)
+        case .prayerToggle: return await PrayerActivity.toggle()
+        case .nextPrayer: return await PrayerActivity.show()
         }
     }
 

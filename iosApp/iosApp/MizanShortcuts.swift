@@ -7,17 +7,68 @@ import Shared
 // والبقية تفتح التطبيق على شاشتها عبر IosLive.open (المسارات نفسها التي تفتحها الأدوات).
 // العبارات بلغات Siri في <lang>.lproj/AppShortcuts.strings، والعناوين في Localizable.strings.
 
-@available(iOS 16.0, *)
-struct NextPrayerIntent: AppIntent {
+/// الصلاة القادمة: يُظهر عدّها التنازلي في الجزيرة الديناميكية وعلى شاشة القفل دون فتح التطبيق، وتقولها Siri،
+/// ويعيد وقتها (أتمتة تطبيق الاختصارات)
+@available(iOS 17.0, *)
+struct NextPrayerIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Next prayer"
     static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    static var openAppWhenRun: Bool = false
 
-    /// يعيد وقت الصلاة القادمة أيضاً، فيُستعمل في أتمتة تطبيق الاختصارات
     @MainActor
-    func perform() async throws -> some IntentResult & ReturnsValue<Date> & ProvidesDialog & ShowsSnippetView {
+    func perform() async throws -> some IntentResult & ReturnsValue<Date> & ProvidesDialog {
+        try LiveIntentError.check(await AppLive.button(.nextPrayer))
         let info = LiveJSON.nextPrayer(IosLive.shared.nextPrayerJson())
         let dialog: IntentDialog = info.map { IntentDialog(LocalizedStringResource(stringLiteral: $0.dialog)) } ?? IntentDialog("Next prayer")
-        return .result(value: info?.at ?? Date(), dialog: dialog, view: NextPrayerSnippet(info: info))
+        return .result(value: info?.at ?? Date(), dialog: dialog)
+    }
+}
+
+// زر الإجراء و Siri والاختصارات: نوايا في التطبيق وحده، فتُنفَّذ دائماً في عملية التطبيق (في الخلفية، دون فتحه)
+// حيث Kotlin و ActivityKit. نوايا أزرار النشاط والأداة ومركز التحكم في الهدفين (Shared/LiveIntents.swift) مخفية عن الاختصارات.
+
+/// تسبيحة بكل ضغطة، بلا بطاقة على شاشة القفل (يُحدَّث العدّاد إن كان ظاهراً)
+@available(iOS 17.0, *)
+struct ActionTasbihIntent: LiveActivityIntent {
+    static var title: LocalizedStringResource = "Count tasbih"
+    static var description = IntentDescription("Adds one to the tasbih count with each press")
+    static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    static var openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        try LiveIntentError.check(await AppLive.button(.tasbih))
+        return .result()
+    }
+}
+
+/// الضغطة الأولى تُظهر أذكار الوقت في الجزيرة وعلى شاشة القفل، وكل ضغطة بعدها تعدّ الذكر الحالي
+@available(iOS 17.0, *)
+struct ActionAdhkarIntent: LiveActivityIntent {
+    static var title: LocalizedStringResource = "Count adhkar"
+    static var description = IntentDescription("Shows the morning or evening adhkar in the Dynamic Island, then counts the current dhikr with each press")
+    static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    static var openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        try LiveIntentError.check(await AppLive.button(.adhkar))
+        return .result()
+    }
+}
+
+/// العدّ التنازلي للصلاة القادمة في الجزيرة وعلى شاشة القفل، والضغطة التالية تخفيه
+@available(iOS 17.0, *)
+struct ActionPrayerCountdownIntent: LiveActivityIntent {
+    static var title: LocalizedStringResource = "Prayer countdown"
+    static var description = IntentDescription("Shows or hides the countdown to the next prayer in the Dynamic Island and on the Lock Screen")
+    static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    static var openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        try LiveIntentError.check(await AppLive.button(.prayerToggle))
+        return .result()
     }
 }
 
@@ -116,7 +167,7 @@ struct MizanShortcuts: AppShortcutsProvider {
 
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
-            intent: TasbihCountIntent(),
+            intent: ActionTasbihIntent(),
             phrases: [
                 "Tasbih in \(.applicationName)",
                 "Count tasbih in \(.applicationName)",
@@ -125,7 +176,7 @@ struct MizanShortcuts: AppShortcutsProvider {
             systemImageName: "hand.tap.fill"
         )
         AppShortcut(
-            intent: ShowNextPrayerIntent(),
+            intent: ActionPrayerCountdownIntent(),
             phrases: [
                 "Prayer countdown in \(.applicationName)",
                 "Show the prayer countdown in \(.applicationName)",
@@ -134,7 +185,7 @@ struct MizanShortcuts: AppShortcutsProvider {
             systemImageName: "timer"
         )
         AppShortcut(
-            intent: AdhkarCountIntent(),
+            intent: ActionAdhkarIntent(),
             phrases: [
                 "Count adhkar in \(.applicationName)",
                 "Adhkar counter in \(.applicationName)",
