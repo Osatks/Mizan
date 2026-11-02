@@ -61,6 +61,15 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
+        // فحص أزرار الأنشطة الحية على المحاكي (LiveCheck.swift): بلا واجهة Compose
+        if #available(iOS 17.0, *), let check = LiveCheck.action {
+            let w = UIWindow(windowScene: windowScene)
+            w.rootViewController = LiveCheck.viewController(check)
+            w.makeKeyAndVisible()
+            window = w
+            Task { @MainActor in await LiveCheck.run(check) }
+            return
+        }
         let w = UIWindow(windowScene: windowScene)
         w.rootViewController = MainViewControllerKt.MainViewController()
         w.makeKeyAndVisible()

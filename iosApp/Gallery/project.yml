@@ -51,6 +51,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mizan.gallery
+        # مصادر الأدوات تجلب كتالوج رموزها (MizanWidgets/Assets.xcassets) إلى المعرض أيضاً، وليس فيه أيقونة تطبيق
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
     dependencies:
       - target: GalleryWidgets
         embed: true
