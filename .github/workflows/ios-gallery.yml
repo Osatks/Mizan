@@ -16,17 +16,6 @@ on:
         description: "Only these UI tests, comma-separated (e.g. test3Island,test4LockScreen); empty runs all"
         type: string
         default: ""
-  # مؤقت أثناء تطوير الميزات على هذا الفرع (التشغيل اليدوي يحتاج الملف في الفرع الافتراضي أولاً)
-  push:
-    branches: [claude/lucid-shannon-uo5lj0]
-    paths:
-      - "iosApp/Gallery/**"
-      - "iosApp/MizanWidgets/**"
-      - "iosApp/Shared/**"
-      - "iosApp/MizanWatch/**"
-      - "iosApp/MizanWatchWidgets/**"
-      - ".github/workflows/ios-gallery.yml"
-      - "android-app/shared/src/commonMain/kotlin/com/osatks/mizan/widget/**"
 
 # تشغيل جديد ينتظر الجاري حتى ينتهي (لا يُلغيه: التقاط الصور طويل)، ويحلّ محل ما ينتظر قبله
 concurrency:
