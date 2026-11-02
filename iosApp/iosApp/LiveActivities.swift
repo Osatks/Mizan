@@ -25,7 +25,7 @@ enum IslandExpand {
     }
 }
 
-/// ما حدث في آخر ضغطة لزر الإجراء: يُعرض سطراً مع الاختصار في نسخة الاختبار (تشخيص مؤقت)
+/// ما حدث في آخر ضغطة لزر الإجراء: في سجل النظام، وفي تقرير فحص المحاكي (LiveCheck.swift)
 enum LiveDebug {
     private static var notes: [String] = []
     static func note(_ s: String) { notes.append(s) }
