@@ -47,6 +47,8 @@ enum LiveCheck {
         case "tasbihControl": outcome = await LiveRouter.run(.tasbihCount)
         case "adhkarControl": outcome = await LiveRouter.run(.adhkarCount)
         case "prayerControl": outcome = await LiveRouter.run(.prayerShow)
+        // طلب مباشر بلا Kotlin ولا نوايا، بالحال نفسها التي يرسمها المعرض: يفصل عطل العرض عن مسار الأزرار
+        case "direct": outcome = direct()
         default: outcome = .failed("unknown action \(action)")
         }
         result["outcome"] = "\(outcome)"
@@ -54,6 +56,24 @@ enum LiveCheck {
         try? await Task.sleep(nanoseconds: 1_500_000_000)
         result["after"] = states()
         write(result)
+    }
+
+    private static let fixture = """
+    {"id":"tasbih","text":"الْحَمْدُ لِلَّهِ","meaning":"","count":21,"goal":33,"progress":0.6363636363636364,"countText":"21","goalText":"من 33","rounds":"3","roundsLabel":"دورة مكتملة","today":"120","todayLabel":"ذكر اليوم","mode":"","title":"المسبحة","tap":"اضغط للتسبيح","reset":"تصفير","end":"إنهاء","rtl":true,"at":1793000000,"hero1":"#0F6A55","hero2":"#08463A","gold":"#E0B54A"}
+    """
+
+    @MainActor
+    private static func direct() -> LiveOutcome {
+        guard let state = LiveJSON.tasbihState(fixture.data(using: .utf8)) else { return .failed("fixture does not decode") }
+        do {
+            let a = try Activity.request(attributes: TasbihActivityAttributes(),
+                                         content: ActivityContent(state: state, staleDate: Date().addingTimeInterval(8 * 3600), relevanceScore: 80),
+                                         pushType: nil)
+            LiveDebug.note("direct request ok \(a.activityState)")
+            return .ok
+        } catch {
+            return .failed(String(describing: error))
+        }
     }
 
     /// حال كل نشاط ظاهر: النوع وحاله (active أو stale أو ended…) وموجز محتواه

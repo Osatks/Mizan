@@ -141,7 +141,7 @@ jobs:
         run: |
           out="$RUNNER_TEMP/live-check"; mkdir -p "$out"
           fail=0
-          for action in prayer adhkar adhkar tasbih tasbih prayerControl adhkarControl tasbihControl; do
+          for action in direct prayer adhkar adhkar tasbih tasbih prayerControl adhkarControl tasbihControl; do
             n=$(ls "$out" | grep -c "^$action-" || true); name="$action-$((n+1))"
             xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
             sleep 1
@@ -156,23 +156,34 @@ jobs:
             else
               echo '{"error":"no result file (the app did not reach LiveCheck.run, or crashed)"}' > "$out/$name.json"
             fi
-            # التطبيق يُنهى فتبقى الأنشطة في الجزيرة على الشاشة الرئيسية
+            # التطبيق في الخلفية (تطبيق آخر في المقدمة) كما بعد ضغطة زر الإجراء: الجزيرة
+            xcrun simctl launch "$UDID" com.apple.Preferences >/dev/null 2>&1 || true
+            sleep 4
+            xcrun simctl io "$UDID" screenshot --type=png "$out/$name-bg.png" >/dev/null
+            xcrun simctl terminate "$UDID" com.apple.Preferences >/dev/null 2>&1 || true
+            # ثم يُنهى التطبيق: الأنشطة تبقى في الجزيرة على الشاشة الرئيسية
             xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
             sleep 3
             xcrun simctl io "$UDID" screenshot --type=png "$out/$name.png" >/dev/null
             echo "== $name"; cat "$out/$name.json"; echo
             python3 - "$out/$name.json" "$action" <<'PY' || fail=1
           import json, sys
-          r = json.load(open(sys.argv[1])); kind = sys.argv[2].replace("Control", "")
+          r = json.load(open(sys.argv[1])); kind = sys.argv[2].replace("Control", "").replace("direct", "tasbih")
           after = r.get("after", [])
           ok = r.get("outcome") == "ok" and any(s.startswith(kind + " active") for s in after)
           print(("OK  " if ok else "FAIL") + f" {sys.argv[2]}: outcome={r.get('outcome')} after={after}")
           sys.exit(0 if ok else 1)
           PY
           done
-          # سجل التطبيق (Logger: com.mizan.almuslim) لما جرى
-          xcrun simctl spawn "$UDID" log show --last 6m --predicate 'subsystem == "com.mizan.almuslim"' --style compact > "$out/app-log.txt" 2>/dev/null || true
-          xcrun simctl spawn "$UDID" log show --last 6m --predicate 'process == "Mizan" AND messageType == error' --style compact > "$out/app-errors.txt" 2>/dev/null || true
+          # سجلات ما جرى: التطبيق، وامتداد الأدوات، وخدمة الأنشطة الحية والشاشة الرئيسية (ما ذُكر فيه ميزان)
+          xcrun simctl spawn "$UDID" log show --last 12m --predicate 'subsystem == "com.mizan.almuslim"' --style compact > "$out/app-log.txt" 2>/dev/null || true
+          xcrun simctl spawn "$UDID" log show --last 12m --predicate 'process == "MizanWidgets"' --style compact > "$out/widgets-log.txt" 2>/dev/null || true
+          xcrun simctl spawn "$UDID" log show --last 12m --predicate '(process == "liveactivitiesd" OR process == "SpringBoard" OR process == "chronod" OR subsystem CONTAINS "ActivityKit" OR subsystem CONTAINS "WidgetKit") AND (eventMessage CONTAINS[c] "mizan" OR eventMessage CONTAINS[c] "activit")' --style compact > "$out/system-log.txt" 2>/dev/null || true
+          xcrun simctl spawn "$UDID" log show --last 12m --predicate 'messageType == error AND (process == "Mizan" OR process == "MizanWidgets")' --style compact > "$out/errors.txt" 2>/dev/null || true
+          # تقارير الانهيار لعمليات المحاكي تُكتب على المضيف
+          mkdir -p "$out/crashes"
+          find ~/Library/Logs/DiagnosticReports -newer "$out/direct-1.json" \( -iname '*Mizan*' -o -iname '*chronod*' -o -iname '*liveactivit*' \) -exec cp {} "$out/crashes/" \; 2>/dev/null || true
+          ls -la "$out/crashes" || true
           echo "fail=$fail" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
