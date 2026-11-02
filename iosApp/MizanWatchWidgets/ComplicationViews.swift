@@ -63,20 +63,22 @@ private struct Countdown: View {
     }
 }
 
-/// شريط ما مضى من الوقت: يتقدم وحده (ProgressView بفترة زمنية)
-private struct TimeBar: View {
-    let from: Date
-    let to: Date
+/// شريط رفيع لما مضى من الوقت ([done] من 0 إلى 1؛ المزوّد يرسمه كل عشر دقائق)، يمتلئ من بداية السطر
+struct TimeBar: View {
+    let done: Double
+    var height: CGFloat = 4
 
     var body: some View {
-        ProgressView(timerInterval: from...max(from.addingTimeInterval(1), to), countsDown: false) {
-            EmptyView()
-        } currentValueLabel: {
-            EmptyView()
+        GeometryReader { g in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Face.track)
+                Capsule()
+                    .fill(Face.gold)
+                    .frame(width: max(height, g.size.width * CGFloat(min(1, max(0, done)))))
+                    .widgetAccentable()
+            }
         }
-        .progressViewStyle(.linear)
-        .tint(Face.gold)
-        .widgetAccentable()
+        .frame(height: height)
     }
 }
 
@@ -190,7 +192,7 @@ struct NextPrayerFace: View {
                 HStack(spacing: 7) {
                     Countdown(from: date, to: p.to, size: 14, rtl: snap.rtl)
                         .foregroundStyle(.white)
-                    TimeBar(from: p.from, to: p.to)
+                    TimeBar(done: p.done(at: date))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -356,8 +358,8 @@ struct HijriFace: View {
                     Text(verbatim: month)
                         .font(.system(size: 8.5, weight: .semibold, design: .rounded))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .padding(.horizontal, 6)
+                        .minimumScaleFactor(0.4)
+                        .padding(.horizontal, 9)
                 }
             case .accessoryCorner:
                 Text(verbatim: day.hijriDay)
@@ -468,20 +470,23 @@ struct MiniCompass: View {
                 // الإبرة نحو القبلة
                 Capsule()
                     .fill(Face.gold)
-                    .frame(width: max(1.5, r * 0.06), height: r * 0.34)
-                    .offset(y: -r * 0.17)
+                    .frame(width: max(1.5, r * 0.07), height: r * 0.4)
+                    .offset(y: -r * 0.2)
                     .rotationEffect(.degrees(degrees))
                     .widgetAccentable()
                 Circle()
                     .fill(Face.gold)
-                    .frame(width: r * 0.14, height: r * 0.14)
+                    .frame(width: r * 0.16, height: r * 0.16)
                     .widgetAccentable()
-                // الكعبة في طرف الإبرة، قائمة دائماً
-                Image("mizan.kaaba")
-                    .font(.system(size: r * 0.36, weight: .semibold))
-                    .foregroundStyle(Face.gold)
-                    .widgetAccentable()
-                    .offset(x: sin(a) * r * 0.56, y: -cos(a) * r * 0.56)
+                // الكعبة في قرص ذهبي في طرف الإبرة، قائمة دائماً
+                ZStack {
+                    Circle().fill(Face.gold).widgetAccentable()
+                    Image("mizan.kaaba")
+                        .font(.system(size: r * 0.28, weight: .bold))
+                        .foregroundStyle(Color.black.opacity(0.85))
+                }
+                .frame(width: r * 0.5, height: r * 0.5)
+                .offset(x: sin(a) * r * 0.55, y: -cos(a) * r * 0.55)
             }
             .frame(width: g.size.width, height: g.size.height)
         }

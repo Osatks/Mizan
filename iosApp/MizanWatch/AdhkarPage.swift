@@ -50,21 +50,10 @@ struct AdhkarPage: View {
                 finished(snap, w)
             } else {
                 let d = items[i]
-                ScrollView {
-                    VStack(spacing: 4) {
-                        Text(verbatim: d.ar)
-                            .font(.system(size: 16, weight: .medium))
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(3)
-                            .environment(\.layoutDirection, .rightToLeft)
-                            .frame(maxWidth: .infinity)
-                        if !d.src.isEmpty {
-                            Text(verbatim: d.src)
-                                .font(.system(size: 10, design: .rounded))
-                                .foregroundStyle(.white.opacity(0.55))
-                                .multilineTextAlignment(.center)
-                        }
-                    }
+                // القصير في وسط المساحة، والطويل يمرّ بالتاج
+                ViewThatFits(in: .vertical) {
+                    dhikrText(d).frame(maxHeight: .infinity)
+                    ScrollView { dhikrText(d) }
                 }
                 .frame(maxHeight: .infinity)
                 HStack(spacing: 8) {
@@ -95,14 +84,32 @@ struct AdhkarPage: View {
         .padding(.horizontal, 4)
     }
 
+    private func dhikrText(_ d: Dhikr) -> some View {
+        VStack(spacing: 4) {
+            Text(verbatim: d.ar)
+                .font(.system(size: 16, weight: .medium))
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .environment(\.layoutDirection, .rightToLeft)
+                .frame(maxWidth: .infinity)
+            if !d.src.isEmpty {
+                Text(verbatim: d.src)
+                    .font(.system(size: 10, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.55))
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+
     /// حلقة العدد: تمتلئ مع كل لمسة، وفي وسطها ما بقي من مرات الذكر
     private func counter(_ d: Dhikr, _ c: Int, _ gold: Color) -> some View {
         let n = max(d.n, 1)
         return ZStack {
             Circle().stroke(Color.white.opacity(0.18), lineWidth: 4)
             Circle()
-                .trim(from: 0, to: CGFloat(max(0.001, Double(c) / Double(n))))
+                .trim(from: 0, to: CGFloat(Double(c) / Double(n)))
                 .stroke(gold, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .opacity(c > 0 ? 1 : 0)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeOut(duration: 0.18), value: c)
             Text(verbatim: n > 1 ? "\(n - c)" : "✓")

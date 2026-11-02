@@ -145,12 +145,8 @@ struct PrayerContent: View {
                     .multilineTextAlignment(snap.rtl ? .trailing : .leading)
                     .environment(\.layoutDirection, .leftToRight)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                ProgressView(timerInterval: phase.from...max(phase.from.addingTimeInterval(1), phase.to), countsDown: false) {
-                    EmptyView()
-                } currentValueLabel: {
-                    EmptyView()
-                }
-                .tint(gold)
+                // الصفحة تُرسم كل ثلاثين ثانية (TimelineView): شريط رفيع بما مضى
+                TimeBar(done: phase.done(at: now), height: 6)
                 if let day = snap.day(at: now) {
                     Text(verbatim: "\(snap.place) · \(day.hijri)")
                         .font(.system(size: 11, design: .rounded))
