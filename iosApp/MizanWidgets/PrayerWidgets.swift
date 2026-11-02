@@ -69,6 +69,7 @@ struct StandByAware<Normal: View, Bare: View>: View {
 }
 
 /// الصلاة القادمة بخط كبير لـ StandBy: الاسم والوقت والعدّ التنازلي الذهبي (يلوّنه النظام بالأحمر ليلاً)
+@available(iOS 17.0, *)
 struct NextPrayerLarge: View {
     let snap: Snapshot
     let next: PrayerTime
