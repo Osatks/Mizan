@@ -104,13 +104,31 @@ final class GalleryUITests: XCTestCase {
         }
     }
 
+    // ---------- 5: الصلاة بعد دخول وقتها (staleDate) ----------
+
+    func test5StaleProbe() {
+        unlock()
+        guard start("staleprobe", "ar", timeout: 150) else { return }
+        XCUIDevice.shared.press(.home)
+        sleep(3)
+        save("stale-ar-compact")
+        let size = springboard.frame.size
+        springboard.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: size.width / 2, dy: 31)).press(forDuration: 1.2)
+        sleep(2)
+        save("stale-ar-expanded")
+        springboard.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: size.width / 2, dy: size.height * 0.8)).tap()
+        sleep(1)
+        lockAndShow("stale-ar-lock")
+        unlock()
+    }
+
     // ---------- أدوات ----------
 
     /// يبدأ أنشطة [scenario] في المعرض وينتظر بدءها
-    private func start(_ scenario: String, _ lang: String) -> Bool {
+    private func start(_ scenario: String, _ lang: String, timeout: TimeInterval = 25) -> Bool {
         let app = launch(["-gallery-page", "live", "-gallery-live", scenario, "-gallery-lang", lang])
         let started = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'LIVE STARTED'")).firstMatch
-        let ok = started.waitForExistence(timeout: 25)
+        let ok = started.waitForExistence(timeout: timeout)
         if ok {
             // حال الأنشطة (active أو stale…) في سجل الاختبار
             print("GALLERY \(scenario) \(lang): \(started.label)")

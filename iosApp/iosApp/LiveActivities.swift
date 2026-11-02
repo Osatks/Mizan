@@ -55,11 +55,14 @@ final class LiveActivities {
         // قد يطفئ المستخدم الأنشطة الحية لميزان في الإعدادات ثم يعود
         nc.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
             IosLive.shared.availability(supported: Self.supported, systemOff: Self.systemOff)
+            // صلاة دخل وقتها والتطبيق معلّق: تُرسم الآن «حان الآن» والعدّ إلى الإقامة
+            if #available(iOS 16.2, *) { Task { @MainActor in await PrayerActivity.refreshArrived() } }
         }
         _ = BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.refreshTask, using: nil) { task in
             guard #available(iOS 16.2, *) else { task.setTaskCompleted(success: true); return }
             let work = Task { @MainActor in
                 await PrayerActivity.endExpired()
+                await PrayerActivity.refreshArrived()
                 task.setTaskCompleted(success: true)
             }
             task.expirationHandler = { work.cancel() }
@@ -121,6 +124,7 @@ enum PrayerActivity {
             if same.content.state != state { Task { await same.update(content) } }
             end(current.filter { $0.id != same.id })
             scheduleEnd(state.endsAt)
+            scheduleArrival(state.at)
             return
         }
         // بدأناه لهذه الصلاة ولم يعد ظاهراً: أغلقه المستخدم من شاشة القفل، فلا يُعاد تلقائياً
@@ -141,6 +145,7 @@ enum PrayerActivity {
                 defaults.removeObject(forKey: dismissedKey)
             }
             scheduleEnd(state.endsAt)
+            scheduleArrival(state.at)
         } catch {
             // لا إذن، أو التطبيق في الخلفية بلا نية: يُعاد في المغادرة التالية
         }
@@ -163,6 +168,25 @@ enum PrayerActivity {
         }
         apply(message)
         return .ok
+    }
+
+    /// عند دخول الوقت والتطبيق يعمل: يُرسم النشاط من جديد («حان الآن» والعدّ إلى الإقامة) دون انتظار النظام،
+    /// وكذلك كلما عاد المستخدم إلى التطبيق بعد الوقت (refreshArrived)
+    private static func scheduleArrival(_ at: Date) {
+        let delay = at.timeIntervalSinceNow
+        guard delay > 0 else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay + 1) {
+            Task { await refreshArrived() }
+        }
+    }
+
+    /// النشاط الذي دخل وقته يُحدَّث بالمحتوى نفسه: يرسمه النظام من جديد فيرى isStale
+    @MainActor
+    static func refreshArrived() async {
+        let now = Date()
+        for a in alive where a.content.state.at <= now && a.content.state.endsAt > now {
+            await a.update(ActivityContent(state: a.content.state, staleDate: a.content.state.at, relevanceScore: 50))
+        }
     }
 
     /// ينهي النشاط بعد دخول الوقت بعشر دقائق أو بعد الإقامة: بمؤقت إن بقي التطبيق يعمل، وبمهمة خلفية إن عُلّق

@@ -255,6 +255,8 @@ struct TasbihLockView: View {
                         }
                         .fixedSize()
                     }
+                    // يأخذ مكانه أولاً (وإلا اقترح عليه HStack أقل مما يلزم فاختار الرموز وحدها)، والعدد يصغر قبله
+                    .layoutPriority(1)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

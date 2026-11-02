@@ -8,6 +8,7 @@ enum LiveStarter {
     /// [scenario]: أسماء مفصولة بـ + (tasbih, tasbihSalah, tasbihFree, adhkar, adhkarDone, prayer, iftar)
     static func start(_ scenario: String, _ f: LangFixture) async -> String {
         guard #available(iOS 17.0, *) else { return "LIVE NEEDS iOS 17" }
+        var probe = ""
         await endAll()
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return "LIVE DISABLED" }
         do {
@@ -25,6 +26,24 @@ enum LiveStarter {
                 case "iftar":
                     try prayer(f.prayerIftar.moved(to: Date().addingTimeInterval(4)))
                     try? await Task.sleep(nanoseconds: 7_000_000_000)
+                // متى يعلّم النظام النشاط «قديماً» وحده بعد staleDate، وهل يكفي تحديثه بالمحتوى نفسه (refreshArrived في التطبيق)
+                case "staleprobe":
+                    try prayer(f.prayerIftar.moved(to: Date().addingTimeInterval(5)))
+                    var waited = 0
+                    var stale = false
+                    while waited < 90 && !stale {
+                        try? await Task.sleep(nanoseconds: 5_000_000_000)
+                        waited += 5
+                        stale = Activity<PrayerActivityAttributes>.activities.contains { $0.activityState == .stale }
+                    }
+                    probe = stale ? "stale by itself after \(waited)s" : "not stale after \(waited)s"
+                    if !stale {
+                        for a in Activity<PrayerActivityAttributes>.activities {
+                            await a.update(ActivityContent(state: a.content.state, staleDate: a.content.state.at, relevanceScore: 50))
+                        }
+                        try? await Task.sleep(nanoseconds: 3_000_000_000)
+                        probe += "; after update: " + states()
+                    }
                 default: return "LIVE UNKNOWN \(part)"
                 }
             }
@@ -33,7 +52,7 @@ enum LiveStarter {
         }
         // يُرسم النشاط في الامتداد بعد قليل
         try? await Task.sleep(nanoseconds: 1_500_000_000)
-        return "LIVE STARTED · " + states()
+        return "LIVE STARTED · " + (probe.isEmpty ? "" : probe + " · ") + states()
     }
 
     /// حال كل نشاط ظاهر (active أو stale أو ended…): تُطبع في سجل الاختبار
