@@ -7,7 +7,6 @@ import com.osatks.mizan.core.Hijri
 import com.osatks.mizan.core.PrayTimes
 import com.osatks.mizan.core.isAfter
 import com.osatks.mizan.core.plusDays
-import com.osatks.mizan.core.plusSeconds
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.hijri
 import com.osatks.mizan.i18n.pack.Json
@@ -42,8 +41,6 @@ object IosLive {
     const val PRAYER = "MizanLivePrayer"
     /** أقصى مدة قبل الصلاة يبدأ فيها العدّ التنازلي الحي */
     private const val WINDOW_SEC = 3 * 3600L
-    /** يبقى النشاط بعد دخول الوقت عشر دقائق */
-    private const val GRACE_SEC = 600L
     /** مسار «تابع القراءة»: آخر موضع قرأه المستخدم */
     const val CONTINUE = "quran/continue"
 
@@ -116,44 +113,15 @@ object IosLive {
         return best
     }
 
+    /** حال النشاط (LiveStates.prayer) بإعدادات المستخدم: مكانه ودقائق الإقامة وصيغة الساعة ولون التطبيق */
     internal fun prayerMap(key: String, at: LocalDateTime): Map<String, Any?> {
-        val lang = Lang.current
-        val s = lang.strings
-        val lt = LiveText.of(lang.code)
         val now = PrayerUtil.now()
-        val name = s.prayer(key)
-        val from = previous(now)?.let(::epoch) ?: (epoch(at) - WINDOW_SEC)
         val atSec = epoch(at)
-        // الإقامة بعد الأذان بما ضبطه المستخدم لهذه الصلاة: بعد دخول الوقت يعدّ النشاط إليها
-        val iq = if (key == "sunrise") 0 else (AppSettings.iqama[key] ?: 0)
-        val iqama = if (iq > 0) atSec + iq * 60L else null
-        // في رمضان: المغرب موعد الإفطار (ودعاؤه عند دخوله)، والفجر نهاية السحور
-        val ramadan = Hijri.toHijri(at.date)?.m == 9
-        val iftar = ramadan && key == "maghrib"
-        val label = when {
-            iftar -> lt.iftar
-            ramadan && key == "fajr" -> lt.suhoor
-            else -> WidgetText.of(lang.code).nextPrayer
-        }
-        return linkedMapOf<String, Any?>(
-            "id" to "${at.date}-$key",
-            "key" to key,
-            "name" to name,
-            "time" to WidgetData.clock(s, at),
-            "at" to atSec,
-            "from" to from,
-            "hijri" to s.hijri(Hijri.toHijri(now.date)),
-            "place" to s.placeName(AppSettings.place),
-            "label" to label,
-            "now" to if (iftar) lt.iftarNow else s.prayerNowTitle(name),
-            "rtl" to lang.rtl,
-            "iqama" to iqama,
-            "iqamaLabel" to lt.iqamaIn,
-            "iqamaTime" to iqama?.let { WidgetData.clock(s, at.plusSeconds(iq * 60L)) },
-            "dua" to if (iftar) LiveText.IFTAR_DUA else null,
-            // ينتهي النشاط بعد دخول الوقت بعشر دقائق، أو بعد الإقامة بدقيقتين إن تأخرت عنها
-            "until" to maxOf(atSec + GRACE_SEC, (iqama ?: 0L) + 120L),
-        ) + palette(AppSettings.accent)
+        val from = previous(now)?.let(::epoch) ?: (atSec - WINDOW_SEC)
+        return LiveStates.prayer(
+            key, at, atSec, from, now.date, Lang.current, AppSettings.place,
+            AppSettings.iqama[key] ?: 0, AppSettings.use24h, AppSettings.accent,
+        )
     }
 
     /** العدّ التنازلي الآن للصلاة القادمة أياً كان بُعدها (زر الإجراء و Siri)، لا عند مغادرة التطبيق فقط */
@@ -165,10 +133,7 @@ object IosLive {
     }.getOrNull()
 
     /** ألوان النشاط بلون التطبيق الذي اختاره المستخدم */
-    internal fun palette(accent: String): Map<String, Any?> {
-        val c = WidgetColors.of(accent)
-        return mapOf("hero1" to WidgetData.hex(c.hero1), "hero2" to WidgetData.hex(c.hero2), "gold" to WidgetData.hex(c.gold))
-    }
+    internal fun palette(accent: String): Map<String, Any?> = LiveStates.palette(accent)
 
     // ---------- Siri والاختصارات ----------
 

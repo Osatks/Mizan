@@ -30,7 +30,7 @@ extension Khatma {
 
 struct KhatmaView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         let k = entry.snap?.khatma

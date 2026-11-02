@@ -18,7 +18,7 @@ struct NextPrayerWidget: Widget {
 
 struct NextPrayerView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         if family.isAccessory {
@@ -59,11 +59,12 @@ struct NextPrayerView: View {
 @available(iOS 17.0, *)
 struct StandByAware<Normal: View, Bare: View>: View {
     @Environment(\.showsWidgetContainerBackground) private var showsBackground
+    @Environment(\.galleryBare) private var galleryBare
     @ViewBuilder let normal: () -> Normal
     @ViewBuilder let bare: () -> Bare
 
     var body: some View {
-        if showsBackground { normal() } else { bare() }
+        if galleryBare.map({ !$0 }) ?? showsBackground { normal() } else { bare() }
     }
 }
 
@@ -246,7 +247,7 @@ struct PrayerTimesWidget: Widget {
 
 struct PrayerTimesView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         Shell(snap: entry.snap, url: Deep.url("prayer")) {
@@ -345,7 +346,7 @@ struct HijriWidget: Widget {
 
 struct HijriView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         let day = entry.snap?.day(at: entry.date)
@@ -435,7 +436,7 @@ struct AyahWidget: Widget {
 
 struct AyahView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         let ayah = entry.snap?.day(at: entry.date)?.ayah

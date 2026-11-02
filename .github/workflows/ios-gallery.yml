@@ -1,0 +1,136 @@
+name: iOS Gallery (widgets and Live Activities)
+
+# مراجعة بصرية للأدوات والأنشطة الحية في iOS على المحاكي، قبل أي نسخة TestFlight (iosApp/Gallery):
+#   fixtures: حالات حقيقية من Kotlin بكل لغات التطبيق (LiveStatesTest يتحقق أن مفاتيحها حقول Swift نفسها ويكتبها)
+#   gallery:  معرض بمصادر الأدوات نفسها بلا إطار Kotlin: يفكّ الحالات بأنواع Swift، ويرسم الأدوات وشاشة القفل،
+#             ويبدأ أنشطة حية حقيقية فيلتقطها في الجزيرة الديناميكية (المصغّرة والموسّعة) وعلى شاشة القفل.
+# النتيجة صور PNG في ملف مرفق (mizan-gallery). لا يوقَّع شيء ولا يُرفع إلى App Store.
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: "Simulator (needs a Dynamic Island)"
+        type: string
+        default: "iPhone 17 Pro Max"
+
+jobs:
+  fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Kotlin states for the gallery
+        working-directory: android-app
+        run: gradle :shared:testDebugUnitTest --tests '*LiveStatesTest*' --no-daemon
+        env:
+          MIZAN_GALLERY_EXPORT: ${{ runner.temp }}/fixtures
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gallery-fixtures
+          path: ${{ runner.temp }}/fixtures/live-fixtures.json
+          if-no-files-found: error
+          retention-days: 3
+
+  gallery:
+    needs: fixtures
+    # صورة Xcode 27 كما في ios.yml و ios-screenshots.yml
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Xcode 27.1
+        run: |
+          x=/Applications/Xcode_27.1.app/Contents/Developer
+          if [ -d "$x" ]; then export DEVELOPER_DIR="$x"; echo "DEVELOPER_DIR=$x" >> "$GITHUB_ENV"; fi
+          xcodebuild -version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: gallery-fixtures
+          path: iosApp/Gallery/Fixtures
+
+      - name: Generate Xcode project
+        working-directory: iosApp/Gallery
+        run: |
+          test -s Fixtures/live-fixtures.json
+          brew install xcodegen
+          xcodegen generate
+
+      # جهاز بجزيرة ديناميكية، بأحدث نظام يدعمه
+      - name: Simulator
+        id: sim
+        env:
+          DEVICE: ${{ inputs.device }}
+        run: |
+          type=$(xcrun simctl list devicetypes -j | python3 -c '
+          import json, sys
+          types = {t["name"]: t["identifier"] for t in json.load(sys.stdin)["devicetypes"]}
+          for name in sys.argv[1:]:
+              if name in types:
+                  print(types[name]); break
+          else:
+              sys.exit("no device type with a Dynamic Island")' "$DEVICE" "iPhone 17 Pro Max" "iPhone 17 Pro" "iPhone 16 Pro Max" "iPhone 16 Pro" "iPhone 15 Pro Max" "iPhone 15 Pro")
+          runtime=$(xcrun simctl list runtimes -j | python3 -c '
+          import json, sys
+          want = sys.argv[1]
+          rs = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("platform", "iOS") == "iOS" and "iOS" in r["name"]]
+          rs = [r for r in rs if r.get("supportedDeviceTypes") is None or any(t.get("identifier") == want for t in r["supportedDeviceTypes"])]
+          rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")])
+          if not rs: sys.exit("no runtime for " + want)
+          print(rs[-1]["identifier"])' "$type")
+          echo "device $type, runtime $runtime"
+          udid=$(xcrun simctl create "Gallery" "$type" "$runtime")
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          for _ in 1 2 3; do
+            xcrun simctl status_bar "$udid" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 \
+              --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100 && break
+            sleep 3
+          done
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Build and capture
+        working-directory: iosApp/Gallery
+        env:
+          UDID: ${{ steps.sim.outputs.udid }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/gallery"
+          log="$RUNNER_TEMP/gallery/xcodebuild.log"
+          # TEST_RUNNER_*: يصل إلى اختبار الواجهة بلا البادئة (مجلد الصور)
+          set +e
+          TEST_RUNNER_GALLERY_OUT="$RUNNER_TEMP/gallery" xcodebuild test -project Gallery.xcodeproj -scheme Gallery \
+            -destination "id=$UDID" -derivedDataPath build -resultBundlePath "$RUNNER_TEMP/Gallery.xcresult" > "$log" 2>&1
+          code=$?
+          set -e
+          grep -E "error:|warning: .*(MizanWidgets|Gallery|Shared)/|Test Case .*(passed|failed)|XCTAssert|error -|\*\* " "$log" | tail -n 250 || true
+          exit $code
+
+      # الصور في المجلد إن كتبها الاختبار إليه مباشرة، وإلا من مرفقات نتيجة الاختبار
+      - name: Collect screenshots
+        if: always()
+        run: |
+          n=$(find "$RUNNER_TEMP/gallery" -name '*.png' 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$n" = "0" ] && [ -d "$RUNNER_TEMP/Gallery.xcresult" ]; then
+            xcrun xcresulttool export attachments --path "$RUNNER_TEMP/Gallery.xcresult" --output-path "$RUNNER_TEMP/gallery" || true
+          fi
+          find "$RUNNER_TEMP/gallery" -type f | sort | head -n 200
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mizan-gallery
+          path: ${{ runner.temp }}/gallery
+          if-no-files-found: warn
+          retention-days: 7

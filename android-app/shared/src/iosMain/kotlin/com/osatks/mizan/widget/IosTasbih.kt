@@ -3,7 +3,6 @@
 package com.osatks.mizan.widget
 
 import com.osatks.mizan.core.AppSettings
-import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Tasbih
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.pack.Json
@@ -110,37 +109,8 @@ object IosTasbih {
     }
 
     /** الحال للنشاط الحي والأداة وزر مركز التحكم (TasbihLiveState في Swift) */
-    internal fun state(): Map<String, Any?> {
-        val st = Tasbih.state
-        val lang = Lang.current
-        val s = lang.strings
-        val lt = LiveText.of(lang.code)
-        val goal = st.goal
-        val progress = if (goal > 0) st.count.toDouble() / goal else (st.count % 100) / 100.0
-        val mode = if (st.mode == "salah") "${s.modeAfterPrayer} · ${st.step + 1}/${Tasbih.SALAH.size}" else ""
-        return linkedMapOf<String, Any?>(
-            "id" to "tasbih",
-            "text" to st.text,
-            // المعنى تحت الذكر لغير العربية
-            "meaning" to if (lang.code == "ar") "" else st.meaning(s),
-            "count" to st.count,
-            "goal" to goal,
-            "progress" to progress.coerceIn(0.0, 1.0),
-            "countText" to st.count.toString(),
-            "goalText" to if (goal > 0) s.ofGoal(goal) else s.noLimit,
-            "rounds" to Fmt.int(st.rounds.toLong()),
-            "roundsLabel" to s.roundsDone,
-            "today" to Fmt.int(st.today.toLong()),
-            "todayLabel" to s.todayCount,
-            "mode" to mode,
-            "title" to lt.tasbih,
-            "tap" to s.tapToCount,
-            "reset" to s.reset,
-            "end" to lt.end,
-            "rtl" to lang.rtl,
-            "at" to NSDate().timeIntervalSince1970.toLong(),
-        ) + IosLive.palette(AppSettings.accent)
-    }
+    internal fun state(): Map<String, Any?> =
+        LiveStates.tasbih(Tasbih.state, Lang.current, AppSettings.accent, NSDate().timeIntervalSince1970.toLong())
 
     /** رسالة إلى Swift: الحال، وما حدث مع التسبيحة، ونص التنبيه عند إتمام دورة */
     private fun message(event: Tasbih.Event?): String {

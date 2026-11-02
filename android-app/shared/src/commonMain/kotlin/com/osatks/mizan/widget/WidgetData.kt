@@ -164,21 +164,26 @@ object WidgetData {
         val today = qp.todayCount
         val last = com.osatks.mizan.quran.QuranPrefs.last
         val route = if (last >= 0) QuranMeta.locate(last).let { (sn, an) -> surahRoute(sn, an, "widget") } else "quran"
-        val pct = (read * 100 / total).coerceIn(0, 100)
-        mapOf(
-            "read" to read, "total" to total, "percent" to pct, "today" to today, "goal" to goal,
-            "streak" to qp.streak, "done" to qp.finished, "route" to route,
-            "title" to s.todayPortion, "khatma" to s.khatmaTitle,
-            "pages" to if (goal > 0) s.pagesRead(today, goal) else s.pagesRead(read, total),
-            "streakText" to s.streakDays(qp.streak),
-            "percentText" to "$pct%",
-            "portionDone" to (goal > 0 && today >= goal),
-            "doneText" to if (qp.finished) s.khatmaDone else s.portionDone,
-            "cta" to s.continuePortion,
-        )
+        khatmaMap(s, read, total, goal, today, qp.streak, qp.finished, route)
     }.getOrNull()
 
     private fun epoch(t: LocalDateTime, z: TimeZone) = t.toInstant(z).epochSeconds
+
+    /** خريطة الختمة (Khatma في SnapshotModel.swift: المفاتيح نفسها، ويتحقق منها LiveStatesTest) */
+    fun khatmaMap(s: Strings, read: Int, total: Int, goal: Int, today: Int, streak: Int, finished: Boolean, route: String): Map<String, Any?> {
+        val pct = (read * 100 / total.coerceAtLeast(1)).coerceIn(0, 100)
+        return linkedMapOf(
+            "read" to read, "total" to total, "percent" to pct, "today" to today, "goal" to goal,
+            "streak" to streak, "done" to finished, "route" to route,
+            "title" to s.todayPortion, "khatma" to s.khatmaTitle,
+            "pages" to if (goal > 0) s.pagesRead(today, goal) else s.pagesRead(read, total),
+            "streakText" to s.streakDays(streak),
+            "percentText" to "$pct%",
+            "portionDone" to (goal > 0 && today >= goal),
+            "doneText" to if (finished) s.khatmaDone else s.portionDone,
+            "cta" to s.continuePortion,
+        )
+    }
 
     internal fun hex(c: Int) = "#" + (c and 0xFFFFFF).toString(16).padStart(6, '0').uppercase()
 

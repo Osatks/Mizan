@@ -77,7 +77,7 @@ struct TasbihWidget: Widget {
 
 struct TasbihWidgetView: View {
     let entry: TasbihEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         let s = entry.state

@@ -304,6 +304,38 @@ enum Deep {
     }
 }
 
+/// مقاس الأداة كما يضبطه WidgetKit، أو ما يضبطه معرض الأدوات (iosApp/Gallery) حين يرسم الأداة في تطبيق للمعاينة:
+/// widgetFamily لا يُضبط خارج WidgetKit. في الأداة نفسها galleryFamily فارغ دائماً فيبقى مقاس WidgetKit
+@propertyWrapper
+struct WidgetFamilyValue: DynamicProperty {
+    @Environment(\.widgetFamily) private var system
+    @Environment(\.galleryFamily) private var gallery
+
+    var wrappedValue: WidgetFamily { gallery ?? system }
+}
+
+private struct GalleryFamilyKey: EnvironmentKey {
+    static let defaultValue: WidgetFamily? = nil
+}
+
+private struct GalleryBareKey: EnvironmentKey {
+    static let defaultValue: Bool? = nil
+}
+
+extension EnvironmentValues {
+    /// للمعرض وحده: مقاس الأداة المرسومة
+    var galleryFamily: WidgetFamily? {
+        get { self[GalleryFamilyKey.self] }
+        set { self[GalleryFamilyKey.self] = newValue }
+    }
+
+    /// للمعرض وحده: الأداة بلا خلفية كما في StandBy
+    var galleryBare: Bool? {
+        get { self[GalleryBareKey.self] }
+        set { self[GalleryBareKey.self] = newValue }
+    }
+}
+
 extension WidgetFamily {
     /// أدوات شاشة القفل (iOS 16 فما بعد)
     var isAccessory: Bool {

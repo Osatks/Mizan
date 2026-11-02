@@ -36,7 +36,7 @@ struct NextDhikrIntent: AppIntent {
 
 struct AdhkarView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     /// أطول نص يسعه كل حجم؛ الأطول منه يُترك للأحجام الأكبر
     var maxLength: Int {
