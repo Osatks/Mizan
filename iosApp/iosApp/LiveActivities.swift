@@ -30,6 +30,7 @@ enum LiveDebug {
     private static var notes: [String] = []
     static func note(_ s: String) { notes.append(s) }
     static func take() -> String { defer { notes = [] }; return notes.joined(separator: " · ") }
+    static func peek() -> String { notes.joined(separator: " · ") }
     @available(iOS 16.2, *)
     static func prayerStates() -> String {
         let a = Activity<PrayerActivityAttributes>.activities.map { "\($0.activityState)" }
@@ -82,6 +83,7 @@ final class LiveActivities {
         // قد يطفئ المستخدم الأنشطة الحية لميزان في الإعدادات ثم يعود
         nc.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
             IosLive.shared.availability(supported: Self.supported, systemOff: Self.systemOff)
+            LiveOffAlert.check(supported: Self.supported, off: Self.systemOff)
             // صلاة دخل وقتها والتطبيق معلّق: تُرسم الآن «حان الآن» والعدّ إلى الإقامة
             if #available(iOS 16.2, *) { Task { @MainActor in await PrayerActivity.refreshArrived() } }
         }
@@ -412,10 +414,19 @@ enum AppLive {
     }
 
     /// زر الإجراء والاختصارات (نوايا في التطبيق وحده، MizanShortcuts.swift)
-    enum ActionKind { case tasbih, adhkar, prayerToggle, nextPrayer }
+    enum ActionKind: String { case tasbih, adhkar, prayerToggle, nextPrayer }
 
+    /// كل ضغطة تُسجَّل (LiveLog): ما حدث، وهل كان التطبيق في الخلفية، وحال الأنشطة بعدها
     @MainActor
     static func button(_ b: ActionKind) async -> LiveOutcome {
+        let background = UIApplication.shared.applicationState != .active
+        let outcome = await press(b)
+        if #available(iOS 17.0, *) { LiveLog.record(b.rawValue, outcome, background: background) }
+        return outcome
+    }
+
+    @MainActor
+    private static func press(_ b: ActionKind) async -> LiveOutcome {
         switch b {
         case .tasbih:
             // تسبيحة بكل ضغطة، ويظهر العدّاد في الجزيرة: اسم الذكر والعدد (وعلى شاشة القفل سطر نحيف)
@@ -436,14 +447,15 @@ enum AppLive {
 
     @MainActor
     private static func tasbih(_ json: String, start: Bool) async -> LiveOutcome {
-        guard let m = LiveJSON.tasbih(json) else { return .ok }
+        // حال لا تُقرأ: يظهر السبب بدل أن يُعدّ بلا أثر
+        guard let m = LiveJSON.tasbih(json) else { return .failed("Tasbih state could not be read") }
         TasbihSync.saved(m.state, immediate: true)
         return await TasbihActivity.apply(m, start: start, alert: true)
     }
 
     @MainActor
     private static func adhkar(_ json: String) async -> LiveOutcome {
-        guard let m = LiveJSON.adhkar(json) else { return .ok }
+        guard let m = LiveJSON.adhkar(json) else { return .failed("Adhkar state could not be read") }
         return await AdhkarActivity.apply(m, start: true)
     }
 }
@@ -483,5 +495,62 @@ enum TasbihSync {
         let e = JSONEncoder()
         e.dateEncodingStrategy = .secondsSince1970
         if let data = try? e.encode(state) { SharedKeychain.write(data, account: SharedKeychain.tasbihAccount) }
+    }
+}
+
+/// سجل ضغطات زر الإجراء على الجهاز (آخر 15): يقرؤه «تقرير الجزيرة» (LiveReportIntent) فيُعرف سبب ما لا يظهر
+@available(iOS 17.0, *)
+enum LiveLog {
+    private static let key = "live.log"
+
+    @MainActor
+    static func record(_ kind: String, _ outcome: LiveOutcome, background: Bool) {
+        let f = DateFormatter()
+        f.dateFormat = "d/M HH:mm:ss"
+        let enabled = ActivityAuthorizationInfo().areActivitiesEnabled
+        let after = LiveCheck.states()
+        let line = "\(f.string(from: Date())) \(kind): \(outcome)"
+            + " · \(background ? "background" : "foreground") · live \(enabled ? "on" : "OFF")"
+            + " · \(LiveDebug.peek())"
+            + " · now: \(after.isEmpty ? "no activity" : after.joined(separator: "; "))"
+        var list = UserDefaults.standard.stringArray(forKey: key) ?? []
+        list.append(line)
+        UserDefaults.standard.set(Array(list.suffix(15)), forKey: key)
+        LiveActivities.log.notice("\(line, privacy: .public)")
+    }
+
+    static var text: String {
+        let list = UserDefaults.standard.stringArray(forKey: key) ?? []
+        return list.isEmpty ? "No Action Button presses recorded yet" : list.suffix(6).reversed().joined(separator: "\n\n")
+    }
+}
+
+/// الأنشطة الحية متوقفة لميزان (غالباً «عدم السماح» بالخطأ في سؤال iOS على شاشة القفل): الجزيرة الديناميكية وزر
+/// الإجراء لا يُظهران شيئاً، فيُنبَّه المستخدم مرة في كل تشغيل بزر يفتح صفحة ميزان في الإعدادات (فيها مفتاحها)
+/// بدل أن يحذف التطبيق ويعيد تثبيته
+enum LiveOffAlert {
+    private static var shown = false
+
+    static func check(supported: Bool, off: Bool) {
+        guard supported, off, !shown else { return }
+        // بعد أن تستقر الواجهة
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            guard !shown, let top = topController() else { return }
+            shown = true
+            let t = IosLive.shared.liveOffTexts()
+            let alert = UIAlertController(title: nil, message: t[0], preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: t[2], style: .cancel))
+            alert.addAction(UIAlertAction(title: t[1], style: .default) { _ in
+                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+            })
+            top.present(alert, animated: true)
+        }
+    }
+
+    private static func topController() -> UIViewController? {
+        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive }
+        var vc = scene?.windows.first { $0.isKeyWindow }?.rootViewController
+        while let p = vc?.presentedViewController { vc = p }
+        return vc
     }
 }

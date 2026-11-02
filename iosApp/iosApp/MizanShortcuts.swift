@@ -42,6 +42,19 @@ struct ActionTasbihIntent: LiveActivityIntent {
     }
 }
 
+/// تقرير الجزيرة: آخر ضغطات زر الإجراء وما حدث في كل منها (من تطبيق الاختصارات: إجراءات ميزان)
+@available(iOS 17.0, *)
+struct LiveReportIntent: AppIntent {
+    static var title: LocalizedStringResource = "Dynamic Island report"
+    static var description = IntentDescription("Shows what happened on the last Action Button presses, to find why the Dynamic Island does not show")
+    static var openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        .result(dialog: IntentDialog(LocalizedStringResource(stringLiteral: LiveLog.text)))
+    }
+}
+
 /// الضغطة الأولى تُظهر أذكار الوقت في الجزيرة وعلى شاشة القفل، وكل ضغطة بعدها تعدّ الذكر الحالي
 @available(iOS 17.0, *)
 struct ActionAdhkarIntent: LiveActivityIntent {

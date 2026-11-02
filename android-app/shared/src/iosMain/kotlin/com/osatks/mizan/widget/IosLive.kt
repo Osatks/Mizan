@@ -76,6 +76,15 @@ object IosLive {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6_000_000_000L), dispatch_get_main_queue()) { QuranSpotlight.index() }
     }
 
+    /**
+     * تنبيه «الأنشطة الحية متوقفة» بلغة التطبيق (LiveOffAlert في Swift): النص، وزر فتح الإعدادات، والإلغاء.
+     * يظهر حين يُضغط «عدم السماح» بالخطأ في سؤال iOS على شاشة القفل فتتوقف الجزيرة الديناميكية.
+     */
+    fun liveOffTexts(): List<String> {
+        val s = com.osatks.mizan.i18n.Lang.current.strings
+        return listOf(s.liveActivitiesOff, s.openSettings, s.cancel)
+    }
+
     /** يحدّثها Swift عند الإقلاع وعند كل عودة إلى التطبيق (قد يغيّرها المستخدم في الإعدادات) */
     fun availability(supported: Boolean, systemOff: Boolean) {
         LiveCountdown.supported = supported
