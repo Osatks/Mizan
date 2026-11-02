@@ -22,7 +22,7 @@ import java.io.File
 
 /**
  * ما يرسله Kotlin إلى Swift يُفكّ هناك بـ JSONDecoder في بنى ثابتة (iosApp/Shared/LiveStates.swift و
- * MizanWidgets/SnapshotModel.swift). مفتاح ناقص أو باسم آخر أو بنوع آخر يُفشل الفكّ كله بلا خطأ ظاهر: يختفي النشاط
+ * Shared/SnapshotModel.swift). مفتاح ناقص أو باسم آخر أو بنوع آخر يُفشل الفكّ كله بلا خطأ ظاهر: يختفي النشاط
  * الحي أو الأداة. هنا تُقرأ حقول البنى من ملفات Swift نفسها وتُقارن بمفاتيح الخرائط وأنواع قيمها، بكل لغات التطبيق.
  *
  * و MIZAN_GALLERY_EXPORT=<مجلد> يكتب هذه الحالات (live-fixtures.json) لمعرض الأدوات (iosApp/Gallery) فيرسمها
@@ -122,7 +122,7 @@ class LiveStatesTest {
         val tasbih = SwiftStructs.fields("Shared/LiveStates.swift", "TasbihLiveState")
         val adhkar = SwiftStructs.fields("Shared/LiveStates.swift", "AdhkarLiveState")
         val prayer = SwiftStructs.fields("Shared/LiveStates.swift", "PrayerLiveState")
-        val khatma = SwiftStructs.fields("MizanWidgets/SnapshotModel.swift", "Khatma")
+        val khatma = SwiftStructs.fields("Shared/SnapshotModel.swift", "Khatma")
         for (lang in Lang.entries) {
             for ((kind, map) in cases(lang)) {
                 val fields = when {
@@ -140,7 +140,7 @@ class LiveStatesTest {
 
     /** لقطة الأدوات كاملة (بالختمة) بمفاتيح Snapshot في Swift */
     @Test fun snapshotMatchesSwift(): Unit = runBlocking {
-        val fields = SwiftStructs.fields("MizanWidgets/SnapshotModel.swift", "Snapshot")
+        val fields = SwiftStructs.fields("Shared/SnapshotModel.swift", "Snapshot")
         val snap = snapshot(Lang.AR)
         check("snapshot", snap, fields)
         System.getenv("MIZAN_GALLERY_EXPORT")?.let { export(File(it)) }

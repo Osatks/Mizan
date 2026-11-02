@@ -131,8 +131,9 @@ jobs:
       - name: Build app (unsigned)
         working-directory: iosApp
         run: |
+          # بلا -sdk: تطبيق الساعة يُبنى بـ watchOS SDK والتطبيق بـ iOS SDK (مثل الأرشفة في ios-release.yml)
           xcodebuild -project Mizan.xcodeproj -scheme Mizan -configuration Release \
-            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            -destination 'generic/platform=iOS' -derivedDataPath build \
             MARKETING_VERSION=${{ steps.v.outputs.name }} CURRENT_PROJECT_VERSION=${{ steps.v.outputs.build }} \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             -IDEBuildingContinueBuildingAfterErrors=YES \
@@ -144,6 +145,10 @@ jobs:
           test -d "$APP"
           # أدوات الشاشة الرئيسية يجب أن تكون داخل التطبيق
           test -d "$APP/PlugIns/MizanWidgets.appex"
+          # وتطبيق الساعة ومضاعفاتها (watchOS)
+          test -d "$APP/Watch/MizanWatch.app"
+          test -d "$APP/Watch/MizanWatch.app/PlugIns/MizanWatchWidgets.appex"
+          /usr/libexec/PlistBuddy -c "Print :WKCompanionAppBundleIdentifier" -c "Print :DTPlatformName" "$APP/Watch/MizanWatch.app/Info.plist"
           # وبيانات حسابها المستقل (حين لا تصلها لقطة التطبيق)
           test -f "$APP/PlugIns/MizanWidgets.appex/Static/widget-static.json"
           # أصوات إشعارات الأذان في جذر التطبيق، والأذان الكامل المضمّن في assets
@@ -160,6 +165,9 @@ jobs:
         working-directory: iosApp
         run: |
           APP=build/Build/Products/Release-iphoneos/Mizan.app
+          # تطبيق الساعة لا يدخل نسخة التحميل الجانبي: الحساب المجاني يسمح بثلاثة معرّفات تطبيقات في الأسبوع
+          # (التطبيق والأداة اثنان، والساعة ومضاعفاتها اثنان آخران)؛ هو في نسخة المتجر (ios-release.yml)
+          rm -rf "$APP/Watch"
           sign() { codesign --force --sign - --timestamp=none "$@" || echo "::warning::codesign failed for ${*: -1}"; }
           for f in "$APP"/Frameworks/*.framework; do [ -d "$f" ] && sign "$f"; done
           sign --entitlements MizanWidgets/MizanWidgets.entitlements "$APP/PlugIns/MizanWidgets.appex"

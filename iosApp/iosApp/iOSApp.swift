@@ -13,6 +13,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         WidgetSync.shared.start()
+        // ميزان على Apple Watch: اللقطة نفسها إلى الساعة (WatchSync.swift)
+        WatchSync.shared.start()
         // الأنشطة الحية و«يُشغَّل الآن» والاختصارات و Spotlight (LiveActivities.swift)
         LiveActivities.shared.start()
         // iOS 26: شريط التبويبات من النظام بزجاج Liquid Glass بدل شريط Compose (LiquidTabBar.swift)
@@ -94,6 +96,7 @@ final class WidgetSync {
         NotificationCenter.default.addObserver(forName: Notification.Name("MizanWidgetsReload"), object: nil, queue: .main) { [weak self] note in
             // اللقطة نفسها تُكتب أيضاً في سلسلة المفاتيح المشتركة، لتثبيتات بلا App Group (Sideloadly بحساب مجاني)
             if let json = note.object as? String, let data = json.data(using: .utf8) { SharedKeychain.write(data) }
+            if let json = note.object as? String { WatchSync.shared.send(snapshot: json) }
             WidgetCenter.shared.reloadAllTimelines()
             self?.endTask()
         }
