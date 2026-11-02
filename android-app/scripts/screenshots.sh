@@ -15,10 +15,11 @@ adb shell input keyevent KEYCODE_WAKEUP || true
 # تنبيه «ملء الشاشة» الذي يظهر أول مرة يغطي لقطة وضع التركيز
 adb shell settings put secure immersive_mode_confirmations confirmed || true
 
-# shot <route> <name> [lang] [accent]: اللغة الافتراضية للقطات هي العربية، واللون الزمردي
+# shot <route> <name> [lang] [accent]: اللغة الافتراضية للقطات هي العربية، واللون الزمردي.
+# النشاط باسمه الكامل: معرّف التطبيق com.mizan.almuslim و MainActivity في الحزمة com.osatks.mizan
 shot() {
   # المسار بين علامتي اقتباس: صدفة الجهاز تقطع النص عند "&"
-  adb shell am start -W -S -n $PKG/.MainActivity --es route "'$1'" --es lang "${3:-ar}" --es accent "${4:-emerald}" --ez demo true > /dev/null
+  adb shell am start -W -S -n $PKG/com.osatks.mizan.MainActivity --es route "'$1'" --es lang "${3:-ar}" --es accent "${4:-emerald}" --ez demo true > /dev/null
   sleep "${WAIT:-8}"
   adb exec-out screencap -p > "$OUT/$2.png"
   # نصوص الشاشة من شجرة الوصول: تبيّن أي شاشة ظهرت فعلاً
