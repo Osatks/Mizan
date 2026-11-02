@@ -52,10 +52,10 @@ final class GalleryUITests: XCTestCase {
     // ---------- 2: الأدوات وشاشة القفل مرسومة في المعرض ----------
 
     func test2Widgets() {
-        for lang in ["ar", "en", "ru"] {
+        for lang in ["ar", "en", "ru", "de"] {
             for dark in [false, true] {
-                for page in ["tasbih", "khatma", "prayer", "lock1", "lock2"] {
-                    if dark && page.hasPrefix("lock") { continue }
+                if dark && lang == "de" { continue }
+                for page in ["tasbih", "khatma", "prayer"] {
                     let app = launch(["-gallery-page", page, "-gallery-lang", lang, "-gallery-dark", dark ? "1" : "0"])
                     _ = app.staticTexts["page-ready"].waitForExistence(timeout: 8)
                     sleep(1)
@@ -63,6 +63,27 @@ final class GalleryUITests: XCTestCase {
                 }
             }
         }
+        // شاشة القفل بعرضها في أكبر شاشة وأصغرها، وباللغات ذات النصوص الأطول والخطوط الأعلى سطراً
+        for lang in ["ar", "en", "ru", "de", "fr", "ur", "fa", "bn"] {
+            for width in ["408", "359"] {
+                for page in ["lock1", "lock2", "lock3"] {
+                    let app = launch(["-gallery-page", page, "-gallery-lang", lang, "-gallery-width", width])
+                    _ = app.staticTexts["page-ready"].waitForExistence(timeout: 8)
+                    sleep(1)
+                    save("widget-\(page)-\(lang)-\(width)")
+                    checkHeights(app, "\(page) \(lang) \(width)pt")
+                }
+            }
+        }
+    }
+
+    /// ارتفاع كل نشاط في الصفحة (يكتبه المعرض تحته): أقصاه على شاشة القفل 160 نقطة
+    private func checkHeights(_ app: XCUIApplication, _ name: String) {
+        let labels = app.staticTexts.matching(identifier: "lock-height").allElementsBoundByIndex.map(\.label)
+        let heights = labels.compactMap { Int($0.replacingOccurrences(of: "pt", with: "")) }
+        print("GALLERY HEIGHTS \(name): \(heights.map(String.init).joined(separator: ","))")
+        if heights.isEmpty { XCTFail("\(name): no heights") }
+        if let over = heights.first(where: { $0 > 160 }) { XCTFail("\(name): \(over)pt is over 160pt (\(heights))") }
     }
 
     // ---------- 3: الجزيرة الديناميكية ----------
@@ -73,7 +94,7 @@ final class GalleryUITests: XCTestCase {
             XCUIDevice.shared.press(.home)
             sleep(5)
         }
-        for lang in ["ar", "en"] {
+        for lang in ["ar", "en", "ru"] {
             for scenario in ["tasbih", "tasbihSalah", "adhkar", "adhkarDone", "prayer", "iftar", "tasbih+prayer"] {
                 guard start(scenario, lang) else { continue }
                 let name = "island-\(scenario.replacingOccurrences(of: "+", with: "-"))-\(lang)"
@@ -94,8 +115,8 @@ final class GalleryUITests: XCTestCase {
     // ---------- 4: شاشة القفل (الأنشطة كلها معاً) ----------
 
     func test4LockScreen() {
-        for lang in ["ar", "en"] {
-            for (i, scenario) in ["tasbih+adhkar+prayer", "tasbihSalah+adhkarDone+iftar"].enumerated() {
+        for lang in ["ar", "en", "ru"] {
+            for (i, scenario) in ["tasbih+adhkar+prayer", "tasbihSalah+adhkarDone+iftar", "tasbihTamam+adhkarLong"].enumerated() {
                 guard start(scenario, lang) else { continue }
                 let name = "lock-\(lang)-\(i + 1)"
                 lockAndShow(name)

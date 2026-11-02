@@ -95,7 +95,8 @@ class LiveStatesTest {
 
     private fun epoch(t: LocalDateTime) = t.toInstant(TimeZone.of(ZONE)).epochSeconds
 
-    /** حالات كل لغة: المسبحة (حرّة، وبعد الصلاة، وبلا حد)، والأذكار (وسط القسم، ومكتمل)، والصلاة (عادية، وإفطار رمضان بإقامة)، والختمة */
+    /** حالات كل لغة: المسبحة (حرّة، وبعد الصلاة، وبلا حد)، والأذكار (وسط القسم، ومكتمل)، والصلاة (عادية، وإفطار رمضان بإقامة)، والختمة،
+     *  وأطول النصوص لحدّ الارتفاع على شاشة القفل: تمام المائة، و«لا حول ولا قوة إلا بالله»، وأطول أذكار الصباح */
     private fun cases(lang: Lang): Map<String, Map<String, Any?>> {
         val accent = "emerald"
         val at = 1_793_000_000L
@@ -105,12 +106,20 @@ class LiveStatesTest {
         val ramadan = Hijri.toGregorian(1448, 9, 12)!!
         val maghrib = LocalDateTime(ramadan.year, ramadan.monthNumber, ramadan.dayOfMonth, 17, 28)
         val s = lang.strings
+        // أطول ذكر له معنى بهذه اللغة (فيُرسم معه سطر المعنى)
+        val morning = Adhkar.section("morning")?.items.orEmpty()
+        val tr = Adhkar.tr(lang)
+        val longest = morning.indices.filter { lang == Lang.AR || tr.items[morning[it].id]?.t != null }
+            .maxByOrNull { morning[it].ar.length } ?: 0
         return linkedMapOf(
             "tasbih" to LiveStates.tasbih(TasbihState(idx = 1, count = 21, target = 33, rounds = 3, total = 520, today = 120), lang, accent, at),
             "tasbihSalah" to LiveStates.tasbih(TasbihState(mode = "salah", step = 1, count = 12, rounds = 1, today = 145), lang, accent, at),
             "tasbihFree" to LiveStates.tasbih(TasbihState(idx = 4, count = 1234, target = 0, today = 1234), lang, accent, at),
+            "tasbihTamam" to LiveStates.tasbih(TasbihState(mode = "salah", step = 3, count = 0, rounds = 2, today = 1290), lang, accent, at),
+            "tasbihLong" to LiveStates.tasbih(TasbihState(idx = 7, count = 87, target = 100, total = 87, today = 87), lang, accent, at),
             "adhkar" to (AdhkarLive.state(AdhkarLive.Position("morning", 3, 1, "2026-11-02"), lang) + LiveStates.palette(accent)),
             "adhkarDone" to (AdhkarLive.state(AdhkarLive.Position("evening", 0, 0, "2026-11-02", done = true), lang) + LiveStates.palette(accent)),
+            "adhkarLong" to (AdhkarLive.state(AdhkarLive.Position("morning", longest, 0, "2026-11-02"), lang) + LiveStates.palette(accent)),
             "prayer" to LiveStates.prayer("asr", asr, epoch(asr), epoch(asr) - 3 * 3600, asr.date, lang, amman, 0, false, accent),
             "prayerIftar" to LiveStates.prayer("maghrib", maghrib, epoch(maghrib), epoch(maghrib) - 2 * 3600, maghrib.date, lang, amman, 10, false, accent),
             "khatma" to WidgetData.khatmaMap(s, 112, 604, 20, 8, 6, false, "surah/18?ayah=10&from=widget"),

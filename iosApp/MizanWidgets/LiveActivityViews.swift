@@ -68,6 +68,7 @@ struct PrayerActivityWidget: Widget {
                     }
                     // بعيداً عن انحناء زوايا الجزيرة
                     .padding(.horizontal, 12)
+                    .padding(.bottom, 4)
                     .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
                 }
             } compactLeading: {
@@ -136,12 +137,20 @@ struct PrayerLockView: View {
                         .foregroundColor(Mizan.text)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                    Text(verbatim: arrived ? state.hijri : "\(state.time) · \(state.hijri)")
-                        .font(Mizan.rounded(13, .medium))
-                        .foregroundColor(Mizan.text2)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                    // الوقت والتاريخ الهجري كاملين، ثم بخط أصغر، ثم الوقت وحده (الروسية على شاشة صغيرة): لا يُقطع
+                    let line = arrived ? state.hijri : "\(state.time) · \(state.hijri)"
+                    ViewThatFits(in: .horizontal) {
+                        Text(verbatim: line).font(Mizan.rounded(13, .medium)).fixedSize()
+                        Text(verbatim: line).font(Mizan.rounded(11.5, .medium)).fixedSize()
+                        Text(verbatim: arrived ? state.hijri : state.time)
+                            .font(Mizan.rounded(13, .medium))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .foregroundColor(Mizan.text2)
                 }
+                // الاسم والتاريخ يأخذان ما يبقى بعد العدّ بعرضه
+                .layoutPriority(1)
                 Spacer(minLength: 8)
                 Group {
                     if arrived, let iqama = state.iqamaAhead {
@@ -150,18 +159,20 @@ struct PrayerLockView: View {
                             Text(verbatim: state.iqamaLabel ?? "")
                                 .font(Mizan.rounded(12, .medium))
                                 .foregroundColor(Mizan.text2)
+                                .fixedSize()
                             CountdownText(at: iqama).font(Mizan.rounded(32, .light))
+                                .frame(width: CountdownText.width(to: iqama, size: 32), alignment: .trailing)
                         }
                     } else if arrived {
-                        Text(state.time).font(Mizan.rounded(30, .semibold))
+                        Text(state.time).font(Mizan.rounded(30, .semibold)).fixedSize()
                     } else {
                         CountdownText(at: state.at).font(Mizan.rounded(34, .light))
+                            .frame(width: CountdownText.width(to: state.at, size: 34), alignment: .trailing)
                     }
                 }
                 .foregroundColor(gold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .frame(maxWidth: 150, alignment: .trailing)
             }
             if arrived, let dua = state.dua {
                 // رمضان: دعاء الإفطار عند المغرب
@@ -282,6 +293,15 @@ extension PrayerLiveState {
 struct CountdownText: View {
     let at: Date
     @Environment(\.layoutDirection) private var direction
+
+    /// عرض العدّ بخط [size]، فلا يأخذ (وهو يتمدد) مكان ما بجانبه: أرقام متساوية العرض ونقطتان
+    /// (9:57 و 24:57 و 1:24:57 و 13:24:57)، ولا يحتاج بعد ذلك أكثر لأنه ينقص
+    static func width(to at: Date, size: CGFloat, now: Date = Date()) -> CGFloat {
+        let s = at.timeIntervalSince(now)
+        let digits: CGFloat = s >= 36_000 ? 6 : s >= 3_600 ? 5 : s >= 600 ? 4 : 3
+        let colons: CGFloat = s >= 3_600 ? 2 : 1
+        return ceil(size * (digits * 0.64 + colons * 0.34)) + 4
+    }
 
     var body: some View {
         Text(timerInterval: min(Date(), at)...at, countsDown: true)

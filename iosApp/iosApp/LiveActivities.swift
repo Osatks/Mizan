@@ -63,6 +63,7 @@ final class LiveActivities {
             let work = Task { @MainActor in
                 await PrayerActivity.endExpired()
                 await PrayerActivity.refreshArrived()
+                PrayerActivity.scheduleNextRefresh()
                 task.setTaskCompleted(success: true)
             }
             task.expirationHandler = { work.cancel() }
@@ -178,6 +179,16 @@ enum PrayerActivity {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay + 1) {
             Task { await refreshArrived() }
         }
+        // والتطبيق في الخلفية: يوقظه النظام قرب وقت الصلاة (لا بالدقيقة) فيُرسم «حان الآن»، ثم موعد الإنهاء.
+        // النظام لا يعلّم النشاط «قديماً» وحده عند staleDate (اختبار staleprobe في iosApp/Gallery)
+        LiveActivities.scheduleRefresh(after: at)
+    }
+
+    /// مهمة الخلفية التالية: أقرب وقت صلاة أو إنهاء لنشاط ظاهر
+    static func scheduleNextRefresh() {
+        let now = Date()
+        let next = alive.flatMap { [$0.content.state.at, $0.content.state.endsAt] }.filter { $0 > now }.min()
+        if let next = next { LiveActivities.scheduleRefresh(after: next) }
     }
 
     /// النشاط الذي دخل وقته يُحدَّث بالمحتوى نفسه: يرسمه النظام من جديد فيرى isStale

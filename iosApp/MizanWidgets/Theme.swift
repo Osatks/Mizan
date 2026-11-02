@@ -26,8 +26,10 @@ enum Mizan {
     static let text3 = Color.white.opacity(0.56)
     static let fallback = Palette(hero1: "#0F6A55", hero2: "#08463A", night1: "#1B2D28", night2: "#0B1311", accent: "#3FB595", gold: "#E8C15A")
 
-    /// خط المصحف (Amiri Quran) مضمّن في الأداة؛ إن تعذّر يُستعمل خط النظام
-    static func quran(_ size: CGFloat) -> Font { .custom("AmiriQuran-Regular", size: size) }
+    /// خط المصحف (Amiri Quran) مضمّن في الأداة؛ إن تعذّر يُستعمل خط النظام.
+    /// بحجم ثابت كخطوط الأدوات الأخرى (system(size:))، فلا يكبر وحده مع حجم النص في الإعدادات فيتجاوز
+    /// النشاطُ على شاشة القفل حدَّه (160 نقطة) أو تخرج الأداة عن إطارها: سطر هذا الخط نحو مرتين ونصف حجمه
+    static func quran(_ size: CGFloat) -> Font { .custom("AmiriQuran-Regular", fixedSize: size) }
 
     static func rounded(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight, design: .rounded)

@@ -3,7 +3,8 @@ import WidgetKit
 
 // معرض أدوات ميزان وأنشطته الحية للمراجعة البصرية على المحاكي (ios-gallery.yml)، ولا يُنشر.
 // كل تشغيل صفحة واحدة يلتقطها اختبار الواجهة (GalleryUITests)، بوسائط التشغيل:
-//   -gallery-page check|tasbih|khatma|prayer|lock1|lock2|live   -gallery-lang ar   -gallery-dark 0|1
+//   -gallery-page check|tasbih|khatma|prayer|lock1|lock2|lock3|live   -gallery-lang ar   -gallery-dark 0|1
+//   -gallery-width 359   (عرض النشاط على شاشة القفل: 408 في شاشة 6.9 بوصة، و 359 في أصغرها: iPhone SE و mini)
 //   -gallery-live tasbih+prayer   (يبدأ أنشطة حية حقيقية يرسمها امتداد الأدوات في الجزيرة وعلى شاشة القفل)
 // الأدوات تُرسم بمصادر MizanWidgets نفسها، بمقاسها في iPhone بشاشة 6.9 بوصة، وخلفيتها كما يرسمها WidgetKit.
 
@@ -25,6 +26,7 @@ enum Args {
     static var lang: String { value("gallery-lang") ?? "ar" }
     static var dark: Bool { value("gallery-dark") == "1" }
     static var live: String? { value("gallery-live") }
+    static var lockWidth: CGFloat { value("gallery-width").flatMap(Double.init).map { CGFloat($0) } ?? 408 }
 }
 
 struct GalleryRoot: View {
@@ -38,7 +40,7 @@ struct GalleryRoot: View {
                 CheckPage()
             } else if let f = Fixtures.all[Args.lang] {
                 VStack(spacing: 14) {
-                    Text(verbatim: "\(Args.page) · \(Args.lang) · \(dark ? "dark" : "light")")
+                    Text(verbatim: "\(Args.page) · \(Args.lang) · \(dark ? "dark" : "light")" + (Args.page.hasPrefix("lock") ? " · \(Int(Args.lockWidth))pt" : ""))
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
                         .foregroundColor(.white.opacity(0.7))
                         .accessibilityIdentifier("page-ready")
@@ -56,6 +58,8 @@ struct GalleryRoot: View {
             }
         }
         .environment(\.colorScheme, dark ? .dark : .light)
+        // لغة الجهاز كلغة التطبيق: يختار النظام بها خط اللغة (النستعليق للأردية) وارتفاع سطره
+        .environment(\.locale, Locale(identifier: Args.lang))
         .ignoresSafeArea()
     }
 
@@ -67,6 +71,7 @@ struct GalleryRoot: View {
         case "prayer": PrayerPage(f: f)
         case "lock1": LockPage1(f: f)
         case "lock2": LockPage2(f: f)
+        case "lock3": LockPage3(f: f)
         case "live":
             Text(verbatim: live.isEmpty ? "LIVE STARTING" : live)
                 .font(.system(size: 15, weight: .semibold))
@@ -164,7 +169,7 @@ struct LockBox<Content: View>: View {
 
     var body: some View {
         content()
-            .frame(width: 410)
+            .frame(width: Args.lockWidth)
             .background(Color(hex: tint))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay {
@@ -174,6 +179,8 @@ struct LockBox<Content: View>: View {
                         .foregroundColor(g.size.height > 160 ? .red : .white.opacity(0.35))
                         .padding(6)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                        // يقرؤه اختبار الواجهة فيفشل إن تجاوز النشاط 160 نقطة
+                        .accessibilityIdentifier("lock-height")
                 }
             }
     }
@@ -267,10 +274,26 @@ struct LockPage2: View {
     var body: some View {
         let before = f.prayer.moved(to: Date().addingTimeInterval(25 * 60))
         let iftar = f.prayerIftar.moved(to: Date().addingTimeInterval(-90))
+        // أعرض عدّ: أكثر من عشر ساعات (من العشاء إلى الفجر في الشتاء)
+        let far = f.prayer.moved(to: Date().addingTimeInterval(11 * 3600 + 24 * 60))
         VStack(spacing: 14) {
             LockBox(tint: f.adhkarDone.hero2) { AdhkarLockView(state: f.adhkarDone) }
             LockBox(tint: before.hero2) { PrayerLockView(state: before, arrived: false) }
+            LockBox(tint: far.hero2) { PrayerLockView(state: far, arrived: false) }
             LockBox(tint: iftar.hero2) { PrayerLockView(state: iftar, arrived: true) }
+        }
+    }
+}
+
+/// أطول النصوص: تمام المائة بعد الصلاة، و«لا حول ولا قوة إلا بالله»، وأطول أذكار الصباح بمعناه
+struct LockPage3: View {
+    let f: LangFixture
+
+    var body: some View {
+        VStack(spacing: 14) {
+            LockBox(tint: f.tasbihTamam.hero2) { TasbihLockView(state: f.tasbihTamam) }
+            LockBox(tint: f.tasbihLong.hero2) { TasbihLockView(state: f.tasbihLong) }
+            LockBox(tint: f.adhkarLong.hero2) { AdhkarLockView(state: f.adhkarLong) }
         }
     }
 }

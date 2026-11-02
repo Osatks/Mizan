@@ -5,7 +5,7 @@ import ActivityKit
 // في الجزيرة الديناميكية وعلى شاشة القفل، ويلتقطها اختبار الواجهة (GalleryUITests).
 
 enum LiveStarter {
-    /// [scenario]: أسماء مفصولة بـ + (tasbih, tasbihSalah, tasbihFree, adhkar, adhkarDone, prayer, iftar)
+    /// [scenario]: أسماء مفصولة بـ + (tasbih, tasbihSalah, tasbihFree, tasbihTamam, adhkar, adhkarDone, adhkarLong, prayer, iftar)
     static func start(_ scenario: String, _ f: LangFixture) async -> String {
         guard #available(iOS 17.0, *) else { return "LIVE NEEDS iOS 17" }
         var probe = ""
@@ -17,8 +17,10 @@ enum LiveStarter {
                 case "tasbih": try tasbih(f.tasbih)
                 case "tasbihSalah": try tasbih(f.tasbihSalah)
                 case "tasbihFree": try tasbih(f.tasbihFree)
+                case "tasbihTamam": try tasbih(f.tasbihTamam)
                 case "adhkar": try adhkar(f.adhkar)
                 case "adhkarDone": try adhkar(f.adhkarDone)
+                case "adhkarLong": try adhkar(f.adhkarLong)
                 // قبل الصلاة بخمس وعشرين دقيقة
                 case "prayer": try prayer(f.prayer.moved(to: Date().addingTimeInterval(25 * 60)))
                 // المغرب في رمضان كما في التطبيق: يبدأ النشاط قبل الأذان بثوانٍ ثم يصير «قديماً» عند دخول الوقت،

@@ -8,8 +8,12 @@ struct LangFixture: Decodable {
     var tasbih: TasbihLiveState
     var tasbihSalah: TasbihLiveState
     var tasbihFree: TasbihLiveState
+    /// أطول النصوص: تمام المائة بعد الصلاة، و«لا حول ولا قوة إلا بالله»، وأطول أذكار الصباح
+    var tasbihTamam: TasbihLiveState
+    var tasbihLong: TasbihLiveState
     var adhkar: AdhkarLiveState
     var adhkarDone: AdhkarLiveState
+    var adhkarLong: AdhkarLiveState
     var prayer: PrayerLiveState
     var prayerIftar: PrayerLiveState
     var khatma: Khatma

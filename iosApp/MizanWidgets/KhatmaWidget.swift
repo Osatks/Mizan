@@ -97,6 +97,33 @@ struct KhatmaRing: View {
     }
 }
 
+/// الأيام المتتالية بنصها، أو بعددها وحده إن لم يتسع لها (الروسية): اللهب يدل عليها
+private struct Streak: View {
+    let khatma: Khatma
+
+    var body: some View {
+        if #available(iOS 16.0, *) {
+            return AnyView(ViewThatFits(in: .horizontal) {
+                StreakLabel(text: khatma.streakText).fixedSize()
+                StreakLabel(text: "\(khatma.streak)").fixedSize()
+            })
+        }
+        return AnyView(StreakLabel(text: khatma.streakText).minimumScaleFactor(0.7))
+    }
+}
+
+/// اللهب وعدد الأيام المتتالية أو نصها
+private struct StreakLabel: View {
+    let text: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "flame.fill").font(.system(size: 10)).foregroundColor(Mizan.gold)
+            Text(verbatim: text).font(Mizan.rounded(10.5)).foregroundColor(Mizan.text2).lineLimit(1)
+        }
+    }
+}
+
 /// العنوان وصفحات اليوم والمقروء من المصحف والأيام المتتالية وزر المتابعة (الأداة المتوسطة)
 struct KhatmaDetails: View {
     let khatma: Khatma
@@ -121,9 +148,7 @@ struct KhatmaDetails: View {
             }
             HStack(spacing: 6) {
                 if khatma.streak > 0 {
-                    Image(systemName: "flame.fill").font(.system(size: 10)).foregroundColor(Mizan.gold)
-                    Text(verbatim: khatma.streakText).font(Mizan.rounded(10.5)).foregroundColor(Mizan.text2)
-                        .lineLimit(1).minimumScaleFactor(0.7)
+                    Streak(khatma: khatma)
                 }
                 Spacer(minLength: 4)
                 // زر المتابعة كاملاً (يصغر خطه قليلاً قبل أن يُقطع)، والأيام المتتالية تتنازل له عن المكان
