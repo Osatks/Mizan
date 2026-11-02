@@ -102,8 +102,25 @@ jobs:
       - name: Simulator (iPhone with a Dynamic Island)
         id: sim
         run: |
-          rt=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; rs=[r for r in json.load(sys.stdin)["runtimes"] if r["platform"]=="iOS" and r["isAvailable"]]; rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")]); print(rs[-1]["identifier"])')
-          udid=$(xcrun simctl create "Live Check" "iPhone 17 Pro Max" "$rt")
+          # iPhone بجزيرة ديناميكية يدعمه أحدث نظام مثبّت (لا يدعم كل نظام كل الطرازات)
+          type=$(xcrun simctl list devicetypes -j | python3 -c '
+          import json, sys
+          types = {t["name"]: t["identifier"] for t in json.load(sys.stdin)["devicetypes"]}
+          for name in sys.argv[1:]:
+              if name in types:
+                  print(types[name]); break
+          else:
+              sys.exit("no device type with a Dynamic Island")' "iPhone 17 Pro Max" "iPhone 17 Pro" "iPhone 16 Pro Max" "iPhone 16 Pro" "iPhone 15 Pro Max" "iPhone 15 Pro")
+          rt=$(xcrun simctl list runtimes -j | python3 -c '
+          import json, sys
+          want = sys.argv[1]
+          rs = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("platform", "iOS") == "iOS" and "iOS" in r["name"]]
+          rs = [r for r in rs if r.get("supportedDeviceTypes") is None or any(t.get("identifier") == want for t in r["supportedDeviceTypes"])]
+          rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")])
+          if not rs: sys.exit("no runtime for " + want)
+          print(rs[-1]["identifier"])' "$type")
+          echo "device $type, runtime $rt"
+          udid=$(xcrun simctl create "Live Check" "$type" "$rt")
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
           xcrun simctl boot "$udid" || true
           xcrun simctl bootstatus "$udid" -b
