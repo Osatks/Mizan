@@ -357,6 +357,7 @@ enum AppLive {
             await AdhkarActivity.end()
             return .ok
         case .prayerToggle: return await PrayerActivity.toggle()
+        case .prayerShow: return await PrayerActivity.show()
         }
     }
 

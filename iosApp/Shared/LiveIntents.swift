@@ -16,7 +16,7 @@ import WidgetKit
 enum LiveAction: String {
     case tasbihCount, tasbihReset, tasbihEnd, tasbihShow
     case adhkarCount, adhkarSkip, adhkarRestart, adhkarEnd
-    case prayerToggle
+    case prayerToggle, prayerShow
 }
 
 /// نتيجة ما طُلب: تمّ، أو الأنشطة الحية متوقفة لميزان في الإعدادات، أو لم يُختر الموقع بعد
@@ -227,6 +227,20 @@ struct ShowNextPrayerIntent: LiveActivityIntent {
 
     func perform() async throws -> some IntentResult {
         try LiveIntentError.check(await LiveRouter.run(.prayerToggle))
+        return .result()
+    }
+}
+/// يُظهر العدّ التنازلي للصلاة القادمة في الجزيرة وعلى شاشة القفل (ولا يخفيه): زر «الصلاة القادمة» في مركز التحكم وشاشة القفل
+@available(iOS 17.0, *)
+struct ShowPrayerCountdownIntent: LiveActivityIntent {
+    static var title: LocalizedStringResource = "Next prayer"
+    static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    static var isDiscoverable: Bool = false
+
+    init() {}
+
+    func perform() async throws -> some IntentResult {
+        try LiveIntentError.check(await LiveRouter.run(.prayerShow))
         return .result()
     }
 }
