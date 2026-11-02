@@ -28,6 +28,11 @@ enum LiveStarter {
                 case "iftar":
                     try prayer(f.prayerIftar.moved(to: Date().addingTimeInterval(4)))
                     try? await Task.sleep(nanoseconds: 7_000_000_000)
+                    // كما يفعل التطبيق عند وقت الصلاة (PrayerActivity.refreshArrived): النظام لا يعلّمه «قديماً» وحده
+                    for a in Activity<PrayerActivityAttributes>.activities {
+                        await a.update(ActivityContent(state: a.content.state, staleDate: a.content.state.at, relevanceScore: 50))
+                    }
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
                 // متى يعلّم النظام النشاط «قديماً» وحده بعد staleDate، وهل يكفي تحديثه بالمحتوى نفسه (refreshArrived في التطبيق)
                 case "staleprobe":
                     try prayer(f.prayerIftar.moved(to: Date().addingTimeInterval(5)))

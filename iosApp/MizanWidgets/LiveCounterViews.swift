@@ -33,6 +33,27 @@ struct ProgressRing<Content: View>: View {
     }
 }
 
+/// عدد فوق اسمه (عدد اليوم، والدورات): الاسم عنوان للعدد، فلا يلزمه أن يوافقه في الجمع («3 кругов» و «3 دورة»)،
+/// ويُعرض بعرضه كاملاً في كل اللغات
+struct LiveStat: View {
+    let value: String
+    let label: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(verbatim: value)
+                .font(Mizan.rounded(12.5, .semibold))
+                .monospacedDigit()
+                .foregroundColor(Mizan.text2)
+            Text(verbatim: label)
+                .font(Mizan.rounded(9.5, .medium))
+                .foregroundColor(Mizan.text3)
+        }
+        .lineLimit(1)
+        .fixedSize()
+    }
+}
+
 /// العدد داخل الحلقة: أرقام لاتينية كما في شاشة المسبحة
 struct CountLabel: View {
     let count: String
@@ -169,14 +190,25 @@ struct TasbihActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack(spacing: 8) {
-                        Text(verbatim: "\(s.today) \(s.todayLabel) · \(s.rounds) \(s.roundsLabel)")
-                            .font(Mizan.rounded(11))
-                            .foregroundColor(Mizan.text2)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
+                        HStack(spacing: 12) {
+                            LiveStat(value: s.today, label: s.todayLabel)
+                            LiveStat(value: s.rounds, label: s.roundsLabel)
+                        }
                         Spacer(minLength: 4)
-                        LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: s.reset)
-                        LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: s.end)
+                        // الزرّان باسميهما، وبرمزيهما وحدهما إن لم يتسع لهما (الجزيرة أضيق في الشاشات الصغيرة)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(spacing: 6) {
+                                LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: s.reset)
+                                LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: s.end)
+                            }
+                            .fixedSize()
+                            HStack(spacing: 6) {
+                                LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: s.reset, iconOnly: true)
+                                LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: s.end, iconOnly: true)
+                            }
+                            .fixedSize()
+                        }
+                        .layoutPriority(1)
                     }
                     .padding(.horizontal, 4)
                     .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
@@ -242,18 +274,7 @@ struct TasbihLockView: View {
                         .minimumScaleFactor(0.8)
                 }
                 HStack(spacing: 6) {
-                    // عدد اليوم: الرقم فوق اسمه، بعرضه كاملاً في كل اللغات
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(verbatim: state.today)
-                            .font(Mizan.rounded(12.5, .semibold))
-                            .monospacedDigit()
-                            .foregroundColor(Mizan.text2)
-                        Text(verbatim: state.todayLabel)
-                            .font(Mizan.rounded(9.5, .medium))
-                            .foregroundColor(Mizan.text3)
-                    }
-                    .lineLimit(1)
-                    .fixedSize()
+                    LiveStat(value: state.today, label: state.todayLabel)
                     Spacer(minLength: 4)
                     // الزرّان باسميهما، وبرمزيهما وحدهما إن لم يتسع لهما (الروسية والألمانية على شاشة صغيرة)
                     ViewThatFits(in: .horizontal) {
