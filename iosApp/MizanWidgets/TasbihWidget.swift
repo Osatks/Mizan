@@ -93,14 +93,15 @@ struct TasbihWidgetView: View {
                         TasbihWidgetRing(state: s, size: 118)
                     }
                 } else {
-                    VStack(spacing: 6) {
+                    // خط المصحف أطول سطراً من غيره (التشكيل): حلقة أصغر قليلاً ليبقى الذكر مقروءاً
+                    VStack(spacing: 4) {
                         Header(symbol: nil, title: s.title)
-                        TasbihWidgetRing(state: s, size: 92)
+                        TasbihWidgetRing(state: s, size: 82)
                             .frame(maxWidth: .infinity)
                         Text(verbatim: s.text)
-                            .font(Mizan.quran(15))
+                            .font(Mizan.quran(16))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.55)
+                            .minimumScaleFactor(0.6)
                             .frame(maxWidth: .infinity)
                     }
                 }

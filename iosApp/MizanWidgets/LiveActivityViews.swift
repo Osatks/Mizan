@@ -22,52 +22,22 @@ struct PrayerActivityWidget: Widget {
             let arrived = context.isStale
             let gold = Color(hex: s.gold)
             return DynamicIsland {
+                // الاسم في جهة بداية لغة التطبيق والعدّ في الأخرى، أياً كانت لغة الجهاز (IslandSide)
                 DynamicIslandExpandedRegion(.leading) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Label {
-                            Text(arrived ? s.name : s.label).lineLimit(1)
-                        } icon: {
-                            Image(systemName: arrived ? "bell.fill" : "moon.stars.fill")
-                        }
-                        .font(Mizan.rounded(13, .semibold))
-                        .foregroundColor(gold)
-                        if !arrived {
-                            Text(s.name)
-                                .font(Mizan.rounded(24, .bold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                        }
+                    IslandSide(appRTL: s.rtl) {
+                        PrayerIslandInfo(state: s, arrived: arrived, gold: gold)
+                    } swapped: {
+                        PrayerIslandClock(state: s, arrived: arrived, gold: gold, atLeft: true)
                     }
-                    .padding(.leading, 4)
-                    .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
                     .dynamicIsland(verticalPlacement: .belowIfTooWide)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Group {
-                        if arrived, let iqama = s.iqamaAhead {
-                            // بعد الأذان: العدّ إلى الإقامة
-                            VStack(alignment: .trailing, spacing: 0) {
-                                Text(verbatim: s.iqamaLabel ?? "")
-                                    .font(Mizan.rounded(11, .medium))
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .lineLimit(1)
-                                CountdownText(at: iqama)
-                                    .font(Mizan.rounded(24, .light))
-                            }
-                        } else if arrived {
-                            Text(s.time)
-                                .font(Mizan.rounded(22, .semibold))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.6)
-                        } else {
-                            CountdownText(at: s.at)
-                                .font(Mizan.rounded(28, .light))
-                        }
+                    IslandSide(appRTL: s.rtl) {
+                        PrayerIslandClock(state: s, arrived: arrived, gold: gold, atLeft: false)
+                    } swapped: {
+                        PrayerIslandInfo(state: s, arrived: arrived, gold: gold)
                     }
-                    .foregroundColor(gold)
-                    .frame(maxWidth: 120, alignment: .trailing)
-                    .padding(.trailing, 4)
+                    .dynamicIsland(verticalPlacement: .belowIfTooWide)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -96,7 +66,8 @@ struct PrayerActivityWidget: Widget {
                         .foregroundColor(.white.opacity(0.7))
                         .lineLimit(1)
                     }
-                    .padding(.horizontal, 4)
+                    // بعيداً عن انحناء زوايا الجزيرة
+                    .padding(.horizontal, 12)
                     .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
                 }
             } compactLeading: {
@@ -139,7 +110,8 @@ struct PrayerLockView: View {
 
     var body: some View {
         let gold = Color(hex: state.gold)
-        VStack(alignment: .leading, spacing: 10) {
+        // أقصى ارتفاع للنشاط على شاشة القفل 160 نقطة، ومع دعاء الإفطار أيضاً
+        VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 6) {
                 if arrived {
                     Image(systemName: "bell.fill").font(.system(size: 11, weight: .semibold))
@@ -194,10 +166,10 @@ struct PrayerLockView: View {
             if arrived, let dua = state.dua {
                 // رمضان: دعاء الإفطار عند المغرب
                 Text(verbatim: dua)
-                    .font(Mizan.quran(17))
+                    .font(Mizan.quran(16))
                     .foregroundColor(gold)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                     .frame(maxWidth: .infinity)
                     .environment(\.layoutDirection, .rightToLeft)
             } else if arrived, let iqama = state.iqamaAhead {
@@ -207,9 +179,90 @@ struct PrayerLockView: View {
             }
         }
         .padding(.horizontal, 18)
-        .padding(.vertical, 16)
+        .padding(.vertical, 13)
         .background(alignment: .topTrailing) { LiveOrnament(gold: gold) }
         .environment(\.layoutDirection, state.rtl ? .rightToLeft : .leftToRight)
+    }
+}
+
+/// منطقة جانبية في الجزيرة الموسّعة: الجهة الأولى للنظام (اليسار، أو اليمين إن كانت لغة الجهاز من اليمين) تعرض
+/// [natural] إن اتفقت جهة لغة التطبيق وجهة الجهاز، وإلا [swapped]: فيكون اسم الصلاة في جهة بداية لغة التطبيق دائماً
+@available(iOS 16.2, *)
+struct IslandSide<A: View, B: View>: View {
+    let appRTL: Bool
+    @ViewBuilder let natural: () -> A
+    @ViewBuilder let swapped: () -> B
+    @Environment(\.layoutDirection) private var system
+
+    var body: some View {
+        if (system == .rightToLeft) == appRTL { natural() } else { swapped() }
+    }
+}
+
+/// اسم الصلاة القادمة وعنوانها، أو «حان الآن» بعد دخول الوقت
+@available(iOS 16.2, *)
+struct PrayerIslandInfo: View {
+    let state: PrayerLiveState
+    let arrived: Bool
+    let gold: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Label {
+                Text(verbatim: arrived ? state.name : state.label).lineLimit(1)
+            } icon: {
+                Image(systemName: arrived ? "bell.fill" : "moon.stars.fill")
+            }
+            .font(Mizan.rounded(13, .semibold))
+            .foregroundColor(gold)
+            if !arrived {
+                Text(verbatim: state.name)
+                    .font(Mizan.rounded(24, .bold))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .padding(.horizontal, 4)
+        .environment(\.layoutDirection, state.rtl ? .rightToLeft : .leftToRight)
+    }
+}
+
+/// العدّ التنازلي إلى الصلاة، أو إلى الإقامة بعد الأذان، أو وقت الصلاة؛ ملاصقاً لحافة الجزيرة في جهته
+@available(iOS 16.2, *)
+struct PrayerIslandClock: View {
+    let state: PrayerLiveState
+    let arrived: Bool
+    let gold: Color
+    /// في الجهة اليسرى من الجزيرة
+    let atLeft: Bool
+
+    var body: some View {
+        Group {
+            if arrived, let iqama = state.iqamaAhead {
+                // بعد الأذان: العدّ إلى الإقامة
+                VStack(alignment: atLeft ? .leading : .trailing, spacing: 0) {
+                    Text(verbatim: state.iqamaLabel ?? "")
+                        .font(Mizan.rounded(11, .medium))
+                        .foregroundColor(.white.opacity(0.7))
+                        .lineLimit(1)
+                    CountdownText(at: iqama)
+                        .font(Mizan.rounded(24, .light))
+                }
+            } else if arrived {
+                Text(verbatim: state.time)
+                    .font(Mizan.rounded(22, .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else {
+                CountdownText(at: state.at)
+                    .font(Mizan.rounded(28, .light))
+            }
+        }
+        .foregroundColor(gold)
+        .environment(\.layoutDirection, .leftToRight)
+        .frame(maxWidth: 120, alignment: atLeft ? .leading : .trailing)
+        .padding(.horizontal, 4)
     }
 }
 

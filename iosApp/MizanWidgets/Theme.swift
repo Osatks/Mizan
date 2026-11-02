@@ -144,31 +144,37 @@ struct AccessoryShell<Content: View>: View {
 
     var body: some View {
         let rtl = snap?.rtl ?? Fallback.arabic
-        let inner = content()
+        return content()
             .environment(\.layoutDirection, rtl ? .rightToLeft : .leftToRight)
             .environment(\.locale, Locale(identifier: snap?.lang ?? Fallback.lang))
             .widgetURL(url)
-        if #available(iOS 17.0, *) {
-            inner.containerBackground(for: .widget) {
-                if circular { AccessoryBackdrop() } else { Color.clear }
-            }
-        } else {
-            ZStack {
-                if circular { AccessoryBackdrop() }
-                inner
-            }
-        }
+            .modifier(AccessoryBackground(circular: circular))
     }
 }
 
-/// خلفية الدائرة في شاشة القفل (iOS 16 فما بعد)
-struct AccessoryBackdrop: View {
-    var body: some View {
-        if #available(iOS 16.0, *) {
-            AccessoryWidgetBackground()
-        } else {
-            Color.clear
+/// خلفية أداة شاشة القفل: containerBackground في iOS 17، وخلفية تحتها قبله.
+/// بلا #available داخل ViewBuilder: مع Xcode 27 لا يمحو ViewBuilder الأنواع الأحدث من النظام، فينهار ذلك في iOS 16
+/// (تحذير buildLimitedAvailability)؛ هنا دالة عادية تعيد AnyView
+private struct AccessoryBackground: ViewModifier {
+    let circular: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            return AnyView(content.containerBackground(for: .widget) { AccessoryBackdrop(circular: circular) })
         }
+        return AnyView(content.background { AccessoryBackdrop(circular: circular) })
+    }
+}
+
+/// خلفية الدائرة في شاشة القفل (iOS 16 فما بعد)، ولا شيء لغيرها
+struct AccessoryBackdrop: View {
+    var circular = true
+
+    var body: some View {
+        if circular, #available(iOS 16.0, *) {
+            return AnyView(AccessoryWidgetBackground())
+        }
+        return AnyView(Color.clear)
     }
 }
 
@@ -191,6 +197,7 @@ struct Header<Trailing: View>: View {
                 .font(Mizan.rounded(12, .semibold))
                 .foregroundColor(Mizan.gold)
                 .lineLimit(1)
+                .minimumScaleFactor(0.75)
             Spacer(minLength: 4)
             trailing()
         }

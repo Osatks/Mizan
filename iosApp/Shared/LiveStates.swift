@@ -100,6 +100,8 @@ struct AdhkarLiveState: Codable, Hashable {
     var done: Bool
     var doneText: String
     var next: String
+    /// بعد إتمام القسم: «من جديد» (اختياري: نشاط بدأه إصدار سابق بلا هذا النص)
+    var again: String?
     var end: String
     var tap: String
     var rtl: Bool

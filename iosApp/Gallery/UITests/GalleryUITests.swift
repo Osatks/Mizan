@@ -68,12 +68,17 @@ final class GalleryUITests: XCTestCase {
     // ---------- 3: الجزيرة الديناميكية ----------
 
     func test3Island() {
+        // أول نشاط في المحاكي يتأخر ظهوره: نشاط تمهيدي لا يُلتقط
+        if start("tasbih", "en") {
+            XCUIDevice.shared.press(.home)
+            sleep(5)
+        }
         for lang in ["ar", "en"] {
             for scenario in ["tasbih", "tasbihSalah", "adhkar", "adhkarDone", "prayer", "iftar", "tasbih+prayer"] {
                 guard start(scenario, lang) else { continue }
                 let name = "island-\(scenario.replacingOccurrences(of: "+", with: "-"))-\(lang)"
                 XCUIDevice.shared.press(.home)
-                sleep(2)
+                sleep(3)
                 save(name + "-compact")
                 // ضغطة مطوّلة على الجزيرة: الموسّعة
                 let size = springboard.frame.size
@@ -104,8 +109,12 @@ final class GalleryUITests: XCTestCase {
     /// يبدأ أنشطة [scenario] في المعرض وينتظر بدءها
     private func start(_ scenario: String, _ lang: String) -> Bool {
         let app = launch(["-gallery-page", "live", "-gallery-live", scenario, "-gallery-lang", lang])
-        let ok = app.staticTexts["LIVE STARTED"].waitForExistence(timeout: 15)
-        if !ok {
+        let started = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'LIVE STARTED'")).firstMatch
+        let ok = started.waitForExistence(timeout: 25)
+        if ok {
+            // حال الأنشطة (active أو stale…) في سجل الاختبار
+            print("GALLERY \(scenario) \(lang): \(started.label)")
+        } else {
             save("live-failed-\(scenario)-\(lang)")
             XCTFail("\(scenario) \(lang): " + texts(app))
         }

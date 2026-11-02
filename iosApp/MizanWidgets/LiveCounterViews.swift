@@ -64,12 +64,16 @@ struct LiveChipButton<I: AppIntent>: View {
     let intent: I
     let symbol: String
     let title: String
+    /// الرمز وحده (حين لا يتسع الاسم)، والاسم لقارئ الشاشة
+    var iconOnly = false
 
     var body: some View {
         Button(intent: intent) {
             HStack(spacing: 4) {
                 Image(systemName: symbol).font(.system(size: 11, weight: .semibold))
-                Text(verbatim: title).font(Mizan.rounded(12, .semibold)).lineLimit(1)
+                if !iconOnly {
+                    Text(verbatim: title).font(Mizan.rounded(12, .semibold)).lineLimit(1)
+                }
             }
             .foregroundColor(Mizan.text)
             .padding(.horizontal, 10)
@@ -77,6 +81,7 @@ struct LiveChipButton<I: AppIntent>: View {
             .background(Capsule().fill(Color.white.opacity(0.14)))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: title))
     }
 }
 
@@ -161,7 +166,7 @@ struct TasbihActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack(spacing: 8) {
-                        Text(verbatim: "\(s.todayLabel) \(s.today) · \(s.roundsLabel) \(s.rounds)")
+                        Text(verbatim: "\(s.today) \(s.todayLabel) · \(s.rounds) \(s.roundsLabel)")
                             .font(Mizan.rounded(11))
                             .foregroundColor(Mizan.text2)
                             .lineLimit(1)
@@ -231,14 +236,25 @@ struct TasbihLockView: View {
                         .minimumScaleFactor(0.8)
                 }
                 HStack(spacing: 6) {
-                    Text(verbatim: "\(state.todayLabel) \(state.today)")
+                    Text(verbatim: "\(state.today) \(state.todayLabel)")
                         .font(Mizan.rounded(11, .medium))
                         .foregroundColor(Mizan.text3)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                     Spacer(minLength: 4)
-                    LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: state.reset)
-                    LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: state.end)
+                    // الزرّان باسميهما، وبرمزيهما وحدهما إن لم يتسع لهما (الروسية والألمانية)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 6) {
+                            LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: state.reset)
+                            LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: state.end)
+                        }
+                        .fixedSize()
+                        HStack(spacing: 6) {
+                            LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: state.reset, iconOnly: true)
+                            LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: state.end, iconOnly: true)
+                        }
+                        .fixedSize()
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -313,9 +329,10 @@ struct AdhkarActivityWidget: Widget {
                         HStack(spacing: 8) {
                             Spacer(minLength: 0)
                             if s.done {
-                                LiveChipButton(intent: AdhkarRestartIntent(), symbol: "arrow.counterclockwise", title: s.next)
+                                LiveChipButton(intent: AdhkarRestartIntent(), symbol: "arrow.counterclockwise", title: s.again ?? s.next)
                             } else {
-                                LiveChipButton(intent: AdhkarSkipIntent(), symbol: "chevron.forward", title: s.next)
+                                // السهم بجهة اللغة صراحةً (لا يُقلب وحده في الجزيرة)
+                                LiveChipButton(intent: AdhkarSkipIntent(), symbol: s.rtl ? "chevron.left" : "chevron.right", title: s.next)
                             }
                             LiveChipButton(intent: AdhkarEndIntent(), symbol: "xmark", title: s.end)
                             Spacer(minLength: 0)
@@ -360,8 +377,9 @@ struct AdhkarLockView: View {
     var body: some View {
         let gold = Color(hex: state.gold)
         let symbol = state.section == "morning" ? "sunrise.fill" : "sunset.fill"
+        // أقصى ارتفاع للنشاط على شاشة القفل 160 نقطة: الذكر سطران، وتقدّم القسم في موضع الذكر («5/23»)
         HStack(alignment: .center, spacing: 14) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 6) {
                     Image(systemName: symbol).font(.system(size: 11, weight: .semibold))
                     Text(verbatim: state.title)
@@ -381,13 +399,13 @@ struct AdhkarLockView: View {
                         .font(Mizan.rounded(17, .semibold))
                         .foregroundColor(Mizan.text)
                         .lineLimit(2)
+                        .minimumScaleFactor(0.8)
                 } else {
                     Text(verbatim: state.text)
-                        .font(Mizan.quran(16))
+                        .font(Mizan.quran(15))
                         .foregroundColor(Mizan.text)
                         .lineLimit(2)
                         .minimumScaleFactor(0.7)
-                        .fixedSize(horizontal: false, vertical: true)
                     if !state.meaning.isEmpty {
                         Text(verbatim: state.meaning)
                             .font(Mizan.rounded(11))
@@ -395,14 +413,11 @@ struct AdhkarLockView: View {
                             .lineLimit(1)
                     }
                 }
-                ProgressView(value: min(max(state.progress, 0), 1))
-                    .progressViewStyle(.linear)
-                    .tint(gold)
                 HStack(spacing: 6) {
                     if state.done {
-                        LiveChipButton(intent: AdhkarRestartIntent(), symbol: "arrow.counterclockwise", title: state.next)
+                        LiveChipButton(intent: AdhkarRestartIntent(), symbol: "arrow.counterclockwise", title: state.again ?? state.next)
                     } else {
-                        LiveChipButton(intent: AdhkarSkipIntent(), symbol: "chevron.forward", title: state.next)
+                        LiveChipButton(intent: AdhkarSkipIntent(), symbol: state.rtl ? "chevron.left" : "chevron.right", title: state.next)
                     }
                     LiveChipButton(intent: AdhkarEndIntent(), symbol: "xmark", title: state.end)
                     Spacer(minLength: 0)
@@ -412,16 +427,16 @@ struct AdhkarLockView: View {
             if state.done {
                 ZStack {
                     Circle().fill(gold.opacity(0.18))
-                    Image(systemName: "checkmark").font(.system(size: 30, weight: .bold)).foregroundColor(gold)
+                    Image(systemName: "checkmark").font(.system(size: 28, weight: .bold)).foregroundColor(gold)
                 }
-                .frame(width: 84, height: 84)
+                .frame(width: 76, height: 76)
             } else {
                 CounterButton(intent: AdhkarCountIntent(), progress: Double(state.count) / Double(max(state.goal, 1)),
-                              count: state.countText, caption: nil, gold: gold, size: 84, line: 6)
+                              count: state.countText, caption: nil, gold: gold, size: 76, line: 6)
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.vertical, 12)
         .background(alignment: .topTrailing) { LiveOrnament(gold: gold) }
         .environment(\.layoutDirection, state.rtl ? .rightToLeft : .leftToRight)
     }

@@ -20,8 +20,11 @@ enum LiveStarter {
                 case "adhkarDone": try adhkar(f.adhkarDone)
                 // قبل الصلاة بخمس وعشرين دقيقة
                 case "prayer": try prayer(f.prayer.moved(to: Date().addingTimeInterval(25 * 60)))
-                // بعد أذان المغرب في رمضان بدقيقة ونصف: «حان وقت الإفطار» ودعاؤه والعدّ إلى الإقامة
-                case "iftar": try prayer(f.prayerIftar.moved(to: Date().addingTimeInterval(-90)))
+                // المغرب في رمضان كما في التطبيق: يبدأ النشاط قبل الأذان بثوانٍ ثم يصير «قديماً» عند دخول الوقت،
+                // فيعرض «حان وقت الإفطار» ودعاءه والعدّ إلى الإقامة
+                case "iftar":
+                    try prayer(f.prayerIftar.moved(to: Date().addingTimeInterval(4)))
+                    try? await Task.sleep(nanoseconds: 7_000_000_000)
                 default: return "LIVE UNKNOWN \(part)"
                 }
             }
@@ -30,7 +33,17 @@ enum LiveStarter {
         }
         // يُرسم النشاط في الامتداد بعد قليل
         try? await Task.sleep(nanoseconds: 1_500_000_000)
-        return "LIVE STARTED"
+        return "LIVE STARTED · " + states()
+    }
+
+    /// حال كل نشاط ظاهر (active أو stale أو ended…): تُطبع في سجل الاختبار
+    @available(iOS 17.0, *)
+    private static func states() -> String {
+        var out: [String] = []
+        for a in Activity<TasbihActivityAttributes>.activities { out.append("tasbih:\(a.activityState)") }
+        for a in Activity<AdhkarActivityAttributes>.activities { out.append("adhkar:\(a.activityState)") }
+        for a in Activity<PrayerActivityAttributes>.activities { out.append("prayer:\(a.activityState)") }
+        return out.joined(separator: " ")
     }
 
     @available(iOS 17.0, *)

@@ -11,7 +11,7 @@ class LiveTextTest {
     @Test fun everyLanguageIsComplete() {
         assertEquals(setOf("ar", "en", "fr", "tr", "ur", "id", "ms", "fa", "bn", "ru", "de", "es", "uk", "uz", "kk"), LiveText.all.keys)
         for ((code, t) in LiveText.all) {
-            val all = listOf(t.end, t.iqamaIn, t.iftar, t.suhoor, t.iftarNow, t.adhkarDone, t.tasbih, t.descTasbih, t.wird, t.descWird, t.showLive)
+            val all = listOf(t.end, t.iqamaIn, t.iftar, t.suhoor, t.iftarNow, t.adhkarDone, t.tasbih, t.descTasbih, t.wird, t.descWird, t.showLive, t.again)
             all.forEach { assertTrue("$code: empty text", it.isNotBlank()) }
             assertTrue("$code: adhkarDone needs %s", "%s" in t.adhkarDone)
             assertTrue(t.adhkarDone("X").contains("X"))

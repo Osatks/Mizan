@@ -271,13 +271,18 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
         message.arrangedSubviews.forEach { $0.removeFromSuperview() }
         message.addArrangedSubview(label)
         if settings {
-            let button = UIButton(type: .system)
-            button.setTitle(info.openSettings, for: .normal)
-            button.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
-            button.setTitleColor(.black, for: .normal)
-            button.backgroundColor = gold
-            button.layer.cornerRadius = 22
-            button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 24, bottom: 12, right: 24)
+            var config = UIButton.Configuration.filled()
+            config.title = info.openSettings
+            config.baseBackgroundColor = gold
+            config.baseForegroundColor = .black
+            config.cornerStyle = .capsule
+            config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 24, bottom: 12, trailing: 24)
+            config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attrs in
+                var a = attrs
+                a.font = .systemFont(ofSize: 16, weight: .bold)
+                return a
+            }
+            let button = UIButton(configuration: config)
             button.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
             message.addArrangedSubview(button)
         }
@@ -312,7 +317,9 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
         let dir = simd_float3(Float(sin(b)), 0, Float(-cos(b)))
         let target = position + dir * Self.distance + simd_float3(0, -0.25, 0)
         kaaba.simdPosition = target
-        let normal = frame.camera.trackingState == .normal
+        // بمطابقة الحالة لا بـ ==: مقارنة TrackingState من iOS 16 فقط
+        var normal = false
+        if case .normal = frame.camera.trackingState { normal = true }
 
         // اتجاه الكاميرا على الأرض (الشمال 0، والشرق 90)؛ لا اتجاه إن كانت نحو الأرض أو السماء
         let flat = hypot(Double(forward.x), Double(forward.z))

@@ -185,6 +185,14 @@ jobs:
           codesign --force --sign - --timestamp=none --entitlements MizanWatchWidgets/MizanWatchWidgets.entitlements build/Debug-watchsimulator/MizanWatch.app/PlugIns/MizanWatchWidgets.appex
           codesign --force --sign - --timestamp=none --entitlements MizanWatch/MizanWatch.entitlements build/Debug-watchsimulator/MizanWatch.app
 
+      # محاكي watchOS ليس مثبّتاً دائماً في صورة المشغّل (أداة البناء موجودة): يُنزَّل إن غاب
+      - name: watchOS simulator runtime
+        run: |
+          if ! xcrun simctl list runtimes | grep -q watchOS; then
+            xcodebuild -downloadPlatform watchOS
+          fi
+          xcrun simctl list runtimes | grep watchOS
+
       - name: Watch screenshots
         working-directory: iosApp
         run: |

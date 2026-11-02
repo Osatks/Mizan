@@ -48,15 +48,18 @@ struct KhatmaView: View {
                             KhatmaDetails(khatma: k)
                         }
                     } else {
-                        VStack(spacing: 6) {
+                        VStack(spacing: 5) {
                             Header(symbol: "book.fill", title: k.title)
-                            KhatmaRing(khatma: k, size: 86)
+                            KhatmaRing(khatma: k, size: 78)
                                 .frame(maxWidth: .infinity)
+                            // «أتممت ورد اليوم» أو «ختمت القرآن …» قد تطول: سطران
                             Text(verbatim: k.portionDone || k.done ? k.doneText : k.streakText)
                                 .font(Mizan.rounded(11, .medium))
                                 .foregroundColor(k.portionDone || k.done ? Mizan.gold : Mizan.text2)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.75)
+                                .frame(maxWidth: .infinity)
                         }
                     }
                 } else {
@@ -119,16 +122,20 @@ struct KhatmaDetails: View {
             HStack(spacing: 6) {
                 if khatma.streak > 0 {
                     Image(systemName: "flame.fill").font(.system(size: 10)).foregroundColor(Mizan.gold)
-                    Text(verbatim: khatma.streakText).font(Mizan.rounded(10.5)).foregroundColor(Mizan.text2).lineLimit(1)
+                    Text(verbatim: khatma.streakText).font(Mizan.rounded(10.5)).foregroundColor(Mizan.text2)
+                        .lineLimit(1).minimumScaleFactor(0.7)
                 }
                 Spacer(minLength: 4)
+                // زر المتابعة كاملاً (يصغر خطه قليلاً قبل أن يُقطع)، والأيام المتتالية تتنازل له عن المكان
                 Text(verbatim: khatma.cta)
                     .font(Mizan.rounded(11, .semibold))
                     .foregroundColor(Mizan.text)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 4)
                     .background(Capsule().fill(Color.white.opacity(0.15)))
+                    .layoutPriority(1)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

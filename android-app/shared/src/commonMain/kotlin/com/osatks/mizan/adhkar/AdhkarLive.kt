@@ -116,6 +116,8 @@ object AdhkarLive {
             "done" to done,
             "doneText" to LiveText.of(lang.code).adhkarDone(title),
             "next" to com.osatks.mizan.widget.WidgetText.of(lang.code).next,
+            // بعد إتمام القسم: زر «من جديد» بدل «التالي»
+            "again" to LiveText.of(lang.code).again,
             "end" to LiveText.of(lang.code).end,
             "tap" to s.tapToCount,
             "rtl" to lang.rtl,

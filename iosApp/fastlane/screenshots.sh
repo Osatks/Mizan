@@ -298,6 +298,11 @@ run_watch() {
     echo "::warning title=Apple Watch::FIXTURES (live-fixtures.json from LiveStatesTest) not given: watch screenshots skipped"
     return 0
   fi
+  # محاكي watchOS ليس مثبّتاً دائماً في صورة المشغّل: يُنزَّل إن غاب
+  if ! xcrun simctl list runtimes | grep -q watchOS; then
+    log "downloading the watchOS simulator runtime"
+    xcodebuild -downloadPlatform watchOS || { echo "::warning title=Apple Watch::could not download the watchOS simulator"; return 0; }
+  fi
   type=$(pick_device_type "Apple Watch Ultra 2 (49mm)" "Apple Watch Ultra 3 (49mm)" "Apple Watch Ultra (49mm)" "Apple Watch Series 9 (45mm)" "Apple Watch Series 11 (46mm)" "Apple Watch Series 10 (46mm)")
   runtime=$(pick_watch_runtime "$type")
   log "watch: device type $type, runtime $runtime"
