@@ -33,9 +33,14 @@ object IosTasbih {
 
     private var started = false
 
+    /** أزرار الأنشطة الحية (نوايا تعمل بلا فتح التطبيق) في iOS 17 فما بعد: قبله لا يُعرض النشاط */
+    private val ios17: Boolean by lazy {
+        platform.UIKit.UIDevice.currentDevice.systemVersion.substringBefore('.').toIntOrNull()?.let { it >= 17 } ?: false
+    }
+
     /** عند الإقلاع (IosLive.start) */
     fun start(supported: Boolean) {
-        LiveTasbih.supported = supported
+        LiveTasbih.supported = supported && ios17
         if (started) return
         started = true
         AppSettings.init()
@@ -46,7 +51,7 @@ object IosTasbih {
         write()
     }
 
-    fun availability(supported: Boolean) { LiveTasbih.supported = supported }
+    fun availability(supported: Boolean) { LiveTasbih.supported = supported && ios17 }
 
     /** تسبيحة واحدة (زر الإجراء، مركز التحكم، الأداة، زر النشاط الحي، Siri) */
     fun count(): String = quiet {

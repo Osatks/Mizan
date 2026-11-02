@@ -13,3 +13,22 @@
 "Opens the tasbih counter" = "Öffnet den Tasbih-Zähler";
 "Opens today's prayer times" = "Öffnet die heutigen Gebetszeiten";
 "Opens the Quran where you stopped" = "Öffnet den Koran dort, wo du aufgehört hast";
+/* الأنشطة الحية: المسبحة والأذكار والعدّ التنازلي، وآية اليوم (Shared/LiveIntents.swift، Controls.swift، MizanShortcuts.swift) */
+"Count tasbih" = "Tasbih zählen";
+"Counts one tasbih and shows the counter on the Lock Screen and in the Dynamic Island, without opening Mizan" = "Zählt einen Tasbih und zeigt den Zähler auf dem Sperrbildschirm und in der Dynamic Island, ohne Mizan zu öffnen";
+"Reset tasbih" = "Tasbih zurücksetzen";
+"End tasbih" = "Tasbih beenden";
+"Count adhkar" = "Adhkar zählen";
+"Counts the current morning or evening dhikr on the Lock Screen and in the Dynamic Island, moving to the next one when it is complete" = "Zählt den aktuellen Morgen- oder Abend-Dhikr auf dem Sperrbildschirm und in der Dynamic Island und geht danach zum nächsten";
+"Next dhikr" = "Nächster Dhikr";
+"Start the adhkar again" = "Adhkar neu beginnen";
+"End adhkar" = "Adhkar beenden";
+"Prayer countdown" = "Gebets-Countdown";
+"Shows or hides the countdown to the next prayer on the Lock Screen and in the Dynamic Island" = "Zeigt oder verbirgt den Countdown zum nächsten Gebet auf dem Sperrbildschirm und in der Dynamic Island";
+"Turn on Live Activities for Mizan in Settings" = "Aktiviere Live-Aktivitäten für Mizan in den Einstellungen";
+"Open Mizan and choose your location first" = "Öffne zuerst Mizan und wähle deinen Standort";
+"Ayah of the day" = "Vers des Tages";
+"Tasbih counter" = "Tasbih-Zähler";
+"Counts one tasbih without opening Mizan" = "Zählt einen Tasbih, ohne Mizan zu öffnen";
+"Shows the countdown to the next prayer on the Lock Screen" = "Zeigt den Countdown zum nächsten Gebet auf dem Sperrbildschirm";
+"Counts the morning or evening adhkar on the Lock Screen" = "Zählt die Morgen- oder Abend-Adhkar auf dem Sperrbildschirm";

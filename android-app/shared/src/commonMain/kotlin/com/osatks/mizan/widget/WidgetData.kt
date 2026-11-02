@@ -174,7 +174,7 @@ object WidgetData {
             "percentText" to "$pct%",
             "portionDone" to (goal > 0 && today >= goal),
             "doneText" to if (qp.finished) s.khatmaDone else s.portionDone,
-            "continue" to s.continuePortion,
+            "cta" to s.continuePortion,
         )
     }.getOrNull()
 

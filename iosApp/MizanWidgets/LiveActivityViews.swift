@@ -45,7 +45,17 @@ struct PrayerActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Group {
-                        if arrived {
+                        if arrived, let iqama = s.iqamaAhead {
+                            // بعد الأذان: العدّ إلى الإقامة
+                            VStack(alignment: .trailing, spacing: 0) {
+                                Text(verbatim: s.iqamaLabel ?? "")
+                                    .font(Mizan.rounded(11, .medium))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .lineLimit(1)
+                                CountdownText(at: iqama)
+                                    .font(Mizan.rounded(24, .light))
+                            }
+                        } else if arrived {
                             Text(s.time)
                                 .font(Mizan.rounded(22, .semibold))
                                 .lineLimit(1)
@@ -66,6 +76,14 @@ struct PrayerActivityWidget: Widget {
                                 .font(Mizan.rounded(15, .semibold))
                                 .foregroundColor(.white)
                                 .lineLimit(2)
+                            if let dua = s.dua {
+                                Text(verbatim: dua)
+                                    .font(Mizan.quran(15))
+                                    .foregroundColor(gold)
+                                    .lineLimit(2)
+                                    .minimumScaleFactor(0.7)
+                                    .environment(\.layoutDirection, .rightToLeft)
+                            }
                         } else {
                             TimeBar(from: s.from, to: s.at, now: Date())
                         }
@@ -85,7 +103,12 @@ struct PrayerActivityWidget: Widget {
                 Image(systemName: arrived ? "bell.fill" : "moon.stars.fill")
                     .foregroundColor(gold)
             } compactTrailing: {
-                if arrived {
+                if arrived, let iqama = s.iqamaAhead {
+                    CountdownText(at: iqama)
+                        .font(Mizan.rounded(14, .semibold))
+                        .foregroundColor(gold)
+                        .frame(width: 58)
+                } else if arrived {
                     Text(s.name)
                         .font(Mizan.rounded(14, .semibold))
                         .foregroundColor(gold)
@@ -149,7 +172,15 @@ struct PrayerLockView: View {
                 }
                 Spacer(minLength: 8)
                 Group {
-                    if arrived {
+                    if arrived, let iqama = state.iqamaAhead {
+                        // بعد الأذان: «الإقامة بعد» والعدّ إليها
+                        VStack(alignment: .trailing, spacing: 0) {
+                            Text(verbatim: state.iqamaLabel ?? "")
+                                .font(Mizan.rounded(12, .medium))
+                                .foregroundColor(Mizan.text2)
+                            CountdownText(at: iqama).font(Mizan.rounded(32, .light))
+                        }
+                    } else if arrived {
                         Text(state.time).font(Mizan.rounded(30, .semibold))
                     } else {
                         CountdownText(at: state.at).font(Mizan.rounded(34, .light))
@@ -160,7 +191,18 @@ struct PrayerLockView: View {
                 .minimumScaleFactor(0.6)
                 .frame(maxWidth: 150, alignment: .trailing)
             }
-            if !arrived {
+            if arrived, let dua = state.dua {
+                // رمضان: دعاء الإفطار عند المغرب
+                Text(verbatim: dua)
+                    .font(Mizan.quran(17))
+                    .foregroundColor(gold)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity)
+                    .environment(\.layoutDirection, .rightToLeft)
+            } else if arrived, let iqama = state.iqamaAhead {
+                TimeBar(from: state.at, to: iqama, now: Date())
+            } else if !arrived {
                 TimeBar(from: state.from, to: state.at, now: Date())
             }
         }
@@ -172,6 +214,14 @@ struct PrayerLockView: View {
 }
 
 // ---------- أجزاء مشتركة ----------
+
+extension PrayerLiveState {
+    /// موعد الإقامة إن لم يأتِ بعد (يُرسم النشاط من جديد عند دخول الوقت، فيعدّ إليها من حينها)
+    var iqamaAhead: Date? {
+        guard let iqama = iqama, iqama > Date() else { return nil }
+        return iqama
+    }
+}
 
 /// عدّ تنازلي حي حتى [at]: أرقام لاتينية من اليسار إلى اليمين في كل اللغات، ملاصقة لطرف مكانها الأخير
 /// (يمين الشاشة في الإنجليزية ويسارها في العربية)

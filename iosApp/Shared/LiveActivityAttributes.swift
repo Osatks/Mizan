@@ -19,6 +19,21 @@ struct PrayerActivityAttributes: ActivityAttributes {
     /// الصلاة وتاريخها
     var id: String
 }
+
+/// المسبحة على شاشة القفل وفي الجزيرة الديناميكية: نشاط واحد يعدّ فيه زر الإجراء ومركز التحكم وأزراره
+@available(iOS 16.2, *)
+struct TasbihActivityAttributes: ActivityAttributes {
+    typealias ContentState = TasbihLiveState
+    var id: String = "tasbih"
+}
+
+/// عدّاد أذكار الصباح أو المساء
+@available(iOS 16.2, *)
+struct AdhkarActivityAttributes: ActivityAttributes {
+    typealias ContentState = AdhkarLiveState
+    /// morning أو evening
+    var section: String
+}
 #endif
 
 /// ما ترسله النية إلى التطبيق (يستقبله LiveActivities.swift ويمرره إلى Kotlin)

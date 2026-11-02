@@ -4,9 +4,11 @@ import BackgroundTasks
 import ActivityKit
 import Shared
 
-/// الأنشطة الحية في التطبيق: Kotlin (IosLive) يرسل حالها بإشعارات فيها JSON، وهنا تُبدأ وتُحدَّث وتُنهى:
-///  - MizanLivePrayer: العدّ التنازلي للصلاة القادمة (iOS 16.2)، يبدأ عند مغادرة التطبيق قبل الصلاة بأقل من ثلاث ساعات
-///    إن فعّله المستخدم، ويصير «حان الآن» عند دخول الوقت، وينتهي بعده بعشر دقائق.
+/// الأنشطة الحية في التطبيق: Kotlin يرسل حالها JSON، وهنا تُبدأ وتُحدَّث وتُنهى:
+///  - الصلاة القادمة (iOS 16.2): يبدأ عند مغادرة التطبيق قبل الصلاة بأقل من ثلاث ساعات إن فعّله المستخدم، أو متى شاء
+///    بزر الإجراء و Siri (ShowNextPrayerIntent)؛ يصير «حان الآن» عند دخول الوقت ثم يعدّ إلى الإقامة، وينتهي بعدها.
+///  - المسبحة وعدّاد الأذكار (iOS 17 لأزرارها): تبدؤها النوايا (Shared/LiveIntents.swift) من زر الإجراء ومركز التحكم
+///    والأداة و Siri، وتعدّ في الحال نفسها التي تعدّ فيها الشاشة (AppLive).
 /// والتلاوة لا نشاط حياً لها: «يُشغَّل الآن» (مشغّل النظام) يظهر في شاشة القفل والجزيرة الديناميكية كما في تطبيقات Apple.
 /// وتصل إليه النية المشتركة مع الأداة (فتح شاشة) فيمررها إلى Kotlin.
 final class LiveActivities {
@@ -25,6 +27,21 @@ final class LiveActivities {
         nc.addObserver(forName: Notification.Name("MizanLivePrayer"), object: nil, queue: nil) { note in
             guard let json = note.object as? String, let message = LiveJSON.prayer(json) else { return }
             if #available(iOS 16.2, *) { PrayerActivity.apply(message) }
+        }
+        // العدّ من شاشة المسبحة: يُحدَّث النشاط الظاهر (بلا تنبيه، فالتطبيق أمام المستخدم) والأداة وزر مركز التحكم
+        nc.addObserver(forName: Notification.Name("MizanTasbihState"), object: nil, queue: .main) { note in
+            guard let m = LiveJSON.tasbih(note.object as? String) else { return }
+            TasbihSync.saved(m.state, immediate: false)
+            if #available(iOS 16.2, *) { Task { @MainActor in _ = await TasbihActivity.apply(m, start: false, alert: false) } }
+        }
+        // زر «على شاشة القفل» في شاشة المسبحة
+        nc.addObserver(forName: Notification.Name("MizanTasbihShow"), object: nil, queue: .main) { note in
+            guard let m = LiveJSON.tasbih(note.object as? String) else { return }
+            if #available(iOS 16.2, *) { Task { @MainActor in _ = await TasbihActivity.apply(m, start: true, alert: false) } }
+        }
+        // يخرج المستخدم من التطبيق: الأداة وزر مركز التحكم بآخر عدد
+        nc.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
+            LiveRouter.reloadTasbih()
         }
         nc.addObserver(forName: MizanBridge.openRoute, object: nil, queue: .main) { note in
             guard let route = note.userInfo?["route"] as? String else { return }
@@ -68,11 +85,10 @@ final class LiveActivities {
 /// العدّ التنازلي للصلاة القادمة
 @available(iOS 16.2, *)
 enum PrayerActivity {
-    /// بعد دخول الوقت بعشر دقائق ينتهي النشاط
-    static let grace: TimeInterval = 600
-    /// صلاة بدأنا نشاطها، وصلاة أغلق المستخدم نشاطها (لا يُعاد لها)
+    /// صلاة بدأنا نشاطها، وصلاة أغلق المستخدم نشاطها (لا يُعاد لها)، وصلاة أظهرها المستخدم بنفسه (زر الإجراء)
     private static let startedKey = "live.prayer.started"
     private static let dismissedKey = "live.prayer.dismissed"
+    private static let forcedKey = "live.prayer.forced"
 
     private static var alive: [Activity<PrayerActivityAttributes>] {
         Activity<PrayerActivityAttributes>.activities.filter { $0.activityState == .active || $0.activityState == .stale }
@@ -80,14 +96,16 @@ enum PrayerActivity {
 
     static func apply(_ message: PrayerLiveMessage) {
         let defaults = UserDefaults.standard
-        guard message.on else {
+        let forced = defaults.string(forKey: forcedKey)
+        guard message.on || message.force == true else {
+            // الإعداد مطفأ: يبقى ما أظهره المستخدم بنفسه حتى ينتهي
             defaults.removeObject(forKey: startedKey)
             defaults.removeObject(forKey: dismissedKey)
-            end(alive)
+            end(alive.filter { $0.attributes.id != forced })
             return
         }
         let now = Date()
-        let expired = alive.filter { $0.content.state.at.addingTimeInterval(grace) <= now }
+        let expired = alive.filter { $0.content.state.endsAt <= now }
         end(expired)
         let current = alive.filter { a in !expired.contains { $0.id == a.id } }
         guard let state = message.prayer else { return }
@@ -95,30 +113,53 @@ enum PrayerActivity {
         if let same = current.first(where: { $0.attributes.id == state.id }) {
             if same.content.state != state { Task { await same.update(content) } }
             end(current.filter { $0.id != same.id })
-            scheduleEnd(state.at)
+            scheduleEnd(state.endsAt)
             return
         }
-        // بدأناه لهذه الصلاة ولم يعد ظاهراً: أغلقه المستخدم من شاشة القفل، فلا يُعاد
+        // بدأناه لهذه الصلاة ولم يعد ظاهراً: أغلقه المستخدم من شاشة القفل، فلا يُعاد تلقائياً
         if defaults.string(forKey: startedKey) == state.id {
             defaults.set(state.id, forKey: dismissedKey)
             defaults.removeObject(forKey: startedKey)
         }
-        // نشاط جديد عند مغادرة التطبيق فقط (والتطبيق ما زال في المقدمة)
-        guard message.start == true, defaults.string(forKey: dismissedKey) != state.id,
+        // نشاط جديد عند مغادرة التطبيق (والتطبيق ما زال في المقدمة)، أو حين يطلبه المستخدم (زر الإجراء، Siri)
+        let force = message.force == true
+        guard force || (message.start == true && defaults.string(forKey: dismissedKey) != state.id),
               ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         end(current)
         do {
             _ = try Activity.request(attributes: PrayerActivityAttributes(id: state.id), content: content, pushType: nil)
             defaults.set(state.id, forKey: startedKey)
-            scheduleEnd(state.at)
+            if force {
+                defaults.set(state.id, forKey: forcedKey)
+                defaults.removeObject(forKey: dismissedKey)
+            }
+            scheduleEnd(state.endsAt)
         } catch {
-            // لا إذن، أو التطبيق في الخلفية: يُعاد في المغادرة التالية
+            // لا إذن، أو التطبيق في الخلفية بلا نية: يُعاد في المغادرة التالية
         }
     }
 
-    /// ينهي النشاط بعد دخول الوقت بعشر دقائق: بمؤقت إن بقي التطبيق يعمل، وبمهمة خلفية إن عُلّق
-    private static func scheduleEnd(_ at: Date) {
-        let end = at.addingTimeInterval(grace)
+    /// زر الإجراء و Siri: يُظهر العدّ التنازلي للصلاة القادمة أياً كان بُعدها، والضغطة التالية تخفيه
+    @MainActor
+    static func toggle() async -> LiveOutcome {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return .activitiesOff }
+        guard let json = IosLive.shared.prayerNowJson(), let message = LiveJSON.prayer(json), let state = message.prayer else {
+            return .needsPlace
+        }
+        if let same = alive.first(where: { $0.attributes.id == state.id }) {
+            // ظاهر الآن: يُخفى، ولا يعود تلقائياً لهذه الصلاة
+            UserDefaults.standard.set(state.id, forKey: dismissedKey)
+            UserDefaults.standard.removeObject(forKey: startedKey)
+            UserDefaults.standard.removeObject(forKey: forcedKey)
+            await same.end(nil, dismissalPolicy: .immediate)
+            return .ok
+        }
+        apply(message)
+        return .ok
+    }
+
+    /// ينهي النشاط بعد دخول الوقت بعشر دقائق أو بعد الإقامة: بمؤقت إن بقي التطبيق يعمل، وبمهمة خلفية إن عُلّق
+    private static func scheduleEnd(_ end: Date) {
         DispatchQueue.main.asyncAfter(deadline: .now() + max(1, end.timeIntervalSinceNow) + 1) {
             Task { await endExpired() }
         }
@@ -128,20 +169,167 @@ enum PrayerActivity {
     @MainActor
     static func endExpired() async {
         let now = Date()
-        for a in alive where a.content.state.at.addingTimeInterval(grace) <= now {
-            if UserDefaults.standard.string(forKey: startedKey) == a.attributes.id {
-                UserDefaults.standard.removeObject(forKey: startedKey)
-            }
+        for a in alive where a.content.state.endsAt <= now {
+            forget(a.attributes.id)
             await a.end(nil, dismissalPolicy: .immediate)
         }
     }
 
+    private static func forget(_ id: String) {
+        let d = UserDefaults.standard
+        if d.string(forKey: startedKey) == id { d.removeObject(forKey: startedKey) }
+        if d.string(forKey: forcedKey) == id { d.removeObject(forKey: forcedKey) }
+    }
+
     private static func end(_ list: [Activity<PrayerActivityAttributes>]) {
         for a in list {
-            if UserDefaults.standard.string(forKey: startedKey) == a.attributes.id {
-                UserDefaults.standard.removeObject(forKey: startedKey)
-            }
+            forget(a.attributes.id)
             Task { await a.end(nil, dismissalPolicy: .immediate) }
         }
+    }
+}
+
+/// المسبحة على شاشة القفل وفي الجزيرة الديناميكية
+@available(iOS 16.2, *)
+enum TasbihActivity {
+    static var current: Activity<TasbihActivityAttributes>? {
+        Activity<TasbihActivityAttributes>.activities.first { $0.activityState == .active || $0.activityState == .stale }
+    }
+
+    /// يحدّث النشاط الظاهر، أو يبدؤه إن طُلب [start]. عند إتمام دورة: تنبيه قصير (صوت واهتزاز وتتسع الجزيرة)
+    @MainActor
+    static func apply(_ m: LiveMessage<TasbihLiveState>, start: Bool, alert: Bool) async -> LiveOutcome {
+        // يبقى حتى ثماني ساعات بلا تسبيح، ثم يزيله النظام (العدد محفوظ في التطبيق)
+        let content = ActivityContent(state: m.state, staleDate: Date().addingTimeInterval(8 * 3600), relevanceScore: 80)
+        if let a = current {
+            if alert, !m.alertTitle.isEmpty, m.event != "count", m.event != "none" {
+                let config = AlertConfiguration(
+                    title: LocalizedStringResource(stringLiteral: m.alertTitle),
+                    body: LocalizedStringResource(stringLiteral: m.alertBody),
+                    sound: .named("tasbih_round.wav")
+                )
+                await a.update(content, alertConfiguration: config)
+            } else {
+                await a.update(content)
+            }
+            return .ok
+        }
+        // أزرار النشاط نوايا iOS 17: قبله لا يُبدأ (الأداة لا ترسمه)
+        guard start, #available(iOS 17.0, *) else { return .ok }
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return .activitiesOff }
+        do {
+            _ = try Activity.request(attributes: TasbihActivityAttributes(), content: content, pushType: nil)
+            return .ok
+        } catch {
+            return .activitiesOff
+        }
+    }
+
+    static func end() async {
+        for a in Activity<TasbihActivityAttributes>.activities {
+            await a.end(nil, dismissalPolicy: .immediate)
+        }
+    }
+}
+
+/// عدّاد الأذكار على شاشة القفل وفي الجزيرة الديناميكية
+@available(iOS 16.2, *)
+enum AdhkarActivity {
+    static var current: Activity<AdhkarActivityAttributes>? {
+        Activity<AdhkarActivityAttributes>.activities.first { $0.activityState == .active || $0.activityState == .stale }
+    }
+
+    /// قسم النشاط الظاهر (الصباح أو المساء): تتابعه الضغطات وإن دخل وقت القسم الآخر
+    static var section: String? { current?.attributes.section }
+
+    @MainActor
+    static func apply(_ m: LiveMessage<AdhkarLiveState>, start: Bool) async -> LiveOutcome {
+        let content = ActivityContent(state: m.state, staleDate: Date().addingTimeInterval(4 * 3600), relevanceScore: 70)
+        if let a = current, a.attributes.section == m.state.section {
+            if m.event == "done" {
+                // تمّ القسم: «أتممت أذكار الصباح» مع تنبيه، ثم يبقى على شاشة القفل دقائق ويختفي
+                let config = AlertConfiguration(
+                    title: LocalizedStringResource(stringLiteral: m.alertTitle),
+                    body: LocalizedStringResource(stringLiteral: m.state.title),
+                    sound: .named("adhkar_done.wav")
+                )
+                await a.update(content, alertConfiguration: config)
+            } else {
+                await a.update(content)
+            }
+            return .ok
+        }
+        if let old = current { await old.end(nil, dismissalPolicy: .immediate) }
+        guard start, #available(iOS 17.0, *) else { return .ok }
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return .activitiesOff }
+        do {
+            _ = try Activity.request(attributes: AdhkarActivityAttributes(section: m.state.section), content: content, pushType: nil)
+            return .ok
+        } catch {
+            return .activitiesOff
+        }
+    }
+
+    static func end() async {
+        for a in Activity<AdhkarActivityAttributes>.activities {
+            await a.end(nil, dismissalPolicy: .immediate)
+        }
+    }
+}
+
+/// ما تنفذه النوايا (Shared/LiveIntents.swift) في عملية التطبيق
+@available(iOS 17.0, *)
+enum AppLive {
+    @MainActor
+    static func run(_ action: LiveAction) async -> LiveOutcome {
+        switch action {
+        case .tasbihCount: return await tasbih(IosTasbih.shared.count(), start: true)
+        case .tasbihReset: return await tasbih(IosTasbih.shared.reset(), start: false)
+        case .tasbihShow: return await tasbih(IosTasbih.shared.current(), start: true)
+        case .tasbihEnd:
+            await TasbihActivity.end()
+            return .ok
+        case .adhkarCount: return await adhkar(IosAdhkar.shared.count(section: AdhkarActivity.section))
+        case .adhkarSkip: return await adhkar(IosAdhkar.shared.skip(section: AdhkarActivity.section))
+        case .adhkarRestart: return await adhkar(IosAdhkar.shared.restart(section: AdhkarActivity.section))
+        case .adhkarEnd:
+            await AdhkarActivity.end()
+            return .ok
+        case .prayerToggle: return await PrayerActivity.toggle()
+        }
+    }
+
+    @MainActor
+    private static func tasbih(_ json: String, start: Bool) async -> LiveOutcome {
+        guard let m = LiveJSON.tasbih(json) else { return .ok }
+        TasbihSync.saved(m.state, immediate: true)
+        return await TasbihActivity.apply(m, start: start, alert: true)
+    }
+
+    @MainActor
+    private static func adhkar(_ json: String) async -> LiveOutcome {
+        guard let m = LiveJSON.adhkar(json) else { return .ok }
+        return await AdhkarActivity.apply(m, start: true)
+    }
+}
+
+/// حال المسبحة للأداة وزر مركز التحكم: Kotlin يكتبها في حاوية App Group، وهنا تُكتب في سلسلة المفاتيح المشتركة أيضاً
+/// (تثبيت بلا App Group) ويُطلب إعادة رسمهما؛ من شاشة المسبحة مرة كل ثانيتين على الأكثر (التطبيق ظاهر فلا تُرى الأداة)
+enum TasbihSync {
+    private static var pending: DispatchWorkItem?
+
+    static func saved(_ state: TasbihLiveState, immediate: Bool) {
+        let e = JSONEncoder()
+        e.dateEncodingStrategy = .secondsSince1970
+        if let data = try? e.encode(state) { SharedKeychain.write(data, account: SharedKeychain.tasbihAccount) }
+        pending?.cancel()
+        if immediate {
+            pending = nil
+            LiveRouter.reloadTasbih()
+            return
+        }
+        let work = DispatchWorkItem { LiveRouter.reloadTasbih() }
+        pending = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: work)
     }
 }

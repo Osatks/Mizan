@@ -55,6 +55,8 @@ targets:
         # الأنشطة الحية (ActivityKit، iOS 16.1) والاختصارات و Siri (AppIntents، iOS 16) غير موجودة في iOS 15:
         # ربط ضعيف حتى يعمل التطبيق هناك بدونها (LiveActivities.swift و MizanShortcuts.swift)
         OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,ActivityKit -Wl,-weak_framework,AppIntents"
+        # ملفات Shared/ في الهدفين: ما يخص التطبيق فيها (AppLive في نوايا الأنشطة الحية) تحت #if MIZAN_APP
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MIZAN_APP"
     dependencies:
       - framework: ../android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework
         embed: true

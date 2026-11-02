@@ -1,5 +1,6 @@
 import AppIntents
 import SwiftUI
+import CoreText
 import Shared
 
 // Siri والاختصارات و Spotlight (iOS 16 فما بعد): «الصلاة القادمة» تجيب دون فتح التطبيق (عبارة ونافذة بعدّ تنازلي)،
@@ -9,12 +10,28 @@ import Shared
 @available(iOS 16.0, *)
 struct NextPrayerIntent: AppIntent {
     static var title: LocalizedStringResource = "Next prayer"
+    static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+
+    /// يعيد وقت الصلاة القادمة أيضاً، فيُستعمل في أتمتة تطبيق الاختصارات
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<Date> & ProvidesDialog & ShowsSnippetView {
+        let info = LiveJSON.nextPrayer(IosLive.shared.nextPrayerJson())
+        let dialog: IntentDialog = info.map { IntentDialog(LocalizedStringResource(stringLiteral: $0.dialog)) } ?? IntentDialog("Next prayer")
+        return .result(value: info?.at ?? Date(), dialog: dialog, view: NextPrayerSnippet(info: info))
+    }
+}
+
+/// آية اليوم: تقرؤها Siri (معناها بلغة التطبيق، أو نصها بالعربية) وتعرضها بخط المصحف
+@available(iOS 16.0, *)
+struct AyahOfDayIntent: AppIntent {
+    static var title: LocalizedStringResource = "Ayah of the day"
+    static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog & ShowsSnippetView {
-        let info = LiveJSON.nextPrayer(IosLive.shared.nextPrayerJson())
-        let dialog: IntentDialog = info.map { IntentDialog(LocalizedStringResource(stringLiteral: $0.dialog)) } ?? IntentDialog("Next prayer")
-        return .result(dialog: dialog, view: NextPrayerSnippet(info: info))
+        let info = LiveJSON.ayah(IosAdhkar.shared.ayahOfDayJson())
+        let dialog: IntentDialog = info.map { IntentDialog(LocalizedStringResource(stringLiteral: $0.dialog)) } ?? IntentDialog("Ayah of the day")
+        return .result(dialog: dialog, view: AyahSnippet(info: info))
     }
 }
 
@@ -90,13 +107,41 @@ struct EveningAdhkarIntent: AppIntent {
     }
 }
 
-/// اختصارات جاهزة بلا إعداد: تظهر في تطبيق الاختصارات و Spotlight، وتُقال لـ Siri، وتُربط بزر الإجراء.
-/// iOS 17 فما بعد (العنوان القصير والرمز لكل اختصار)
+/// اختصارات جاهزة بلا إعداد (عشرة، أقصى ما يسمح به النظام): تظهر في تطبيق الاختصارات و Spotlight، وتُقال لـ Siri،
+/// وتُربط بزر الإجراء. التسبيح والأذكار والعدّ التنازلي تعمل دون فتح التطبيق ولو والجهاز مقفل (Shared/LiveIntents.swift).
+/// iOS 17 فما بعد (العنوان القصير والرمز لكل اختصار، ونوايا الأنشطة الحية)
 @available(iOS 17.0, *)
 struct MizanShortcuts: AppShortcutsProvider {
     static var shortcutTileColor: ShortcutTileColor = .teal
 
     static var appShortcuts: [AppShortcut] {
+        AppShortcut(
+            intent: TasbihCountIntent(),
+            phrases: [
+                "Tasbih in \(.applicationName)",
+                "Count tasbih in \(.applicationName)",
+            ],
+            shortTitle: "Count tasbih",
+            systemImageName: "hand.tap.fill"
+        )
+        AppShortcut(
+            intent: ShowNextPrayerIntent(),
+            phrases: [
+                "Prayer countdown in \(.applicationName)",
+                "Show the prayer countdown in \(.applicationName)",
+            ],
+            shortTitle: "Prayer countdown",
+            systemImageName: "timer"
+        )
+        AppShortcut(
+            intent: AdhkarCountIntent(),
+            phrases: [
+                "Count adhkar in \(.applicationName)",
+                "Adhkar counter in \(.applicationName)",
+            ],
+            shortTitle: "Count adhkar",
+            systemImageName: "sparkles"
+        )
         AppShortcut(
             intent: NextPrayerIntent(),
             phrases: [
@@ -106,6 +151,15 @@ struct MizanShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Next prayer",
             systemImageName: "moon.stars.fill"
+        )
+        AppShortcut(
+            intent: AyahOfDayIntent(),
+            phrases: [
+                "Ayah of the day in \(.applicationName)",
+                "Read me the ayah of the day in \(.applicationName)",
+            ],
+            shortTitle: "Ayah of the day",
+            systemImageName: "text.book.closed.fill"
         )
         AppShortcut(
             intent: PrayerTimesIntent(),
@@ -135,15 +189,6 @@ struct MizanShortcuts: AppShortcutsProvider {
             systemImageName: "book.fill"
         )
         AppShortcut(
-            intent: TasbihIntent(),
-            phrases: [
-                "Tasbih in \(.applicationName)",
-                "Open the tasbih in \(.applicationName)",
-            ],
-            shortTitle: "Tasbih",
-            systemImageName: "hand.tap.fill"
-        )
-        AppShortcut(
             intent: MorningAdhkarIntent(),
             phrases: ["Morning adhkar in \(.applicationName)"],
             shortTitle: "Morning adhkar",
@@ -155,6 +200,68 @@ struct MizanShortcuts: AppShortcutsProvider {
             shortTitle: "Evening adhkar",
             systemImageName: "sunset.fill"
         )
+    }
+}
+
+/// نافذة Siri لآية اليوم: الآية بخط المصحف على ورق المصحف، ومرجعها، ومعناها بلغة التطبيق
+@available(iOS 16.0, *)
+struct AyahSnippet: View {
+    let info: AyahInfo?
+
+    init(info: AyahInfo?) {
+        self.info = info
+        QuranFontRegistry.register()
+    }
+
+    var body: some View {
+        if let info = info {
+            let gold = Color(snippetHex: info.gold)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 6) {
+                    Image(systemName: "text.book.closed.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text(info.title)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    Spacer(minLength: 6)
+                    Text(info.ref)
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundColor(.white.opacity(0.75))
+                        .lineLimit(1)
+                }
+                .foregroundColor(gold)
+                Text(verbatim: info.text)
+                    .font(.custom("AmiriQuran-Regular", size: 22))
+                    .lineSpacing(6)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .environment(\.layoutDirection, .rightToLeft)
+                if let meaning = info.meaning, !meaning.isEmpty {
+                    Text(verbatim: meaning)
+                        .font(.system(size: 14, design: .rounded))
+                        .foregroundColor(.white.opacity(0.82))
+                        .multilineTextAlignment(info.rtl ? .trailing : .leading)
+                }
+            }
+            .foregroundColor(.white)
+            .padding(16)
+            .background(
+                LinearGradient(colors: [Color(snippetHex: info.hero1), Color(snippetHex: info.hero2)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .environment(\.layoutDirection, info.rtl ? .rightToLeft : .leftToRight)
+        }
+    }
+}
+
+/// خط المصحف في نوافذ Siri: يُسجَّل من حزمة التطبيق مرة واحدة (واجهة Compose تحمّله بنفسها من الملف)
+enum QuranFontRegistry {
+    private static var done = false
+
+    static func register() {
+        guard !done else { return }
+        done = true
+        guard let url = Bundle.main.resourceURL?.appendingPathComponent("assets/fonts/amiri_quran.ttf") else { return }
+        CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
     }
 }
 

@@ -13,3 +13,22 @@
 "Opens the tasbih counter" = "Membuka penghitung tasbih";
 "Opens today's prayer times" = "Membuka jadwal salat hari ini";
 "Opens the Quran where you stopped" = "Membuka Al-Qur'an di tempat Anda berhenti";
+/* الأنشطة الحية: المسبحة والأذكار والعدّ التنازلي، وآية اليوم (Shared/LiveIntents.swift، Controls.swift، MizanShortcuts.swift) */
+"Count tasbih" = "Hitung tasbih";
+"Counts one tasbih and shows the counter on the Lock Screen and in the Dynamic Island, without opening Mizan" = "Menghitung satu tasbih dan menampilkan penghitung di Layar Kunci dan Dynamic Island tanpa membuka Mizan";
+"Reset tasbih" = "Atur ulang tasbih";
+"End tasbih" = "Akhiri tasbih";
+"Count adhkar" = "Hitung zikir";
+"Counts the current morning or evening dhikr on the Lock Screen and in the Dynamic Island, moving to the next one when it is complete" = "Menghitung zikir pagi atau petang di Layar Kunci dan Dynamic Island, lalu berpindah ke berikutnya setelah selesai";
+"Next dhikr" = "Zikir berikutnya";
+"Start the adhkar again" = "Mulai zikir dari awal";
+"End adhkar" = "Akhiri zikir";
+"Prayer countdown" = "Hitung mundur salat";
+"Shows or hides the countdown to the next prayer on the Lock Screen and in the Dynamic Island" = "Menampilkan atau menyembunyikan hitung mundur salat berikutnya di Layar Kunci dan Dynamic Island";
+"Turn on Live Activities for Mizan in Settings" = "Aktifkan Aktivitas Langsung untuk Mizan di Pengaturan";
+"Open Mizan and choose your location first" = "Buka Mizan dan pilih lokasi Anda terlebih dahulu";
+"Ayah of the day" = "Ayat hari ini";
+"Tasbih counter" = "Penghitung tasbih";
+"Counts one tasbih without opening Mizan" = "Menghitung satu tasbih tanpa membuka Mizan";
+"Shows the countdown to the next prayer on the Lock Screen" = "Menampilkan hitung mundur salat berikutnya di Layar Kunci";
+"Counts the morning or evening adhkar on the Lock Screen" = "Menghitung zikir pagi atau petang di Layar Kunci";

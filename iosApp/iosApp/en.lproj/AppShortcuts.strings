@@ -9,6 +9,13 @@
 "Continue reading in ${applicationName}" = "Continue reading in ${applicationName}";
 "Continue reading the Quran in ${applicationName}" = "Continue reading the Quran in ${applicationName}";
 "Tasbih in ${applicationName}" = "Tasbih in ${applicationName}";
-"Open the tasbih in ${applicationName}" = "Open the tasbih in ${applicationName}";
 "Morning adhkar in ${applicationName}" = "Morning adhkar in ${applicationName}";
 "Evening adhkar in ${applicationName}" = "Evening adhkar in ${applicationName}";
+/* عبارات Siri للمسبحة والأذكار والعدّ التنازلي وآية اليوم */
+"Count tasbih in ${applicationName}" = "Count tasbih in ${applicationName}";
+"Prayer countdown in ${applicationName}" = "Prayer countdown in ${applicationName}";
+"Show the prayer countdown in ${applicationName}" = "Show the prayer countdown in ${applicationName}";
+"Count adhkar in ${applicationName}" = "Count adhkar in ${applicationName}";
+"Adhkar counter in ${applicationName}" = "Adhkar counter in ${applicationName}";
+"Ayah of the day in ${applicationName}" = "Ayah of the day in ${applicationName}";
+"Read me the ayah of the day in ${applicationName}" = "Read me the ayah of the day in ${applicationName}";
