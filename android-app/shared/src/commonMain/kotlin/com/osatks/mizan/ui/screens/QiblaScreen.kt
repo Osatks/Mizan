@@ -53,6 +53,12 @@ import com.osatks.mizan.ui.ToolPage
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
+import com.osatks.mizan.ui.ClickRow
+import androidx.compose.material.icons.filled.ViewInAr
+import androidx.compose.material.icons.Icons
+import com.osatks.mizan.i18n.LocalLang
+import com.osatks.mizan.i18n.FeatureText
+import com.osatks.mizan.platform.ArQibla
 
 @Composable
 fun QiblaScreen(onBack: (() -> Unit)? = null) {
@@ -89,6 +95,13 @@ fun QiblaScreen(onBack: (() -> Unit)? = null) {
                     Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Bold,
                     color = hintColor
                 )
+            }
+        }
+        // iPhone و iPad: الكعبة واتجاهها فوق ما تراه الكاميرا (ARKit)
+        if (ArQibla.supported) item {
+            val ft = FeatureText.of(LocalLang.current.code)
+            SectionCard {
+                ClickRow(ft.arQibla, ft.arHint, onClick = { ArQibla.open?.invoke() }, leading = Icons.Filled.ViewInAr)
             }
         }
         item {

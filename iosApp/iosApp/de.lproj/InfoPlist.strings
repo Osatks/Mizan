@@ -1,3 +1,8 @@
 /* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
 "CFBundleDisplayName" = "Mizan";
 "NSLocationWhenInUseUsageDescription" = "Ihr Standort wird nur auf Ihrem Gerät verwendet, um Gebetszeiten und die Qibla-Richtung zu berechnen, und wird nirgendwohin gesendet. Sie können Ihre Stadt stattdessen auch manuell wählen.";
+/* مشاركة الآية صورة (حفظها في الصور)، ومواقيت الصلاة في التقويم، والقبلة بالكاميرا */
+"NSPhotoLibraryAddUsageDescription" = "Um das geteilte Versbild in Fotos zu sichern.";
+"NSCalendarsFullAccessUsageDescription" = "Um Gebetszeiten in einen eigenen Kalender auf deinem Gerät einzutragen und aktuell zu halten. Sonst wird nichts gelesen und nichts gesendet.";
+"NSCalendarsUsageDescription" = "Um Gebetszeiten in einen eigenen Kalender auf deinem Gerät einzutragen und aktuell zu halten. Sonst wird nichts gelesen und nichts gesendet.";
+"NSCameraUsageDescription" = "Die Kamera wird nur auf deinem Gerät genutzt, um die Qibla-Richtung über dem Kamerabild anzuzeigen. Nichts wird aufgenommen, gespeichert oder gesendet.";

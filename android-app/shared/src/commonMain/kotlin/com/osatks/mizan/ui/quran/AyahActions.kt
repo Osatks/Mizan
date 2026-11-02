@@ -91,7 +91,6 @@ import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.ui.BackHandler
 import com.osatks.mizan.ui.Motion
-import com.osatks.mizan.ui.shareText
 import com.osatks.mizan.ui.theme.Gold
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -101,7 +100,7 @@ import kotlin.math.roundToInt
  * التفسير، والاستماع منها، والحفظ، والنسخ، والمشاركة.
  */
 @Composable
-internal fun AyahActionBar(index: Int, text: Array<String>, onTafsir: () -> Unit, onListen: () -> Unit, onClose: () -> Unit) {
+internal fun AyahActionBar(index: Int, text: Array<String>, onTafsir: () -> Unit, onListen: () -> Unit, onShare: () -> Unit, onClose: () -> Unit) {
     val s = LocalStrings.current
     val clipboard = LocalClipboardManager.current
     val (surah, ayah) = QuranMeta.locate(index)
@@ -136,7 +135,8 @@ internal fun AyahActionBar(index: Int, text: Array<String>, onTafsir: () -> Unit
                     Platform.toast(s.copied)
                     onClose()
                 }
-                Action(Icons.Filled.Share, s.share) { shareText(s, "﴿$ayahText﴾\n[$ref]"); onClose() }
+                // صورة بخط المصحف أو نص (AyahShare.kt)
+                Action(Icons.Filled.Share, s.share) { onShare() }
             }
         }
     }

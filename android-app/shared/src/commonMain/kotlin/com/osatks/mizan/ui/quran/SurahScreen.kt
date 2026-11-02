@@ -183,6 +183,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
 
     // شريط خيارات الآية (بالضغط المطوّل)
     var actionIdx by remember { mutableStateOf<Int?>(null) }
+    /** الآية التي تُشارَك (لوحة المشاركة) */
+    var shareIdx by remember { mutableStateOf<Int?>(null) }
     val haptic = LocalHapticFeedback.current
     fun open(i: Int) { actionIdx = null; selIdx = i; sheetIdx = i; QuranPrefs.updateLast(i) }
     fun longPress(i: Int) { selIdx = i; actionIdx = i; haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
@@ -574,8 +576,15 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             barIdx, t,
             onTafsir = { open(barIdx) },
             onListen = { listenFrom(barIdx) },
+            onShare = { shareIdx = barIdx; actionIdx = null },
             onClose = { actionIdx = null },
         )
+    }
+    // مشاركة الآية صورة أو نصاً
+    var shareShown by remember { mutableIntStateOf(0) }
+    shareIdx?.let { shareShown = it }
+    ReadingPanel(shareIdx != null && t != null, onDismiss = { shareIdx = null }, paper = false) {
+        if (t != null) AyahShareContent(shareShown, t, onDone = { shareIdx = null })
     }
     // إعدادات التلاوة والعرض في لوحات داخل الشاشة أيضاً
     ReadingPanel(audioSheet, onDismiss = { audioSheet = false }, paper = false) {

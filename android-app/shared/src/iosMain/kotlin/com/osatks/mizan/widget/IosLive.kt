@@ -56,6 +56,8 @@ object IosLive {
         availability(supported, systemOff)
         // المسبحة على شاشة القفل وفي الجزيرة الديناميكية، وحالها لأداة الشاشة الرئيسية وزر مركز التحكم
         IosTasbih.start(supported && !systemOff)
+        // مواقيت الصلاة في التقويم (مفتاح في إعدادات الأذان)
+        IosCalendar.start()
         // «يُشغَّل الآن» للتلاوة في شاشة القفل ومركز التحكم والجزيرة الديناميكية (مشغّل النظام نفسه)
         RecitationLive.start()
         if (started) return
@@ -65,7 +67,11 @@ object IosLive {
         // قبل أن يغادر التطبيق الواجهة: ما زال في المقدمة فيُسمح ببدء النشاط (المراقب بلا طابور: يُنفَّذ فوراً)
         observers += nc.addObserverForName(UIApplicationWillResignActiveNotification, null, null) { _ -> prayer(start = true) }
         // العودة إلى التطبيق: يُنهى ما انقضى وقته ويُحدَّث الباقي
-        observers += nc.addObserverForName(UIApplicationDidBecomeActiveNotification, null, null) { _ -> prayer(start = false) }
+        observers += nc.addObserverForName(UIApplicationDidBecomeActiveNotification, null, null) { _ ->
+            prayer(start = false)
+            // مواقيت الأيام القادمة في التقويم بعد أن تستقر الواجهة (لا تُكتب إلا إن تغيّرت)
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3_000_000_000L), dispatch_get_main_queue()) { IosCalendar.refresh() }
+        }
         // فهرسة السور في Spotlight بعد أن تستقر الواجهة
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6_000_000_000L), dispatch_get_main_queue()) { QuranSpotlight.index() }
     }

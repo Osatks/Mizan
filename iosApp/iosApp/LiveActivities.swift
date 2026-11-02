@@ -39,6 +39,10 @@ final class LiveActivities {
             guard let m = LiveJSON.tasbih(note.object as? String) else { return }
             if #available(iOS 16.2, *) { Task { @MainActor in _ = await TasbihActivity.apply(m, start: true, alert: false) } }
         }
+        // مواقيت الصلاة في التقويم (IosCalendar في Kotlin): إضافة أو إزالة أو تجديد
+        nc.addObserver(forName: Notification.Name("MizanCalendarSync"), object: nil, queue: .main) { note in
+            CalendarSync.handle(note.object as? String)
+        }
         // يخرج المستخدم من التطبيق: الأداة وزر مركز التحكم بآخر عدد
         nc.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
             TasbihSync.flush()
@@ -61,6 +65,8 @@ final class LiveActivities {
             task.expirationHandler = { work.cancel() }
         }
         IosLive.shared.start(supported: Self.supported, systemOff: Self.systemOff)
+        // القبلة بالكاميرا (ArQibla.swift)
+        ArQibla.install()
     }
 
     static var supported: Bool {

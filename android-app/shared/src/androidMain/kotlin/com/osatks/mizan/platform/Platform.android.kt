@@ -66,6 +66,22 @@ actual object Platform {
         val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
         ctx.startActivity(Intent.createChooser(send, title).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
+
+    /** الصورة في ملف مؤقت يُشارَك برابط content:// (FileProvider في AndroidManifest للتطبيق: <الحزمة>.share) */
+    actual fun shareImage(png: ByteArray, text: String, title: String) {
+        val dir = File(ctx.cacheDir, "shared").apply { mkdirs() }
+        dir.listFiles()?.forEach { it.delete() }
+        val file = File(dir, "mizan-${System.currentTimeMillis()}.png").apply { writeBytes(png) }
+        val uri = runCatching { androidx.core.content.FileProvider.getUriForFile(ctx, "${ctx.packageName}.share", file) }.getOrNull()
+            ?: return share(text, title)
+        val send = Intent(Intent.ACTION_SEND).setType("image/png")
+            .putExtra(Intent.EXTRA_STREAM, uri)
+            .putExtra(Intent.EXTRA_TEXT, text)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        // معاينة الصورة في قائمة المشاركة، وإذن القراءة لمن يستقبلها
+        send.clipData = android.content.ClipData.newRawUri(null, uri)
+        ctx.startActivity(Intent.createChooser(send, title).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION))
+    }
 }
 
 actual object Fs {

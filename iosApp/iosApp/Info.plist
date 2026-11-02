@@ -49,6 +49,17 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<!-- النص المترجم لكل لغة في iosApp/<lang>.lproj/InfoPlist.strings؛ هذا احتياط -->
+	<!-- مشاركة الآية صورة: «حفظ الصورة» في قائمة المشاركة يضيفها إلى الصور (إضافة فقط، بلا قراءة) -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>لحفظ صورة الآية التي تشاركها في تطبيق الصور. To save the ayah image you share to your Photos.</string>
+	<!-- مواقيت الصلاة في تقويم خاص بها (EventKit): iOS 17 فما بعد، وما قبله -->
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>لإضافة مواقيت الصلاة إلى تقويم خاص بها على جهازك وتحديثها. To add prayer times to their own calendar on your device and keep them up to date.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>لإضافة مواقيت الصلاة إلى تقويم خاص بها على جهازك وتحديثها. To add prayer times to their own calendar on your device and keep them up to date.</string>
+	<!-- القبلة بالكاميرا (ARKit): الكاميرا على الجهاز فقط، بلا تصوير ولا حفظ -->
+	<key>NSCameraUsageDescription</key>
+	<string>تُستعمل الكاميرا على جهازك فقط لإظهار اتجاه القبلة فوق ما تراه. The camera is used only on your device to show the qibla direction over what you see.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>يُستعمل موقعك على جهازك فقط لحساب مواقيت الصلاة واتجاه القبلة. Your location is used on your device only to compute prayer times and the qibla.</string>
 	<!-- تلاوة القرآن (ClipPlayer: AVAudioSessionCategoryPlayback) تستمر وإن أُطفئت الشاشة أو خرج المستخدم من التطبيق.

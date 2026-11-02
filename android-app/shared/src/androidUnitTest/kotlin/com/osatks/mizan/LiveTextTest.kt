@@ -18,6 +18,18 @@ class LiveTextTest {
         }
     }
 
+    /** نصوص المشاركة صورة والتقويم والقبلة بالكاميرا: كل لغات التطبيق، بلا نص فارغ */
+    @Test fun featureTextIsComplete() {
+        assertEquals(LiveText.all.keys, com.osatks.mizan.i18n.FeatureText.ALL.keys)
+        for ((code, t) in com.osatks.mizan.i18n.FeatureText.ALL) {
+            listOf(
+                t.shareAyah, t.image, t.text, t.withMeaning, t.addToCalendar, t.calendarDesc, t.calendarAdded,
+                t.removeFromCalendar, t.calendarRemoved, t.calendarDenied, t.calendarName, t.arQibla, t.arHint,
+                t.arFacing, t.arTurn, t.cameraDenied, t.arUnsupported,
+            ).forEach { assertTrue("$code: empty text", it.isNotBlank()) }
+        }
+    }
+
     @Test fun clipCutsAtAWord() {
         val long = "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ".repeat(20)
         val c = AdhkarLive.clip(long, 60)

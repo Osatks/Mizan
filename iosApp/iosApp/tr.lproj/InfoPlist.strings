@@ -1,3 +1,8 @@
 /* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
 "CFBundleDisplayName" = "Mizan";
 "NSLocationWhenInUseUsageDescription" = "Konumunuz yalnızca cihazınızda namaz vakitlerini ve kıble yönünü hesaplamak için kullanılır, hiçbir yere gönderilmez. Bunun yerine şehrinizi elle de seçebilirsiniz.";
+/* مشاركة الآية صورة (حفظها في الصور)، ومواقيت الصلاة في التقويم، والقبلة بالكاميرا */
+"NSPhotoLibraryAddUsageDescription" = "Paylaştığınız ayet görselini Fotoğraflar'a kaydetmek için.";
+"NSCalendarsFullAccessUsageDescription" = "Namaz vakitlerini cihazınızdaki ayrı bir takvime eklemek ve güncel tutmak için. Başka hiçbir şey okunmaz ve hiçbir yere gönderilmez.";
+"NSCalendarsUsageDescription" = "Namaz vakitlerini cihazınızdaki ayrı bir takvime eklemek ve güncel tutmak için. Başka hiçbir şey okunmaz ve hiçbir yere gönderilmez.";
+"NSCameraUsageDescription" = "Kamera yalnızca cihazınızda, gördüğünüz görüntünün üzerinde kıble yönünü göstermek için kullanılır. Hiçbir şey kaydedilmez veya gönderilmez.";

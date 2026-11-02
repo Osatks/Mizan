@@ -104,8 +104,15 @@ actual object Platform {
         NSLocale(localeIdentifier = lang).displayNameForKey(NSLocaleCurrencyCode, iso)
     actual fun decompose(s: String): String = (s as NSString).decomposedStringWithCanonicalMapping
     actual fun toast(msg: String) { IosToast.message = msg }
-    actual fun share(text: String, title: String) {
-        val vc = UIActivityViewController(listOf(text), null)
+    actual fun share(text: String, title: String) = present(UIActivityViewController(listOf(text), null))
+
+    /** الصورة نفسها (UIImage) فيظهر «حفظ الصورة» في قائمة المشاركة، ومعها النص للتطبيقات التي تقبله */
+    actual fun shareImage(png: ByteArray, text: String, title: String) {
+        val image = platform.UIKit.UIImage.imageWithData(png.toNSData()) ?: return share(text, title)
+        present(UIActivityViewController(listOf(image, text), null))
+    }
+
+    private fun present(vc: UIActivityViewController) {
         var top = UIApplication.sharedApplication.keyWindow?.rootViewController ?: return
         while (top.presentedViewController != null) top = top.presentedViewController!!
         // في iPad تُعرض المشاركة نافذة منبثقة، ولا بد لها من موضع وإلا انهار التطبيق: وسط الشاشة بلا سهم

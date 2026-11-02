@@ -137,7 +137,9 @@ jobs:
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             -IDEBuildingContinueBuildingAfterErrors=YES \
             build > build.log 2>&1 || { grep -E "error:|\*\* BUILD" build.log | sort -u | head -n 150; tail -n 40 build.log; exit 1; }
-          tail -n 30 build.log
+          # تحذيرات كودنا (لا تحذيرات الأنظمة)، وتحذيرات استخراج الاختصارات و Siri
+          grep -E "warning: " build.log | grep -E "/iosApp/(iosApp|MizanWidgets|Shared)/|appintents|AppShortcuts" | sort -u | head -n 120 || true
+          tail -n 5 build.log
           APP=build/Build/Products/Release-iphoneos/Mizan.app
           test -d "$APP"
           # أدوات الشاشة الرئيسية يجب أن تكون داخل التطبيق
