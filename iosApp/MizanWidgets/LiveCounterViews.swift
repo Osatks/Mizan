@@ -24,6 +24,9 @@ struct ProgressRing<Content: View>: View {
                 .trim(from: 0, to: CGFloat(max(0.001, min(progress, 1))))
                 .stroke(color, style: StrokeStyle(lineWidth: width, lineCap: .round))
                 .rotationEffect(.degrees(-90))
+                // من الأعلى مع عقارب الساعة في كل اللغات (كحلقات النشاط في Apple Watch): زاوية rotationEffect تُعكس
+                // في الاتجاه من اليمين إلى اليسار فكانت الحلقة بالعربية تبدأ من الأسفل
+                .environment(\.layoutDirection, .leftToRight)
             content()
         }
         .padding(width / 2)

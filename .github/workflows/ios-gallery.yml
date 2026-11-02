@@ -62,7 +62,8 @@ jobs:
     needs: fixtures
     # صورة Xcode 27 كما في ios.yml و ios-screenshots.yml
     runs-on: xcode-27
-    timeout-minutes: 60
+    # البناء ثم أكثر من مئة لقطة (الأدوات، وشاشة القفل بثماني لغات وعرضين، والجزيرة وشاشة القفل الحقيقيتان بثلاث لغات)
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v5
 

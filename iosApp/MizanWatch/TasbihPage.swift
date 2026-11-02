@@ -38,6 +38,8 @@ struct TasbihPage: View {
                     .trim(from: 0, to: CGFloat(max(0.001, min(progress, 1))))
                     .stroke(gold, style: StrokeStyle(lineWidth: 7, lineCap: .round))
                     .rotationEffect(.degrees(-90))
+                    // من الأعلى مع عقارب الساعة في كل اللغات: زاوية rotationEffect تُعكس من اليمين إلى اليسار
+                    .environment(\.layoutDirection, .leftToRight)
                     .animation(.easeOut(duration: 0.18), value: count)
                 VStack(spacing: 0) {
                     Text(verbatim: "\(count)")

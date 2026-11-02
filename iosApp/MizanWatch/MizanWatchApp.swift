@@ -104,12 +104,15 @@ struct PrayerContent: View {
                         .foregroundStyle(.white.opacity(0.8))
                         .environment(\.layoutDirection, .leftToRight)
                 }
+                // العدّ في بداية السطر كاسم الصلاة فوقه (يمين الشاشة بالعربية): أرقامه من اليسار إلى اليمين، والنص يملأ
+                // عرضه فيُحاذى داخله، والإطار حوله في اتجاه اللغة
                 Text(timerInterval: now...max(now, next.date), countsDown: true)
                     .font(.system(size: 30, weight: .light, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(gold)
+                    .multilineTextAlignment(snap.rtl ? .trailing : .leading)
                     .environment(\.layoutDirection, .leftToRight)
-                    .frame(maxWidth: .infinity, alignment: snap.rtl ? .trailing : .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 if let from = previous {
                     ProgressView(timerInterval: from.date...max(from.date.addingTimeInterval(1), next.date), countsDown: false) {
                         EmptyView()
@@ -138,6 +141,8 @@ struct PrayerContent: View {
                 }
             }
             .padding(.horizontal, 4)
+            // مؤشر الصفحات والتمرير عند التاج (يمين الشاشة): لا يغطي أول السطر بالعربية ولا آخره بغيرها
+            .padding(snap.rtl ? .leading : .trailing, 6)
         }
     }
 }
