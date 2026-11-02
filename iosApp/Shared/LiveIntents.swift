@@ -16,12 +16,14 @@ import WidgetKit
 enum LiveAction: String {
     case tasbihCount, tasbihReset, tasbihEnd, tasbihShow
     case adhkarCount, adhkarSkip, adhkarRestart, adhkarEnd
-    case prayerToggle
+    case prayerToggle, prayerShow
 }
 
 /// نتيجة ما طُلب: تمّ، أو الأنشطة الحية متوقفة لميزان في الإعدادات، أو لم يُختر الموقع بعد
 enum LiveOutcome {
     case ok, activitiesOff, needsPlace
+    /// تعذّر بدء النشاط أو تحديثه: السبب يظهر للمستخدم بدل أن يمرّ الضغط بلا أثر
+    case failed(String)
 }
 
 enum LiveRouter {
@@ -35,9 +37,10 @@ enum LiveRouter {
         if #available(iOS 17.0, *) { return await AppLive.run(action) }
         return .ok
         #else
-        // احتياط: لو نُفّذت النية في امتداد الأدوات بدل التطبيق، تُحفظ التسبيحة فيضيفها التطبيق عند أول فرصة
-        if action == .tasbihCount { PendingTasbih.add() }
-        return .ok
+        // احتياط: لو نُفّذت النية في امتداد الأدوات بدل التطبيق، تُحفظ التسبيحة فيضيفها التطبيق عند أول فرصة؛
+        // وما عداها لا يُنفَّذ هنا (لا Kotlin ولا ActivityKit في الامتداد): يُقال ذلك بدل أن يمرّ بلا أثر
+        if action == .tasbihCount { PendingTasbih.add(); return .ok }
+        return .failed("Open Mizan once, then try again")
         #endif
     }
 
@@ -76,12 +79,13 @@ enum PendingTasbih {
 /// رسالة تظهر للمستخدم حين لا يمكن إظهار النشاط الحي
 @available(iOS 16.0, *)
 enum LiveIntentError: Error, CustomLocalizedStringResourceConvertible {
-    case activitiesOff, needsPlace
+    case activitiesOff, needsPlace, failed(String)
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .activitiesOff: return "Turn on Live Activities for Mizan in Settings"
         case .needsPlace: return "Open Mizan and choose your location first"
+        case .failed(let reason): return LocalizedStringResource(stringLiteral: reason)
         }
     }
 
@@ -90,6 +94,7 @@ enum LiveIntentError: Error, CustomLocalizedStringResourceConvertible {
         case .ok: return
         case .activitiesOff: throw LiveIntentError.activitiesOff
         case .needsPlace: throw LiveIntentError.needsPlace
+        case .failed(let reason): throw LiveIntentError.failed(reason)
         }
     }
 }
@@ -102,6 +107,8 @@ struct TasbihCountIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Count tasbih"
     static var description = IntentDescription("Counts one tasbih and shows the counter on the Lock Screen and in the Dynamic Island, without opening Mizan")
     static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    // لأزرار النشاط والأداة ومركز التحكم: زر الإجراء و Siri والاختصارات لها نوايا في التطبيق وحده (MizanShortcuts.swift)
+    static var isDiscoverable: Bool = false
 
     init() {}
 
@@ -149,6 +156,8 @@ struct AdhkarCountIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Count adhkar"
     static var description = IntentDescription("Counts the current morning or evening dhikr on the Lock Screen and in the Dynamic Island, moving to the next one when it is complete")
     static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    // لأزرار النشاط والأداة ومركز التحكم: زر الإجراء و Siri والاختصارات لها نوايا في التطبيق وحده (MizanShortcuts.swift)
+    static var isDiscoverable: Bool = false
 
     init() {}
 
@@ -211,11 +220,27 @@ struct ShowNextPrayerIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Prayer countdown"
     static var description = IntentDescription("Shows or hides the countdown to the next prayer on the Lock Screen and in the Dynamic Island")
     static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    // لأزرار النشاط والأداة ومركز التحكم: زر الإجراء و Siri والاختصارات لها نوايا في التطبيق وحده (MizanShortcuts.swift)
+    static var isDiscoverable: Bool = false
 
     init() {}
 
     func perform() async throws -> some IntentResult {
         try LiveIntentError.check(await LiveRouter.run(.prayerToggle))
+        return .result()
+    }
+}
+/// يُظهر العدّ التنازلي للصلاة القادمة في الجزيرة وعلى شاشة القفل (ولا يخفيه): زر «الصلاة القادمة» في مركز التحكم وشاشة القفل
+@available(iOS 17.0, *)
+struct ShowPrayerCountdownIntent: LiveActivityIntent {
+    static var title: LocalizedStringResource = "Next prayer"
+    static var authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
+    static var isDiscoverable: Bool = false
+
+    init() {}
+
+    func perform() async throws -> some IntentResult {
+        try LiveIntentError.check(await LiveRouter.run(.prayerShow))
         return .result()
     }
 }

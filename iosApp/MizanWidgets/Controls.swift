@@ -11,7 +11,7 @@ struct QiblaControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.qibla") {
             ControlWidgetButton(action: OpenScreenIntent(target: .qibla)) {
-                Label("Qibla", systemImage: "location.north.line.fill")
+                Label("Qibla", image: "mizan.kaaba")
             }
         }
         .displayName("Qibla")
@@ -29,7 +29,7 @@ struct TasbihControl: ControlWidget {
                 Label {
                     Text(verbatim: "\(value.count) \(value.goal)")
                 } icon: {
-                    Image(systemName: "hand.tap.fill")
+                    Image("mizan.tasbih")
                 }
             }
         }
@@ -44,7 +44,7 @@ struct PrayerCountdownControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.countdown") {
             ControlWidgetButton(action: ShowNextPrayerIntent()) {
-                Label("Prayer countdown", systemImage: "timer")
+                Label("Prayer countdown", systemImage: "hourglass")
             }
         }
         .displayName("Prayer countdown")
@@ -58,7 +58,7 @@ struct AdhkarCounterControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.adhkar") {
             ControlWidgetButton(action: AdhkarCountIntent()) {
-                Label("Count adhkar", systemImage: "sparkles")
+                Label("Count adhkar", systemImage: "sun.and.horizon.fill")
             }
         }
         .displayName("Count adhkar")
@@ -70,12 +70,13 @@ struct AdhkarCounterControl: ControlWidget {
 struct NextPrayerControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.prayer") {
-            ControlWidgetButton(action: OpenScreenIntent(target: .prayer)) {
-                Label("Next prayer", systemImage: "moon.stars.fill")
+            // يُظهر العدّ التنازلي في الجزيرة الديناميكية وعلى شاشة القفل دون فتح التطبيق
+            ControlWidgetButton(action: ShowPrayerCountdownIntent()) {
+                Label("Next prayer", image: "mizan.mosque")
             }
         }
         .displayName("Next prayer")
-        .description("Opens today's prayer times")
+        .description("Shows the next prayer in the Dynamic Island")
     }
 }
 
@@ -84,7 +85,7 @@ struct ContinueQuranControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.quran") {
             ControlWidgetButton(action: OpenScreenIntent(target: .quran)) {
-                Label("Continue reading", systemImage: "book.fill")
+                Label("Continue reading", systemImage: "bookmark.fill")
             }
         }
         .displayName("Continue reading")
