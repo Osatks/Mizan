@@ -247,6 +247,10 @@ jobs:
             exit 1
           fi
           test -d "$APP/PlugIns/MizanWidgets.appex"
+          # ميزان على Apple Watch ومضاعفاته
+          test -d "$APP/Watch/MizanWatch.app"
+          test -d "$APP/Watch/MizanWatch.app/PlugIns/MizanWatchWidgets.appex"
+          test -f "$APP/Watch/MizanWatch.app/PrivacyInfo.xcprivacy"
           test -f "$APP/PrivacyInfo.xcprivacy"
           test -f "$APP/PlugIns/MizanWidgets.appex/PrivacyInfo.xcprivacy"
           test -f "$APP/Frameworks/Shared.framework/PrivacyInfo.xcprivacy"
@@ -255,6 +259,7 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print :UIDeviceFamily" "$APP/Info.plist" | grep -q 2 || { echo "::error::Not a universal build (no iPad in UIDeviceFamily)"; exit 1; }
           codesign -d --entitlements - "$APP" 2>&1 | tail -n 15
           codesign -d --entitlements - "$APP/PlugIns/MizanWidgets.appex" 2>&1 | tail -n 15
+          codesign -d --entitlements - "$APP/Watch/MizanWatch.app" 2>&1 | tail -n 15
 
       # ملف .ipa موقَّع بشهادة التوزيع (يُنشئها App Store Connect بالمفتاح، وتحتاج دور Admin) دون رفع
       - name: Export signed .ipa

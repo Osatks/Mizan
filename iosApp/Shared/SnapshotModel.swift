@@ -17,6 +17,32 @@ struct Snapshot: Codable {
     var days: [Day]
     var windows: [AdhkarWindow]
     var items: [String: Dhikr]
+    /// الختمة لأداة الورد (لقطة التطبيق فقط؛ الأداة المستقلة لا تعرف ما قرأه المستخدم)
+    var khatma: Khatma? = nil
+}
+
+/// ورد اليوم وتقدّم الختمة (WidgetData.khatma في Kotlin)
+struct Khatma: Codable {
+    var read: Int
+    var total: Int
+    var percent: Int
+    var today: Int
+    /// صفحات ورد اليوم حسب مدة الختمة، و 0 بلا مدة
+    var goal: Int
+    var streak: Int
+    var done: Bool
+    /// موضع المتابعة في المصحف
+    var route: String
+    var title: String
+    var khatma: String
+    /// «3 من 20 صفحة»
+    var pages: String
+    var streakText: String
+    var percentText: String
+    var portionDone: Bool
+    var doneText: String
+    /// «تابع وردي»
+    var cta: String
 }
 
 struct Palette: Codable {

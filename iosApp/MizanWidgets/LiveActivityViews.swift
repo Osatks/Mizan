@@ -22,42 +22,22 @@ struct PrayerActivityWidget: Widget {
             let arrived = context.isStale
             let gold = Color(hex: s.gold)
             return DynamicIsland {
+                // الاسم في جهة بداية لغة التطبيق والعدّ في الأخرى، أياً كانت لغة الجهاز (IslandSide)
                 DynamicIslandExpandedRegion(.leading) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Label {
-                            Text(arrived ? s.name : s.label).lineLimit(1)
-                        } icon: {
-                            Image(systemName: arrived ? "bell.fill" : "moon.stars.fill")
-                        }
-                        .font(Mizan.rounded(13, .semibold))
-                        .foregroundColor(gold)
-                        if !arrived {
-                            Text(s.name)
-                                .font(Mizan.rounded(24, .bold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                        }
+                    IslandSide(appRTL: s.rtl) {
+                        PrayerIslandInfo(state: s, arrived: arrived, gold: gold)
+                    } swapped: {
+                        PrayerIslandClock(state: s, arrived: arrived, gold: gold, atLeft: true)
                     }
-                    .padding(.leading, 4)
-                    .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
                     .dynamicIsland(verticalPlacement: .belowIfTooWide)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Group {
-                        if arrived {
-                            Text(s.time)
-                                .font(Mizan.rounded(22, .semibold))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.6)
-                        } else {
-                            CountdownText(at: s.at)
-                                .font(Mizan.rounded(28, .light))
-                        }
+                    IslandSide(appRTL: s.rtl) {
+                        PrayerIslandClock(state: s, arrived: arrived, gold: gold, atLeft: false)
+                    } swapped: {
+                        PrayerIslandInfo(state: s, arrived: arrived, gold: gold)
                     }
-                    .foregroundColor(gold)
-                    .frame(maxWidth: 120, alignment: .trailing)
-                    .padding(.trailing, 4)
+                    .dynamicIsland(verticalPlacement: .belowIfTooWide)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -66,6 +46,14 @@ struct PrayerActivityWidget: Widget {
                                 .font(Mizan.rounded(15, .semibold))
                                 .foregroundColor(.white)
                                 .lineLimit(2)
+                            if let dua = s.dua {
+                                Text(verbatim: dua)
+                                    .font(Mizan.quran(15))
+                                    .foregroundColor(gold)
+                                    .lineLimit(2)
+                                    .minimumScaleFactor(0.7)
+                                    .environment(\.layoutDirection, .rightToLeft)
+                            }
                         } else {
                             TimeBar(from: s.from, to: s.at, now: Date())
                         }
@@ -77,15 +65,24 @@ struct PrayerActivityWidget: Widget {
                         .font(Mizan.rounded(12, .medium))
                         .foregroundColor(.white.opacity(0.7))
                         .lineLimit(1)
+                        // آخر سطر عند انحناء الزاويتين السفليين (والجزيرة أطول بعد الأذان): أبعد عن الجانبين
+                        .padding(.horizontal, 8)
                     }
-                    .padding(.horizontal, 4)
+                    // بعيداً عن انحناء زوايا الجزيرة
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 4)
                     .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
                 }
             } compactLeading: {
                 Image(systemName: arrived ? "bell.fill" : "moon.stars.fill")
                     .foregroundColor(gold)
             } compactTrailing: {
-                if arrived {
+                if arrived, let iqama = s.iqamaAhead {
+                    CountdownText(at: iqama)
+                        .font(Mizan.rounded(14, .semibold))
+                        .foregroundColor(gold)
+                        .frame(width: 58)
+                } else if arrived {
                     Text(s.name)
                         .font(Mizan.rounded(14, .semibold))
                         .foregroundColor(gold)
@@ -116,7 +113,8 @@ struct PrayerLockView: View {
 
     var body: some View {
         let gold = Color(hex: state.gold)
-        VStack(alignment: .leading, spacing: 10) {
+        // أقصى ارتفاع للنشاط على شاشة القفل 160 نقطة، ومع دعاء الإفطار أيضاً
+        VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 6) {
                 if arrived {
                     Image(systemName: "bell.fill").font(.system(size: 11, weight: .semibold))
@@ -141,37 +139,155 @@ struct PrayerLockView: View {
                         .foregroundColor(Mizan.text)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                    Text(verbatim: arrived ? state.hijri : "\(state.time) · \(state.hijri)")
-                        .font(Mizan.rounded(13, .medium))
-                        .foregroundColor(Mizan.text2)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                    // الوقت والتاريخ الهجري كاملين، ثم بخط أصغر، ثم الوقت وحده (الروسية على شاشة صغيرة): لا يُقطع
+                    let line = arrived ? state.hijri : "\(state.time) · \(state.hijri)"
+                    ViewThatFits(in: .horizontal) {
+                        Text(verbatim: line).font(Mizan.rounded(13, .medium)).fixedSize()
+                        Text(verbatim: line).font(Mizan.rounded(11.5, .medium)).fixedSize()
+                        Text(verbatim: arrived ? state.hijri : state.time)
+                            .font(Mizan.rounded(13, .medium))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .foregroundColor(Mizan.text2)
                 }
+                // الاسم والتاريخ يأخذان ما يبقى بعد العدّ بعرضه
+                .layoutPriority(1)
                 Spacer(minLength: 8)
                 Group {
-                    if arrived {
-                        Text(state.time).font(Mizan.rounded(30, .semibold))
+                    if arrived, let iqama = state.iqamaAhead {
+                        // بعد الأذان: «الإقامة بعد» والعدّ إليها
+                        VStack(alignment: .trailing, spacing: 0) {
+                            Text(verbatim: state.iqamaLabel ?? "")
+                                .font(Mizan.rounded(12, .medium))
+                                .foregroundColor(Mizan.text2)
+                                .fixedSize()
+                            CountdownText(at: iqama).font(Mizan.rounded(32, .light))
+                                .frame(width: CountdownText.width(to: iqama, size: 32), alignment: .trailing)
+                        }
+                    } else if arrived {
+                        Text(state.time).font(Mizan.rounded(30, .semibold)).fixedSize()
                     } else {
                         CountdownText(at: state.at).font(Mizan.rounded(34, .light))
+                            .frame(width: CountdownText.width(to: state.at, size: 34), alignment: .trailing)
                     }
                 }
                 .foregroundColor(gold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .frame(maxWidth: 150, alignment: .trailing)
             }
-            if !arrived {
+            if arrived, let dua = state.dua {
+                // رمضان: دعاء الإفطار عند المغرب
+                Text(verbatim: dua)
+                    .font(Mizan.quran(16))
+                    .foregroundColor(gold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: .infinity)
+                    .environment(\.layoutDirection, .rightToLeft)
+            } else if arrived, let iqama = state.iqamaAhead {
+                TimeBar(from: state.at, to: iqama, now: Date())
+            } else if !arrived {
                 TimeBar(from: state.from, to: state.at, now: Date())
             }
         }
         .padding(.horizontal, 18)
-        .padding(.vertical, 16)
+        .padding(.vertical, 13)
         .background(alignment: .topTrailing) { LiveOrnament(gold: gold) }
         .environment(\.layoutDirection, state.rtl ? .rightToLeft : .leftToRight)
     }
 }
 
+/// منطقة جانبية في الجزيرة الموسّعة: الجهة الأولى للنظام (اليسار، أو اليمين إن كانت لغة الجهاز من اليمين) تعرض
+/// [natural] إن اتفقت جهة لغة التطبيق وجهة الجهاز، وإلا [swapped]: فيكون اسم الصلاة في جهة بداية لغة التطبيق دائماً
+@available(iOS 16.2, *)
+struct IslandSide<A: View, B: View>: View {
+    let appRTL: Bool
+    @ViewBuilder let natural: () -> A
+    @ViewBuilder let swapped: () -> B
+    @Environment(\.layoutDirection) private var system
+
+    var body: some View {
+        if (system == .rightToLeft) == appRTL { natural() } else { swapped() }
+    }
+}
+
+/// اسم الصلاة القادمة وعنوانها، أو «حان الآن» بعد دخول الوقت
+@available(iOS 16.2, *)
+struct PrayerIslandInfo: View {
+    let state: PrayerLiveState
+    let arrived: Bool
+    let gold: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Label {
+                Text(verbatim: arrived ? state.name : state.label).lineLimit(1)
+            } icon: {
+                Image(systemName: arrived ? "bell.fill" : "moon.stars.fill")
+            }
+            .font(Mizan.rounded(13, .semibold))
+            .foregroundColor(gold)
+            if !arrived {
+                Text(verbatim: state.name)
+                    .font(Mizan.rounded(24, .bold))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .padding(.horizontal, 4)
+        .environment(\.layoutDirection, state.rtl ? .rightToLeft : .leftToRight)
+    }
+}
+
+/// العدّ التنازلي إلى الصلاة، أو إلى الإقامة بعد الأذان، أو وقت الصلاة؛ ملاصقاً لحافة الجزيرة في جهته
+@available(iOS 16.2, *)
+struct PrayerIslandClock: View {
+    let state: PrayerLiveState
+    let arrived: Bool
+    let gold: Color
+    /// في الجهة اليسرى من الجزيرة
+    let atLeft: Bool
+
+    var body: some View {
+        Group {
+            if arrived, let iqama = state.iqamaAhead {
+                // بعد الأذان: العدّ إلى الإقامة
+                VStack(alignment: atLeft ? .leading : .trailing, spacing: 0) {
+                    Text(verbatim: state.iqamaLabel ?? "")
+                        .font(Mizan.rounded(11, .medium))
+                        .foregroundColor(.white.opacity(0.7))
+                        .lineLimit(1)
+                    CountdownText(at: iqama)
+                        .font(Mizan.rounded(24, .light))
+                }
+            } else if arrived {
+                Text(verbatim: state.time)
+                    .font(Mizan.rounded(22, .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else {
+                CountdownText(at: state.at)
+                    .font(Mizan.rounded(28, .light))
+            }
+        }
+        .foregroundColor(gold)
+        .environment(\.layoutDirection, .leftToRight)
+        .frame(maxWidth: 120, alignment: atLeft ? .leading : .trailing)
+        .padding(.horizontal, 4)
+    }
+}
+
 // ---------- أجزاء مشتركة ----------
+
+extension PrayerLiveState {
+    /// موعد الإقامة إن لم يأتِ بعد (يُرسم النشاط من جديد عند دخول الوقت، فيعدّ إليها من حينها)
+    var iqamaAhead: Date? {
+        guard let iqama = iqama, iqama > Date() else { return nil }
+        return iqama
+    }
+}
 
 /// عدّ تنازلي حي حتى [at]: أرقام لاتينية من اليسار إلى اليمين في كل اللغات، ملاصقة لطرف مكانها الأخير
 /// (يمين الشاشة في الإنجليزية ويسارها في العربية)
@@ -179,6 +295,15 @@ struct PrayerLockView: View {
 struct CountdownText: View {
     let at: Date
     @Environment(\.layoutDirection) private var direction
+
+    /// عرض العدّ بخط [size]، فلا يأخذ (وهو يتمدد) مكان ما بجانبه: أرقام متساوية العرض ونقطتان
+    /// (9:57 و 24:57 و 1:24:57 و 13:24:57)، ولا يحتاج بعد ذلك أكثر لأنه ينقص
+    static func width(to at: Date, size: CGFloat, now: Date = Date()) -> CGFloat {
+        let s = at.timeIntervalSince(now)
+        let digits: CGFloat = s >= 36_000 ? 6 : s >= 3_600 ? 5 : s >= 600 ? 4 : 3
+        let colons: CGFloat = s >= 3_600 ? 2 : 1
+        return ceil(size * (digits * 0.64 + colons * 0.34)) + 4
+    }
 
     var body: some View {
         Text(timerInterval: min(Date(), at)...at, countsDown: true)

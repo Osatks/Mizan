@@ -1,3 +1,8 @@
 /* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
 "CFBundleDisplayName" = "Mizan";
 "NSLocationWhenInUseUsageDescription" = "Joylashuvingiz faqat qurilmangizda namoz vaqtlari va qibla yo‘nalishini hisoblash uchun ishlatiladi va hech qayerga yuborilmaydi. Buning o‘rniga shahringizni qo‘lda tanlashingiz mumkin.";
+/* مشاركة الآية صورة (حفظها في الصور)، ومواقيت الصلاة في التقويم، والقبلة بالكاميرا */
+"NSPhotoLibraryAddUsageDescription" = "Ulashgan oyat rasmingizni Rasmlar ilovasiga saqlash uchun.";
+"NSCalendarsFullAccessUsageDescription" = "Namoz vaqtlarini qurilmangizdagi alohida taqvimga qo‘shish va yangilab turish uchun. Boshqa hech narsa o‘qilmaydi va hech qayerga yuborilmaydi.";
+"NSCalendarsUsageDescription" = "Namoz vaqtlarini qurilmangizdagi alohida taqvimga qo‘shish va yangilab turish uchun. Boshqa hech narsa o‘qilmaydi va hech qayerga yuborilmaydi.";
+"NSCameraUsageDescription" = "Kamera faqat qurilmangizda qibla yo‘nalishini ko‘rsatish uchun ishlatiladi. Hech narsa yozib olinmaydi, saqlanmaydi va yuborilmaydi.";

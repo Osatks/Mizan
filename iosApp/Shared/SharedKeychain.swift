@@ -6,10 +6,23 @@ import Security
 /// مشترك ويقرؤها الأداة منه.
 enum SharedKeychain {
     private static let service = "com.mizan.widget"
-    private static let account = "snapshot"
+    static let snapshotAccount = "snapshot"
+    static let tasbihAccount = "tasbih"
 
-    /// بادئة الفريق (Team ID) من مجموعة عنصر تجريبي بلا مجموعة محددة: يأخذ النظام المجموعة الافتراضية للتطبيق
+    private static let lock = NSLock()
+    private static var cachedPrefix: String?
+
+    /// بادئة الفريق (Team ID) من مجموعة عنصر تجريبي بلا مجموعة محددة: يأخذ النظام المجموعة الافتراضية للتطبيق.
+    /// تُحسب مرة واحدة (لا تتغير في التثبيت نفسه): المسبحة تكتب حالها هنا مع التسبيح
     static func teamPrefix() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        if let p = cachedPrefix { return p }
+        cachedPrefix = probePrefix()
+        return cachedPrefix
+    }
+
+    private static func probePrefix() -> String? {
         let probe: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "com.mizan.probe",
@@ -31,7 +44,7 @@ enum SharedKeychain {
 
     static var group: String? { teamPrefix().map { "\($0).com.mizan.almuslim.shared" } }
 
-    private static func query(_ group: String) -> [String: Any] {
+    private static func query(_ group: String, _ account: String) -> [String: Any] {
         [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -40,11 +53,11 @@ enum SharedKeychain {
         ]
     }
 
-    /// يكتب اللقطة؛ يعيد حالة Security (0 نجاح، -34018 لا صلاحية للمجموعة)
+    /// يكتب اللقطة (أو حال المسبحة: account = "tasbih")؛ يعيد حالة Security (0 نجاح، -34018 لا صلاحية للمجموعة)
     @discardableResult
-    static func write(_ data: Data) -> OSStatus {
+    static func write(_ data: Data, account: String = SharedKeychain.snapshotAccount) -> OSStatus {
         guard let g = group else { return errSecNoAccessForItem }
-        let q = query(g)
+        let q = query(g, account)
         let update: [String: Any] = [kSecValueData as String: data]
         var st = SecItemUpdate(q as CFDictionary, update as CFDictionary)
         if st == errSecItemNotFound {
@@ -56,9 +69,9 @@ enum SharedKeychain {
         return st
     }
 
-    static func read() -> (Data?, OSStatus) {
+    static func read(account: String = SharedKeychain.snapshotAccount) -> (Data?, OSStatus) {
         guard let g = group else { return (nil, errSecNoAccessForItem) }
-        var q = query(g)
+        var q = query(g, account)
         q[kSecReturnData as String] = true
         q[kSecMatchLimit as String] = kSecMatchLimitOne
         var r: CFTypeRef?

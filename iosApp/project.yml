@@ -8,6 +8,7 @@ options:
   bundleIdPrefix: com.osatks
   deploymentTarget:
     iOS: "15.0"
+    watchOS: "10.0"
   developmentLanguage: ar
 settings:
   base:
@@ -55,6 +56,8 @@ targets:
         # الأنشطة الحية (ActivityKit، iOS 16.1) والاختصارات و Siri (AppIntents، iOS 16) غير موجودة في iOS 15:
         # ربط ضعيف حتى يعمل التطبيق هناك بدونها (LiveActivities.swift و MizanShortcuts.swift)
         OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,ActivityKit -Wl,-weak_framework,AppIntents"
+        # ملفات Shared/ في الهدفين: ما يخص التطبيق فيها (AppLive في نوايا الأنشطة الحية) تحت #if MIZAN_APP
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MIZAN_APP"
     dependencies:
       - framework: ../android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework
         embed: true
@@ -63,6 +66,13 @@ targets:
       # الأدوات تُضمَّن في Mizan.app/PlugIns
       - target: MizanWidgets
         embed: true
+      # ميزان على Apple Watch في Mizan.app/Watch (يُثبَّت في الساعة مع التطبيق)
+      - target: MizanWatch
+        embed: true
+        codeSign: true
+        copy:
+          destination: productsDirectory
+          subpath: "$(CONTENTS_FOLDER_PATH)/Watch"
 
   MizanWidgets:
     type: app-extension
@@ -96,3 +106,53 @@ targets:
         # AppIntents (زر «التالي» في iOS 17، وأزرار مركز التحكم في iOS 18) و ActivityKit (الأنشطة الحية في iOS 16.2)
         # غير موجودين في iOS 15: ربط ضعيف حتى تعمل الأدوات هناك
         OTHER_LDFLAGS: "$(inherited) -Wl,-weak_framework,AppIntents -Wl,-weak_framework,ActivityKit"
+
+  # ميزان على Apple Watch (watchOS 10 فما بعد، هدف واحد): الصلاة القادمة ومواقيت اليوم، والمسبحة بالتاج الرقمي.
+  # البيانات من iPhone (WatchSync.swift): لقطة المواقيت نفسها التي تقرؤها الأدوات
+  MizanWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - path: MizanWatch
+        excludes:
+          - "*.entitlements"
+          - "Info.plist"
+      - path: Shared/SnapshotModel.swift
+      - path: Privacy/Watch/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mizan.almuslim.watchkitapp
+        PRODUCT_NAME: MizanWatch
+        INFOPLIST_FILE: MizanWatch/Info.plist
+        CODE_SIGN_ENTITLEMENTS: MizanWatch/MizanWatch.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "4"
+        SKIP_INSTALL: YES
+    dependencies:
+      - target: MizanWatchWidgets
+        embed: true
+
+  # مضاعفات وجه الساعة (WidgetKit): الصلاة القادمة، واختصار المسبحة
+  MizanWatchWidgets:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: MizanWatchWidgets
+        excludes:
+          - "*.entitlements"
+          - "Info.plist"
+      - path: MizanWatch/WatchData.swift
+      - path: Shared/SnapshotModel.swift
+      - path: Privacy/Watch/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mizan.almuslim.watchkitapp.widgets
+        PRODUCT_NAME: MizanWatchWidgets
+        INFOPLIST_FILE: MizanWatchWidgets/Info.plist
+        CODE_SIGN_ENTITLEMENTS: MizanWatchWidgets/MizanWatchWidgets.entitlements
+        TARGETED_DEVICE_FAMILY: "4"
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"

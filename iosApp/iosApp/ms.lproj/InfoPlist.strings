@@ -1,3 +1,8 @@
 /* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
 "CFBundleDisplayName" = "Mizan";
 "NSLocationWhenInUseUsageDescription" = "Lokasi anda hanya digunakan pada peranti anda untuk mengira waktu solat dan arah kiblat, dan tidak dihantar ke mana-mana. Anda juga boleh memilih bandar secara manual.";
+/* مشاركة الآية صورة (حفظها في الصور)، ومواقيت الصلاة في التقويم، والقبلة بالكاميرا */
+"NSPhotoLibraryAddUsageDescription" = "Untuk menyimpan gambar ayat yang anda kongsi ke Foto.";
+"NSCalendarsFullAccessUsageDescription" = "Untuk menambah waktu solat ke kalendar tersendiri pada peranti anda dan mengemas kininya. Tiada perkara lain dibaca dan tiada apa dihantar.";
+"NSCalendarsUsageDescription" = "Untuk menambah waktu solat ke kalendar tersendiri pada peranti anda dan mengemas kininya. Tiada perkara lain dibaca dan tiada apa dihantar.";
+"NSCameraUsageDescription" = "Kamera hanya digunakan pada peranti anda untuk menunjukkan arah kiblat di atas apa yang anda lihat. Tiada apa dirakam, disimpan atau dihantar.";

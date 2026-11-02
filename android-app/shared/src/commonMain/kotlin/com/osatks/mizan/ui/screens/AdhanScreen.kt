@@ -80,6 +80,10 @@ import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.ToolPage
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.CalendarMonth
+import com.osatks.mizan.i18n.LocalLang
+import com.osatks.mizan.i18n.FeatureText
+import com.osatks.mizan.platform.PrayerCalendar
 
 /** أيقونة كل طريقة تنبيه */
 private fun AlertMode.icon(): ImageVector = when (this) {
@@ -119,6 +123,7 @@ fun AdhanScreen(onBack: () -> Unit) {
                     ClickRow(s.exactAlarm, s.exactAlarmDesc, leading = Icons.Filled.Alarm, onClick = { PrayerAlerts.openExactAlarmSettings() })
                 }
                 if (LiveCountdown.supported) LiveCountdownRow()
+                if (PrayerCalendar.supported) CalendarRow()
             }
         }
         item {
@@ -181,6 +186,19 @@ private fun LiveCountdownRow() {
         onClick = { set(!LiveCountdown.enabled) }, leading = Icons.Filled.Timer
     ) {
         AppSwitch(checked = LiveCountdown.enabled, onCheckedChange = { on -> set(on) })
+    }
+}
+
+/** iPhone و iPad: مواقيت ثلاثين يوماً في تقويم خاص بها في تطبيق التقويم، تتجدد مع كل عودة إلى التطبيق */
+@Composable
+private fun CalendarRow() {
+    val ft = FeatureText.of(LocalLang.current.code)
+    ClickRow(
+        ft.addToCalendar, ft.calendarDesc,
+        onClick = { PrayerCalendar.update(!PrayerCalendar.enabled) }, leading = Icons.Filled.CalendarMonth,
+    ) {
+        if (PrayerCalendar.busy) CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp)
+        else AppSwitch(checked = PrayerCalendar.enabled, onCheckedChange = { on -> PrayerCalendar.update(on) })
     }
 }
 

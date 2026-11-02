@@ -13,3 +13,22 @@
 "Opens the tasbih counter" = "তাসবিহ কাউন্টার খোলে";
 "Opens today's prayer times" = "আজকের নামাজের সময় খোলে";
 "Opens the Quran where you stopped" = "যেখানে থেমেছিলেন সেখান থেকে কুরআন খোলে";
+/* الأنشطة الحية: المسبحة والأذكار والعدّ التنازلي، وآية اليوم (Shared/LiveIntents.swift، Controls.swift، MizanShortcuts.swift) */
+"Count tasbih" = "তাসবিহ গণনা";
+"Counts one tasbih and shows the counter on the Lock Screen and in the Dynamic Island, without opening Mizan" = "একটি তাসবিহ গণনা করে এবং মিজান না খুলেই লক স্ক্রিন ও ডায়নামিক আইল্যান্ডে কাউন্টার দেখায়";
+"Reset tasbih" = "তাসবিহ শূন্য করুন";
+"End tasbih" = "তাসবিহ শেষ করুন";
+"Count adhkar" = "জিকির গণনা";
+"Counts the current morning or evening dhikr on the Lock Screen and in the Dynamic Island, moving to the next one when it is complete" = "লক স্ক্রিন ও ডায়নামিক আইল্যান্ডে সকাল বা সন্ধ্যার বর্তমান জিকির গণনা করে, শেষ হলে পরেরটিতে যায়";
+"Next dhikr" = "পরবর্তী জিকির";
+"Start the adhkar again" = "আবার জিকির শুরু করুন";
+"End adhkar" = "জিকির শেষ করুন";
+"Prayer countdown" = "নামাজের কাউন্টডাউন";
+"Shows or hides the countdown to the next prayer on the Lock Screen and in the Dynamic Island" = "লক স্ক্রিন ও ডায়নামিক আইল্যান্ডে পরবর্তী নামাজের কাউন্টডাউন দেখায় বা লুকায়";
+"Turn on Live Activities for Mizan in Settings" = "সেটিংসে মিজানের জন্য লাইভ অ্যাক্টিভিটি চালু করুন";
+"Open Mizan and choose your location first" = "আগে মিজান খুলে আপনার অবস্থান বেছে নিন";
+"Ayah of the day" = "আজকের আয়াত";
+"Tasbih counter" = "তাসবিহ কাউন্টার";
+"Counts one tasbih without opening Mizan" = "মিজান না খুলেই একটি তাসবিহ গণনা করে";
+"Shows the countdown to the next prayer on the Lock Screen" = "লক স্ক্রিনে পরবর্তী নামাজের কাউন্টডাউন দেখায়";
+"Counts the morning or evening adhkar on the Lock Screen" = "লক স্ক্রিনে সকাল বা সন্ধ্যার জিকির গণনা করে";

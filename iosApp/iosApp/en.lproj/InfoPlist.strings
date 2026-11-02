@@ -1,3 +1,8 @@
 /* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
 "CFBundleDisplayName" = "Mizan";
 "NSLocationWhenInUseUsageDescription" = "Your location is used only on your device to calculate prayer times and the qibla direction. It is never sent anywhere. You can pick your city manually instead.";
+/* مشاركة الآية صورة (حفظها في الصور)، ومواقيت الصلاة في التقويم، والقبلة بالكاميرا */
+"NSPhotoLibraryAddUsageDescription" = "To save the ayah image you share to your Photos.";
+"NSCalendarsFullAccessUsageDescription" = "To add prayer times to their own calendar on your device and keep them up to date. Nothing else is read and nothing is sent anywhere.";
+"NSCalendarsUsageDescription" = "To add prayer times to their own calendar on your device and keep them up to date. Nothing else is read and nothing is sent anywhere.";
+"NSCameraUsageDescription" = "The camera is used only on your device to show the qibla direction over what you see. Nothing is recorded, saved or sent.";

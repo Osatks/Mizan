@@ -56,6 +56,9 @@ expect object Platform {
     fun toast(msg: String)
 
     fun share(text: String, title: String)
+
+    /** يشارك صورة PNG ومعها نص بقائمة المشاركة في النظام (حفظ في الصور، والتطبيقات) */
+    fun shareImage(png: ByteArray, text: String, title: String)
 }
 
 /** ملفات التطبيق؛ المسارات كاملة (تبدأ من [Platform.filesDir]) */

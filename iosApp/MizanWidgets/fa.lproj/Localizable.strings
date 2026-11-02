@@ -13,3 +13,22 @@
 "Opens the tasbih counter" = "شمارندهٔ تسبیح را باز می‌کند";
 "Opens today's prayer times" = "اوقات نماز امروز را باز می‌کند";
 "Opens the Quran where you stopped" = "قرآن را از جایی که مانده‌اید باز می‌کند";
+/* الأنشطة الحية: المسبحة والأذكار والعدّ التنازلي، وآية اليوم (Shared/LiveIntents.swift، Controls.swift، MizanShortcuts.swift) */
+"Count tasbih" = "شمردن تسبیح";
+"Counts one tasbih and shows the counter on the Lock Screen and in the Dynamic Island, without opening Mizan" = "یک تسبیح می‌شمارد و شمارنده را بدون باز کردن میزان روی صفحهٔ قفل و Dynamic Island نشان می‌دهد";
+"Reset tasbih" = "صفر کردن تسبیح";
+"End tasbih" = "پایان تسبیح";
+"Count adhkar" = "شمردن اذکار";
+"Counts the current morning or evening dhikr on the Lock Screen and in the Dynamic Island, moving to the next one when it is complete" = "ذکر فعلی صبح یا عصر را روی صفحهٔ قفل و Dynamic Island می‌شمارد و پس از تکمیل به بعدی می‌رود";
+"Next dhikr" = "ذکر بعدی";
+"Start the adhkar again" = "شروع دوبارهٔ اذکار";
+"End adhkar" = "پایان اذکار";
+"Prayer countdown" = "شمارش معکوس نماز";
+"Shows or hides the countdown to the next prayer on the Lock Screen and in the Dynamic Island" = "شمارش معکوس نماز بعدی را روی صفحهٔ قفل و Dynamic Island نشان می‌دهد یا پنهان می‌کند";
+"Turn on Live Activities for Mizan in Settings" = "فعالیت‌های زنده را برای میزان در تنظیمات روشن کنید";
+"Open Mizan and choose your location first" = "ابتدا میزان را باز کنید و مکان خود را انتخاب کنید";
+"Ayah of the day" = "آیهٔ روز";
+"Tasbih counter" = "شمارندهٔ تسبیح";
+"Counts one tasbih without opening Mizan" = "بدون باز کردن میزان یک تسبیح می‌شمارد";
+"Shows the countdown to the next prayer on the Lock Screen" = "شمارش معکوس نماز بعدی را روی صفحهٔ قفل نشان می‌دهد";
+"Counts the morning or evening adhkar on the Lock Screen" = "اذکار صبح یا عصر را روی صفحهٔ قفل می‌شمارد";

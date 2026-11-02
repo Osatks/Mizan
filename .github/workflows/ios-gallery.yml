@@ -1,0 +1,243 @@
+name: iOS Gallery (widgets and Live Activities)
+
+# مراجعة بصرية للأدوات والأنشطة الحية في iOS على المحاكي، قبل أي نسخة TestFlight (iosApp/Gallery):
+#   fixtures: حالات حقيقية من Kotlin بكل لغات التطبيق (LiveStatesTest يتحقق أن مفاتيحها حقول Swift نفسها ويكتبها)
+#   gallery:  معرض بمصادر الأدوات نفسها بلا إطار Kotlin: يفكّ الحالات بأنواع Swift، ويرسم الأدوات وشاشة القفل،
+#             ويبدأ أنشطة حية حقيقية فيلتقطها في الجزيرة الديناميكية (المصغّرة والموسّعة) وعلى شاشة القفل.
+# النتيجة صور PNG في ملف مرفق (mizan-gallery). لا يوقَّع شيء ولا يُرفع إلى App Store.
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: "Simulator (needs a Dynamic Island)"
+        type: string
+        default: "iPhone 17 Pro Max"
+      tests:
+        description: "Only these UI tests, comma-separated (e.g. test3Island,test4LockScreen); empty runs all"
+        type: string
+        default: ""
+
+# تشغيل جديد ينتظر الجاري حتى ينتهي (لا يُلغيه: التقاط الصور طويل)، ويحلّ محل ما ينتظر قبله
+concurrency:
+  group: ios-gallery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Kotlin states for the gallery
+        working-directory: android-app
+        run: gradle :shared:testDebugUnitTest --tests '*LiveStatesTest*' --no-daemon
+        env:
+          MIZAN_GALLERY_EXPORT: ${{ runner.temp }}/fixtures
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gallery-fixtures
+          path: ${{ runner.temp }}/fixtures/live-fixtures.json
+          if-no-files-found: error
+          retention-days: 3
+
+  gallery:
+    needs: fixtures
+    # صورة Xcode 27 كما في ios.yml و ios-screenshots.yml
+    runs-on: xcode-27
+    # البناء ثم أكثر من مئة لقطة (الأدوات، وشاشة القفل بثماني لغات وعرضين، والجزيرة وشاشة القفل الحقيقيتان بثلاث لغات)
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Xcode 27.1
+        run: |
+          x=/Applications/Xcode_27.1.app/Contents/Developer
+          if [ -d "$x" ]; then export DEVELOPER_DIR="$x"; echo "DEVELOPER_DIR=$x" >> "$GITHUB_ENV"; fi
+          xcodebuild -version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: gallery-fixtures
+          path: iosApp/Gallery/Fixtures
+
+      - name: Generate Xcode project
+        working-directory: iosApp/Gallery
+        run: |
+          test -s Fixtures/live-fixtures.json
+          brew install xcodegen
+          xcodegen generate
+
+      # جهاز بجزيرة ديناميكية، بأحدث نظام يدعمه
+      - name: Simulator
+        id: sim
+        env:
+          DEVICE: ${{ inputs.device }}
+        run: |
+          type=$(xcrun simctl list devicetypes -j | python3 -c '
+          import json, sys
+          types = {t["name"]: t["identifier"] for t in json.load(sys.stdin)["devicetypes"]}
+          for name in sys.argv[1:]:
+              if name in types:
+                  print(types[name]); break
+          else:
+              sys.exit("no device type with a Dynamic Island")' "$DEVICE" "iPhone 17 Pro Max" "iPhone 17 Pro" "iPhone 16 Pro Max" "iPhone 16 Pro" "iPhone 15 Pro Max" "iPhone 15 Pro")
+          runtime=$(xcrun simctl list runtimes -j | python3 -c '
+          import json, sys
+          want = sys.argv[1]
+          rs = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("platform", "iOS") == "iOS" and "iOS" in r["name"]]
+          rs = [r for r in rs if r.get("supportedDeviceTypes") is None or any(t.get("identifier") == want for t in r["supportedDeviceTypes"])]
+          rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")])
+          if not rs: sys.exit("no runtime for " + want)
+          print(rs[-1]["identifier"])' "$type")
+          echo "device $type, runtime $runtime"
+          udid=$(xcrun simctl create "Gallery" "$type" "$runtime")
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          for _ in 1 2 3; do
+            xcrun simctl status_bar "$udid" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 \
+              --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100 && break
+            sleep 3
+          done
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Build and capture
+        working-directory: iosApp/Gallery
+        env:
+          UDID: ${{ steps.sim.outputs.udid }}
+          TESTS: ${{ inputs.tests }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/gallery"
+          log="$RUNNER_TEMP/gallery/xcodebuild.log"
+          # TEST_RUNNER_*: يصل إلى اختبار الواجهة بلا البادئة (مجلد الصور)
+          set +e
+          # اختبارات بعينها (tests) أو كلها
+          only=()
+          for t in $(printf '%s' "$TESTS" | tr ',' ' '); do only+=("-only-testing:GalleryUITests/GalleryUITests/$t"); done
+          TEST_RUNNER_GALLERY_OUT="$RUNNER_TEMP/gallery" xcodebuild test -project Gallery.xcodeproj -scheme Gallery \
+            -destination "id=$UDID" -derivedDataPath build -resultBundlePath "$RUNNER_TEMP/Gallery.xcresult" "${only[@]}" > "$log" 2>&1
+          code=$?
+          set -e
+          grep -E "error:|warning: .*(MizanWidgets|Gallery|Shared)/|Test Case .*(passed|failed)|XCTAssert|error -|\*\* " "$log" | tail -n 250 || true
+          exit $code
+
+      # الصور في المجلد إن كتبها الاختبار إليه مباشرة، وإلا من مرفقات نتيجة الاختبار
+      - name: Collect screenshots
+        if: always()
+        run: |
+          n=$(find "$RUNNER_TEMP/gallery" -name '*.png' 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$n" = "0" ] && [ -d "$RUNNER_TEMP/Gallery.xcresult" ]; then
+            xcrun xcresulttool export attachments --path "$RUNNER_TEMP/Gallery.xcresult" --output-path "$RUNNER_TEMP/gallery" || true
+          fi
+          find "$RUNNER_TEMP/gallery" -type f | sort | head -n 200
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mizan-gallery
+          path: ${{ runner.temp }}/gallery
+          if-no-files-found: warn
+          retention-days: 7
+
+  # تطبيق الساعة على محاكي Apple Watch: صفحتا المواقيت والمسبحة بالعربية والإنجليزية، بلقطة حقيقية من Kotlin
+  # (كما يرسلها iPhone: بلا الأذكار، والأوقات منقولة إلى الآن) تُمرَّر وسيطَ تشغيل (UserDefaults: watch.json)
+  watch:
+    needs: fixtures
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Xcode 27.1
+        run: |
+          x=/Applications/Xcode_27.1.app/Contents/Developer
+          if [ -d "$x" ]; then export DEVELOPER_DIR="$x"; echo "DEVELOPER_DIR=$x" >> "$GITHUB_ENV"; fi
+          xcodebuild -version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: gallery-fixtures
+          path: ${{ runner.temp }}/fixtures
+
+      - name: Build the watch app (simulator)
+        working-directory: iosApp
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild -project Mizan.xcodeproj -target MizanWatch -sdk watchsimulator -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO -IDEBuildingContinueBuildingAfterErrors=YES build > "$RUNNER_TEMP/watch-build.log" 2>&1 \
+            || { grep -E "error:|\*\* BUILD" "$RUNNER_TEMP/watch-build.log" | sort -u | head -n 120; tail -n 30 "$RUNNER_TEMP/watch-build.log"; exit 1; }
+          grep -E "warning: " "$RUNNER_TEMP/watch-build.log" | grep -E "/iosApp/(MizanWatch|MizanWatchWidgets|Shared)/" | sort -u | head -n 60 || true
+          ls -d build/Debug-watchsimulator/MizanWatch.app build/Debug-watchsimulator/MizanWatch.app/PlugIns/MizanWatchWidgets.appex
+          # توقيع محلي يحمل صلاحية App Group (المضاعفات قبل التطبيق)
+          codesign --force --sign - --timestamp=none --entitlements MizanWatchWidgets/MizanWatchWidgets.entitlements build/Debug-watchsimulator/MizanWatch.app/PlugIns/MizanWatchWidgets.appex
+          codesign --force --sign - --timestamp=none --entitlements MizanWatch/MizanWatch.entitlements build/Debug-watchsimulator/MizanWatch.app
+
+      # محاكي watchOS ليس مثبّتاً في كل مشغّل (أداة البناء موجودة): يُنزَّل إن غاب، وإلا تُتخطّى الصور بتحذير
+      - name: watchOS simulator runtime
+        id: rt
+        run: |
+          if ! xcrun simctl list runtimes | grep -q watchOS; then
+            xcodebuild -downloadPlatform watchOS 2>&1 | tail -n 20 || true
+          fi
+          if ! xcrun simctl list runtimes | grep -q watchOS; then
+            mkdir -p "$RUNNER_TEMP/rt"
+            xcodebuild -downloadPlatform watchOS -exportPath "$RUNNER_TEMP/rt" 2>&1 | tail -n 20 || true
+            for f in "$RUNNER_TEMP"/rt/*.dmg; do [ -f "$f" ] && xcrun simctl runtime add "$f"; done
+          fi
+          if xcrun simctl list runtimes | grep watchOS; then
+            echo "ok=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Apple Watch::no watchOS simulator runtime on this runner; watch screenshots skipped (the watch app was built)"
+          fi
+
+      - name: Watch screenshots
+        if: ${{ steps.rt.outputs.ok == '1' }}
+        working-directory: iosApp
+        run: |
+          mkdir -p "$RUNNER_TEMP/watch"
+          for lang in ar en; do
+            python3 fastlane/watch_payload.py "$RUNNER_TEMP/fixtures/live-fixtures.json" "$lang" > "$RUNNER_TEMP/watch/payload-$lang.txt"
+          done
+          # أحدث watchOS مثبّت وساعة يدعمها (لا يدعم كل نظام كل الطرازات)
+          read -r runtime type < <(xcrun simctl list runtimes -j | python3 fastlane/pick_watch.py)
+          echo "watch $type, runtime $runtime"
+          udid=$(xcrun simctl create "Gallery Watch" "$type" "$runtime")
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl status_bar "$udid" override --time "9:41" || true
+          xcrun simctl install "$udid" build/Debug-watchsimulator/MizanWatch.app
+          for lang in ar en; do
+            for page in 0 1; do
+              xcrun simctl terminate "$udid" com.mizan.almuslim.watchkitapp >/dev/null 2>&1 || true
+              xcrun simctl launch "$udid" com.mizan.almuslim.watchkitapp -watch.json "$(cat "$RUNNER_TEMP/watch/payload-$lang.txt")" -watch.page "$page" >/dev/null
+              sleep 6
+              xcrun simctl io "$udid" screenshot "$RUNNER_TEMP/watch/watch-$lang-page$page.png"
+            done
+          done
+          # بلا لقطة من iPhone: رسالة «افتح ميزان على iPhone»
+          xcrun simctl terminate "$udid" com.mizan.almuslim.watchkitapp >/dev/null 2>&1 || true
+          xcrun simctl launch "$udid" com.mizan.almuslim.watchkitapp >/dev/null
+          sleep 5
+          xcrun simctl io "$udid" screenshot "$RUNNER_TEMP/watch/watch-empty.png"
+          rm -f "$RUNNER_TEMP"/watch/payload-*.txt
+          ls -la "$RUNNER_TEMP/watch"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mizan-watch-gallery
+          path: ${{ runner.temp }}/watch
+          if-no-files-found: warn
+          retention-days: 7
+

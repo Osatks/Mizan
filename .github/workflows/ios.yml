@@ -11,9 +11,20 @@ name: iOS App
 on:
   # يدوي فقط (Actions ← Run workflow): دقائق GitHub Actions محدودة، وبناء macOS يُحسب بعشرة أضعاف
   workflow_dispatch:
+    inputs:
+      framework_run:
+        description: "Reuse Shared.framework from this earlier run (run id) and skip the Kotlin build: for Swift-only changes"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  # تنزيل إطار Kotlin من تشغيل سابق (framework_run)
+  actions: read
 
 jobs:
   framework:
+    if: ${{ inputs.framework_run == '' }}
     runs-on: macos-15
     timeout-minutes: 45
     steps:
@@ -58,6 +69,8 @@ jobs:
 
   build:
     needs: framework
+    # بعد بناء الإطار، أو بلا بنائه حين يُعاد استعمال إطار تشغيل سابق
+    if: ${{ !cancelled() && (needs.framework.result == 'success' || needs.framework.result == 'skipped') }}
     # صورة Xcode 27 (معاينة arm64): Xcode 27.1 افتراضي و SDK iOS 27.1
     runs-on: xcode-27
     timeout-minutes: 45
@@ -87,9 +100,18 @@ jobs:
           fi
 
       - uses: actions/download-artifact@v4
+        if: ${{ inputs.framework_run == '' }}
         with:
           name: shared-framework-iosarm64
           path: ${{ runner.temp }}
+
+      - uses: actions/download-artifact@v4
+        if: ${{ inputs.framework_run != '' }}
+        with:
+          name: shared-framework-iosarm64
+          path: ${{ runner.temp }}
+          run-id: ${{ inputs.framework_run }}
+          github-token: ${{ github.token }}
 
       # project.yml يربط الإطار من مكانه في بناء Gradle
       - name: Unpack framework
@@ -109,15 +131,24 @@ jobs:
       - name: Build app (unsigned)
         working-directory: iosApp
         run: |
+          # بلا -sdk: تطبيق الساعة يُبنى بـ watchOS SDK والتطبيق بـ iOS SDK (مثل الأرشفة في ios-release.yml)
           xcodebuild -project Mizan.xcodeproj -scheme Mizan -configuration Release \
-            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            -destination 'generic/platform=iOS' -derivedDataPath build \
             MARKETING_VERSION=${{ steps.v.outputs.name }} CURRENT_PROJECT_VERSION=${{ steps.v.outputs.build }} \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-            build | tail -n 80
+            -IDEBuildingContinueBuildingAfterErrors=YES \
+            build > build.log 2>&1 || { grep -E "error:|\*\* BUILD" build.log | sort -u | head -n 150; tail -n 40 build.log; exit 1; }
+          # تحذيرات كودنا (لا تحذيرات الأنظمة)، وتحذيرات استخراج الاختصارات و Siri
+          grep -E "warning: " build.log | grep -E "/iosApp/(iosApp|MizanWidgets|Shared)/|appintents|AppShortcuts" | sort -u | head -n 120 || true
+          tail -n 5 build.log
           APP=build/Build/Products/Release-iphoneos/Mizan.app
           test -d "$APP"
           # أدوات الشاشة الرئيسية يجب أن تكون داخل التطبيق
           test -d "$APP/PlugIns/MizanWidgets.appex"
+          # وتطبيق الساعة ومضاعفاتها (watchOS)
+          test -d "$APP/Watch/MizanWatch.app"
+          test -d "$APP/Watch/MizanWatch.app/PlugIns/MizanWatchWidgets.appex"
+          /usr/libexec/PlistBuddy -c "Print :WKCompanionAppBundleIdentifier" -c "Print :DTPlatformName" "$APP/Watch/MizanWatch.app/Info.plist"
           # وبيانات حسابها المستقل (حين لا تصلها لقطة التطبيق)
           test -f "$APP/PlugIns/MizanWidgets.appex/Static/widget-static.json"
           # أصوات إشعارات الأذان في جذر التطبيق، والأذان الكامل المضمّن في assets
@@ -134,6 +165,9 @@ jobs:
         working-directory: iosApp
         run: |
           APP=build/Build/Products/Release-iphoneos/Mizan.app
+          # تطبيق الساعة لا يدخل نسخة التحميل الجانبي: الحساب المجاني يسمح بثلاثة معرّفات تطبيقات في الأسبوع
+          # (التطبيق والأداة اثنان، والساعة ومضاعفاتها اثنان آخران)؛ هو في نسخة المتجر (ios-release.yml)
+          rm -rf "$APP/Watch"
           sign() { codesign --force --sign - --timestamp=none "$@" || echo "::warning::codesign failed for ${*: -1}"; }
           for f in "$APP"/Frameworks/*.framework; do [ -d "$f" ] && sign "$f"; done
           sign --entitlements MizanWidgets/MizanWidgets.entitlements "$APP/PlugIns/MizanWidgets.appex"

@@ -54,6 +54,10 @@ object IosLive {
     fun start(supported: Boolean, systemOff: Boolean) {
         AppSettings.init()
         availability(supported, systemOff)
+        // المسبحة على شاشة القفل وفي الجزيرة الديناميكية، وحالها لأداة الشاشة الرئيسية وزر مركز التحكم
+        IosTasbih.start(supported && !systemOff)
+        // مواقيت الصلاة في التقويم (مفتاح في إعدادات الأذان)
+        IosCalendar.start()
         // «يُشغَّل الآن» للتلاوة في شاشة القفل ومركز التحكم والجزيرة الديناميكية (مشغّل النظام نفسه)
         RecitationLive.start()
         if (started) return
@@ -63,7 +67,11 @@ object IosLive {
         // قبل أن يغادر التطبيق الواجهة: ما زال في المقدمة فيُسمح ببدء النشاط (المراقب بلا طابور: يُنفَّذ فوراً)
         observers += nc.addObserverForName(UIApplicationWillResignActiveNotification, null, null) { _ -> prayer(start = true) }
         // العودة إلى التطبيق: يُنهى ما انقضى وقته ويُحدَّث الباقي
-        observers += nc.addObserverForName(UIApplicationDidBecomeActiveNotification, null, null) { _ -> prayer(start = false) }
+        observers += nc.addObserverForName(UIApplicationDidBecomeActiveNotification, null, null) { _ ->
+            prayer(start = false)
+            // مواقيت الأيام القادمة في التقويم بعد أن تستقر الواجهة (لا تُكتب إلا إن تغيّرت)
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3_000_000_000L), dispatch_get_main_queue()) { IosCalendar.refresh() }
+        }
         // فهرسة السور في Spotlight بعد أن تستقر الواجهة
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6_000_000_000L), dispatch_get_main_queue()) { QuranSpotlight.index() }
     }
@@ -72,6 +80,7 @@ object IosLive {
     fun availability(supported: Boolean, systemOff: Boolean) {
         LiveCountdown.supported = supported
         LiveCountdown.systemOff = systemOff
+        IosTasbih.availability(supported && !systemOff)
     }
 
     // ---------- الصلاة القادمة ----------
@@ -110,32 +119,27 @@ object IosLive {
         return best
     }
 
-    private fun prayerMap(key: String, at: LocalDateTime): Map<String, Any?> {
-        val lang = Lang.current
-        val s = lang.strings
+    /** حال النشاط (LiveStates.prayer) بإعدادات المستخدم: مكانه ودقائق الإقامة وصيغة الساعة ولون التطبيق */
+    internal fun prayerMap(key: String, at: LocalDateTime): Map<String, Any?> {
         val now = PrayerUtil.now()
-        val name = s.prayer(key)
-        val from = previous(now)?.let(::epoch) ?: (epoch(at) - WINDOW_SEC)
-        return linkedMapOf<String, Any?>(
-            "id" to "${at.date}-$key",
-            "key" to key,
-            "name" to name,
-            "time" to WidgetData.clock(s, at),
-            "at" to epoch(at),
-            "from" to from,
-            "hijri" to s.hijri(Hijri.toHijri(now.date)),
-            "place" to s.placeName(AppSettings.place),
-            "label" to WidgetText.of(lang.code).nextPrayer,
-            "now" to s.prayerNowTitle(name),
-            "rtl" to lang.rtl,
-        ) + palette(AppSettings.accent)
+        val atSec = epoch(at)
+        val from = previous(now)?.let(::epoch) ?: (atSec - WINDOW_SEC)
+        return LiveStates.prayer(
+            key, at, atSec, from, now.date, Lang.current, AppSettings.place,
+            AppSettings.iqama[key] ?: 0, AppSettings.use24h, AppSettings.accent,
+        )
     }
 
+    /** العدّ التنازلي الآن للصلاة القادمة أياً كان بُعدها (زر الإجراء و Siri)، لا عند مغادرة التطبيق فقط */
+    fun prayerNowJson(): String? = runCatching {
+        AppSettings.init()
+        if (!AppSettings.placeSet) return@runCatching null
+        val next = PrayerUtil.next()
+        Json.write(mapOf("on" to true, "start" to true, "force" to true, "prayer" to prayerMap(next.key, next.at)))
+    }.getOrNull()
+
     /** ألوان النشاط بلون التطبيق الذي اختاره المستخدم */
-    internal fun palette(accent: String): Map<String, Any?> {
-        val c = WidgetColors.of(accent)
-        return mapOf("hero1" to WidgetData.hex(c.hero1), "hero2" to WidgetData.hex(c.hero2), "gold" to WidgetData.hex(c.gold))
-    }
+    internal fun palette(accent: String): Map<String, Any?> = LiveStates.palette(accent)
 
     // ---------- Siri والاختصارات ----------
 

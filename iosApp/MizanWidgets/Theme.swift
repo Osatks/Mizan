@@ -26,8 +26,10 @@ enum Mizan {
     static let text3 = Color.white.opacity(0.56)
     static let fallback = Palette(hero1: "#0F6A55", hero2: "#08463A", night1: "#1B2D28", night2: "#0B1311", accent: "#3FB595", gold: "#E8C15A")
 
-    /// خط المصحف (Amiri Quran) مضمّن في الأداة؛ إن تعذّر يُستعمل خط النظام
-    static func quran(_ size: CGFloat) -> Font { .custom("AmiriQuran-Regular", size: size) }
+    /// خط المصحف (Amiri Quran) مضمّن في الأداة؛ إن تعذّر يُستعمل خط النظام.
+    /// بحجم ثابت كخطوط الأدوات الأخرى (system(size:))، فلا يكبر وحده مع حجم النص في الإعدادات فيتجاوز
+    /// النشاطُ على شاشة القفل حدَّه (160 نقطة) أو تخرج الأداة عن إطارها: سطر هذا الخط نحو مرتين ونصف حجمه
+    static func quran(_ size: CGFloat) -> Font { .custom("AmiriQuran-Regular", fixedSize: size) }
 
     static func rounded(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight, design: .rounded)
@@ -144,31 +146,37 @@ struct AccessoryShell<Content: View>: View {
 
     var body: some View {
         let rtl = snap?.rtl ?? Fallback.arabic
-        let inner = content()
+        return content()
             .environment(\.layoutDirection, rtl ? .rightToLeft : .leftToRight)
             .environment(\.locale, Locale(identifier: snap?.lang ?? Fallback.lang))
             .widgetURL(url)
-        if #available(iOS 17.0, *) {
-            inner.containerBackground(for: .widget) {
-                if circular { AccessoryBackdrop() } else { Color.clear }
-            }
-        } else {
-            ZStack {
-                if circular { AccessoryBackdrop() }
-                inner
-            }
-        }
+            .modifier(AccessoryBackground(circular: circular))
     }
 }
 
-/// خلفية الدائرة في شاشة القفل (iOS 16 فما بعد)
-struct AccessoryBackdrop: View {
-    var body: some View {
-        if #available(iOS 16.0, *) {
-            AccessoryWidgetBackground()
-        } else {
-            Color.clear
+/// خلفية أداة شاشة القفل: containerBackground في iOS 17، وخلفية تحتها قبله.
+/// بلا #available داخل ViewBuilder: مع Xcode 27 لا يمحو ViewBuilder الأنواع الأحدث من النظام، فينهار ذلك في iOS 16
+/// (تحذير buildLimitedAvailability)؛ هنا دالة عادية تعيد AnyView
+private struct AccessoryBackground: ViewModifier {
+    let circular: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            return AnyView(content.containerBackground(for: .widget) { AccessoryBackdrop(circular: circular) })
         }
+        return AnyView(content.background { AccessoryBackdrop(circular: circular) })
+    }
+}
+
+/// خلفية الدائرة في شاشة القفل (iOS 16 فما بعد)، ولا شيء لغيرها
+struct AccessoryBackdrop: View {
+    var circular = true
+
+    var body: some View {
+        if circular, #available(iOS 16.0, *) {
+            return AnyView(AccessoryWidgetBackground())
+        }
+        return AnyView(Color.clear)
     }
 }
 
@@ -191,6 +199,7 @@ struct Header<Trailing: View>: View {
                 .font(Mizan.rounded(12, .semibold))
                 .foregroundColor(Mizan.gold)
                 .lineLimit(1)
+                .minimumScaleFactor(0.75)
             Spacer(minLength: 4)
             trailing()
         }
@@ -301,6 +310,38 @@ enum Deep {
         if let section = section { q.append(URLQueryItem(name: "section", value: enc(section))) }
         c.percentEncodedQueryItems = q
         return c.url
+    }
+}
+
+/// مقاس الأداة كما يضبطه WidgetKit، أو ما يضبطه معرض الأدوات (iosApp/Gallery) حين يرسم الأداة في تطبيق للمعاينة:
+/// widgetFamily لا يُضبط خارج WidgetKit. في الأداة نفسها galleryFamily فارغ دائماً فيبقى مقاس WidgetKit
+@propertyWrapper
+struct WidgetFamilyValue: DynamicProperty {
+    @Environment(\.widgetFamily) private var system
+    @Environment(\.galleryFamily) private var gallery
+
+    var wrappedValue: WidgetFamily { gallery ?? system }
+}
+
+private struct GalleryFamilyKey: EnvironmentKey {
+    static let defaultValue: WidgetFamily? = nil
+}
+
+private struct GalleryBareKey: EnvironmentKey {
+    static let defaultValue: Bool? = nil
+}
+
+extension EnvironmentValues {
+    /// للمعرض وحده: مقاس الأداة المرسومة
+    var galleryFamily: WidgetFamily? {
+        get { self[GalleryFamilyKey.self] }
+        set { self[GalleryFamilyKey.self] = newValue }
+    }
+
+    /// للمعرض وحده: الأداة بلا خلفية كما في StandBy
+    var galleryBare: Bool? {
+        get { self[GalleryBareKey.self] }
+        set { self[GalleryBareKey.self] = newValue }
     }
 }
 

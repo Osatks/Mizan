@@ -9,6 +9,13 @@
 "Continue reading in ${applicationName}" = "${applicationName} uygulamasında okumaya devam et";
 "Continue reading the Quran in ${applicationName}" = "${applicationName} uygulamasında Kur'an okumaya devam et";
 "Tasbih in ${applicationName}" = "${applicationName} uygulamasında tespih";
-"Open the tasbih in ${applicationName}" = "${applicationName} uygulamasında tespihi aç";
 "Morning adhkar in ${applicationName}" = "${applicationName} uygulamasında sabah zikirleri";
 "Evening adhkar in ${applicationName}" = "${applicationName} uygulamasında akşam zikirleri";
+/* عبارات Siri للمسبحة والأذكار والعدّ التنازلي وآية اليوم */
+"Count tasbih in ${applicationName}" = "${applicationName} ile tesbih say";
+"Prayer countdown in ${applicationName}" = "${applicationName} namaz geri sayımı";
+"Show the prayer countdown in ${applicationName}" = "${applicationName} namaz geri sayımını göster";
+"Count adhkar in ${applicationName}" = "${applicationName} ile zikirleri say";
+"Adhkar counter in ${applicationName}" = "${applicationName} zikir sayacı";
+"Ayah of the day in ${applicationName}" = "${applicationName} günün ayeti";
+"Read me the ayah of the day in ${applicationName}" = "${applicationName} günün ayetini bana oku";

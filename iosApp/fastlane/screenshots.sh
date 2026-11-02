@@ -5,6 +5,8 @@
 #                                                                      → <المجلد>/<اللغة>/ipad_NN_*.png
 #   duo     iPhone Duo من محاكي iOS 27.1 (الشاشة الداخلية، والخارجية إن أمكن اختيارها)
 #                                                                      → <المجلد>/<اللغة>/duo_*.png
+#   watch   Apple Watch Ultra (410×502): المواقيت والمسبحة، بلقطة من حالات Kotlin (FIXTURES=live-fixtures.json)
+#                                                                      → <المجلد>/<اللغة>/watch_*.png
 #   screenshots.sh <Mizan.app للمحاكي> <مجلد الإخراج> "<ar-SA en-US ...>" ["iphone ipad duo"]
 #
 # أسماء الملفات تحدد ترتيبها في المتجر، ومقاسها يحدد نوع الشاشة عند deliver (fastlane/check_screenshots.rb يتحقق منه،
@@ -268,6 +270,65 @@ duo_displays() {
   grep -oiE '\b(inner|outer|cover)\b' "$LOGS/simctl-help-io.txt" | tr 'A-Z' 'a-z' | sort -u | tr '\n' ' ' || true
 }
 
+# ---------- Apple Watch ----------
+# تطبيق الساعة في Mizan.app/Watch، يُثبَّت في محاكي ساعة وحده. لا iPhone معه: تُمرَّر له لقطة المواقيت كما يرسلها
+# التطبيق (fastlane/watch_payload.py من حالات Kotlin في FIXTURES) وسيطَ تشغيل، فيقرؤها من UserDefaults كما يحفظها.
+# Apple Watch Ultra بشاشة 49 مم (410×502) أولاً: مقاس يعرفه deliver
+WATCH_BUNDLE=com.mizan.almuslim.watchkitapp
+WATCH_SHOTS=("watch_01_prayer:0" "watch_02_tasbih:1")
+
+run_watch() {
+  local watch_app="$APP/Watch/MizanWatch.app" type runtime loc s name page
+  if [ ! -d "$watch_app" ]; then
+    echo "::warning title=Apple Watch::no watch app in $APP/Watch"
+    return 0
+  fi
+  if [ -z "${FIXTURES:-}" ] || [ ! -f "$FIXTURES" ]; then
+    echo "::warning title=Apple Watch::FIXTURES (live-fixtures.json from LiveStatesTest) not given: watch screenshots skipped"
+    return 0
+  fi
+  # محاكي watchOS ليس مثبّتاً دائماً في صورة المشغّل: يُنزَّل إن غاب
+  if ! xcrun simctl list runtimes | grep -q watchOS; then
+    log "downloading the watchOS simulator runtime"
+    xcodebuild -downloadPlatform watchOS 2>&1 | tail -n 20 || true
+  fi
+  if ! xcrun simctl list runtimes | grep -q watchOS; then
+    local rt="$LOGS/watch-runtime"
+    mkdir -p "$rt"
+    xcodebuild -downloadPlatform watchOS -exportPath "$rt" 2>&1 | tail -n 20 || true
+    for f in "$rt"/*.dmg; do [ -f "$f" ] && xcrun simctl runtime add "$f"; done
+    rm -rf "$rt"
+  fi
+  if ! xcrun simctl list runtimes | grep -q watchOS; then
+    echo "::warning title=Apple Watch::no watchOS simulator runtime on this runner; watch screenshots skipped"
+    return 0
+  fi
+  # أحدث watchOS مثبّت وساعة يدعمها (Ultra 2 أولاً: 410×502)
+  read -r runtime type < <(xcrun simctl list runtimes -j | python3 "$(dirname "$0")/pick_watch.py")
+  log "watch: device type $type, runtime $runtime"
+  UDID=$(xcrun simctl create "Mizan watch" "$type" "$runtime")
+  CREATED+=("$UDID")
+  xcrun simctl boot "$UDID" 2>/dev/null || true
+  xcrun simctl bootstatus "$UDID" -b
+  xcrun simctl status_bar "$UDID" override --time "9:41" >/dev/null 2>&1 || true
+  xcrun simctl install "$UDID" "$watch_app"
+  for loc in $LOCALES; do
+    log "Apple Watch · $loc"
+    mkdir -p "$OUT/$loc"
+    local arg
+    arg=$(python3 "$(dirname "$0")/watch_payload.py" "$FIXTURES" "${loc%%-*}")
+    for s in "${WATCH_SHOTS[@]}"; do
+      name="${s%%:*}"
+      page="${s#*:}"
+      xcrun simctl terminate "$UDID" "$WATCH_BUNDLE" >/dev/null 2>&1 || true
+      sleep 1
+      xcrun simctl launch "$UDID" "$WATCH_BUNDLE" -watch.json "$arg" -watch.page "$page" >/dev/null
+      sleep 8
+      shot "$OUT/$loc/$name.png"
+    done
+  done
+}
+
 # ---------- التشغيل ----------
 run_iphone() {
   new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
@@ -327,6 +388,7 @@ for device in $DEVICES; do
     iphone) run_iphone ;;
     ipad) run_ipad ;;
     duo) run_duo || echo "::warning title=iPhone Duo::Duo screenshots failed (see log); iPhone and iPad screenshots are unaffected" ;;
+    watch) run_watch || echo "::warning title=Apple Watch::watch screenshots failed (see log); the other screenshots are unaffected" ;;
     *) echo "::error::unknown device $device"; exit 1 ;;
   esac
 done

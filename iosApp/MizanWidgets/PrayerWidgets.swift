@@ -18,7 +18,7 @@ struct NextPrayerWidget: Widget {
 
 struct NextPrayerView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         if family.isAccessory {
@@ -36,13 +36,67 @@ struct NextPrayerView: View {
                                 .frame(maxWidth: .infinity)
                         }
                     } else {
-                        NextPrayerBlock(snap: snap, next: next, now: entry.date)
+                        if #available(iOS 17.0, *) {
+                            // في StandBy (الهاتف على الشاحن بالعرض) بلا خلفية: الاسم والعدّ بخط كبير يُقرأ من بعيد
+                            StandByAware {
+                                NextPrayerBlock(snap: snap, next: next, now: entry.date)
+                            } bare: {
+                                NextPrayerLarge(snap: snap, next: next)
+                            }
+                        } else {
+                            NextPrayerBlock(snap: snap, next: next, now: entry.date)
+                        }
                     }
                 } else {
                     NeedsApp(snap: entry.snap)
                 }
             }
         }
+    }
+}
+
+/// يعرض [normal] في الشاشة الرئيسية، و [bare] حين تُرسم الأداة بلا خلفية (StandBy)
+@available(iOS 17.0, *)
+struct StandByAware<Normal: View, Bare: View>: View {
+    @Environment(\.showsWidgetContainerBackground) private var showsBackground
+    @Environment(\.galleryBare) private var galleryBare
+    @ViewBuilder let normal: () -> Normal
+    @ViewBuilder let bare: () -> Bare
+
+    var body: some View {
+        if galleryBare.map({ !$0 }) ?? showsBackground { normal() } else { bare() }
+    }
+}
+
+/// الصلاة القادمة بخط كبير لـ StandBy: الاسم والوقت والعدّ التنازلي الذهبي (يلوّنه النظام بالأحمر ليلاً)
+@available(iOS 17.0, *)
+struct NextPrayerLarge: View {
+    let snap: Snapshot
+    let next: PrayerTime
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 5) {
+                Image(systemName: "moon.stars.fill").font(.system(size: 13, weight: .semibold))
+                Text(verbatim: next.t).font(Mizan.rounded(16, .semibold)).monospacedDigit()
+            }
+            .foregroundColor(Mizan.gold)
+            Text(next.name)
+                .font(Mizan.rounded(34, .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Text(next.date, style: .timer)
+                .font(Mizan.rounded(38, .light))
+                .monospacedDigit()
+                .foregroundColor(Mizan.gold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .multilineTextAlignment(snap.rtl ? .trailing : .leading)
+                .environment(\.layoutDirection, .leftToRight)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .widgetAccentable()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 }
 
@@ -194,7 +248,7 @@ struct PrayerTimesWidget: Widget {
 
 struct PrayerTimesView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         Shell(snap: entry.snap, url: Deep.url("prayer")) {
@@ -293,7 +347,7 @@ struct HijriWidget: Widget {
 
 struct HijriView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         let day = entry.snap?.day(at: entry.date)
@@ -383,7 +437,7 @@ struct AyahWidget: Widget {
 
 struct AyahView: View {
     let entry: MizanEntry
-    @Environment(\.widgetFamily) var family
+    @WidgetFamilyValue var family
 
     var body: some View {
         let ayah = entry.snap?.day(at: entry.date)?.ayah
