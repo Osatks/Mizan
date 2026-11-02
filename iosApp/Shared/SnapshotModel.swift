@@ -45,6 +45,10 @@ struct WatchExtras: Codable {
     var ramadan: [String]
     /// اسم الشهر الهجري لكل يوم (Day.date) بلا السنة
     var months: [String: String]
+    /// صفحة الأذكار: «أتممت %s ✓»، و«من جديد»، و«التالي»
+    var adhkarDone: String?
+    var again: String?
+    var next: String?
 }
 
 /// ورد اليوم وتقدّم الختمة (WidgetData.khatma في Kotlin)

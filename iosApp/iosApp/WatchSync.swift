@@ -2,8 +2,9 @@ import Foundation
 import WatchConnectivity
 import Shared
 
-/// يرسل إلى ميزان على Apple Watch لقطة المواقيت نفسها التي تقرؤها الأدوات (بلا الأذكار، فهي أصغر بكثير)
-/// ونصوص المسبحة بلغة التطبيق، كلما كتب Kotlin لقطة جديدة (WidgetSync)، وحين تطلبها الساعة في أول تشغيل.
+/// يرسل إلى ميزان على Apple Watch لقطة المواقيت نفسها التي تقرؤها الأدوات، بالأذكار بنصوصها العربية (بلا الترجمة
+/// والفضل) وبلا آية اليوم، ونصوص المسبحة بلغة التطبيق، كلما كتب Kotlin لقطة جديدة (WidgetSync)، وحين تطلبها الساعة
+/// في أول تشغيل. مضغوطة (zlib) فتبقى أصغر بكثير من حد WatchConnectivity.
 /// updateApplicationContext: تصل الساعة آخر لقطة وإن كانت بعيدة أو التطبيق فيها مغلق.
 final class WatchSync: NSObject, WCSessionDelegate {
     static let shared = WatchSync()
@@ -31,25 +32,33 @@ final class WatchSync: NSObject, WCSessionDelegate {
         pending = nil
         guard data != last else { return }
         do {
-            try s.updateApplicationContext(["payload": data])
+            try s.updateApplicationContext(["payloadz": data])
             last = data
         } catch {
             pending = data
         }
     }
 
-    /// اللقطة بلا نوافذ الأذكار ونصوصها، ونصوص المسبحة من حالها في Kotlin
+    /// اللقطة بنوافذ الأذكار ونصوصها العربية وعددها ومصدرها فقط، ونصوص المسبحة من حالها في Kotlin، مضغوطة
     private func payload(_ json: String) -> Data? {
         guard let raw = json.data(using: .utf8), var snap = try? JSONDecoder().decode(Snapshot.self, from: raw) else { return nil }
-        snap.windows = []
-        snap.items = [:]
+        snap.items = snap.items.mapValues { Dhikr(ar: $0.ar, n: $0.n, c: $0.c, src: $0.src, tr: nil, fadl: nil) }
+        snap.days = snap.days.map { d in
+            var d = d
+            d.ayah = nil
+            return d
+        }
         var labels: TasbihWatchLabels?
         if let t = LiveJSON.tasbih(IosTasbih.shared.current())?.state {
             // «من 33» ← «من %d» (بلا حد: «21/33» في الساعة)
             let of = t.goal > 0 && t.goalText.contains(String(t.goal)) ? t.goalText.replacingOccurrences(of: String(t.goal), with: "%d") : nil
             labels = TasbihWatchLabels(title: t.title, reset: t.reset, of: of, today: t.todayLabel, rounds: t.roundsLabel)
         }
-        return try? JSONEncoder().encode(WatchPayloadOut(snapshot: snap, tasbih: labels))
+        // ترتيب المفاتيح ثابت: لا تُرسل اللقطة نفسها مرتين
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        guard let data = try? encoder.encode(WatchPayloadOut(snapshot: snap, tasbih: labels)) else { return nil }
+        return try? (data as NSData).compressed(using: .zlib) as Data
     }
 
     // ---------- WCSessionDelegate ----------

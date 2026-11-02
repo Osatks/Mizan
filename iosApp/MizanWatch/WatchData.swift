@@ -126,3 +126,49 @@ struct PrayerPhase {
         }
     }
 }
+
+// ---------- الأذكار حسب الوقت ----------
+
+enum AdhkarClockWatch {
+    /// رمز كل نافذة: SF، أو رمز ميزان في Assets (المسجد للأذان، والمسبحة بعد الصلاة)
+    static func symbol(_ kind: String) -> (name: String, custom: Bool) {
+        switch kind {
+        case "morning": return ("sun.horizon.fill", false)
+        case "evening", "iftar": return ("sunset.fill", false)
+        case "night": return ("moon.zzz.fill", false)
+        case "lastThird": return ("moon.stars.fill", false)
+        case "adhan": return ("mizan.mosque", true)
+        case "afterPrayer": return ("mizan.tasbih", true)
+        default: return ("sparkles", false)
+        }
+    }
+
+    /// كل كم ثانية ينتقل الذكر المعروض في المضاعفة (أبطأ من أدوات iPhone: وجه الساعة يُرى بلمحة)
+    static let rotate: Double = 15 * 60
+
+    /// أهمية النافذة في المكدس الذكي: الصباح والمساء أولاً، ثم ما بعد الصلاة والنوم
+    static func relevance(_ kind: String) -> Float {
+        switch kind {
+        case "morning", "evening": return 80
+        case "afterPrayer", "iftar", "arafah": return 60
+        case "night", "lastThird": return 50
+        default: return 5
+        }
+    }
+}
+
+extension Snapshot {
+    /// الذكر المعروض في المضاعفة عند [date]: من القصيرة (سطران)، وينتقل كل ربع ساعة من بداية النافذة
+    func shortDhikr(at date: Date, in w: AdhkarWindow) -> Dhikr? {
+        let list = dhikrs(w, maxLength: 90)
+        guard !list.isEmpty else { return nil }
+        let steps = max(0, Int((date.timeIntervalSince1970 - w.s) / AdhkarClockWatch.rotate))
+        return list[steps % list.count]
+    }
+
+    /// العدد بجانب الذكر: نصه من التطبيق («ثلاث مرات»)، أو «×n»، ولا شيء للمرة الواحدة
+    func countText(_ d: Dhikr) -> String? {
+        if let c = d.c, !c.isEmpty { return c }
+        return d.n > 1 ? "×\(d.n)" : nil
+    }
+}

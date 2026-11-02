@@ -123,7 +123,8 @@ struct QiblaPage: View {
         let rel = live.map { Self.relative(w.qibla, $0) }
         let onTarget = rel.map { abs($0) <= 5 } ?? false
         GeometryReader { g in
-            let size = max(60, min(g.size.width, g.size.height - 42))
+            // تحت القرص سطران مع البوصلة، وسطر بلاها
+            let size = max(60, min(g.size.width, g.size.height - (live == nil ? 24 : 42)))
             VStack(spacing: 4) {
                 ZStack {
                     // القرص: يدور مع الساعة (ثابت بلا بوصلة)
@@ -139,16 +140,22 @@ struct QiblaPage: View {
                 .frame(width: size, height: size)
                 // زوايا الدوران مع عقارب الساعة في كل اللغات (rotationEffect تُعكس من اليمين إلى اليسار)
                 .environment(\.layoutDirection, .leftToRight)
-                Text(verbatim: onTarget ? w.facing : "\(w.qiblaText) · \(w.qiblaDir)")
-                    .font(.system(size: 13, weight: onTarget ? .semibold : .regular, design: .rounded))
-                    .foregroundStyle(onTarget ? gold : .white.opacity(0.85))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Text(verbatim: "\(snap.place) · \(w.qiblaKm)")
-                    .font(.system(size: 10, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.6))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                // مع البوصلة: الزاوية والجهة تحت القرص (وسطه لما تدور به)، أو «أنت متجه نحو القبلة»
+                if live != nil {
+                    Text(verbatim: onTarget ? w.facing : "\(w.qiblaText) · \(w.qiblaDir)")
+                        .font(.system(size: 13, weight: onTarget ? .semibold : .medium, design: .rounded))
+                        .foregroundStyle(onTarget ? gold : .white.opacity(0.85))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+                HStack(spacing: 4) {
+                    Image(systemName: "location.fill").font(.system(size: 8, weight: .semibold))
+                    Text(verbatim: "\(snap.place) · \(w.qiblaKm)")
+                }
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundStyle(.white.opacity(0.6))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
             }
             .frame(width: g.size.width, height: g.size.height)
         }
@@ -174,9 +181,19 @@ struct QiblaPage: View {
                 .foregroundStyle(.white)
             }
         } else {
-            Text(verbatim: w.qiblaText)
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+            // بلا بوصلة: الزاوية من الشمال وجهتها
+            VStack(spacing: 0) {
+                Text(verbatim: w.qiblaText)
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                Text(verbatim: w.qiblaDir)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: 80)
+            }
+            .foregroundStyle(.white)
         }
     }
 }
@@ -191,34 +208,45 @@ private struct Dial: View {
     var body: some View {
         GeometryReader { g in
             let r = min(g.size.width, g.size.height) / 2
+            let gold = WatchColors.gold
             ZStack {
-                Circle().fill(Color.black.opacity(0.25))
+                // وجه القرص: عمق خفيف وحافة ذهبية
+                Circle().fill(RadialGradient(colors: [Color.white.opacity(0.07), Color.black.opacity(0.4)],
+                                             center: .center, startRadius: 0, endRadius: r))
+                Circle()
+                    .strokeBorder(LinearGradient(colors: [gold.opacity(glow ? 0.95 : 0.55), gold.opacity(0.08)],
+                                                 startPoint: .top, endPoint: .bottom), lineWidth: 1.5)
                 ForEach(0..<72, id: \.self) { i in
                     let major = i % 6 == 0
                     Capsule()
                         .fill(Color.white.opacity(major ? 0.75 : 0.3))
                         .frame(width: major ? 2 : 1, height: major ? r * 0.12 : r * 0.07)
-                        .offset(y: -r + (major ? r * 0.06 : r * 0.035) + 1)
+                        .offset(y: -r + (major ? r * 0.06 : r * 0.035) + 3)
                         .rotationEffect(.degrees(Double(i) * 5))
                 }
                 NorthMark()
                     .fill(Color(red: 0.93, green: 0.33, blue: 0.3))
                     .frame(width: r * 0.16, height: r * 0.14)
                     .offset(y: -r * 0.74)
-                // خط من المركز إلى الكعبة
+                // خط نحو الكعبة (بعيداً عن نص الوسط)
                 Capsule()
-                    .fill(WatchColors.gold.opacity(glow ? 0.9 : 0.45))
-                    .frame(width: 2, height: r * 0.42)
-                    .offset(y: -r * 0.21 - r * 0.08)
+                    .fill(gold.opacity(glow ? 0.95 : 0.5))
+                    .frame(width: 2, height: r * 0.16)
+                    .offset(y: -r * 0.38)
                     .rotationEffect(.degrees(qibla))
                 ZStack {
                     Circle()
-                        .fill(WatchColors.gold.opacity(glow ? 0.35 : 0.15))
-                        .frame(width: r * 0.46, height: r * 0.46)
+                        .fill(Color(red: 0.06, green: 0.16, blue: 0.13))
+                    Circle()
+                        .fill(gold.opacity(glow ? 0.38 : 0.16))
+                    Circle()
+                        .strokeBorder(gold.opacity(glow ? 1 : 0.7), lineWidth: 1.5)
                     Image("mizan.kaaba")
-                        .font(.system(size: r * 0.26, weight: .semibold))
-                        .foregroundStyle(WatchColors.gold)
+                        .font(.system(size: r * 0.25, weight: .semibold))
+                        .foregroundStyle(gold)
                 }
+                .frame(width: r * 0.44, height: r * 0.44)
+                .shadow(color: gold.opacity(glow ? 0.8 : 0), radius: glow ? 8 : 0)
                 // قائمة: تدور إلى موضعها مع القرص، وتُعاد قبل ذلك بقدر الدورانين
                 .rotationEffect(.degrees(-qibla - turn))
                 .offset(y: -r * 0.66)

@@ -2,15 +2,16 @@ import SwiftUI
 import WidgetKit
 
 // مضاعفات وجه الساعة والمكدس الذكي، من لقطة iPhone التي حفظها تطبيق الساعة في حاوية App Group (WatchData.swift):
-// الصلاة القادمة (والإقامة بعد الأذان، والإفطار والسحور في رمضان)، ومواقيت اليوم، واتجاه القبلة، والتاريخ الهجري،
-// والمسبحة. الرسم في ComplicationViews.swift. أهمية المدخلات (relevance) تقدّم في المكدس الذكي الصلاةَ القادمة
-// قبل الأذان بنصف ساعة إلى الإقامة، والمسبحةَ بعد الصلاة.
+// الصلاة القادمة (والإقامة بعد الأذان، والإفطار والسحور في رمضان)، ومواقيت اليوم، والأذكار حسب الوقت، واتجاه القبلة،
+// والتاريخ الهجري، والمسبحة. الرسم في ComplicationViews.swift. أهمية المدخلات (relevance) تقدّم في المكدس الذكي
+// الصلاةَ القادمة قبل الأذان بنصف ساعة إلى الإقامة، وأذكارَ الصباح والمساء في وقتها، والمسبحةَ بعد الصلاة.
 
 @main
 struct MizanWatchWidgets: WidgetBundle {
     var body: some Widget {
         NextPrayerComplication()
         TodayPrayersComplication()
+        AdhkarComplication()
         QiblaComplication()
         HijriComplication()
         TasbihComplication()
@@ -40,9 +41,11 @@ struct FaceContainer<Content: View>: View {
 
 // ---------- المزوّدات ----------
 
-/// مدخل عند كل أذان وكل إقامة (يتغير ما يُعدّ إليه)، ومعها قبل كل أذان بنصف ساعة إن طُلبت الأهمية
+/// مدخل عند كل أذان وكل إقامة (يتغير ما يُعدّ إليه)، ومعها قبل كل أذان بنصف ساعة إن طُلبت الأهمية، وكل عشر دقائق
+/// إن طُلب ([steps]: حلقة ما مضى من الوقت في المضاعفة الدائرية والزاوية ترسم عند كل مدخل)
 struct PrayerProvider: TimelineProvider {
     var relevant = false
+    var steps = false
 
     func placeholder(in context: Context) -> PrayerEntry { PrayerEntry(date: Date(), snap: nil) }
 
@@ -61,6 +64,11 @@ struct PrayerProvider: TimelineProvider {
         if relevant {
             let end = now.addingTimeInterval(36 * 3600)
             dates += snap.prayers.map { $0.date.addingTimeInterval(-30 * 60) }.filter { $0 > now && $0 < end }
+        }
+        if steps {
+            // كل عشر دقائق في اليوم القادم، على رأس الدقائق العشر
+            let start = (now.timeIntervalSince1970 / 600).rounded(.up) * 600
+            dates += stride(from: start, to: now.timeIntervalSince1970 + 24 * 3600, by: 600).map { Date(timeIntervalSince1970: $0) }
         }
         let entries = Array(Set(dates)).sorted().map { d in
             PrayerEntry(date: d, snap: snap, relevance: relevant ? Self.relevance(snap, d) : nil)
@@ -120,6 +128,40 @@ struct TasbihEntry: TimelineEntry {
     var relevance: TimelineEntryRelevance? = nil
 }
 
+/// مدخل عند بداية كل نافذة أذكار في اليوم القادم، وكل ربع ساعة فيها (ينتقل الذكر المعروض)؛ وأهميته في المكدس
+/// الذكي من نوع النافذة (الصباح والمساء أولاً)
+struct AdhkarProvider: TimelineProvider {
+    func placeholder(in context: Context) -> PrayerEntry { PrayerEntry(date: Date(), snap: nil) }
+
+    func getSnapshot(in context: Context, completion: @escaping (PrayerEntry) -> Void) {
+        completion(PrayerEntry(date: Date(), snap: WatchData.load()?.snapshot))
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerEntry>) -> Void) {
+        let now = Date()
+        guard let snap = WatchData.load()?.snapshot, !snap.windows.isEmpty else {
+            completion(Timeline(entries: [PrayerEntry(date: now, snap: WatchData.load()?.snapshot)], policy: .after(now.addingTimeInterval(3600))))
+            return
+        }
+        let t0 = now.timeIntervalSince1970
+        let end = t0 + 24 * 3600
+        var entries: [PrayerEntry] = []
+        for w in snap.windows where w.e > t0 && w.s < end {
+            let score = AdhkarClockWatch.relevance(w.k)
+            var t = max(w.s, t0)
+            while t < min(w.e, end) {
+                entries.append(PrayerEntry(date: Date(timeIntervalSince1970: t), snap: snap,
+                                           relevance: TimelineEntryRelevance(score: score, duration: w.e - t)))
+                // على حدود ربع الساعة من بداية النافذة
+                t = w.s + ((t - w.s) / AdhkarClockWatch.rotate + 1).rounded(.down) * AdhkarClockWatch.rotate
+            }
+        }
+        if entries.isEmpty { entries = [PrayerEntry(date: now, snap: snap)] }
+        entries.sort { $0.date < $1.date }
+        completion(Timeline(entries: entries, policy: .atEnd))
+    }
+}
+
 /// المسبحة مهمة بعد كل صلاة (التسبيح دبرها): من الإقامة وخمس دقائق، عشرين دقيقة
 struct TasbihProvider: TimelineProvider {
     private static func title(_ p: WatchPayload?) -> String {
@@ -161,7 +203,7 @@ struct TasbihProvider: TimelineProvider {
 
 struct NextPrayerComplication: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "MizanWatchNextPrayer", provider: PrayerProvider(relevant: true)) { entry in
+        StaticConfiguration(kind: "MizanWatchNextPrayer", provider: PrayerProvider(relevant: true, steps: true)) { entry in
             FaceContainer(page: "prayer") { family in NextPrayerFace(snap: entry.snap, date: entry.date, family: family) }
         }
         .configurationDisplayName("Mizan")
@@ -178,6 +220,17 @@ struct TodayPrayersComplication: Widget {
         .configurationDisplayName("Mizan")
         .description("Today's prayer times")
         .supportedFamilies([.accessoryRectangular])
+    }
+}
+
+struct AdhkarComplication: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "MizanWatchAdhkar", provider: AdhkarProvider()) { entry in
+            FaceContainer(page: "adhkar") { family in AdhkarFace(snap: entry.snap, date: entry.date, family: family) }
+        }
+        .configurationDisplayName("Mizan")
+        .description("Adhkar for this time of day")
+        .supportedFamilies([.accessoryRectangular, .accessoryCircular, .accessoryInline, .accessoryCorner])
     }
 }
 
