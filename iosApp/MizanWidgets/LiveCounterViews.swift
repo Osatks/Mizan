@@ -248,66 +248,33 @@ struct TasbihActivityWidget: Widget {
     }
 }
 
-/// شاشة القفل: الذكر بخط المصحف ومعناه، وعدد اليوم، والحلقة الكبيرة التي يعدّ لمسها، وزرّا التصفير والإنهاء
+/// شاشة القفل: سطر واحد نحيف، الذكر بخط المصحف وحلقة صغيرة فيها العدد يعدّ لمسها.
+/// (النشاط الحي واحد في الجزيرة وعلى شاشة القفل، فلا تظهر الجزيرة بلا شيء هنا؛ فيكون أصغر ما يمكن)
 @available(iOS 17.0, *)
 struct TasbihLockView: View {
     let state: TasbihLiveState
 
     var body: some View {
         let gold = Color(hex: state.gold)
-        // أقصى ارتفاع للنشاط على شاشة القفل 160 نقطة (وسطر خط المصحف نحو مرتين ونصف حجمه): الذكر سطر واحد
-        // يصغر خطه ليتسع (لا حول ولا قوة إلا بالله على شاشة صغيرة)، وتمام المائة الطويل سطران بلا معناه
-        let long = state.text.count > 40
-        HStack(alignment: .center, spacing: 14) {
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 6) {
-                    StarGlyph().fill(gold).frame(width: 11, height: 11)
-                    Text(verbatim: state.mode.isEmpty ? state.title : "\(state.title) · \(state.mode)")
-                        .font(Mizan.rounded(13, .semibold))
-                        .foregroundColor(gold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: state.text)
-                    .font(Mizan.quran(long ? 15 : 22))
+                    .font(Mizan.quran(state.text.count > 40 ? 15 : 21))
                     .foregroundColor(Mizan.text)
-                    .lineLimit(long ? 2 : 1)
-                    .minimumScaleFactor(long ? 0.7 : 0.6)
-                    .fixedSize(horizontal: false, vertical: true)
-                if !long && !state.meaning.isEmpty {
-                    Text(verbatim: state.meaning)
-                        .font(Mizan.rounded(12))
-                        .foregroundColor(Mizan.text2)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
-                HStack(spacing: 6) {
-                    LiveStat(value: state.today, label: state.todayLabel)
-                    Spacer(minLength: 4)
-                    // الزرّان باسميهما، وبرمزيهما وحدهما إن لم يتسع لهما (الروسية والألمانية على شاشة صغيرة)
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 6) {
-                            LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: state.reset)
-                            LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: state.end)
-                        }
-                        .fixedSize()
-                        HStack(spacing: 6) {
-                            LiveChipButton(intent: TasbihResetIntent(), symbol: "arrow.counterclockwise", title: state.reset, iconOnly: true)
-                            LiveChipButton(intent: TasbihEndIntent(), symbol: "xmark", title: state.end, iconOnly: true)
-                        }
-                        .fixedSize()
-                    }
-                    // يُعرض عليه كل ما يبقى بعد عدد اليوم (وإلا اقترح عليه HStack أقل مما يلزم فاختار الرموز وحدها)
-                    .layoutPriority(1)
-                }
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                Text(verbatim: state.mode.isEmpty ? "\(state.today) \(state.todayLabel)" : "\(state.mode) · \(state.today) \(state.todayLabel)")
+                    .font(Mizan.rounded(11, .medium))
+                    .foregroundColor(Mizan.text3)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             CounterButton(intent: TasbihCountIntent(), progress: state.progress, count: state.countText,
-                          caption: state.goalText, gold: gold, size: 96, line: 7)
+                          caption: nil, gold: gold, size: 50, line: 4)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(alignment: .topTrailing) { LiveOrnament(gold: gold) }
+        .padding(.vertical, 10)
         .environment(\.layoutDirection, state.rtl ? .rightToLeft : .leftToRight)
     }
 }

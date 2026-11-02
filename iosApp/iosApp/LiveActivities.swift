@@ -393,8 +393,8 @@ enum AppLive {
     @MainActor
     static func run(_ action: LiveAction) async -> LiveOutcome {
         switch action {
-        // التسبيحة من الأداة وزر شاشة القفل ومركز التحكم وزر النشاط: تُعدّ، ويُحدَّث النشاط إن كان ظاهراً ولا يُفتح
-        case .tasbihCount: return await tasbih(IosTasbih.shared.count(), start: false)
+        // التسبيحة من الأداة وزر شاشة القفل ومركز التحكم وزر النشاط: تُعدّ، ويظهر العدّاد في الجزيرة (اسم الذكر والعدد)
+        case .tasbihCount: return await tasbih(IosTasbih.shared.count(), start: true)
         case .tasbihReset: return await tasbih(IosTasbih.shared.reset(), start: false)
         case .tasbihShow: return await tasbih(IosTasbih.shared.current(), start: true)
         case .tasbihEnd:
@@ -418,8 +418,8 @@ enum AppLive {
     static func button(_ b: ActionKind) async -> LiveOutcome {
         switch b {
         case .tasbih:
-            // تسبيحة بكل ضغطة، بلا بطاقة على شاشة القفل: يُحدَّث النشاط إن كان ظاهراً (بدأه المستخدم من التطبيق) ولا يُبدأ
-            return await tasbih(IosTasbih.shared.count(), start: false)
+            // تسبيحة بكل ضغطة، ويظهر العدّاد في الجزيرة: اسم الذكر والعدد (وعلى شاشة القفل سطر نحيف)
+            return await tasbih(IosTasbih.shared.count(), start: true)
         case .adhkar:
             // الضغطة الأولى تُظهر الذكر الحالي، والتالية تعدّ؛ وكل ضغطة توسّع الجزيرة لحظةً
             let outcome = AdhkarActivity.current == nil
