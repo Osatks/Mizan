@@ -398,14 +398,17 @@ internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, on
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val barPx = with(density) { (top + TopBarHeight).toPx() }
     val rampPx = with(density) { 36.dp.toPx() }
-    // 0 والرأس ظاهر تحت الشريط، 1 حين يمرّ طرفه السفلي تحته
+    // 0 والصفحة في أعلاها، 1 حين يمرّ طرف الرأس السفلي تحت الشريط. التدرج في آخر [rampPx] من مسافة الرأس،
+    // أو فيها كلها إن كان الرأس قصيراً (صفحات التبويبات بلا زر رجوع ولا وصف): كان يبدأ قبل أي تمرير،
+    // فيظهر فوق الرأس زجاج باهت وعنوان صغير خافت مكرر
     val glass = remember(list, barPx) {
         derivedStateOf {
             if (list.firstVisibleItemIndex > 0) 1f
             else {
                 val h = list.layoutInfo.visibleItemsInfo.firstOrNull()?.size ?: return@derivedStateOf 0f
-                val left = h - barPx - list.firstVisibleItemScrollOffset
-                (1f - left / rampPx).coerceIn(0f, 1f)
+                val travel = (h - barPx).coerceAtLeast(1f)
+                val ramp = rampPx.coerceAtMost(travel)
+                ((list.firstVisibleItemScrollOffset - (travel - ramp)) / ramp).coerceIn(0f, 1f)
             }
         }
     }

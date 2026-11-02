@@ -117,8 +117,10 @@ fun HomeScreen(open: (String) -> Unit) {
     val s = LocalStrings.current
     var next by remember { mutableStateOf(PrayerUtil.next()) }
     var showLang by remember { mutableStateOf(false) }
-    LaunchedEffect(AppSettings.place, AppSettings.method, AppSettings.hanafi) {
-        while (true) { next = PrayerUtil.next(); delay(1000) }
+    // العدّ كل ثانية والصفحة ظاهرة فقط (تبقى حية تحت غيرها في iOS)
+    val active = com.osatks.mizan.ui.LocalPageActive.current
+    LaunchedEffect(AppSettings.place, AppSettings.method, AppSettings.hanafi, active) {
+        while (true) { next = PrayerUtil.next(); if (!active) break; delay(1000) }
     }
     val today = LocalDate.now()
     val reveal = com.osatks.mizan.ui.rememberRevealState()

@@ -116,8 +116,9 @@ private fun Compass(heading: Float, qibla: Float, aligned: Boolean) {
     // عند الاتجاه الصحيح: الحلقة تتذهّب وتنبض هالة حولها
     val ring by animateColorAsState(if (aligned) Color(0xFFE0B54A) else MaterialTheme.colorScheme.primaryContainer, tween(Motion.MEDIUM), label = "ring")
     val glowOn by animateFloatAsState(if (aligned) 1f else 0f, tween(Motion.LONG), label = "glow")
-    val pulse = rememberInfiniteTransition(label = "qpulse")
-    val wave by pulse.animateFloat(0f, 1f, infiniteRepeatable(tween(1600), RepeatMode.Restart), label = "wave")
+    val wave by if (com.osatks.mizan.ui.LocalPageActive.current) {
+        rememberInfiniteTransition(label = "qpulse").animateFloat(0f, 1f, infiniteRepeatable(tween(1600), RepeatMode.Restart), label = "wave")
+    } else remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
     val tick = MaterialTheme.colorScheme.onSurfaceVariant
     val north = MaterialTheme.colorScheme.error
     val gold = Color(0xFFE0B54A)

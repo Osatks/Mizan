@@ -60,7 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.Tasbih
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.ui.ChipButton
@@ -80,21 +80,8 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-/** نصوص الأذكار بالعربية (تُعرض كما هي في كل اللغات، ومعناها تحتها) */
-val DHIKR = listOf(
-    "سُبْحَانَ اللَّهِ",
-    "الْحَمْدُ لِلَّهِ",
-    "اللَّهُ أَكْبَرُ",
-    "لَا إِلَهَ إِلَّا اللَّهُ",
-    "أَسْتَغْفِرُ اللَّهَ",
-    "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
-    "سُبْحَانَ اللَّهِ الْعَظِيمِ",
-    "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
-    "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ",
-)
-// تسبيح ما بعد الصلاة: 33 + 33 + 33 ثم تمام المائة
-private val SALAH = listOf(0 to 33, 1 to 33, 2 to 33, -1 to 1)
-private const val TAMAM = "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ"
+/** نصوص الأذكار بالعربية (البحث يعرضها أيضاً) */
+val DHIKR get() = Tasbih.DHIKR
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -102,45 +89,21 @@ fun TasbihScreen() {
     val s = LocalStrings.current
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
-    val todayKey = LocalDate.now().toString()
-    if (AppSettings.getString("ts_day") != todayKey) { AppSettings.putString("ts_day", todayKey); AppSettings.putInt("ts_today", 0) }
-
-    var mode by remember { mutableStateOf(AppSettings.getString("ts_mode", "free")) }
-    var idx by remember { mutableIntStateOf(AppSettings.getInt("ts_idx", 0).coerceIn(DHIKR.indices)) }
-    var step by remember { mutableIntStateOf(AppSettings.getInt("ts_step", 0).coerceIn(SALAH.indices)) }
-    var count by remember { mutableIntStateOf(AppSettings.getInt("ts_count", 0)) }
-    var target by remember { mutableIntStateOf(AppSettings.getInt("ts_target", 33)) }
-    var rounds by remember { mutableIntStateOf(AppSettings.getInt("ts_rounds", 0)) }
-    var total by remember { mutableIntStateOf(AppSettings.getInt("ts_total", 0)) }
-    var today by remember { mutableIntStateOf(AppSettings.getInt("ts_today", 0)) }
+    // الحال في Tasbih: تعدّ فيها الشاشة، وفي iOS زر الإجراء ومركز التحكم والجزيرة الديناميكية والأداة أيضاً
+    remember { Tasbih.ensure() }
+    val st = Tasbih.state
+    val count = st.count
+    val goal = st.goal
+    val text = st.text
+    val meaning = st.meaning(s)
     var message by remember { mutableStateOf<String?>(null) }
 
     val press = remember { Animatable(1f) }
     val burst = remember { Animatable(0f) }
     val ripples = remember { mutableStateListOf<Animatable<Float, *>>() }
 
-    fun save() {
-        AppSettings.putString("ts_mode", mode); AppSettings.putInt("ts_idx", idx); AppSettings.putInt("ts_step", step)
-        AppSettings.putInt("ts_count", count); AppSettings.putInt("ts_target", target); AppSettings.putInt("ts_rounds", rounds)
-        AppSettings.putInt("ts_total", total); AppSettings.putInt("ts_today", today)
-    }
-
-    val text: String
-    val meaning: String
-    val goal: Int
-    if (mode == "salah") {
-        val (i, n) = SALAH[step]
-        text = if (i < 0) TAMAM else DHIKR[i]
-        meaning = if (i < 0) s.tamamMeaning else s.dhikrMeanings[i]
-        goal = n
-    } else {
-        text = DHIKR[idx]
-        meaning = s.dhikrMeanings[idx]
-        goal = target
-    }
-
     fun inc() {
-        count++; total++; today++
+        val event = Tasbih.count()
         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         message = null
         // نبضة الحبة وموجة من مركزها
@@ -153,15 +116,15 @@ fun TasbihScreen() {
         if (ripples.size > 6) ripples.removeAt(0)
         scope.launch { r.animateTo(1f, tween(700, easing = Motion.Decelerate)); ripples.remove(r) }
 
-        if (goal > 0 && count >= goal) {
+        if (event != Tasbih.Event.COUNT) {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             scope.launch { burst.snapTo(0f); burst.animateTo(1f, tween(900, easing = Motion.Decelerate)) }
-            if (mode == "salah") {
-                if (step < SALAH.size - 1) { step++; count = 0; message = s.nextDhikr }
-                else { step = 0; count = 0; rounds++; message = s.completedHundred }
-            } else { rounds++; count = 0; message = s.completedN(goal) }
+            message = when (event) {
+                Tasbih.Event.NEXT_DHIKR -> s.nextDhikr
+                Tasbih.Event.HUNDRED -> s.completedHundred
+                else -> s.completedN(goal)
+            }
         }
-        save()
     }
 
     val progress by animateFloatAsState(
@@ -172,7 +135,7 @@ fun TasbihScreen() {
     ToolPage(s.tasbihTitle, s.tasbihSubtitle, sharedKey = "tasbih", icon = TOOL_ICONS["tasbih"]) {
         item {
             SectionCard {
-                Segmented(listOf("free" to s.modeFree, "salah" to s.modeAfterPrayer), mode) { mode = it; count = 0; step = 0; save() }
+                Segmented(listOf("free" to s.modeFree, "salah" to s.modeAfterPrayer), st.mode) { Tasbih.setMode(it) }
                 AnimatedContent(
                     text to meaning,
                     transitionSpec = {
@@ -242,29 +205,27 @@ fun TasbihScreen() {
                     }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)) {
-                    OutlinedButton(onClick = { count = 0; step = 0; save() }) { Icon(Icons.Filled.RestartAlt, null); Text(" " + s.reset) }
-                    OutlinedButton(onClick = {
-                        if (count > 0) { count--; total = (total - 1).coerceAtLeast(0); today = (today - 1).coerceAtLeast(0); save() }
-                    }) { Icon(Icons.AutoMirrored.Filled.Undo, null); Text(" " + s.undo) }
+                    OutlinedButton(onClick = { Tasbih.reset() }) { Icon(Icons.Filled.RestartAlt, null); Text(" " + s.reset) }
+                    OutlinedButton(onClick = { Tasbih.undo() }) { Icon(Icons.AutoMirrored.Filled.Undo, null); Text(" " + s.undo) }
                 }
             }
         }
         side {
-            com.osatks.mizan.ui.Reveal(mode == "free") {
+            com.osatks.mizan.ui.Reveal(st.mode == "free") {
                 SectionCard(s.chooseDhikr) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        s.dhikrLabels.forEachIndexed { i, label -> ChipButton(label, i == idx) { idx = i; count = 0; save() } }
+                        s.dhikrLabels.forEachIndexed { i, label -> ChipButton(label, i == st.idx) { Tasbih.setDhikr(i) } }
                     }
-                    Picker(s.targetCount, listOf(33, 34, 100, 1000, 0), target, text = { if (it == 0) s.noLimit else "$it" }, onSelect = { target = it; count = 0; save() })
+                    Picker(s.targetCount, Tasbih.TARGETS, st.target, text = { if (it == 0) s.noLimit else "$it" }, onSelect = { Tasbih.setTarget(it) })
                 }
             }
         }
         side {
             SectionCard(s.yourStats) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Tile(Fmt.int(rounds.toLong()), s.roundsDone)
-                    Tile(Fmt.int(today.toLong()), s.todayCount)
-                    Tile(Fmt.int(total.toLong()), s.totalCount)
+                    Tile(Fmt.int(st.rounds.toLong()), s.roundsDone)
+                    Tile(Fmt.int(st.today.toLong()), s.todayCount)
+                    Tile(Fmt.int(st.total.toLong()), s.totalCount)
                 }
             }
         }

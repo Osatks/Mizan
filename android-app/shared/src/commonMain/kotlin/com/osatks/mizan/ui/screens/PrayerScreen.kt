@@ -105,8 +105,10 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
     var locationDenied by remember { mutableStateOf(false) }
     val place = AppSettings.place
 
-    LaunchedEffect(place, AppSettings.method, AppSettings.hanafi) {
-        while (true) { next = PrayerUtil.next(); delay(1000) }
+    // العدّ كل ثانية والصفحة ظاهرة فقط (تبقى حية تحت غيرها في iOS)
+    val active = com.osatks.mizan.ui.LocalPageActive.current
+    LaunchedEffect(place, AppSettings.method, AppSettings.hanafi, active) {
+        while (true) { next = PrayerUtil.next(); if (!active) break; delay(1000) }
     }
 
     val locate = rememberLocationRequest { r ->
@@ -263,8 +265,10 @@ private fun DayTimes(day: LocalDate, next: NextPrayer) {
 
 @Composable
 private fun PulseDot() {
-    val t = rememberInfiniteTransition(label = "pulse")
-    val k by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1400), RepeatMode.Restart), label = "k")
+    // ينبض والصفحة ظاهرة فقط: الحركة اللانهائية في صفحة مغطاة تبقي الشاشة تُرسم بلا توقف
+    val k by if (com.osatks.mizan.ui.LocalPageActive.current) {
+        rememberInfiniteTransition(label = "pulse").animateFloat(0f, 1f, infiniteRepeatable(tween(1400), RepeatMode.Restart), label = "k")
+    } else remember { androidx.compose.runtime.mutableFloatStateOf(0.4f) }
     val color = MaterialTheme.colorScheme.secondary
     Box(Modifier.size(14.dp), contentAlignment = Alignment.Center) {
         Box(
