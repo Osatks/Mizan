@@ -9,7 +9,8 @@ import WidgetKit
 @main
 struct MizanWatchApp: App {
     @StateObject private var model = WatchModel()
-    @State private var page = 0
+    /// الصفحة الأولى: المواقيت (0) أو المسبحة (1)؛ وسيط التشغيل -watch.page لالتقاط الصور في المحاكي
+    @State private var page = UserDefaults.standard.integer(forKey: "watch.page")
 
     var body: some Scene {
         WindowGroup {

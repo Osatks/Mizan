@@ -19,6 +19,8 @@ on:
       - "iosApp/Gallery/**"
       - "iosApp/MizanWidgets/**"
       - "iosApp/Shared/**"
+      - "iosApp/MizanWatch/**"
+      - "iosApp/MizanWatchWidgets/**"
       - ".github/workflows/ios-gallery.yml"
       - "android-app/shared/src/commonMain/kotlin/com/osatks/mizan/widget/**"
 
@@ -147,3 +149,100 @@ jobs:
           path: ${{ runner.temp }}/gallery
           if-no-files-found: warn
           retention-days: 7
+
+  # تطبيق الساعة على محاكي Apple Watch: صفحتا المواقيت والمسبحة بالعربية والإنجليزية، بلقطة حقيقية من Kotlin
+  # (كما يرسلها iPhone: بلا الأذكار، والأوقات منقولة إلى الآن) تُمرَّر وسيطَ تشغيل (UserDefaults: watch.json)
+  watch:
+    needs: fixtures
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Xcode 27.1
+        run: |
+          x=/Applications/Xcode_27.1.app/Contents/Developer
+          if [ -d "$x" ]; then export DEVELOPER_DIR="$x"; echo "DEVELOPER_DIR=$x" >> "$GITHUB_ENV"; fi
+          xcodebuild -version
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: gallery-fixtures
+          path: ${{ runner.temp }}/fixtures
+
+      - name: Build the watch app (simulator)
+        working-directory: iosApp
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild -project Mizan.xcodeproj -target MizanWatch -sdk watchsimulator -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO -IDEBuildingContinueBuildingAfterErrors=YES build > "$RUNNER_TEMP/watch-build.log" 2>&1 \
+            || { grep -E "error:|\*\* BUILD" "$RUNNER_TEMP/watch-build.log" | sort -u | head -n 120; tail -n 30 "$RUNNER_TEMP/watch-build.log"; exit 1; }
+          grep -E "warning: " "$RUNNER_TEMP/watch-build.log" | grep -E "/iosApp/(MizanWatch|MizanWatchWidgets|Shared)/" | sort -u | head -n 60 || true
+          ls -d build/Debug-watchsimulator/MizanWatch.app build/Debug-watchsimulator/MizanWatch.app/PlugIns/MizanWatchWidgets.appex
+
+      - name: Watch screenshots
+        working-directory: iosApp
+        run: |
+          mkdir -p "$RUNNER_TEMP/watch"
+          python3 - "$RUNNER_TEMP/fixtures/live-fixtures.json" "$RUNNER_TEMP/watch" <<'PY'
+          import json, sys, time
+          fx = json.load(open(sys.argv[1], encoding="utf-8"))
+          for lang in ["ar", "en"]:
+              snap = fx[lang]["snapshot"]
+              d = time.time() - snap["at"]
+              snap["at"] += d
+              for day in snap["days"]:
+                  day["start"] += d
+                  for t in day["times"]:
+                      t["at"] += d
+              snap["windows"] = []
+              snap["items"] = {}
+              t = fx[lang]["tasbih"]
+              of = t["goalText"].replace(str(t["goal"]), "%d") if t["goal"] > 0 and str(t["goal"]) in t["goalText"] else None
+              payload = {"snapshot": snap, "tasbih": {"title": t["title"], "reset": t["reset"], "of": of, "today": t["todayLabel"], "rounds": t["roundsLabel"]}}
+              data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+              # بيانات plist القديمة: <hex> فتُقرأ Data في NSArgumentDomain
+              open(f"{sys.argv[2]}/payload-{lang}.txt", "w").write("<" + data.hex() + ">")
+              print(lang, len(data), "bytes")
+          PY
+          type=$(xcrun simctl list devicetypes -j | python3 -c '
+          import json, sys
+          ts = [t for t in json.load(sys.stdin)["devicetypes"] if t["name"].startswith("Apple Watch")]
+          pick = [t for t in ts if "46mm" in t["name"] or "49mm" in t["name"]] or ts
+          print(pick[-1]["identifier"])')
+          runtime=$(xcrun simctl list runtimes -j | python3 -c '
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and "watchOS" in r["name"]]
+          rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")])
+          print(rs[-1]["identifier"])')
+          echo "watch $type, runtime $runtime"
+          udid=$(xcrun simctl create "Gallery Watch" "$type" "$runtime")
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl status_bar "$udid" override --time "9:41" || true
+          xcrun simctl install "$udid" build/Debug-watchsimulator/MizanWatch.app
+          for lang in ar en; do
+            for page in 0 1; do
+              xcrun simctl terminate "$udid" com.mizan.almuslim.watchkitapp >/dev/null 2>&1 || true
+              xcrun simctl launch "$udid" com.mizan.almuslim.watchkitapp -watch.json "$(cat "$RUNNER_TEMP/watch/payload-$lang.txt")" -watch.page "$page" >/dev/null
+              sleep 6
+              xcrun simctl io "$udid" screenshot "$RUNNER_TEMP/watch/watch-$lang-page$page.png"
+            done
+          done
+          # بلا لقطة من iPhone: رسالة «افتح ميزان على iPhone»
+          xcrun simctl terminate "$udid" com.mizan.almuslim.watchkitapp >/dev/null 2>&1 || true
+          xcrun simctl launch "$udid" com.mizan.almuslim.watchkitapp >/dev/null
+          sleep 5
+          xcrun simctl io "$udid" screenshot "$RUNNER_TEMP/watch/watch-empty.png"
+          rm -f "$RUNNER_TEMP"/watch/payload-*.txt
+          ls -la "$RUNNER_TEMP/watch"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mizan-watch-gallery
+          path: ${{ runner.temp }}/watch
+          if-no-files-found: warn
+          retention-days: 7
+
