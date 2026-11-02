@@ -200,16 +200,8 @@ jobs:
           for lang in ar en; do
             python3 fastlane/watch_payload.py "$RUNNER_TEMP/fixtures/live-fixtures.json" "$lang" > "$RUNNER_TEMP/watch/payload-$lang.txt"
           done
-          type=$(xcrun simctl list devicetypes -j | python3 -c '
-          import json, sys
-          ts = [t for t in json.load(sys.stdin)["devicetypes"] if t["name"].startswith("Apple Watch")]
-          pick = [t for t in ts if "46mm" in t["name"] or "49mm" in t["name"]] or ts
-          print(pick[-1]["identifier"])')
-          runtime=$(xcrun simctl list runtimes -j | python3 -c '
-          import json, sys
-          rs = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and "watchOS" in r["name"]]
-          rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")])
-          print(rs[-1]["identifier"])')
+          # أحدث watchOS مثبّت وساعة يدعمها (لا يدعم كل نظام كل الطرازات)
+          read -r runtime type < <(xcrun simctl list runtimes -j | python3 fastlane/pick_watch.py)
           echo "watch $type, runtime $runtime"
           udid=$(xcrun simctl create "Gallery Watch" "$type" "$runtime")
           xcrun simctl boot "$udid" || true

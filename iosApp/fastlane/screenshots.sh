@@ -277,17 +277,6 @@ duo_displays() {
 WATCH_BUNDLE=com.mizan.almuslim.watchkitapp
 WATCH_SHOTS=("watch_01_prayer:0" "watch_02_tasbih:1")
 
-pick_watch_runtime() {
-  xcrun simctl list runtimes -j | python3 -c '
-import json, sys
-want = sys.argv[1]
-rs = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and "watchOS" in r["name"]]
-rs = [r for r in rs if r.get("supportedDeviceTypes") is None or any(t.get("identifier") == want for t in r["supportedDeviceTypes"])]
-rs.sort(key=lambda r: [int(x) for x in r["version"].split(".")])
-if not rs: sys.exit("no watchOS simulator runtime for " + want)
-print(rs[-1]["identifier"])' "$1"
-}
-
 run_watch() {
   local watch_app="$APP/Watch/MizanWatch.app" type runtime loc s name page
   if [ ! -d "$watch_app" ]; then
@@ -303,8 +292,8 @@ run_watch() {
     log "downloading the watchOS simulator runtime"
     xcodebuild -downloadPlatform watchOS || { echo "::warning title=Apple Watch::could not download the watchOS simulator"; return 0; }
   fi
-  type=$(pick_device_type "Apple Watch Ultra 2 (49mm)" "Apple Watch Ultra 3 (49mm)" "Apple Watch Ultra (49mm)" "Apple Watch Series 9 (45mm)" "Apple Watch Series 11 (46mm)" "Apple Watch Series 10 (46mm)")
-  runtime=$(pick_watch_runtime "$type")
+  # أحدث watchOS مثبّت وساعة يدعمها (Ultra 2 أولاً: 410×502)
+  read -r runtime type < <(xcrun simctl list runtimes -j | python3 "$(dirname "$0")/pick_watch.py")
   log "watch: device type $type, runtime $runtime"
   UDID=$(xcrun simctl create "Mizan watch" "$type" "$runtime")
   CREATED+=("$UDID")
