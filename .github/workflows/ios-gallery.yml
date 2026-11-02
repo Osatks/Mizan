@@ -24,9 +24,10 @@ on:
       - ".github/workflows/ios-gallery.yml"
       - "android-app/shared/src/commonMain/kotlin/com/osatks/mizan/widget/**"
 
+# تشغيل جديد ينتظر الجاري حتى ينتهي (لا يُلغيه: التقاط الصور طويل)، ويحلّ محل ما ينتظر قبله
 concurrency:
   group: ios-gallery-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   fixtures:
