@@ -69,6 +69,8 @@ object IosLive {
         // العودة إلى التطبيق: يُنهى ما انقضى وقته ويُحدَّث الباقي
         observers += nc.addObserverForName(UIApplicationDidBecomeActiveNotification, null, null) { _ ->
             prayer(start = false)
+            // أذان سُمع أوله في الإشعار (أول تكبيرتين): يكمل الآن من حيث توقف
+            com.osatks.mizan.core.AdhanResume.onAppActive()
             // مواقيت الأيام القادمة في التقويم بعد أن تستقر الواجهة (لا تُكتب إلا إن تغيّرت)
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3_000_000_000L), dispatch_get_main_queue()) { IosCalendar.refresh() }
         }

@@ -1,6 +1,7 @@
 package com.osatks.mizan
 
 import com.osatks.mizan.core.AlertMode
+import com.osatks.mizan.core.Muezzin
 import com.osatks.mizan.core.Muezzins
 import com.osatks.mizan.core.VibePattern
 import com.osatks.mizan.i18n.Lang
@@ -31,6 +32,10 @@ class AdhanTest {
             assertTrue("missing $sound", sound.isFile)
             // ثانية واحدة من IMA4 أحادي 22.05 kHz نحو 11.6 KB: صوت الإشعار أقل من 30 ثانية
             assertTrue("${m.iosSound} is ${sound.length()} bytes (≥ 30 s?)", sound.length() < 29 * 11_700)
+            // القاعدة لكل أذان: صوت الإشعار أول تكبيرتين ثم التلاشي، فطوله نهايتهما والتلاشي (IMA4: نحو 11.73 KB/s)
+            assertTrue("${m.id}: takbir ${m.takbir}", m.takbir in 3.0..26.0)
+            val secs = sound.length() / 11_730.0
+            assertEquals("${m.iosSound}: takbirs + fade (run make_adhan.py --notify-only)", m.takbir + Muezzin.FADE, secs, 0.6)
             assertTrue("${m.id}: seconds", m.seconds in 60..400)
             assertEquals("${m.id}: sizeKb", audio.length() / 1000.0, m.sizeKb.toDouble(), 2.0)
         }

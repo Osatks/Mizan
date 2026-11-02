@@ -63,7 +63,11 @@ actual object AdhanAudio {
     /** صلاة الأذان الذي يُشغَّل الآن (يضبطه AlertPresenter)، لعنوانه في شاشة القفل؛ null للمعاينة */
     internal var alertPrayer: String? = null
 
-    actual fun play(m: Muezzin, preview: Boolean, onEnd: () -> Unit) {
+    actual fun play(m: Muezzin, preview: Boolean, onEnd: () -> Unit) = play(m, preview, 0.0, onEnd)
+
+    actual fun alertPrayer(prayer: String) { alertPrayer = prayer }
+
+    actual fun play(m: Muezzin, preview: Boolean, from: Double, onEnd: () -> Unit) {
         val forPrayer = if (preview) null else alertPrayer
         stop()
         alertPrayer = null
@@ -74,7 +78,14 @@ actual object AdhanAudio {
         val p = AVAudioPlayer(contentsOfURL = u, error = null)
         val d = Finish(onEnd)
         p.delegate = d
-        if (!p.prepareToPlay() || !p.play()) { AudioSessions.end(SESSION); return onEnd() }
+        if (!p.prepareToPlay()) { AudioSessions.end(SESSION); return onEnd() }
+        // يكمل بعد أول تكبيرتين (AdhanResume): من موضعه، بتلاشٍ لطيف في أوله
+        if (from > 0) {
+            p.currentTime = from
+            p.volume = 0f
+        }
+        if (!p.play()) { AudioSessions.end(SESSION); return onEnd() }
+        if (from > 0) p.setVolume(1f, fadeDuration = 0.8)
         player = p
         delegate = d
         nowPlaying(m, forPrayer, p.duration)

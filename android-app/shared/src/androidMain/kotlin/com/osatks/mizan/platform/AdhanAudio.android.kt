@@ -14,7 +14,11 @@ import com.osatks.mizan.core.VibePattern
 actual object AdhanAudio {
     private var player: MediaPlayer? = null
 
-    actual fun play(m: Muezzin, preview: Boolean, onEnd: () -> Unit) {
+    actual fun play(m: Muezzin, preview: Boolean, onEnd: () -> Unit) = play(m, preview, 0.0, onEnd)
+
+    actual fun alertPrayer(prayer: String) {}
+
+    actual fun play(m: Muezzin, preview: Boolean, from: Double, onEnd: () -> Unit) {
         stop()
         val p = MediaPlayer()
         try {
@@ -25,11 +29,30 @@ actual object AdhanAudio {
             p.setOnCompletionListener { if (player === p) { stop(); onEnd() } }
             p.setOnErrorListener { _, _, _ -> if (player === p) { stop(); onEnd() }; true }
             p.prepare()
+            // يكمل بعد أول تكبيرتين (AdhanResume): من موضعه، بتلاشٍ لطيف في أوله
+            if (from > 0) {
+                p.seekTo((from * 1000).toInt())
+                p.setVolume(0f, 0f)
+            }
             p.start()
             player = p
+            if (from > 0) ramp(p, 0f, 1f, 800L) {}
         } catch (e: Exception) {
             p.release()
             onEnd()
+        }
+    }
+
+    /** يغيّر صوت [p] تدريجياً من [a] إلى [b] في [ms] (ثم [done])، ما دام لم يُستبدل أو يُوقف */
+    fun ramp(p: MediaPlayer, a: Float, b: Float, ms: Long, done: () -> Unit) {
+        val h = android.os.Handler(android.os.Looper.getMainLooper())
+        val steps = 20
+        for (i in 1..steps) {
+            h.postDelayed({
+                val v = a + (b - a) * i / steps
+                runCatching { p.setVolume(v, v) }
+                if (i == steps) done()
+            }, ms * i / steps)
         }
     }
 

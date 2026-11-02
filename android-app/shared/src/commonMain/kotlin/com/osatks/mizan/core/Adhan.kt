@@ -92,8 +92,18 @@ data class Muezzin(
     val bundled: Boolean,
     val seconds: Int,
     val sizeKb: Int,
+    /**
+     * نهاية أول تكبيرتين بالثواني (أول وقفة في الأذان). الإشعار يُسمع حتى هنا ثم يتلاشى في [FADE] ثوانٍ
+     * (adhan_<id>.caf، ومنبّه أندرويد)، ويكمل التطبيق الأذان من هنا إن فُتح بعده ([AdhanResume]).
+     */
+    val takbir: Double,
     val credit: String,
 ) {
+    companion object {
+        /** مدة تلاشي الصوت بعد التكبيرتين */
+        const val FADE = 2.5
+    }
+
     val file get() = "$id.m4a"
     val iosSound get() = "adhan_$id.caf"
 }

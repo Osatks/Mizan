@@ -13,6 +13,12 @@ expect object AdhanAudio {
      * [preview] معاينة يطلبها المستخدم (تُسمع ولو كان الهاتف صامتاً في iOS)، وإلا فهو أذان الوقت والتطبيق مفتوح.
      */
     fun play(m: Muezzin, preview: Boolean, onEnd: () -> Unit)
+
+    /** يكمل الأذان من [from] ثانية بتلاشٍ لطيف في أوله (AdhanResume: بعد أول تكبيرتين في الإشعار) */
+    fun play(m: Muezzin, preview: Boolean, from: Double, onEnd: () -> Unit)
+
+    /** صلاة الأذان الذي سيُشغَّل (لعنوانه في شاشة القفل في iOS) */
+    fun alertPrayer(prayer: String)
     fun stop()
 
     /** يجرّب نمط الاهتزاز (Core Haptics في iOS) */

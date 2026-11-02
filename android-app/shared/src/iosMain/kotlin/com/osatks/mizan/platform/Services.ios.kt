@@ -49,7 +49,8 @@ import platform.darwin.NSObject
  * تنبيهات الأذان في iOS: إشعارات محلية مجدولة مسبقاً لأيام قادمة (لا يوجد منبّه يعمل في الخلفية).
  * تُعاد جدولتها عند فتح التطبيق وعند تغيير الإعدادات، والحد الأقصى في iOS 64 إشعاراً.
  *
- * صوت الإشعار لا يتجاوز 30 ثانية في iOS، فالأذان في الإشعار مقطع أوله (adhan_<id>.caf)، ويُسمع كاملاً إن كان التطبيق مفتوحاً.
+ * الأذان في الإشعار أول تكبيرتين ثم يتلاشى (adhan_<id>.caf)، ويكمل من هناك إن فُتح التطبيق بعده (AdhanResume)،
+ * ويُسمع كاملاً إن كان التطبيق مفتوحاً.
  * «اهتزاز فقط»: لا يهتز إشعار iOS بلا صوت، فيُعطى صوتاً صامتاً (mizan_vibrate.caf) يصحبه اهتزاز النظام حسب إعدادات الهاتف.
  */
 actual object PrayerAlerts {
@@ -118,7 +119,12 @@ private class AlertPresenter : NSObject(), UNUserNotificationCenterDelegateProto
         val show = UNNotificationPresentationOptionBanner or UNNotificationPresentationOptionList
         if (prayer == null) return withCompletionHandler(show or UNNotificationPresentationOptionSound)
         when (AlertMode.of(info["mode"] as? String)) {
-            AlertMode.ADHAN -> { AdhanAudio.alertPrayer = prayer; AdhanAudio.play(Muezzins.forPrayer(prayer), preview = false) {} }
+            AlertMode.ADHAN -> {
+                // التطبيق مفتوح: الأذان كاملاً، ولا يُكمَل مرة أخرى عند العودة إليه
+                com.osatks.mizan.core.AdhanResume.done(prayer)
+                AdhanAudio.alertPrayer = prayer
+                AdhanAudio.play(Muezzins.forPrayer(prayer), preview = false) {}
+            }
             AlertMode.VIBRATE -> AdhanAudio.vibrate(AppSettings.vibePattern)
             else -> {}
         }

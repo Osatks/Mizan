@@ -2,13 +2,22 @@
 """Builds the adhan recordings used by the app from their original files.
 
     python3 tools/make_adhan.py <folder with the original downloads> [work folder] [--only=id,id]
+    python3 tools/make_adhan.py --notify-only [--only=id,id]   # only the notification sounds, from the m4a files
 
 For each recording in RECORDINGS (sources and licences: shared/src/commonMain/assets/licenses/adhan-recordings.txt):
   1. cut to the adhan itself (no announcements or other speech before/after), mono, 80 Hz high-pass,
      gain to -16 LUFS (EBU R128 measurement) with a -1.5 dB peak limiter, short fade in/out;
   2. <id>.m4a — the full adhan, AAC-LC mono 64 kbps (Android alarm + in-app playback on both systems);
-  3. adhan_<id>.caf — the iOS notification sound: the opening 28 s with a 3 s fade-out, IMA4 22.05 kHz mono
-     (iOS ignores notification sounds of 30 s or more and plays the default sound instead).
+  3. adhan_<id>.caf — the iOS notification sound: THE FIRST TWO TAKBIRS ONLY («اللهُ أكبر، اللهُ أكبر»), then a
+     2.5 s fade-out to silence, IMA4 22.05 kHz mono (iOS ignores notification sounds of 30 s or more).
+     The end of the first two takbirs (takbir_end) is the start of the first clear pause in the adhan: the
+     loudness envelope (50 ms RMS, 0.25 s smoothing) is "voiced" above p10 + 35 % of (p90 − p10) of the whole
+     recording; voiced runs closer than 0.6 s merge, runs under 0.8 s are dropped, and the takbirs end with the
+     first runs that hold 3 % of the adhan's length (slow and fast muezzins alike: most say both takbirs in one
+     breath, a few pause between them). TAKBIR overrides it for a recording when listening shows otherwise.
+     The value is printed as `takbir = …` for AdhanCatalog.kt: on Android the alarm fades out there too, and
+     opening the app soon after continues the adhan from that point (AdhanResume), so it sounds unbroken.
+     Every new recording follows the same rule; AdhanTest checks each catalogue entry against its .caf.
 Bundled recordings go to shared/src/commonMain/assets/adhan (m4a) and iosApp/Sounds (caf); the others to the
 website's src/adhan, published at https://mizan-al-muslem.com/adhan/ and downloaded by the app on demand.
 Also writes iosApp/Sounds/mizan_vibrate.caf: one second of silence, so an iOS "vibrate only" notification
@@ -44,9 +53,9 @@ RECORDINGS = [
     # commons.wikimedia.org File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3
     ("aaqib", "c_aaqib.mp3", 0.0, None, False),
     # archive.org AdanAlfajrFouadAdan/Mp32.mp3
-    ("fouad", "ia_fouad2.mp3", 0.0, None, False),
+    ("fouad", "ia_fouad2.mp3", 0.0, None, True),
     # archive.org AdanAlfajrFouadAdan/adan alfajr  fouad adan.mp3
-    ("fouad_fajr", "ia_fouad_fajr.mp3", 0.0, None, False),
+    ("fouad_fajr", "ia_fouad_fajr.mp3", 0.0, None, True),
     # archive.org aporee_63024_72492/MorningadhaninKa.mp3
     ("kas_fajr", "ap_kas.mp3", 11.5, 323.0, False),
     # commons.wikimedia.org File:Eid_al-Fitr_Fajr_azan_at_Malmö_Mosque_-_19_August_2012.webm (its 240p transcode;
@@ -56,8 +65,11 @@ RECORDINGS = [
     ("shalqar", "c_shalqar.webm", 2.5, 134.5, False),
 ]
 
-NOTIFY_SECONDS = 28.0
 TARGET_LUFS = -16.0
+# أول تكبيرتين ثم يتلاشى الصوت في هذه المدة (والأذان يكمل من نهايتهما في التطبيق)
+FADE = 2.5
+# نهاية التكبيرتين بالثواني إن خالف السماعُ ما يحسبه takbir_end (لا شيء الآن: كل التسجيلات راجعناها)
+TAKBIR: dict = {}
 
 
 def run(*args):
@@ -84,15 +96,66 @@ def master(src: Path, start: float, end, out: Path):
         "-c:a", "pcm_s16le", str(out))
 
 
-def encode(wav: Path, m4a: Path, caf: Path):
+def encode(wav: Path, m4a: Path):
     run("ffmpeg", "-y", "-v", "error", "-i", str(wav), "-c:a", "aac", "-b:a", "64k", "-ac", "1", "-movflags", "+faststart", str(m4a))
-    fade = f"afade=t=out:st={NOTIFY_SECONDS - 3:.1f}:d=3"
-    run("ffmpeg", "-y", "-v", "error", "-i", str(wav), "-t", str(NOTIFY_SECONDS), "-af", f"{fade},aresample=22050",
+
+
+FRAME = 0.05
+
+
+def takbir_end(audio: Path) -> float:
+    """End of the first two takbirs (seconds): the start of the first clear pause (rule in the module doc)."""
+    import numpy as np
+    raw = subprocess.run(["ffmpeg", "-v", "quiet", "-i", str(audio), "-ac", "1", "-ar", "8000", "-f", "s16le", "-"],
+                         check=True, capture_output=True).stdout
+    x = np.frombuffer(raw, np.int16).astype(np.float32) / 32768
+    n = int(8000 * FRAME)
+    k = len(x) // n
+    db = 20 * np.log10(np.sqrt((x[:k * n].reshape(k, n) ** 2).mean(1)) + 1e-6)
+    db = np.convolve(db, np.ones(5) / 5, mode="same")
+    lo, hi = np.percentile(db, 10), np.percentile(db, 90)
+    voiced = db > lo + 0.35 * (hi - lo)
+    runs, i = [], 0
+    while i < k:
+        if voiced[i]:
+            j = i
+            while j < k and voiced[j]:
+                j += 1
+            if runs and i * FRAME - runs[-1][1] < 0.6:
+                runs[-1][1] = j * FRAME
+            else:
+                runs.append([i * FRAME, j * FRAME])
+            i = j
+        else:
+            i += 1
+    total, held = len(x) / 8000, 0.0
+    for a, b in (r for r in runs if r[1] - r[0] >= 0.8):
+        held += b - a
+        if held >= 0.03 * total:
+            return round(b, 2)
+    raise SystemExit(f"{audio}: no takbir found")
+
+
+def notify(rid: str, m4a: Path, caf: Path) -> float:
+    """adhan_<id>.caf: the first two takbirs, then a fade to silence (under 30 s for iOS)."""
+    t = TAKBIR.get(rid) or takbir_end(m4a)
+    assert 3 <= t <= 26, f"{rid}: takbirs end at {t} s?"
+    run("ffmpeg", "-y", "-v", "error", "-i", str(m4a), "-t", f"{t + FADE:.2f}",
+        "-af", f"afade=t=out:st={t:.2f}:d={FADE},aresample=22050",
         "-ac", "1", "-c:a", "adpcm_ima_qt", "-f", "caf", str(caf))
+    return t
 
 
 def main():
     only = {i for a in sys.argv[1:] if a.startswith("--only=") for i in a[7:].split(",")}
+    if "--notify-only" in sys.argv:
+        for rid, _, _, _, bundled in RECORDINGS:
+            if only and rid not in only:
+                continue
+            m4a = (ASSETS if bundled else SITE) / f"{rid}.m4a"
+            t = notify(rid, m4a, (IOS if bundled else SITE) / f"adhan_{rid}.caf")
+            print(f'{rid}: takbir = {t}')
+        return
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     raw = Path(args[0])
     tmp = Path(args[1]) if len(args) > 1 else raw / "_work"
@@ -111,9 +174,10 @@ def main():
         master(src, start, end, wav)
         m4a = (ASSETS if bundled else SITE) / f"{rid}.m4a"
         caf = (IOS if bundled else SITE) / f"adhan_{rid}.caf"
-        encode(wav, m4a, caf)
+        encode(wav, m4a)
+        t = notify(rid, m4a, caf)
         secs = float(run("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(m4a)).stdout)
-        print(f"{rid}: {secs:.0f} s, m4a {m4a.stat().st_size // 1000} KB, caf {caf.stat().st_size // 1000} KB")
+        print(f"{rid}: {secs:.0f} s, m4a {m4a.stat().st_size // 1000} KB, caf {caf.stat().st_size // 1000} KB, takbir = {t}")
 
 
 if __name__ == "__main__":

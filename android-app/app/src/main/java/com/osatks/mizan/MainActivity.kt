@@ -106,6 +106,19 @@ class MainActivity : ComponentActivity() {
         setContent { LanguageHost { MizanTheme { MizanApp(startRoute) } } }
     }
 
+    // أذان سُمع أوله في المنبّه (أول تكبيرتين): يكمل الآن من حيث توقف (AdhanResume)
+    override fun onResume() {
+        super.onResume()
+        com.osatks.mizan.core.AdhanResume.appVisible = true
+        com.osatks.mizan.core.AdhanResume.handOff = { com.osatks.mizan.notify.AdhanService.handOff(this) }
+        com.osatks.mizan.core.AdhanResume.onAppActive()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.osatks.mizan.core.AdhanResume.appVisible = false
+    }
+
     // تُحدَّث أدوات الشاشة الرئيسية بما تغير (الختمة، المدينة، اللغة) عند مغادرة التطبيق
     override fun onStop() {
         super.onStop()
