@@ -29,7 +29,7 @@ struct TasbihControl: ControlWidget {
                 Label {
                     Text(verbatim: "\(value.count) \(value.goal)")
                 } icon: {
-                    Image(systemName: "hand.tap.fill")
+                    Image(systemName: "circle.dotted.circle")
                 }
             }
         }
@@ -44,7 +44,7 @@ struct PrayerCountdownControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.countdown") {
             ControlWidgetButton(action: ShowNextPrayerIntent()) {
-                Label("Prayer countdown", systemImage: "timer")
+                Label("Prayer countdown", systemImage: "hourglass")
             }
         }
         .displayName("Prayer countdown")
@@ -58,7 +58,7 @@ struct AdhkarCounterControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.adhkar") {
             ControlWidgetButton(action: AdhkarCountIntent()) {
-                Label("Count adhkar", systemImage: "sparkles")
+                Label("Count adhkar", systemImage: "sun.and.horizon.fill")
             }
         }
         .displayName("Count adhkar")
@@ -84,7 +84,7 @@ struct ContinueQuranControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "com.mizan.almuslim.control.quran") {
             ControlWidgetButton(action: OpenScreenIntent(target: .quran)) {
-                Label("Continue reading", systemImage: "book.fill")
+                Label("Continue reading", systemImage: "bookmark.fill")
             }
         }
         .displayName("Continue reading")

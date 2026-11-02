@@ -173,7 +173,7 @@ struct MizanShortcuts: AppShortcutsProvider {
                 "Count tasbih in \(.applicationName)",
             ],
             shortTitle: "Count tasbih",
-            systemImageName: "hand.tap.fill"
+            systemImageName: "circle.dotted.circle"
         )
         AppShortcut(
             intent: ActionPrayerCountdownIntent(),
@@ -182,7 +182,7 @@ struct MizanShortcuts: AppShortcutsProvider {
                 "Show the prayer countdown in \(.applicationName)",
             ],
             shortTitle: "Prayer countdown",
-            systemImageName: "timer"
+            systemImageName: "hourglass"
         )
         AppShortcut(
             intent: ActionAdhkarIntent(),
@@ -191,7 +191,7 @@ struct MizanShortcuts: AppShortcutsProvider {
                 "Adhkar counter in \(.applicationName)",
             ],
             shortTitle: "Count adhkar",
-            systemImageName: "sparkles"
+            systemImageName: "sun.and.horizon.fill"
         )
         AppShortcut(
             intent: NextPrayerIntent(),
@@ -219,7 +219,7 @@ struct MizanShortcuts: AppShortcutsProvider {
                 "Show prayer times in \(.applicationName)",
             ],
             shortTitle: "Prayer times",
-            systemImageName: "clock.fill"
+            systemImageName: "calendar.badge.clock"
         )
         AppShortcut(
             intent: QiblaIntent(),
@@ -237,7 +237,7 @@ struct MizanShortcuts: AppShortcutsProvider {
                 "Continue reading the Quran in \(.applicationName)",
             ],
             shortTitle: "Continue reading",
-            systemImageName: "book.fill"
+            systemImageName: "bookmark.fill"
         )
         AppShortcut(
             intent: MorningAdhkarIntent(),

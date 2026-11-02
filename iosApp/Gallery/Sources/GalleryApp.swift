@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import WidgetKit
 
 // معرض أدوات ميزان وأنشطته الحية للمراجعة البصرية على المحاكي (ios-gallery.yml)، ولا يُنشر.
@@ -95,9 +96,19 @@ struct Wallpaper: View {
 }
 
 /// فكّ حالات Kotlin بكل اللغات بأنواع Swift الحقيقية
+/// رموز الاختصارات وزر الإجراء وأزرار مركز التحكم (iosApp/MizanShortcuts.swift و MizanWidgets/Controls.swift):
+/// اسم لا يعرفه النظام يُرسم فارغاً دون أي خطأ في البناء
+enum UsedSymbols {
+    static let names = [
+        "circle.dotted.circle", "hourglass", "sun.and.horizon.fill", "moon.stars.fill", "text.book.closed.fill",
+        "calendar.badge.clock", "location.north.line.fill", "bookmark.fill", "sunrise.fill", "sunset.fill",
+    ]
+    static var missing: [String] { names.filter { UIImage(systemName: $0) == nil }.map { "missing SF Symbol: \($0)" } }
+}
+
 struct CheckPage: View {
     var body: some View {
-        let errors = Fixtures.errors
+        let errors = Fixtures.errors + UsedSymbols.missing
         VStack(alignment: .leading, spacing: 8) {
             if errors.isEmpty && Fixtures.all.count >= 15 {
                 Text(verbatim: "CHECK OK").font(.title.bold()).foregroundColor(.green)
