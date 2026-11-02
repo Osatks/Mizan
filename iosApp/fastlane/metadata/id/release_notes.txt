@@ -1,2 +1,8 @@
-• Widget layar utama: salat berikutnya, jadwal hari ini, zikir, tanggal Hijriah, dan ayat hari ini.
-• Peningkatan Mushaf, murotal, dan performa.
+• Penghitung tasbih di Layar Terkunci dan Dynamic Island: hitung dan atur ulang tanpa membuka aplikasi.
+• Penghitung zikir pagi dan petang di Layar Terkunci; otomatis pindah ke zikir berikutnya.
+• Hitung mundur ke salat berikutnya, lalu ke iqamah, serta waktu berbuka, sahur, dan doa berbuka saat Ramadan.
+• Tombol Tindakan, Pusat Kontrol, dan Siri: tasbih, hitung mundur salat, zikir, dan ayat hari ini.
+• Widget baru: ketuk cincin untuk bertasbih, bagian khatam hari ini, dan salat berikutnya di mode Siaga.
+• Bagikan ayat sebagai gambar dengan huruf Mushaf beserta maknanya, dalam tiga warna.
+• Jadwal salat di Kalender iPhone, dan kiblat dengan kamera.
+• Aplikasi Apple Watch: salat berikutnya dan jadwal hari ini, tasbih dengan Digital Crown, serta komplikasi.

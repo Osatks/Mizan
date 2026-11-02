@@ -1,2 +1,8 @@
-• Widgets: nächstes Gebet, heutige Gebetszeiten, Adhkar, Hidschri-Datum und Vers des Tages.
-• Verbesserungen bei Mushaf, Rezitation und Leistung.
+• Tasbih-Zähler auf dem Sperrbildschirm und in der Dynamic Island: zählen und zurücksetzen, ohne die App zu öffnen.
+• Zähler für die Morgen- und Abend-Adhkar auf dem Sperrbildschirm; er geht von selbst zum nächsten Dhikr.
+• Countdown zum nächsten Gebet, danach zur Iqama, im Ramadan mit Iftar, Suhur und dem Iftar-Dua.
+• Action-Taste, Kontrollzentrum und Siri: Tasbih, Gebets-Countdown, Adhkar und Vers des Tages.
+• Neue Widgets: Ring antippen zum Zählen, heutiger Khatma-Abschnitt und das nächste Gebet im StandBy.
+• Einen Vers als Bild teilen, in der Mushaf-Schrift mit Bedeutung, in drei Farben.
+• Gebetszeiten im iPhone-Kalender und Qibla in der Kamera.
+• Apple Watch App: nächstes Gebet und heutige Zeiten, Tasbih mit der Digital Crown und Komplikationen.

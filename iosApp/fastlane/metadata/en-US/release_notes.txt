@@ -1,2 +1,8 @@
-• Home screen widgets: next prayer, today's prayer times, adhkar, Hijri date and the ayah of the day.
-• Improvements to the Mushaf, recitation and performance, plus general fixes.
+• Tasbih counter on the Lock Screen and in the Dynamic Island: count and reset without opening the app.
+• Morning and evening adhkar counter on the Lock Screen; it moves to the next dhikr by itself.
+• Next-prayer countdown, then the countdown to iqama, with iftar and suhoor times and the iftar dua in Ramadan.
+• Action Button, Control Center and Siri: tasbih, prayer countdown, adhkar and the ayah of the day.
+• New widgets: tap the ring to count tasbih, today's khatma portion, and the next prayer in StandBy.
+• Share an ayah as an image in the Mushaf font with its meaning, in three colours.
+• Prayer times in the iPhone Calendar, and qibla in the camera.
+• Apple Watch app: next prayer and today's times, tasbih with the Digital Crown, and watch face complications.
