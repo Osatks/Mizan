@@ -41,6 +41,7 @@ final class LiveActivities {
         }
         // يخرج المستخدم من التطبيق: الأداة وزر مركز التحكم بآخر عدد
         nc.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
+            TasbihSync.flush()
             LiveRouter.reloadTasbih()
         }
         nc.addObserver(forName: MizanBridge.openRoute, object: nil, queue: .main) { note in
@@ -319,17 +320,34 @@ enum TasbihSync {
     private static var pending: DispatchWorkItem?
 
     static func saved(_ state: TasbihLiveState, immediate: Bool) {
-        let e = JSONEncoder()
-        e.dateEncodingStrategy = .secondsSince1970
-        if let data = try? e.encode(state) { SharedKeychain.write(data, account: SharedKeychain.tasbihAccount) }
         pending?.cancel()
         if immediate {
             pending = nil
+            store(state)
             LiveRouter.reloadTasbih()
             return
         }
-        let work = DispatchWorkItem { LiveRouter.reloadTasbih() }
+        // التسبيح السريع في الشاشة: آخر حال وحدها بعد ثانيتين
+        let work = DispatchWorkItem {
+            TasbihSync.pending = nil
+            TasbihSync.store(state)
+            LiveRouter.reloadTasbih()
+        }
         pending = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: work)
+    }
+
+    /// عند الخروج من التطبيق: ما بقي ينتظر يُكتب الآن
+    static func flush() {
+        guard let work = pending else { return }
+        // يُنفَّذ الآن ثم يُلغى موعده (العنصر الملغى لا يُنفَّذ)
+        work.perform()
+        work.cancel()
+    }
+
+    private static func store(_ state: TasbihLiveState) {
+        let e = JSONEncoder()
+        e.dateEncodingStrategy = .secondsSince1970
+        if let data = try? e.encode(state) { SharedKeychain.write(data, account: SharedKeychain.tasbihAccount) }
     }
 }

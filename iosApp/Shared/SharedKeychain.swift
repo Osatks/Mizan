@@ -9,8 +9,20 @@ enum SharedKeychain {
     static let snapshotAccount = "snapshot"
     static let tasbihAccount = "tasbih"
 
-    /// بادئة الفريق (Team ID) من مجموعة عنصر تجريبي بلا مجموعة محددة: يأخذ النظام المجموعة الافتراضية للتطبيق
+    private static let lock = NSLock()
+    private static var cachedPrefix: String?
+
+    /// بادئة الفريق (Team ID) من مجموعة عنصر تجريبي بلا مجموعة محددة: يأخذ النظام المجموعة الافتراضية للتطبيق.
+    /// تُحسب مرة واحدة (لا تتغير في التثبيت نفسه): المسبحة تكتب حالها هنا مع التسبيح
     static func teamPrefix() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        if let p = cachedPrefix { return p }
+        cachedPrefix = probePrefix()
+        return cachedPrefix
+    }
+
+    private static func probePrefix() -> String? {
         let probe: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "com.mizan.probe",
