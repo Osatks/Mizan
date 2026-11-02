@@ -275,7 +275,8 @@ private val EVENTS = listOf(
 fun EventsScreen(onBack: () -> Unit) {
     val s = LocalStrings.current
     var now by remember { mutableStateOf(LocalDateTime.now()) }
-    LaunchedEffect(Unit) { while (true) { now = LocalDateTime.now(); delay(1000) } }
+    val active = com.osatks.mizan.ui.LocalPageActive.current
+    LaunchedEffect(active) { while (true) { now = LocalDateTime.now(); if (!active) break; delay(1000) } }
     val today = now.toLocalDate()
     val th = Hijri.toHijri(today)
     val upcoming = remember(today) {

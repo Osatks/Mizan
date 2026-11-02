@@ -25,12 +25,17 @@ object SystemBars {
     internal fun remove(r: Request) { requests -= r }
 }
 
-/** يطلب مظهر شريط الحالة ما دامت الشاشة ظاهرة */
+/**
+ * يطلب مظهر شريط الحالة ما دامت الشاشة ظاهرة في الأعلى (الصفحات الحية تحتها في iOS لا تطلب شيئاً حتى تعود،
+ * فيُسجَّل طلبها من جديد آخرَ الطلبات)
+ */
 @Composable
 fun StatusBarStyle(lightContent: Boolean, hidden: Boolean = false) {
     val light = rememberUpdatedState(lightContent)
     val hide = rememberUpdatedState(hidden)
-    DisposableEffect(Unit) {
+    val active = LocalPageActive.current
+    DisposableEffect(active) {
+        if (!active) return@DisposableEffect onDispose { }
         val r = SystemBars.Request(light, hide)
         SystemBars.add(r)
         onDispose { SystemBars.remove(r) }

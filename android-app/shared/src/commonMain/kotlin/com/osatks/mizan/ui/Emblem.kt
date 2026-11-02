@@ -64,8 +64,11 @@ private fun rotationAngle(periodMs: Int, label: String): State<Float> {
         return t.animateFloat(0f, 360f, infiniteRepeatable(tween(periodMs, easing = LinearEasing), RepeatMode.Restart), label = "angle")
     }
     val angle = remember { mutableFloatStateOf(0f) }
-    LaunchedEffect(periodMs) {
-        if (Motion.reduced) return@LaunchedEffect
+    // الدورة البطيئة لا تعمل في iOS: كانت تعيد رسم الواجهة كلها عشرات المرات في الثانية بلا توقف (Compose في iOS
+    // يرسم المشهد كله مع كل تغيير)، فتنافس حركة التنقل والتمرير على الإطارات. ولا في صفحة حية مغطاة بغيرها
+    val active = LocalPageActive.current
+    LaunchedEffect(periodMs, active) {
+        if (Motion.reduced || IsIos || !active) return@LaunchedEffect
         val step = (periodMs / 2400L).coerceIn(16L, 60L)
         val start = withFrameMillis { it }
         while (true) {

@@ -1,5 +1,8 @@
 package com.osatks.mizan
 
+import com.osatks.mizan.ui.StackNavHost
+import com.osatks.mizan.ui.StackNav
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.input.pointer.pointerInput
 import com.osatks.mizan.ui.PageMotion
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -86,36 +89,88 @@ import com.osatks.mizan.ui.theme.MizanTheme
 internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
+/**
+ * التنقل كما تراه الشاشات: في أندرويد NavHost (رجوع النظام التنبؤي والعناصر المشتركة بين الصفحات)،
+ * وفي iOS StackNav (صفحات حية كما في UINavigationController، وسحب الحافة بلغة التطبيق).
+ */
+@Stable
+private interface AppNav {
+    fun open(route: String)
+    fun back()
+    fun goTab(route: String)
+    /** رابط من أداة أو اختصار أو إشعار: يُغلق ما فوق التبويب ثم يفتح الشاشة */
+    fun deepLink(route: String)
+    /** نتيجة من البحث تحل محله */
+    fun searchResult(route: String)
+}
+
+private class AndroidNav(val nav: NavHostController) : AppNav {
+    private val top get() = nav.currentBackStackEntry?.destination?.route
+
+    // فتح تبويب من داخل شاشة (مثل «القرآن» من الرئيسية) يمرّ بالتبويبات نفسها، لا يُكدَّس فوق الرئيسية.
+    // نقرتان سريعتان على أداة لا تفتحانها مرتين: المكدّس يتغير مع النقرة الأولى فوراً، فالثانية تجدها في أعلاه
+    override fun open(route: String) {
+        if (route in TAB_ROUTES) goTab(route) else if (top != route) nav.navigate(route)
+    }
+
+    // الرجوع لا يُخرج الرئيسية نفسها (مكدّس فارغ = شاشة بيضاء)
+    override fun back() {
+        if (nav.previousBackStackEntry != null) nav.popBackStack()
+    }
+
+    override fun goTab(route: String) = nav.goTab(route)
+
+    // ما فوق الرئيسية يُغلق دون حفظ: لا تبقى الشاشة السابقة مخبّأة في تبويب يعود بها لاحقاً
+    override fun deepLink(route: String) {
+        nav.popBackStack(nav.graph.findStartDestination().id, inclusive = false)
+        if (route in TAB_ROUTES) goTab(route) else nav.navigate(route)
+    }
+
+    override fun searchResult(route: String) {
+        // نقرة ثانية على نتيجة أثناء خروج البحث كانت تفتح الشاشة مرتين
+        if (top != "search") return
+        if (route in TAB_ROUTES) { nav.popBackStack(); goTab(route) }
+        else nav.navigate(route) { popUpTo("search") { inclusive = true } }
+    }
+}
+
+private class IosNav(val stack: StackNav) : AppNav {
+    override fun open(route: String) { if (route in TAB_ROUTES) stack.goTab(route) else stack.push(route) }
+    override fun back() { stack.pop() }
+    override fun goTab(route: String) = stack.goTab(route)
+    override fun deepLink(route: String) {
+        stack.reset()
+        if (route in TAB_ROUTES) stack.goTab(route) else stack.push(route)
+    }
+    override fun searchResult(route: String) {
+        if (stack.current != "search") return
+        if (route in TAB_ROUTES) stack.goTab(route) else stack.replace(route)
+    }
+}
+
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MizanApp(startRoute: String? = null) {
-    val nav = rememberNavController()
-    LaunchedEffect(startRoute) {
-        if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) {
-            // ما فوق الرئيسية يُغلق دون حفظ: لمس أداة أو اختصار لا يترك الشاشة السابقة مخبّأة في تبويب يعود بها لاحقاً،
-            // ولا يكدّس الشاشة نفسها مرتين (لمس أداة الشاشة الظاهرة)
-            val home = nav.graph.findStartDestination().id
-            nav.popBackStack(home, inclusive = false)
-            if (startRoute in TAB_ROUTES) nav.goTab(startRoute) else nav.navigate(startRoute)
-        }
-    }
-    val entry by nav.currentBackStackEntryAsState()
-    val current = entry?.destination?.route
+    val navController = if (IsIos) null else rememberNavController()
+    val stack = if (IsIos) remember { StackNav("home") } else null
+    val app: AppNav = remember { if (stack != null) IosNav(stack) else AndroidNav(navController!!) }
+    // المسار الظاهر: أثناء رجوع في iOS هو الصفحة التي يُرجع إليها (فيعود شريط التبويبات مع الحركة)
+    val current: String? = if (stack != null) stack.current else navController!!.currentBackStackEntryAsState().value?.destination?.route
     val onTab = current == null || current in TAB_ROUTES
+    LaunchedEffect(startRoute) {
+        if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) app.deepLink(startRoute)
+    }
+    // iOS: التبويبات الأخرى تُركَّب بعد أن تستقر الواجهة، فيظهر كل منها فوراً أول مرة
+    if (stack != null) LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(1600)
+        for (t in TAB_ROUTES) { stack.prepare(t); kotlinx.coroutines.delay(500) }
+    }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    // الرجوع لا يُخرج الرئيسية نفسها (مكدّس فارغ = شاشة بيضاء)، ويعمل فوراً ولو أثناء انتقال، كما في iOS
-    val back: () -> Unit = {
-        if (nav.previousBackStackEntry != null) nav.popBackStack()
-    }
-    // فتح تبويب من داخل شاشة (مثل «القرآن» من الرئيسية) يمرّ بالتبويبات نفسها، لا يُكدَّس فوق الرئيسية،
-    // وإلا حفظ التبويب الرئيسي هذه الشاشة في حالته فبدا شريط التنقل وكأنه لا يعمل
-    val open: (String) -> Unit = { r ->
-        // نقرتان سريعتان على أداة لا تفتحانها مرتين: المكدّس يتغير مع النقرة الأولى فوراً، فالثانية تجدها في أعلاه
-        if (r in TAB_ROUTES) nav.goTab(r) else if (nav.currentBackStackEntry?.destination?.route != r) nav.navigate(r)
-    }
+    val back: () -> Unit = remember(app) { { app.back() } }
+    val open: (String) -> Unit = remember(app) { { r -> app.open(r) } }
     // محتوى الصفحات مصدرٌ للزجاج (شريط التنقل والأوراق السفلية)، إلا صفحة المصحف: لا شريط فوقها، فلا كلفة إضافية على التقليب
     val appHaze = rememberHazeState()
-    val glassSource = current != SURAH_ROUTE
+    val glassSource = current?.startsWith("surah/") != true
 
     // شريط الحالة كما تطلبه الشاشة الظاهرة
     com.osatks.mizan.ui.ApplySystemBars()
@@ -140,83 +195,17 @@ fun MizanApp(startRoute: String? = null) {
         val rail = layout.rail
         val bars = LocalTabBarHost.current
         CompositionLocalProvider(LocalWindowLayout provides layout, LocalAppHaze provides appHaze) {
-        SharedTransitionLayout(Modifier.fillMaxSize().then(if (glassSource) Modifier.hazeSource(appHaze) else Modifier)) {
             // لون النص الافتراضي يتبع الخلفية، وإلا ظهر نص بلا لون محدد أسود في الوضع الداكن
-            CompositionLocalProvider(
-                LocalSharedScope provides this,
-                androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground,
-            ) {
-                NavHost(
-                    nav, startDestination = "home", modifier = Modifier.fillMaxSize(),
-                    enterTransition = { enter(rtl) },
-                    exitTransition = { exit(rtl) },
-                    popEnterTransition = { popEnter(rtl) },
-                    popExitTransition = { popExit(rtl) },
-                ) {
-                    // مكان شريط التنقل لكل صفحة تبويب بحسبها هي، لا بحسب الصفحة الظاهرة: فلا يقفز محتواها أثناء الانتقال منها وإليها.
-                    // مقاس النافذة يُقرأ هنا (لا في منشئ الشبكة) فلا يُعاد بناء شبكة التنقل حين تتغير النافذة
-                    fun screen(route: String, content: @Composable () -> Unit) = composable(route) {
-                        val tab = route in TAB_ROUTES
-                        val side = LocalWindowLayout.current.rail
-                        val host = LocalTabBarHost.current
-                        CompositionLocalProvider(
-                            LocalNavScope provides this,
-                            LocalBottomInset provides if (tab && !side) host.bottomInset else 0.dp,
-                            LocalLeadingInset provides if (tab && side) host.leadingInset else 0.dp,
-                        ) {
-                            // في iOS لا رجوع بالسحب من صفحة تبويب إلى الرئيسية (التبويبات لا تتكدس في تطبيقات النظام)،
-                            // وكان يُفقد حالة التبويب. في أندرويد يبقى زر الرجوع يعود إلى الرئيسية كالمعتاد
-                            if (IsIos && tab && route != "home") com.osatks.mizan.ui.BackHandler {}
-                            // كل صفحة معتمة: في iOS تنزلق الصفحتان معاً، فلا تظهر إحداهما من خلال الأخرى
-                            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) { content() }
-                        }
+            CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+                val source = Modifier.fillMaxSize().then(if (glassSource) Modifier.hazeSource(appHaze) else Modifier)
+                if (stack != null) {
+                    StackNavHost(stack, source, frame = { route, tab, content -> PageFrame(route, tab, content) }) { route ->
+                        Route(route, app, open, back)
                     }
-                    screen("home") { HomeScreen(open = open) }
-                    screen("prayer") { PrayerScreen(open = open) }
-                    screen("qibla") { QiblaScreen(back) }
-                    screen("quran") { QuranScreen(open = open) }
-                    composable(
-                        SURAH_ROUTE,
-                        arguments = listOf(
-                            navArgument("surah") { type = NavType.IntType },
-                            navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
-                            navArgument("from") { type = NavType.StringType; defaultValue = "row" },
-                        )
-                    ) { e ->
-                        val args = e.arguments
-                        CompositionLocalProvider(LocalNavScope provides this) {
-                            val from = args?.read { getStringOrNull("from") } ?: "row"
-                            SurahScreen(
-                                surah = (args?.read { getIntOrNull("surah") } ?: 1).coerceIn(1, 114),
-                                startAyah = args?.read { getIntOrNull("ayah") } ?: 0,
-                                from = from,
-                                onBack = back,
-                                openSurah = { n -> nav.navigate(surahRoute(n, 0, "nav")) { popUpTo(SURAH_ROUTE) { inclusive = true } } },
-                                startInFocus = from == "focus",
-                                openLibrary = { if (nav.currentBackStackEntry?.destination?.route != "tafsirs") nav.navigate("tafsirs") }
-                            )
-                        }
-                    }
-                    screen("tasbih") { TasbihScreen() }
-                    screen("adhkar") { com.osatks.mizan.ui.screens.AdhkarScreen(back) }
-                    screen("settings") { SettingsScreen(open = open) }
-                    screen("tafsirs") { com.osatks.mizan.ui.quran.TafsirLibraryScreen(back) }
-                    screen("guide") { com.osatks.mizan.ui.screens.Onboarding(back) }
-                    screen("adhan") { com.osatks.mizan.ui.screens.AdhanScreen(back) }
-                    screen("licenses") { com.osatks.mizan.ui.screens.LicensesScreen(back) }
-                    screen("zakat") { ZakatScreen(back) }
-                    screen("fitr") { FitrScreen(back) }
-                    screen("inheritance") { InheritanceScreen(back) }
-                    screen("hijri") { HijriScreen(back) }
-                    screen("age") { AgeScreen(back) }
-                    screen("events") { EventsScreen(back) }
-                    screen("fidya") { FidyaScreen(back) }
-                    screen("search") {
-                        SearchScreen(back) { route ->
-                            // نقرة ثانية على نتيجة أثناء خروج البحث كانت تفتح الشاشة مرتين
-                            if (nav.currentBackStackEntry?.destination?.route != "search") return@SearchScreen
-                            if (route in TAB_ROUTES) { nav.popBackStack(); nav.goTab(route) }
-                            else nav.navigate(route) { popUpTo("search") { inclusive = true } }
+                } else {
+                    SharedTransitionLayout(source) {
+                        CompositionLocalProvider(LocalSharedScope provides this) {
+                            AndroidNavHost(navController!!, app, open, back, rtl)
                         }
                     }
                 }
@@ -233,7 +222,7 @@ fun MizanApp(startRoute: String? = null) {
         }
         // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية.
         // يُستدعى دائماً: شريط النظام في iOS 26 يُخبَر بالإخفاء ويتولى حركته بنفسه
-        bars.Bottom(onTab && !firstRun && !rail, current, Modifier.align(Alignment.BottomCenter)) { nav.goTab(it) }
+        bars.Bottom(onTab && !firstRun && !rail, current, Modifier.align(Alignment.BottomCenter)) { app.goTab(it) }
         // القائمة الجانبية تدخل من جهة البداية (اليمين في العربية) وتخرج إليها
         AnimatedVisibility(
             visible = onTab && !firstRun && rail,
@@ -242,13 +231,106 @@ fun MizanApp(startRoute: String? = null) {
             exit = slideOutHorizontally(tween(Motion.SHORT, easing = Motion.Accelerate)) { if (rtl) it else -it } + fadeOut(),
         ) {
             // الأسماء تحت الأيقونات ما دام الارتفاع يتسع لها (لا في هاتف بالعرض)
-            bars.Rail(current, labels = maxHeight >= 440.dp) { nav.goTab(it) }
-        }
+            bars.Rail(current, labels = maxHeight >= 440.dp) { app.goTab(it) }
         }
     }
 }
 
-// ---------- الانتقالات ----------
+/** مكان شريط التنقل لكل صفحة تبويب بحسبها هي، لا بحسب الصفحة الظاهرة: فلا يقفز محتواها أثناء الانتقال منها وإليها */
+@Composable
+private fun PageFrame(route: String, tab: Boolean, content: @Composable () -> Unit) {
+    val side = LocalWindowLayout.current.rail
+    val host = LocalTabBarHost.current
+    CompositionLocalProvider(
+        LocalBottomInset provides if (tab && !side) host.bottomInset else 0.dp,
+        LocalLeadingInset provides if (tab && side) host.leadingInset else 0.dp,
+    ) { content() }
+}
+
+/** الشاشة لكل مسار (المسارات في [ROUTES]، و surah/… بمعاملاتها) */
+@Composable
+private fun Route(route: String, app: AppNav, open: (String) -> Unit, back: () -> Unit) {
+    when (route) {
+        "home" -> HomeScreen(open = open)
+        "prayer" -> PrayerScreen(open = open)
+        "qibla" -> QiblaScreen(back)
+        "quran" -> QuranScreen(open = open)
+        "tasbih" -> TasbihScreen()
+        "adhkar" -> com.osatks.mizan.ui.screens.AdhkarScreen(back)
+        "settings" -> SettingsScreen(open = open)
+        "tafsirs" -> com.osatks.mizan.ui.quran.TafsirLibraryScreen(back)
+        "guide" -> com.osatks.mizan.ui.screens.Onboarding(back)
+        "adhan" -> com.osatks.mizan.ui.screens.AdhanScreen(back)
+        "licenses" -> com.osatks.mizan.ui.screens.LicensesScreen(back)
+        "zakat" -> ZakatScreen(back)
+        "fitr" -> FitrScreen(back)
+        "inheritance" -> InheritanceScreen(back)
+        "hijri" -> HijriScreen(back)
+        "age" -> AgeScreen(back)
+        "events" -> EventsScreen(back)
+        "fidya" -> FidyaScreen(back)
+        "search" -> SearchScreen(back) { r -> app.searchResult(r) }
+        else -> if (route.startsWith("surah/")) {
+            // surah/12?ayah=5&from=row
+            val path = route.substringBefore('?')
+            val query = route.substringAfter('?', "").split('&').mapNotNull { kv ->
+                kv.split('=', limit = 2).takeIf { it.size == 2 }?.let { it[0] to it[1] }
+            }.toMap()
+            SurahRoute(path.removePrefix("surah/").toIntOrNull() ?: 1, query["ayah"]?.toIntOrNull() ?: 0, query["from"] ?: "row", open, back)
+        }
+    }
+}
+
+@Composable
+private fun SurahRoute(surah: Int, ayah: Int, from: String, open: (String) -> Unit, back: () -> Unit) {
+    SurahScreen(
+        surah = surah.coerceIn(1, 114),
+        startAyah = ayah,
+        from = from,
+        onBack = back,
+        openSurah = { },
+        startInFocus = from == "focus",
+        openLibrary = { open("tafsirs") },
+    )
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun AndroidNavHost(nav: NavHostController, app: AppNav, open: (String) -> Unit, back: () -> Unit, rtl: Boolean) {
+    NavHost(
+        nav, startDestination = "home", modifier = Modifier.fillMaxSize(),
+        enterTransition = { enter(rtl) },
+        exitTransition = { exit() },
+        popEnterTransition = { popEnter() },
+        popExitTransition = { popExit(rtl) },
+    ) {
+        for (route in ROUTES) {
+            composable(route) {
+                CompositionLocalProvider(LocalNavScope provides this) {
+                    PageFrame(route, route in TAB_ROUTES) { Route(route, app, open, back) }
+                }
+            }
+        }
+        composable(
+            SURAH_ROUTE,
+            arguments = listOf(
+                navArgument("surah") { type = NavType.IntType },
+                navArgument("ayah") { type = NavType.IntType; defaultValue = 0 },
+                navArgument("from") { type = NavType.StringType; defaultValue = "row" },
+            )
+        ) { e ->
+            val args = e.arguments
+            CompositionLocalProvider(LocalNavScope provides this) {
+                SurahRoute(
+                    args?.read { getIntOrNull("surah") } ?: 1, args?.read { getIntOrNull("ayah") } ?: 0,
+                    args?.read { getStringOrNull("from") } ?: "row", open, back,
+                )
+            }
+        }
+    }
+}
+
+// ---------- الانتقالات (أندرويد) ----------
 // بين التبويبات: "تلاشٍ عابر" (يخبو القديم بسرعة ويكبر الجديد بلطف).
 // إلى أداة: تدخل الصفحة من جهة القراءة (اليمين في العربية) بينما تنكمش السابقة للخلف قليلاً.
 
@@ -259,17 +341,14 @@ private fun AnimatedContentTransitionScope<NavBackStackEntry>.enter(rtl: Boolean
     if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
     else PageMotion.push(rtl)
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(rtl: Boolean): ExitTransition =
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(): ExitTransition =
     if (isTabSwitch()) fadeOut(tween(90))
-    else if (IsIos) PageMotion.pushUnder(rtl)
     else scaleOut(tween(Motion.LONG, easing = Motion.Emphasized), targetScale = 0.94f) + fadeOut(tween(Motion.MEDIUM))
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(rtl: Boolean): EnterTransition =
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(): EnterTransition =
     if (isTabSwitch()) fadeIn(tween(Motion.MEDIUM, delayMillis = 70)) + scaleIn(tween(Motion.LONG, easing = Motion.Decelerate), initialScale = 0.94f)
-    else if (IsIos) PageMotion.popUnder(rtl)
     else scaleIn(tween(Motion.LONG, easing = Motion.Emphasized), initialScale = 0.94f) + fadeIn(tween(Motion.MEDIUM))
 
-// في iOS: الصفحة كلها تخرج إلى جهة الرجوع وتعود التي تحتها من ثلث العرض، بحركة خطية يقودها سحب الحافة فتبقى تحت الإصبع
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(rtl: Boolean): ExitTransition =
     if (isTabSwitch()) fadeOut(tween(90))
     else PageMotion.pop(rtl)

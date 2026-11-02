@@ -60,7 +60,7 @@ fun MainViewController(): UIViewController {
     val vc = ComposeUIViewController(configure = {
         // ترميز أوامر الرسم لـ Metal على خيط مستقل، فيتفرغ الخيط الرئيسي للتركيب واللمس في كل إطار
         parallelRendering = true
-        // سحب الحافة للرجوع (كتطبيقات النظام): يقود انتقال الرجوع في NavHost مع حركة الإصبع
+        // سحب الحافة للرجوع (اليسرى واليمنى): يقود الرجوع في StackNavHost و SubPages، والصفحة تتبع الإصبع من أي حافة بدأ
         enableBackGesture = true
     }) {
         // اهتزازات بمولّدات UIKit لكل نوع ما يناسبه (التبويبات، العدّادات، المفاتيح)؛

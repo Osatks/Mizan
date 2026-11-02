@@ -1,77 +1,60 @@
 package com.osatks.mizan.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.backhandler.PredictiveBackHandler
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /**
- * حركة الانتقال بين صفحة وصفحة فوقها، كما في تطبيقات iOS: الجديدة تدخل كاملة من جهة القراءة وتنزاح السابقة
- * ثلثاً تحتها، والرجوع عكسه. حركة الرجوع خطية لأن سحب الحافة يقودها بالتدريج نفسه: تبقى الصفحة تحت الإصبع.
- * في أندرويد الحركة الأخف المعتادة (انزلاق ربع العرض مع تلاشٍ).
+ * حركة الانتقال بين صفحة وصفحة فوقها في أندرويد (الانتقال في iOS في StackNavHost و [SubPages] بمنحنيات UIKit).
  */
 object PageMotion {
-    /** منحنى الدفع في UIKit تقريباً (بداية سريعة وتوقف ناعم) */
-    private val Push = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
-    private const val PUSH = 420
-    private const val POP = 340
+    val Push = CubicBezierEasing(0.2f, 0.9f, 0.25f, 1f)
+    val Pop = CubicBezierEasing(0.3f, 0.6f, 0.2f, 1f)
+    val Settle = CubicBezierEasing(0.1f, 0.5f, 0.3f, 1f)
+    const val PUSH_MS = 440
+    const val POP_MS = 380
 
-    fun push(rtl: Boolean): EnterTransition =
-        if (IsIos) slideInHorizontally(tween(PUSH, easing = Push)) { w -> if (rtl) -w else w }
-        else slideInHorizontally(tween(Motion.LONG, easing = Motion.Emphasized)) { w -> (if (rtl) -w else w) / 4 } +
-            fadeIn(tween(Motion.MEDIUM, delayMillis = 40))
+    fun push(rtl: Boolean): androidx.compose.animation.EnterTransition =
+        androidx.compose.animation.slideInHorizontally(tween(Motion.LONG, easing = Motion.Emphasized)) { w -> (if (rtl) -w else w) / 4 } +
+            androidx.compose.animation.fadeIn(tween(Motion.MEDIUM, delayMillis = 40))
 
-    fun pushUnder(rtl: Boolean): ExitTransition =
-        if (IsIos) slideOutHorizontally(tween(PUSH, easing = Push)) { w -> (if (rtl) w else -w) / 3 }
-        else fadeOut(tween(Motion.MEDIUM))
-
-    fun popUnder(rtl: Boolean): EnterTransition =
-        if (IsIos) slideInHorizontally(tween(POP, easing = LinearEasing)) { w -> (if (rtl) w else -w) / 3 }
-        else fadeIn(tween(Motion.MEDIUM))
-
-    fun pop(rtl: Boolean): ExitTransition =
-        if (IsIos) slideOutHorizontally(tween(POP, easing = LinearEasing)) { w -> if (rtl) -w else w }
-        else slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { w -> (if (rtl) -w else w) / 4 } +
-            fadeOut(tween(Motion.SHORT, delayMillis = 60))
+    fun pop(rtl: Boolean): androidx.compose.animation.ExitTransition =
+        androidx.compose.animation.slideOutHorizontally(tween(Motion.MEDIUM, easing = Motion.Accelerate)) { w -> (if (rtl) -w else w) / 4 } +
+            androidx.compose.animation.fadeOut(tween(Motion.SHORT, delayMillis = 60))
 }
 
 /**
- * صفحات داخل شاشة واحدة (أنواع الزكاة، أقسام الأذكار): [root] صفحة البداية، وغيرها صفحة فوقها.
- * الرجوع منها بزر الرجوع أو بسحب الحافة في iOS (يتبع الإصبع، ويعود إن تُرك قبل منتصفه) أو بزر الرجوع في أندرويد.
- * [onBack] يُرجع الحالة إلى [root].
+ * صفحات داخل شاشة واحدة (أنواع الزكاة، أقسام الأذكار): [root] صفحة البداية وتبقى حية دائماً، وغيرها صفحة فوقها
+ * تدخل كما تدخل الصفحات في التنقل نفسه. الرجوع بزر الرجوع، أو بسحب الحافة في iOS (يتبع الإصبع ويعود إن تُرك
+ * قبل اكتماله)، أو بزر الرجوع في أندرويد. [onBack] يُرجع الحالة إلى [root].
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun <T> SubPages(
     page: T,
@@ -79,58 +62,125 @@ fun <T> SubPages(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     contentKey: (T) -> Any? = { it },
-    content: @Composable AnimatedContentScope.(T) -> Unit,
+    content: @Composable (T) -> Unit,
 ) {
-    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val state = remember { SeekableTransitionState(page) }
-    val holder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
-    val transition = rememberTransition(state, label = "subPages")
-    var inGesture by remember { mutableStateOf(false) }
-    var progress by remember { mutableFloatStateOf(0f) }
+    val dir = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
+    val parentActive = LocalPageActive.current
+    val holder = rememberSaveableStateHolder()
+    // الصفحة فوق الأولى (ظاهرة أو خارجة)، وظهورها من 0 إلى 1
+    var over by remember { mutableStateOf(if (page != root) page else null) }
+    var p by remember { mutableFloatStateOf(1f) }
+    var moving by remember { mutableStateOf(false) }
+    var gesture by remember { mutableStateOf(false) }
+    // أثناء سحب الحافة: جهة حركة الإصبع، فتتبعه الصفحة أياً كانت حافته
+    var swipeDir by remember { mutableStateOf<Float?>(null) }
 
-    PredictiveBackHandler(enabled = page != root) { events ->
-        progress = 0f
+    // أثناء السحب يبقى مفعّلاً (إيقافه في أندرويد يلغي السحب)، وأثناء حركة أخرى لا يبدأ سحب جديد
+    PredictiveBack(enabled = page != root && (gesture || !moving)) { progress ->
+        gesture = true
+        moving = true
         try {
-            events.collect { inGesture = true; progress = it.progress }
-            inGesture = false
-            onBack()
+            progress.collect { e ->
+                if (swipeDir == null) swipeDir = if (e.fromLeft) 1f else -1f
+                p = 1f - e.progress
+            }
         } catch (e: CancellationException) {
-            inGesture = false
+            gesture = false
+            // تراجع المستخدم: تعود الصفحة مكانها (والمهمة نفسها ملغاة، فالحركة خارج إلغائها)
+            withContext(NonCancellable) {
+                animate(p, 1f, animationSpec = tween(((1f - p) * PageMotion.POP_MS).toInt().coerceIn(90, PageMotion.POP_MS), easing = PageMotion.Settle)) { v, _ -> p = v }
+            }
+            moving = false
+            swipeDir = null
             throw e
         }
+        gesture = false
+        onBack()
     }
 
-    if (inGesture) {
-        LaunchedEffect(progress) { state.seekTo(progress, root) }
-    } else {
-        LaunchedEffect(page) {
-            if (state.currentState != page) {
-                state.animateTo(page)
-            } else if (state.targetState != page) {
-                // سحب تُرك قبل اكتماله: تعود الصفحة إلى مكانها من حيث تركها الإصبع
-                val total = transition.totalDurationNanos / 1_000_000
-                animate(state.fraction, 0f, animationSpec = tween((state.fraction * total).toInt())) { value, _ ->
-                    launch { if (value > 0f) state.seekTo(value) else state.snapTo(page) }
+    LaunchedEffect(page) {
+        if (gesture) return@LaunchedEffect
+        if (page != root) {
+            val old = over
+            over = page
+            if (old == null || contentKey(old) != contentKey(page)) {
+                if (old != null) holder.removeState(contentKey(old) ?: "over")
+                moving = true
+                p = 0f
+                // تبدأ الحركة بعد أن تُبنى الصفحة الجديدة، فلا يقفز أول إطار منها
+                withFrameNanos { }
+                withFrameNanos { }
+                animate(0f, 1f, animationSpec = tween(PageMotion.PUSH_MS, easing = PageMotion.Push)) { v, _ -> p = v }
+            }
+            p = 1f
+            moving = false
+        } else if (over != null) {
+            moving = true
+            val from = p
+            val ms = (from * PageMotion.POP_MS).toInt().coerceIn(90, PageMotion.POP_MS)
+            animate(from, 0f, animationSpec = tween(ms, easing = if (from < 1f) PageMotion.Settle else PageMotion.Pop)) { v, _ -> p = v }
+            over?.let { holder.removeState(contentKey(it) ?: "over") }
+            over = null
+            p = 1f
+            moving = false
+            swipeDir = null
+        }
+    }
+
+    val top = over
+    Layout(
+        modifier = modifier,
+        content = {
+            // الصفحة الأولى حية دائماً: الرجوع إليها لا يعيد بناءها
+            Box(
+                Modifier.layoutId(ROOT).fillMaxSize()
+                    .then(if (top != null) Modifier.under({ swipeDir ?: dir }) { p } else Modifier)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                CompositionLocalProvider(LocalPageActive provides (parentActive && top == null)) { content(root) }
+            }
+            if (top != null) {
+                key(contentKey(top)) {
+                    Box(Modifier.layoutId(OVER).fillMaxSize().over({ swipeDir ?: dir }) { p }.background(MaterialTheme.colorScheme.background)) {
+                        CompositionLocalProvider(LocalPageActive provides (parentActive && page != root)) {
+                            holder.SaveableStateProvider(contentKey(top) ?: "over") { content(top) }
+                        }
+                    }
                 }
             }
-        }
-    }
-
-    transition.AnimatedContent(
-        modifier = modifier,
-        contentKey = contentKey,
-        transitionSpec = { subPageTransform(rtl, root) },
-    ) { p ->
-        // حالة كل صفحة (موضع التمرير وما أُدخل) تبقى حين تُغطّى وتعود كما تُركت
-        holder.SaveableStateProvider(contentKey(p) ?: "root") {
-        // كل صفحة معتمة: لا تظهر الصفحتان متراكبتين أثناء الانزلاق
-        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) { content(p) }
+        },
+    ) { measurables, constraints ->
+        val w = constraints.maxWidth
+        val h = constraints.maxHeight
+        val fixed = Constraints.fixed(w, h)
+        val showRoot = top == null || moving
+        val r = if (showRoot) measurables.firstOrNull { it.layoutId == ROOT }?.measure(fixed) else null
+        val o = measurables.firstOrNull { it.layoutId == OVER }?.measure(fixed)
+        layout(w, h) {
+            r?.place(0, 0)
+            o?.place(0, 0)
         }
     }
 }
 
-private fun <T> AnimatedContentTransitionScope<T>.subPageTransform(rtl: Boolean, root: T): ContentTransform {
-    val back = targetState == root
-    return if (back) (PageMotion.popUnder(rtl) togetherWith PageMotion.pop(rtl)).apply { targetContentZIndex = -1f }
-    else PageMotion.push(rtl) togetherWith PageMotion.pushUnder(rtl)
+private const val ROOT = "root"
+private const val OVER = "over"
+
+/** الصفحة العليا: تدخل كاملة من جهة القراءة (iOS)، أو تنزلق قليلاً وتظهر (أندرويد) */
+internal fun Modifier.over(dir: () -> Float, p: () -> Float): Modifier = graphicsLayer {
+    val v = p()
+    if (IsIos) translationX = dir() * (1f - v) * size.width
+    else {
+        translationX = dir() * (1f - v) * size.width * 0.15f
+        alpha = v
+    }
 }
+
+/** الصفحة تحت العليا: تنزاح ثلثاً وتعتم قليلاً (iOS) */
+internal fun Modifier.under(dir: () -> Float, p: () -> Float): Modifier =
+    if (!IsIos) this
+    else graphicsLayer { translationX = -dir() * 0.3f * p() * size.width }
+        .drawWithContent {
+            drawContent()
+            drawRect(Color.Black.copy(alpha = 0.1f * p()))
+        }
