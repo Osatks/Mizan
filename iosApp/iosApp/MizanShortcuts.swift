@@ -51,9 +51,12 @@ struct ActionAdhkarIntent: LiveActivityIntent {
     static var openAppWhenRun: Bool = false
 
     @MainActor
-    func perform() async throws -> some IntentResult {
-        try LiveIntentError.check(await AppLive.button(.adhkar))
-        return .result()
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let outcome = await AppLive.button(.adhkar)
+        let note = LiveDebug.take()
+        try LiveIntentError.check(outcome)
+        // تشخيص مؤقت في نسخة الاختبار: ما حدث بالضبط
+        return .result(dialog: IntentDialog(stringLiteral: note.isEmpty ? "ok" : note))
     }
 }
 
@@ -66,9 +69,12 @@ struct ActionPrayerCountdownIntent: LiveActivityIntent {
     static var openAppWhenRun: Bool = false
 
     @MainActor
-    func perform() async throws -> some IntentResult {
-        try LiveIntentError.check(await AppLive.button(.prayerToggle))
-        return .result()
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let outcome = await AppLive.button(.prayerToggle)
+        let note = LiveDebug.take()
+        try LiveIntentError.check(outcome)
+        // تشخيص مؤقت في نسخة الاختبار: ما حدث بالضبط
+        return .result(dialog: IntentDialog(stringLiteral: note.isEmpty ? "ok" : note))
     }
 }
 

@@ -12,6 +12,18 @@ import Shared
 ///    والأداة و Siri، وتعدّ في الحال نفسها التي تعدّ فيها الشاشة (AppLive).
 /// والتلاوة لا نشاط حياً لها: «يُشغَّل الآن» (مشغّل النظام) يظهر في شاشة القفل والجزيرة الديناميكية كما في تطبيقات Apple.
 /// وتصل إليه النية المشتركة مع الأداة (فتح شاشة) فيمررها إلى Kotlin.
+/// ما حدث في آخر ضغطة لزر الإجراء: يُعرض سطراً مع الاختصار في نسخة الاختبار (تشخيص مؤقت)
+enum LiveDebug {
+    private static var notes: [String] = []
+    static func note(_ s: String) { notes.append(s) }
+    static func take() -> String { defer { notes = [] }; return notes.joined(separator: " · ") }
+    @available(iOS 16.2, *)
+    static func prayerStates() -> String {
+        let a = Activity<PrayerActivityAttributes>.activities.map { "\($0.activityState)" }
+        return a.isEmpty ? "none" : a.joined(separator: ",")
+    }
+}
+
 final class LiveActivities {
     static let log = Logger(subsystem: "com.mizan.almuslim", category: "live")
     static let shared = LiveActivities()
@@ -116,6 +128,7 @@ enum PrayerActivity {
             defaults.removeObject(forKey: startedKey)
             defaults.removeObject(forKey: dismissedKey)
             end(alive.filter { $0.attributes.id != forced })
+            LiveDebug.note("apply: setting off, not forced")
             return .ok
         }
         let now = Date()
@@ -125,6 +138,7 @@ enum PrayerActivity {
         guard let state = message.prayer else { return .needsPlace }
         let content = ActivityContent(state: state, staleDate: state.at, relevanceScore: 50)
         if let same = current.first(where: { $0.attributes.id == state.id }) {
+            LiveDebug.note("apply: same id exists (\(same.activityState)) → updated")
             if same.content.state != state { Task { await same.update(content) } }
             end(current.filter { $0.id != same.id })
             scheduleEnd(state.endsAt)
@@ -139,10 +153,14 @@ enum PrayerActivity {
         // نشاط جديد عند مغادرة التطبيق (والتطبيق ما زال في المقدمة)، أو حين يطلبه المستخدم (زر الإجراء، Siri)
         let force = message.force == true
         guard force || (message.start == true && defaults.string(forKey: dismissedKey) != state.id),
-              ActivityAuthorizationInfo().areActivitiesEnabled else { return .ok }
+              ActivityAuthorizationInfo().areActivitiesEnabled else {
+            LiveDebug.note("apply: not started (force=\(force) start=\(message.start == true) enabled=\(ActivityAuthorizationInfo().areActivitiesEnabled))")
+            return .ok
+        }
         end(current)
         do {
-            _ = try Activity.request(attributes: PrayerActivityAttributes(id: state.id), content: content, pushType: nil)
+            let started = try Activity.request(attributes: PrayerActivityAttributes(id: state.id), content: content, pushType: nil)
+            LiveDebug.note("request ok \(started.activityState), ends in \(Int(state.endsAt.timeIntervalSinceNow))s, now=\(LiveDebug.prayerStates())")
             defaults.set(state.id, forKey: startedKey)
             if force {
                 defaults.set(state.id, forKey: forcedKey)
@@ -165,7 +183,9 @@ enum PrayerActivity {
         guard let json = IosLive.shared.prayerNowJson(), let message = LiveJSON.prayer(json), let state = message.prayer else {
             return .needsPlace
         }
+        LiveDebug.note("toggle \(state.key) before=\(LiveDebug.prayerStates())")
         if let same = alive.first(where: { $0.attributes.id == state.id }) {
+            LiveDebug.note("same id visible → hidden")
             // ظاهر الآن: يُخفى، ولا يعود تلقائياً لهذه الصلاة
             UserDefaults.standard.set(state.id, forKey: dismissedKey)
             UserDefaults.standard.removeObject(forKey: startedKey)
@@ -183,7 +203,8 @@ enum PrayerActivity {
         guard let json = IosLive.shared.prayerNowJson(), let message = LiveJSON.prayer(json), let state = message.prayer else {
             return .needsPlace
         }
-        if alive.contains(where: { $0.attributes.id == state.id }) { return .ok }
+        LiveDebug.note("show \(state.key) before=\(LiveDebug.prayerStates())")
+        if alive.contains(where: { $0.attributes.id == state.id }) { LiveDebug.note("already visible"); return .ok }
         return apply(message)
     }
 
@@ -305,6 +326,7 @@ enum AdhkarActivity {
     static func apply(_ m: LiveMessage<AdhkarLiveState>, start: Bool) async -> LiveOutcome {
         let content = ActivityContent(state: m.state, staleDate: Date().addingTimeInterval(4 * 3600), relevanceScore: 70)
         if let a = current, a.attributes.section == m.state.section {
+            LiveDebug.note("adhkar updated \(m.state.position) count=\(m.state.count)")
             if m.event == "done" {
                 // تمّ القسم: «أتممت أذكار الصباح» مع تنبيه، ثم يبقى على شاشة القفل دقائق ويختفي
                 let config = AlertConfiguration(
@@ -318,11 +340,13 @@ enum AdhkarActivity {
             }
             return .ok
         }
+        LiveDebug.note("adhkar \(m.state.section) \(m.state.position) start=\(start) existing=\(current.map { "\($0.activityState)" } ?? "none")")
         if let old = current { await old.end(nil, dismissalPolicy: .immediate) }
         guard start, #available(iOS 17.0, *) else { return .ok }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return .activitiesOff }
         do {
-            _ = try Activity.request(attributes: AdhkarActivityAttributes(section: m.state.section), content: content, pushType: nil)
+            let a = try Activity.request(attributes: AdhkarActivityAttributes(section: m.state.section), content: content, pushType: nil)
+            LiveDebug.note("request ok \(a.activityState)")
             return .ok
         } catch {
             LiveActivities.log.error("Activity.request failed: \(String(describing: error), privacy: .public)")
