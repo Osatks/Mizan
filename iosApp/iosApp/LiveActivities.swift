@@ -12,6 +12,19 @@ import Shared
 ///    والأداة و Siri، وتعدّ في الحال نفسها التي تعدّ فيها الشاشة (AppLive).
 /// والتلاوة لا نشاط حياً لها: «يُشغَّل الآن» (مشغّل النظام) يظهر في شاشة القفل والجزيرة الديناميكية كما في تطبيقات Apple.
 /// وتصل إليه النية المشتركة مع الأداة (فتح شاشة) فيمررها إلى Kotlin.
+/// تتسع الجزيرة الديناميكية لحظةً بتفاصيل النشاط (تحديث بتنبيه، بصوت صامت)، ثم تعود مصغّرة
+@available(iOS 16.2, *)
+enum IslandExpand {
+    static func run<A: ActivityAttributes>(_ activity: Activity<A>, title: String, body: String) async {
+        let config = AlertConfiguration(
+            title: LocalizedStringResource(stringLiteral: title),
+            body: LocalizedStringResource(stringLiteral: body),
+            sound: .named("silence.wav")
+        )
+        await activity.update(activity.content, alertConfiguration: config)
+    }
+}
+
 /// ما حدث في آخر ضغطة لزر الإجراء: يُعرض سطراً مع الاختصار في نسخة الاختبار (تشخيص مؤقت)
 enum LiveDebug {
     private static var notes: [String] = []
@@ -194,6 +207,19 @@ enum PrayerActivity {
             return .ok
         }
         return apply(message)
+    }
+
+    /// زر الإجراء: يُظهر العدّ التنازلي وتتسع الجزيرة لحظةً، وكل ضغطة بعدها توسّعها من جديد (يُخفى بسحبه)
+    @MainActor
+    static func showExpanded() async -> LiveOutcome {
+        let outcome = await show()
+        guard case .ok = outcome else { return outcome }
+        if let json = IosLive.shared.prayerNowJson(), let message = LiveJSON.prayer(json), let state = message.prayer,
+           let a = alive.first(where: { $0.attributes.id == state.id }) {
+            await IslandExpand.run(a, title: state.name, body: state.label)
+            LiveDebug.note("expanded")
+        }
+        return outcome
     }
 
     /// «الصلاة القادمة» من زر الإجراء: يُظهر العدّ التنازلي (ولا يخفيه إن كان ظاهراً)
@@ -380,8 +406,8 @@ enum AppLive {
         case .adhkarEnd:
             await AdhkarActivity.end()
             return .ok
-        case .prayerToggle: return await PrayerActivity.toggle()
-        case .prayerShow: return await PrayerActivity.show()
+        // أزرار مركز التحكم وشاشة القفل كزر الإجراء: يُظهر العدّ وتتسع الجزيرة لحظةً
+        case .prayerToggle, .prayerShow: return await PrayerActivity.showExpanded()
         }
     }
 
@@ -395,11 +421,16 @@ enum AppLive {
             // تسبيحة بكل ضغطة، بلا بطاقة على شاشة القفل: يُحدَّث النشاط إن كان ظاهراً (بدأه المستخدم من التطبيق) ولا يُبدأ
             return await tasbih(IosTasbih.shared.count(), start: false)
         case .adhkar:
-            // الضغطة الأولى تُظهر الذكر الحالي في الجزيرة وعلى شاشة القفل، والتالية تعدّ
-            if AdhkarActivity.current == nil { return await adhkar(IosAdhkar.shared.current(section: nil)) }
-            return await run(.adhkarCount)
-        case .prayerToggle: return await PrayerActivity.toggle()
-        case .nextPrayer: return await PrayerActivity.show()
+            // الضغطة الأولى تُظهر الذكر الحالي، والتالية تعدّ؛ وكل ضغطة توسّع الجزيرة لحظةً
+            let outcome = AdhkarActivity.current == nil
+                ? await adhkar(IosAdhkar.shared.current(section: nil))
+                : await run(.adhkarCount)
+            if case .ok = outcome, let a = AdhkarActivity.current {
+                await IslandExpand.run(a, title: a.content.state.title, body: a.content.state.countText)
+                LiveDebug.note("expanded")
+            }
+            return outcome
+        case .prayerToggle, .nextPrayer: return await PrayerActivity.showExpanded()
         }
     }
 
