@@ -1,2 +1,8 @@
-• Widgets de inicio: próxima oración, horarios de hoy, adhkar, fecha de la Hégira y aleya del día.
-• Mejoras en el Mushaf, la recitación y el rendimiento.
+• Contador de tasbih en la pantalla bloqueada y en la Dynamic Island: cuenta y reinicia sin abrir la app.
+• Contador de adhkar de la mañana y la tarde en la pantalla bloqueada; pasa solo al siguiente dhikr.
+• Cuenta atrás para la próxima oración y luego para la iqama, con iftar, suhur y la dua del iftar en Ramadán.
+• Botón de Acción, Centro de control y Siri: tasbih, cuenta atrás, adhkar y aleya del día.
+• Nuevos widgets: toca el anillo para contar, la porción del día de la khatma y la próxima oración en modo Reposo.
+• Comparte una aleya como imagen, con la letra del Mushaf y su significado, en tres colores.
+• Horarios de oración en el Calendario del iPhone y qibla con la cámara.
+• App para Apple Watch: próxima oración y horarios del día, tasbih con la Digital Crown y complicaciones.

@@ -1,2 +1,8 @@
-• Widget skrin utama: solat seterusnya, waktu hari ini, zikir, tarikh Hijrah dan ayat hari ini.
-• Penambahbaikan Mushaf, bacaan dan prestasi.
+• Pembilang tasbih pada Skrin Terkunci dan Dynamic Island: kira dan set semula tanpa membuka aplikasi.
+• Pembilang zikir pagi dan petang pada Skrin Terkunci; beralih sendiri ke zikir seterusnya.
+• Kiraan detik ke solat seterusnya, kemudian ke iqamah, serta waktu berbuka, sahur dan doa berbuka pada Ramadan.
+• Butang Tindakan, Pusat Kawalan dan Siri: tasbih, kiraan detik solat, zikir dan ayat hari ini.
+• Widget baharu: ketik cincin untuk bertasbih, bahagian khatam hari ini, dan solat seterusnya dalam mod Sedia.
+• Kongsi ayat sebagai imej dengan tulisan Mushaf dan maknanya, dalam tiga warna.
+• Waktu solat dalam Kalendar iPhone, dan kiblat melalui kamera.
+• Aplikasi Apple Watch: solat seterusnya dan waktu hari ini, tasbih dengan Digital Crown, serta komplikasi.
