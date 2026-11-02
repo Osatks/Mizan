@@ -12,6 +12,19 @@ on:
         description: "Simulator (needs a Dynamic Island)"
         type: string
         default: "iPhone 17 Pro Max"
+  # مؤقت أثناء تطوير الميزات على هذا الفرع (التشغيل اليدوي يحتاج الملف في الفرع الافتراضي أولاً)
+  push:
+    branches: [claude/lucid-shannon-uo5lj0]
+    paths:
+      - "iosApp/Gallery/**"
+      - "iosApp/MizanWidgets/**"
+      - "iosApp/Shared/**"
+      - ".github/workflows/ios-gallery.yml"
+      - "android-app/shared/src/commonMain/kotlin/com/osatks/mizan/widget/**"
+
+concurrency:
+  group: ios-gallery-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   fixtures:
