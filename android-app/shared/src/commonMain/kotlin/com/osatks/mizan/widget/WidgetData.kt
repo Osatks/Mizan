@@ -9,6 +9,7 @@ import com.osatks.mizan.adhkar.Adhkar
 import com.osatks.mizan.adhkar.AdhkarTr
 import com.osatks.mizan.adhkar.Dhikr
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Hijri
 import com.osatks.mizan.core.HDate
 import com.osatks.mizan.core.Place
@@ -188,6 +189,32 @@ object WidgetData {
     internal fun hex(c: Int) = "#" + (c and 0xFFFFFF).toString(16).padStart(6, '0').uppercase()
 
     /**
+     * ما تقرؤه ميزان على Apple Watch وحدها (WatchExtras في SnapshotModel.swift): القبلة من موقع المستخدم في التطبيق
+     * (زاويتها من الشمال الجغرافي واتجاهها ومسافتها منسقة بلغته)، ودقائق الإقامة بعد كل أذان، وأيام رمضان من [dates]
+     * ونصوص العدّ فيها (الإفطار عند المغرب ونهاية السحور عند الفجر)، واسم الشهر الهجري لكل يوم.
+     */
+    fun watch(lang: Lang, place: Place, iqama: Map<String, Int>, dates: List<LocalDate>): Map<String, Any?> {
+        val s = lang.strings
+        val lt = LiveText.of(lang.code)
+        val deg = PrayTimes.qibla(place.lat, place.lng)
+        val hijri = dates.associate { it.toString() to hijri(it) }
+        return linkedMapOf(
+            "qibla" to deg,
+            "qiblaText" to Fmt.num(deg, 0, lang) + "°",
+            "qiblaDir" to s.directions[kotlin.math.round(deg / 45.0).toInt() % 8],
+            "qiblaKm" to Fmt.num(PrayTimes.distanceKm(place.lat, place.lng), 0, lang) + " " + s.unitKm,
+            "qiblaTitle" to s.qiblaTitle,
+            "facing" to s.facingQibla.removePrefix("✓").trim(),
+            "iqama" to iqama.filter { (k, v) -> k != "sunrise" && v > 0 },
+            "iqamaIn" to lt.iqamaIn,
+            "iftar" to lt.iftar,
+            "suhoor" to lt.suhoor,
+            "ramadan" to hijri.filterValues { it?.m == 9 }.keys.toList(),
+            "months" to hijri.mapNotNull { (d, h) -> h?.let { d to s.hijriMonths[it.m - 1] } }.toMap(),
+        )
+    }
+
+    /**
      * لقطة الأدوات في iOS: [days] أيام من اليوم، بأوقات مطلقة (ثوانٍ منذ ١٩٧٠) حتى تبقى صحيحة بلا التطبيق.
      * النصوص منسقة مسبقاً بلغة التطبيق وأرقامها، فلا تحتاج الأداة إلى أي حساب.
      * المعاملات من الإعدادات افتراضياً؛ وتمرّرها الاختبارات لتقارن بها حساب الأداة المستقل في Swift.
@@ -197,6 +224,7 @@ object WidgetData {
         lang: Lang = Lang.current, place: Place = AppSettings.place, method: String = AppSettings.method,
         hanafi: Boolean = AppSettings.hanafi, h24: Boolean = AppSettings.use24h,
         accent: String = AppSettings.accent, theme: String = AppSettings.theme,
+        iqama: Map<String, Int> = AppSettings.iqama,
     ): Map<String, Any?> {
         val s = lang.strings
         val wt = WidgetText.of(lang.code)
@@ -278,6 +306,7 @@ object WidgetData {
             "rotateSec" to AdhkarClock.ROTATE_SEC,
             "labels" to labels(s, wt, LiveText.of(lang.code)),
             "khatma" to khatma(s),
+            "watch" to watch(lang, place, iqama, (0 until days).map { today.plusDays(it) }),
             "days" to dayList,
             "windows" to winList,
             "items" to itemMap,

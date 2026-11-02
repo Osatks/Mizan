@@ -152,6 +152,17 @@ class LiveStatesTest {
         val fields = SwiftStructs.fields("Shared/SnapshotModel.swift", "Snapshot")
         val snap = snapshot(Lang.AR)
         check("snapshot", snap, fields)
+        // ما تقرؤه الساعة: بكل لغة، والقبلة من عمّان نحو الجنوب الشرقي تقريباً
+        val extras = SwiftStructs.fields("Shared/SnapshotModel.swift", "WatchExtras")
+        for (lang in Lang.entries) {
+            @Suppress("UNCHECKED_CAST")
+            val w = snapshot(lang)["watch"] as Map<String, Any?>
+            check("${lang.code}/watch", w, extras)
+            val deg = w["qibla"] as Double
+            assertTrue("${lang.code}: qibla $deg", deg in 150.0..165.0)
+            assertTrue("${lang.code}: iqama ${w["iqama"]}", (w["iqama"] as Map<*, *>).keys.containsAll(listOf("fajr", "isha")))
+            assertTrue("${lang.code}: months", (w["months"] as Map<*, *>).size == 2)
+        }
         System.getenv("MIZAN_GALLERY_EXPORT")?.let { export(File(it)) }
     }
 

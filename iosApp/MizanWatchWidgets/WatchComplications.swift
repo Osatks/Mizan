@@ -1,13 +1,18 @@
 import SwiftUI
 import WidgetKit
 
-// مضاعفات وجه الساعة: الصلاة القادمة (عدّ تنازلي حي وشريط ما مضى من الوقت)، واختصار يفتح المسبحة.
-// من لقطة iPhone التي حفظها تطبيق الساعة في حاوية App Group (WatchData.swift)؛ مدخل عند دخول كل صلاة.
+// مضاعفات وجه الساعة والمكدس الذكي، من لقطة iPhone التي حفظها تطبيق الساعة في حاوية App Group (WatchData.swift):
+// الصلاة القادمة (والإقامة بعد الأذان، والإفطار والسحور في رمضان)، ومواقيت اليوم، واتجاه القبلة، والتاريخ الهجري،
+// والمسبحة. الرسم في ComplicationViews.swift. أهمية المدخلات (relevance) تقدّم في المكدس الذكي الصلاةَ القادمة
+// قبل الأذان بنصف ساعة إلى الإقامة، والمسبحةَ بعد الصلاة.
 
 @main
 struct MizanWatchWidgets: WidgetBundle {
     var body: some Widget {
         NextPrayerComplication()
+        TodayPrayersComplication()
+        QiblaComplication()
+        HijriComplication()
         TasbihComplication()
     }
 }
@@ -15,9 +20,30 @@ struct MizanWatchWidgets: WidgetBundle {
 struct PrayerEntry: TimelineEntry {
     let date: Date
     let snap: Snapshot?
+    var relevance: TimelineEntryRelevance? = nil
 }
 
+/// خلفية المضاعفة (دائرة الوجه للصغيرة) ورابط الصفحة التي تفتحها في تطبيق الساعة، والحجم من البيئة
+struct FaceContainer<Content: View>: View {
+    let page: String
+    @ViewBuilder let content: (WidgetFamily) -> Content
+    @Environment(\.widgetFamily) private var family
+
+    var body: some View {
+        content(family)
+            .containerBackground(for: .widget) {
+                if family == .accessoryCircular { AccessoryWidgetBackground() } else { Color.clear }
+            }
+            .widgetURL(URL(string: "mizan-watch://\(page)"))
+    }
+}
+
+// ---------- المزوّدات ----------
+
+/// مدخل عند كل أذان وكل إقامة (يتغير ما يُعدّ إليه)، ومعها قبل كل أذان بنصف ساعة إن طُلبت الأهمية
 struct PrayerProvider: TimelineProvider {
+    var relevant = false
+
     func placeholder(in context: Context) -> PrayerEntry { PrayerEntry(date: Date(), snap: nil) }
 
     func getSnapshot(in context: Context, completion: @escaping (PrayerEntry) -> Void) {
@@ -26,136 +52,165 @@ struct PrayerProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerEntry>) -> Void) {
         let now = Date()
-        let snap = WatchData.load()?.snapshot
-        var dates = [now]
-        if let snap = snap {
-            let t0 = now.timeIntervalSince1970
-            dates += snap.prayers.map { $0.date }.filter { $0.timeIntervalSince1970 > t0 && $0.timeIntervalSince1970 < t0 + 36 * 3600 }
+        guard let snap = WatchData.load()?.snapshot else {
+            // تصل اللقطة فيعيد تطبيق الساعة بناء المضاعفات (reloadAllTimelines)؛ هذا احتياط
+            completion(Timeline(entries: [PrayerEntry(date: now, snap: nil)], policy: .after(now.addingTimeInterval(3600))))
+            return
         }
-        let entries = dates.map { PrayerEntry(date: $0, snap: snap) }
-        // بعد آخر صلاة في اللقطة يُعاد البناء (تصل لقطة جديدة كلما فُتح التطبيق على iPhone)
+        var dates = [now] + snap.changes(after: now)
+        if relevant {
+            let end = now.addingTimeInterval(36 * 3600)
+            dates += snap.prayers.map { $0.date.addingTimeInterval(-30 * 60) }.filter { $0 > now && $0 < end }
+        }
+        let entries = Array(Set(dates)).sorted().map { d in
+            PrayerEntry(date: d, snap: snap, relevance: relevant ? Self.relevance(snap, d) : nil)
+        }
+        // بعد آخر مدخل يُعاد البناء (تصل لقطة جديدة كلما فُتح التطبيق على iPhone)
+        completion(Timeline(entries: entries, policy: .atEnd))
+    }
+
+    /// مهمة من نصف ساعة قبل الأذان إلى الإقامة (أو ربع ساعة بعد الأذان على الأقل)، وقليلة في غير ذلك
+    static func relevance(_ snap: Snapshot, _ date: Date) -> TimelineEntryRelevance {
+        let t = date.timeIntervalSince1970
+        for p in snap.prayers {
+            let end = p.at + Double(max(snap.watch?.iqama[p.k] ?? 0, 15)) * 60
+            if t >= p.at - 30 * 60 && t < end {
+                return TimelineEntryRelevance(score: 100, duration: end - t)
+            }
+        }
+        return TimelineEntryRelevance(score: 5)
+    }
+}
+
+/// مدخل عند بداية كل يوم في اللقطة (التاريخ الهجري)
+struct DayProvider: TimelineProvider {
+    func placeholder(in context: Context) -> PrayerEntry { PrayerEntry(date: Date(), snap: nil) }
+
+    func getSnapshot(in context: Context, completion: @escaping (PrayerEntry) -> Void) {
+        completion(PrayerEntry(date: Date(), snap: WatchData.load()?.snapshot))
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerEntry>) -> Void) {
+        let now = Date()
+        guard let snap = WatchData.load()?.snapshot else {
+            completion(Timeline(entries: [PrayerEntry(date: now, snap: nil)], policy: .after(now.addingTimeInterval(3600))))
+            return
+        }
+        let starts = snap.days.map { Date(timeIntervalSince1970: $0.start) }.filter { $0 > now }
+        completion(Timeline(entries: ([now] + starts).map { PrayerEntry(date: $0, snap: snap) }, policy: .atEnd))
+    }
+}
+
+/// القبلة لا تتغير إلا بتغيّر الموقع: مدخل واحد، ويُعاد البناء مع كل لقطة جديدة
+struct StaticProvider: TimelineProvider {
+    func placeholder(in context: Context) -> PrayerEntry { PrayerEntry(date: Date(), snap: nil) }
+
+    func getSnapshot(in context: Context, completion: @escaping (PrayerEntry) -> Void) {
+        completion(PrayerEntry(date: Date(), snap: WatchData.load()?.snapshot))
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerEntry>) -> Void) {
+        completion(Timeline(entries: [PrayerEntry(date: Date(), snap: WatchData.load()?.snapshot)], policy: .never))
+    }
+}
+
+struct TasbihEntry: TimelineEntry {
+    let date: Date
+    let title: String
+    var relevance: TimelineEntryRelevance? = nil
+}
+
+/// المسبحة مهمة بعد كل صلاة (التسبيح دبرها): من الإقامة وخمس دقائق، عشرين دقيقة
+struct TasbihProvider: TimelineProvider {
+    private static func title(_ p: WatchPayload?) -> String {
+        p?.tasbih?.title ?? (WatchData.arabicDevice ? "المسبحة" : "Tasbih")
+    }
+
+    func placeholder(in context: Context) -> TasbihEntry { TasbihEntry(date: Date(), title: Self.title(nil)) }
+
+    func getSnapshot(in context: Context, completion: @escaping (TasbihEntry) -> Void) {
+        completion(TasbihEntry(date: Date(), title: Self.title(WatchData.load())))
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<TasbihEntry>) -> Void) {
+        let now = Date()
+        let payload = WatchData.load()
+        let title = Self.title(payload)
+        var entries = [TasbihEntry(date: now, title: title, relevance: TimelineEntryRelevance(score: 0))]
+        if let snap = payload?.snapshot {
+            let t0 = now.timeIntervalSince1970
+            for p in snap.prayers where p.at > t0 - 3600 && p.at < t0 + 36 * 3600 {
+                let start = p.at + Double((snap.watch?.iqama[p.k] ?? 10) + 5) * 60
+                guard start > t0 else {
+                    // الآن بعد الصلاة: مهمة لما بقي من الدقائق العشرين
+                    if t0 < start + 20 * 60 { entries[0].relevance = TimelineEntryRelevance(score: 60, duration: start + 20 * 60 - t0) }
+                    continue
+                }
+                entries.append(TasbihEntry(date: Date(timeIntervalSince1970: start), title: title,
+                                           relevance: TimelineEntryRelevance(score: 60, duration: 20 * 60)))
+                entries.append(TasbihEntry(date: Date(timeIntervalSince1970: start + 20 * 60), title: title,
+                                           relevance: TimelineEntryRelevance(score: 0)))
+            }
+        }
+        entries.sort { $0.date < $1.date }
         completion(Timeline(entries: entries, policy: .atEnd))
     }
 }
 
+// ---------- المضاعفات ----------
+
 struct NextPrayerComplication: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "MizanWatchNextPrayer", provider: PrayerProvider()) { entry in
-            NextPrayerComplicationView(entry: entry)
+        StaticConfiguration(kind: "MizanWatchNextPrayer", provider: PrayerProvider(relevant: true)) { entry in
+            FaceContainer(page: "prayer") { family in NextPrayerFace(snap: entry.snap, date: entry.date, family: family) }
         }
         .configurationDisplayName("Mizan")
-        .description("Next prayer")
+        .description("Next prayer, iqama, iftar and suhoor")
         .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline, .accessoryCorner])
     }
 }
 
-struct NextPrayerComplicationView: View {
-    let entry: PrayerEntry
-    @Environment(\.widgetFamily) private var family
-
-    var body: some View {
-        content
-            .containerBackground(for: .widget) {
-                if family == .accessoryCircular { AccessoryWidgetBackground() } else { Color.clear }
-            }
-            .widgetURL(URL(string: "mizan-watch://prayer"))
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if let snap = entry.snap, let next = snap.nextPrayer(after: entry.date) {
-            let from = snap.previousPrayer(before: entry.date)?.date ?? next.date.addingTimeInterval(-3 * 3600)
-            let span = max(1, next.date.timeIntervalSince(from))
-            let done = min(1, max(0, entry.date.timeIntervalSince(from) / span))
-            switch family {
-            case .accessoryCircular:
-                Gauge(value: done) {
-                    Image(systemName: "moon.stars.fill")
-                } currentValueLabel: {
-                    VStack(spacing: 0) {
-                        Text(verbatim: next.name).font(.system(size: 10, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.6)
-                        Text(verbatim: next.s).font(.system(size: 12, weight: .bold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
-                    }
-                }
-                .gaugeStyle(.accessoryCircularCapacity)
-                .widgetAccentable()
-            case .accessoryInline:
-                Text(verbatim: "\(next.name) \(next.t)")
-            case .accessoryCorner:
-                Text(timerInterval: entry.date...max(entry.date, next.date), countsDown: true)
-                    .monospacedDigit()
-                    .widgetLabel {
-                        Gauge(value: done) { Text(verbatim: next.name) }
-                            .tint(Color(red: 0.91, green: 0.76, blue: 0.35))
-                    }
-            default:
-                VStack(alignment: .leading, spacing: 1) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "moon.stars.fill").font(.system(size: 11))
-                        Text(verbatim: snap.text("nextPrayer", "Next prayer")).font(.system(size: 12, weight: .semibold)).lineLimit(1)
-                    }
-                    .widgetAccentable()
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(verbatim: next.name).font(.system(size: 17, weight: .bold)).lineLimit(1).minimumScaleFactor(0.7)
-                        Spacer(minLength: 4)
-                        Text(verbatim: next.t).font(.system(size: 13, weight: .semibold)).monospacedDigit()
-                            .environment(\.layoutDirection, .leftToRight)
-                    }
-                    Text(timerInterval: entry.date...max(entry.date, next.date), countsDown: true)
-                        .font(.system(size: 15, weight: .medium))
-                        .monospacedDigit()
-                        .environment(\.layoutDirection, .leftToRight)
-                        .frame(maxWidth: .infinity, alignment: snap.rtl ? .trailing : .leading)
-                }
-                .environment(\.layoutDirection, snap.rtl ? .rightToLeft : .leftToRight)
-            }
-        } else {
-            switch family {
-            case .accessoryInline: Text(verbatim: "Mizan")
-            default:
-                Image(systemName: "moon.stars.fill").font(.system(size: 20)).widgetAccentable()
-            }
+struct TodayPrayersComplication: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "MizanWatchToday", provider: PrayerProvider()) { entry in
+            FaceContainer(page: "prayer") { _ in TodayPrayersFace(snap: entry.snap, date: entry.date) }
         }
+        .configurationDisplayName("Mizan")
+        .description("Today's prayer times")
+        .supportedFamilies([.accessoryRectangular])
     }
 }
 
-/// اختصار المسبحة على وجه الساعة: يفتح صفحة المسبحة
+struct QiblaComplication: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "MizanWatchQibla", provider: StaticProvider()) { entry in
+            FaceContainer(page: "qibla") { family in QiblaFace(snap: entry.snap, family: family) }
+        }
+        .configurationDisplayName("Mizan")
+        .description("Qibla direction")
+        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline, .accessoryCorner])
+    }
+}
+
+struct HijriComplication: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "MizanWatchHijri", provider: DayProvider()) { entry in
+            FaceContainer(page: "prayer") { family in HijriFace(snap: entry.snap, date: entry.date, family: family) }
+        }
+        .configurationDisplayName("Mizan")
+        .description("Hijri date")
+        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline, .accessoryCorner])
+    }
+}
+
+/// المسبحة على وجه الساعة: تفتح صفحة المسبحة
 struct TasbihComplication: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "MizanWatchTasbih", provider: TasbihProvider()) { _ in
-            TasbihComplicationView()
+        StaticConfiguration(kind: "MizanWatchTasbih", provider: TasbihProvider()) { entry in
+            FaceContainer(page: "tasbih") { family in TasbihFace(title: entry.title, family: family) }
         }
         .configurationDisplayName("Mizan")
         .description("Tasbih")
-        .supportedFamilies([.accessoryCircular, .accessoryCorner])
-    }
-}
-
-struct TasbihProvider: TimelineProvider {
-    struct Entry: TimelineEntry { let date: Date }
-    func placeholder(in context: Context) -> Entry { Entry(date: Date()) }
-    func getSnapshot(in context: Context, completion: @escaping (Entry) -> Void) { completion(Entry(date: Date())) }
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-        completion(Timeline(entries: [Entry(date: Date())], policy: .never))
-    }
-}
-
-struct TasbihComplicationView: View {
-    @Environment(\.widgetFamily) private var family
-
-    var body: some View {
-        Group {
-            if family == .accessoryCorner {
-                Image(systemName: "hand.tap.fill").font(.system(size: 18)).widgetLabel { Text(verbatim: "سبحان الله") }
-            } else {
-                ZStack {
-                    AccessoryWidgetBackground()
-                    Image(systemName: "hand.tap.fill").font(.system(size: 20, weight: .semibold))
-                }
-            }
-        }
-        .widgetAccentable()
-        .containerBackground(for: .widget) { Color.clear }
-        .widgetURL(URL(string: "mizan-watch://tasbih"))
+        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryCorner])
     }
 }
