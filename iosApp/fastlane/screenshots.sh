@@ -308,8 +308,19 @@ run_watch() {
   log "watch: device type $type, runtime $runtime"
   UDID=$(xcrun simctl create "Mizan watch" "$type" "$runtime")
   CREATED+=("$UDID")
-  xcrun simctl boot "$UDID" 2>/dev/null || true
-  xcrun simctl bootstatus "$UDID" -b
+  # نظام watchOS المنزَّل للتو قد لا يقلع من أول مرة ("Unable to lookup in current state: Shutdown"): ثلاث محاولات
+  local booted=0 i
+  for i in 1 2 3; do
+    xcrun simctl boot "$UDID" >/dev/null 2>&1 || true
+    if xcrun simctl bootstatus "$UDID" -b >/dev/null 2>&1 && xcrun simctl list devices | grep "$UDID" | grep -q Booted; then booted=1; break; fi
+    log "watch boot attempt $i failed; retrying"
+    xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+    sleep 20
+  done
+  if [ "$booted" != 1 ]; then
+    echo "::warning title=Apple Watch::the watch simulator did not boot; watch screenshots skipped"
+    return 0
+  fi
   xcrun simctl status_bar "$UDID" override --time "9:41" >/dev/null 2>&1 || true
   xcrun simctl install "$UDID" "$watch_app"
   for loc in $LOCALES; do

@@ -213,8 +213,19 @@ jobs:
           read -r runtime type < <(xcrun simctl list runtimes -j | python3 fastlane/pick_watch.py)
           echo "watch $type, runtime $runtime"
           udid=$(xcrun simctl create "Gallery Watch" "$type" "$runtime")
-          xcrun simctl boot "$udid" || true
-          xcrun simctl bootstatus "$udid" -b
+          # نظام watchOS المنزَّل للتو قد لا يقلع من أول مرة ("Unable to lookup in current state: Shutdown"): ثلاث محاولات
+          booted=0
+          for i in 1 2 3; do
+            xcrun simctl boot "$udid" 2>&1 | grep -v "current state: Booted" || true
+            if xcrun simctl bootstatus "$udid" -b >/dev/null 2>&1 && xcrun simctl list devices | grep "$udid" | grep -q Booted; then booted=1; break; fi
+            echo "watch boot attempt $i failed; retrying"
+            xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true
+            sleep 20
+          done
+          if [ "$booted" != 1 ]; then
+            echo "::warning title=Apple Watch::the watch simulator did not boot; watch screenshots skipped (the watch app was built)"
+            exit 0
+          fi
           xcrun simctl status_bar "$udid" override --time "9:41" || true
           xcrun simctl install "$udid" build/Debug-watchsimulator/MizanWatch.app
           for lang in ar en; do
