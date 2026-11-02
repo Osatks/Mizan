@@ -65,6 +65,8 @@ struct PrayerActivityWidget: Widget {
                         .font(Mizan.rounded(12, .medium))
                         .foregroundColor(.white.opacity(0.7))
                         .lineLimit(1)
+                        // آخر سطر عند انحناء الزاويتين السفليين (والجزيرة أطول بعد الأذان): أبعد عن الجانبين
+                        .padding(.horizontal, 8)
                     }
                     // بعيداً عن انحناء زوايا الجزيرة
                     .padding(.horizontal, 12)

@@ -210,7 +210,8 @@ struct TasbihActivityWidget: Widget {
                         }
                         .layoutPriority(1)
                     }
-                    .padding(.horizontal, 4)
+                    // اسما العددين في أسفل الجزيرة عند انحناء زاويتيها: بعيداً عن الجانبين
+                    .padding(.horizontal, 14)
                     .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
                 }
             } compactLeading: {

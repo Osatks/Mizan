@@ -12,6 +12,10 @@ on:
         description: "Simulator (needs a Dynamic Island)"
         type: string
         default: "iPhone 17 Pro Max"
+      tests:
+        description: "Only these UI tests, comma-separated (e.g. test3Island,test4LockScreen); empty runs all"
+        type: string
+        default: ""
   # مؤقت أثناء تطوير الميزات على هذا الفرع (التشغيل اليدوي يحتاج الملف في الفرع الافتراضي أولاً)
   push:
     branches: [claude/lucid-shannon-uo5lj0]
@@ -122,13 +126,17 @@ jobs:
         working-directory: iosApp/Gallery
         env:
           UDID: ${{ steps.sim.outputs.udid }}
+          TESTS: ${{ inputs.tests }}
         run: |
           mkdir -p "$RUNNER_TEMP/gallery"
           log="$RUNNER_TEMP/gallery/xcodebuild.log"
           # TEST_RUNNER_*: يصل إلى اختبار الواجهة بلا البادئة (مجلد الصور)
           set +e
+          # اختبارات بعينها (tests) أو كلها
+          only=()
+          for t in $(printf '%s' "$TESTS" | tr ',' ' '); do only+=("-only-testing:GalleryUITests/GalleryUITests/$t"); done
           TEST_RUNNER_GALLERY_OUT="$RUNNER_TEMP/gallery" xcodebuild test -project Gallery.xcodeproj -scheme Gallery \
-            -destination "id=$UDID" -derivedDataPath build -resultBundlePath "$RUNNER_TEMP/Gallery.xcresult" > "$log" 2>&1
+            -destination "id=$UDID" -derivedDataPath build -resultBundlePath "$RUNNER_TEMP/Gallery.xcresult" "${only[@]}" > "$log" 2>&1
           code=$?
           set -e
           grep -E "error:|warning: .*(MizanWidgets|Gallery|Shared)/|Test Case .*(passed|failed)|XCTAssert|error -|\*\* " "$log" | tail -n 250 || true
