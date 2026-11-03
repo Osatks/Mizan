@@ -205,7 +205,7 @@ cd android-app
 .\gradlew.bat bundleRelease
 ```
 
-أو دون جهاز: GitHub ← Actions ← **Android** ← Run workflow مع `play_track` (internal أو production) فيُبنى ويُوقَّع ويُرفع إلى Google Play مباشرة. رقم النسخة `2.3.N` ورمزها يزيدان مع كل commit.
+أو دون جهاز: GitHub ← Actions ← **Android** ← Run workflow مع `play_track` (internal أو production) فيُبنى ويُوقَّع ويُرفع إلى Google Play مباشرة. رقم النسخة من ملف `VERSION` في جذر المستودع (`2.3.0`)، ورمز النسخة يزيد وحده مع كل commit.
 
 ستجد ملف الحزمة الناتج في:
 `android-app/app/build/outputs/bundle/release/app-release.aab`

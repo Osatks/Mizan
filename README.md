@@ -99,7 +99,7 @@ python -m http.server 8080 --directory dist
   - `.github/workflows/ios.yml` يبني نسخة غير موقّعة للتحقق (`framework_run` يعيد استعمال إطار Kotlin لتغييرات Swift وحدها).
   - `ios-release.yml` يبني ويوقّع ويرفع إلى TestFlight، ومع `submit` يرسل للمراجعة.
   - `ios-gallery.yml` يلتقط صور الأدوات والأنشطة الحية والساعة على المحاكي.
-- **أرقام النسخ:** `2.3.N` حيث N = عدد الـ commits ناقص 205، ورقم البناء عدد الـ commits؛ وكذلك في أندرويد.
+- **أرقام النسخ:** رقم النسخة للناس في ملف `VERSION` في جذر المستودع (الآن `2.3.0`)، نفسه في iOS وأندرويد، ويُرفع بيدك عند كل إصدار جديد للمتجر. رقم البناء (iOS) ورمز النسخة (أندرويد) يزيدان وحدهما مع كل commit، فتُرفع بناءات كثيرة للنسخة نفسها.
 - **على Mac (اختياري):** `cd android-app && gradle :shared:linkReleaseFrameworkIosArm64` ثم `cd iosApp && xcodegen generate` وافتح `Mizan.xcodeproj`.
 
 ## الأذان (للنظامين)
