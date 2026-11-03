@@ -17,13 +17,17 @@ import android.os.SystemClock
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import com.osatks.mizan.core.AdhanResume
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.Muezzin
 import com.osatks.mizan.core.Muezzins
 import com.osatks.mizan.platform.AdhanAudio
 import com.osatks.mizan.platform.init
 
 /**
- * يشغّل الأذان كاملاً عند دخول الوقت: خدمة أمامية (تشغيل وسائط) بصوت المنبّه، وإشعارها فيه زر «إيقاف».
+ * يشغّل الأذان عند دخول الوقت: خدمة أمامية (تشغيل وسائط) بصوت المنبّه، وإشعارها فيه زر «إيقاف».
+ * والتطبيق مغلق: أول تكبيرتين ثم يتلاشى الصوت ([Muezzin.takbir])، ويكمل الأذان من هناك إن فُتح التطبيق بعده
+ * (AdhanResume)؛ والتطبيق مفتوح: كاملاً.
  * يتوقف الأذان بالزر، أو بإزالة الإشعار، أو بضغط زر الصوت، أو بمكالمة (فقدان تركيز الصوت)، أو بانتهائه،
  * ويبقى بعده إشعار الصلاة العادي (إلا إن أزاله المستخدم).
  */
@@ -31,6 +35,11 @@ class AdhanService : Service() {
     companion object {
         /** أزال المستخدم الإشعار: لا يُعاد نشره بعد الإيقاف */
         @Volatile var removed = false
+
+        /** فُتح التطبيق فأكمل الأذان (AdhanResume): تتوقف الخدمة بلا تعليم الأذان منتهياً */
+        fun handOff(ctx: Context) {
+            ctx.stopService(Intent(ctx, AdhanService::class.java))
+        }
 
         /** false إن منع النظام بدء الخدمة من الخلفية */
         fun start(ctx: Context, prayer: String): Boolean = try {
@@ -86,12 +95,22 @@ class AdhanService : Service() {
             p.setAudioAttributes(attrs)
             p.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK)
             AdhanAudio.setSource(this, p, Muezzins.forPrayer(key))
-            p.setOnCompletionListener { stopSelf() }
+            p.setOnCompletionListener { AdhanResume.done(key); stopSelf() }
             p.setOnErrorListener { _, _, _ -> stopSelf(); true }
             p.prepare()
             p.start()
             player = p
             listenVolumeKeys()
+            val m = Muezzins.forPrayer(key)
+            if (AdhanResume.appVisible) {
+                // التطبيق أمام المستخدم: الأذان كاملاً، ولا يُكمَل مرة أخرى
+                AdhanResume.done(key)
+            } else {
+                // أول تكبيرتين ثم يتلاشى الصوت ويتوقف (يكمل التطبيق من هنا إن فُتح)
+                android.os.Handler(mainLooper).postDelayed({
+                    if (player === p) AdhanAudio.ramp(p, 1f, 0f, (Muezzin.FADE * 1000).toLong()) { if (player === p) stopSelf() }
+                }, (m.takbir * 1000).toLong())
+            }
             true
         } catch (e: Exception) {
             p.release()
@@ -104,7 +123,7 @@ class AdhanService : Service() {
         val since = SystemClock.elapsedRealtime()
         val r = object : BroadcastReceiver() {
             override fun onReceive(c: Context, i: Intent) {
-                if (SystemClock.elapsedRealtime() - since > 1500) stopSelf()
+                if (SystemClock.elapsedRealtime() - since > 1500) { prayer?.let { AdhanResume.done(it) }; stopSelf() }
             }
         }
         ContextCompat.registerReceiver(this, r, IntentFilter("android.media.VOLUME_CHANGED_ACTION"), ContextCompat.RECEIVER_NOT_EXPORTED)

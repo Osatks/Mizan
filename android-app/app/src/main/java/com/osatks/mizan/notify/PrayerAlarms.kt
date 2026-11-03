@@ -141,7 +141,7 @@ object PrayerAlarms {
             .setContentIntent(open)
         if (stop) {
             fun halt(req: Int, removed: Boolean) = PendingIntent.getBroadcast(
-                ctx, req, Intent(ctx, AdhanStopReceiver::class.java).putExtra("removed", removed),
+                ctx, req, Intent(ctx, AdhanStopReceiver::class.java).putExtra("removed", removed).putExtra("prayer", key),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             b.addAction(0, s.stopAdhan, halt(1, false)).setDeleteIntent(halt(2, true))
@@ -196,6 +196,8 @@ class PrayerReceiver : BroadcastReceiver() {
 class AdhanStopReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.getBooleanExtra("removed", false)) AdhanService.removed = true
+        // أوقفه المستخدم: لا يكمله التطبيق إن فُتح بعده
+        intent.getStringExtra("prayer")?.let { com.osatks.mizan.core.AdhanResume.done(it) }
         context.stopService(Intent(context, AdhanService::class.java))
     }
 }

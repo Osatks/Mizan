@@ -211,13 +211,29 @@ fun TasbihScreen() {
                 }
                 // iOS: العدّاد على شاشة القفل وفي الجزيرة الديناميكية (يعدّ منها زر الإجراء ومركز التحكم أيضاً)
                 if (com.osatks.mizan.platform.LiveTasbih.supported) {
-                    val lt = com.osatks.mizan.widget.LiveText.of(com.osatks.mizan.i18n.LocalLang.current.code)
-                    androidx.compose.material3.TextButton(
-                        onClick = { com.osatks.mizan.platform.LiveTasbih.show?.invoke() },
-                        modifier = Modifier.fillMaxWidth(),
+                    val live = com.osatks.mizan.platform.LiveTasbih
+                    val code = com.osatks.mizan.i18n.LocalLang.current.code
+                    val lt = com.osatks.mizan.widget.LiveText.of(code)
+                    if (live.onLockScreen) {
+                        androidx.compose.material3.TextButton(
+                            onClick = { live.show?.invoke() },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Icon(Icons.Filled.Smartphone, null)
+                            Text(" " + lt.showLive)
+                        }
+                    }
+                    // من لا يريد البطاقة على شاشة القفل يطفئها هنا (بدل «عدم السماح» في سؤال iOS، فتتعطل الجزيرة)
+                    val (title, desc) = com.osatks.mizan.platform.LiveTasbihText.of(code)
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.Smartphone, null)
-                        Text(" " + lt.showLive)
+                        Column(Modifier.weight(1f)) {
+                            Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                            Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        com.osatks.mizan.ui.AppSwitch(checked = live.onLockScreen, onCheckedChange = { live.update(it) })
                     }
                 }
             }
