@@ -32,6 +32,7 @@ object IosArQibla {
         val lang = Lang.current
         val s = lang.strings
         val ft = FeatureText.of(lang.code)
+        val cal = com.osatks.mizan.i18n.QiblaCalibText.of(lang.code)
         val p = AppSettings.place
         return Json.write(
             linkedMapOf<String, Any?>(
@@ -46,6 +47,10 @@ object IosArQibla {
                 "unsupported" to ft.arUnsupported,
                 "openSettings" to s.openSettings,
                 "close" to s.close,
+                "calibTitle" to cal.title,
+                "calibSteps" to cal.all("ios").mapIndexed { i, t -> "${i + 1}. $t" }.joinToString("\n"),
+                "calibReset" to cal.reset,
+                "calibDone" to cal.done,
                 "rtl" to lang.rtl,
             ) + LiveStates.palette(AppSettings.accent)
         )

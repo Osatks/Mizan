@@ -23,6 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +60,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import com.osatks.mizan.ui.ClickRow
 import androidx.compose.material.icons.filled.ViewInAr
-import androidx.compose.material.icons.Icons
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.FeatureText
 import com.osatks.mizan.platform.ArQibla
@@ -118,6 +122,29 @@ fun QiblaScreen(onBack: (() -> Unit)? = null) {
             Note(
                 if (accuracyLow) s.compassLowAccuracy else s.qiblaTip,
                 warn = accuracyLow
+            )
+        }
+        // معايرة البوصلة: خطوات واضحة بلغة التطبيق (وتظهر الدقة المنخفضة فوقها)
+        if (hasSensor) item {
+            val cal = com.osatks.mizan.i18n.QiblaCalibText.of(LocalLang.current.code)
+            var open by remember { mutableStateOf(false) }
+            SectionCard {
+                ClickRow(cal.title, cal.steps.first(), onClick = { open = true }, leading = Icons.Filled.Explore)
+            }
+            if (open) androidx.compose.material3.AlertDialog(
+                onDismissRequest = { open = false },
+                title = { Text(cal.title, fontWeight = FontWeight.Bold) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        cal.all(com.osatks.mizan.platform.Platform.name).forEachIndexed { i, step ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("${i + 1}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                Text(step, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                },
+                confirmButton = { androidx.compose.material3.TextButton(onClick = { open = false }) { Text(cal.done) } },
             )
         }
         item { EvidenceCard(com.osatks.mizan.i18n.Evidence.qibla) }

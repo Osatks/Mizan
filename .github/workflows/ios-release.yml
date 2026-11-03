@@ -167,8 +167,8 @@ jobs:
         run: |
           n=$(git rev-list --count HEAD)
           echo "build=$n" >> "$GITHUB_OUTPUT"
-          echo "name=2.2.$(( n > 53 ? n - 53 : 1 ))" >> "$GITHUB_OUTPUT"
-          echo "Version 2.2.$(( n > 53 ? n - 53 : 1 )) ($n)" >> "$GITHUB_STEP_SUMMARY"
+          echo "name=2.3.$(( n > 205 ? n - 205 : 0 ))" >> "$GITHUB_OUTPUT"
+          echo "Version 2.3.$(( n > 205 ? n - 205 : 0 )) ($n)" >> "$GITHUB_STEP_SUMMARY"
 
       # المتجر يطلب Xcode 26 فما بعده، و iPhone Duo يطلب SDK iOS 27.1 فما بعده
       - name: Xcode 27.1

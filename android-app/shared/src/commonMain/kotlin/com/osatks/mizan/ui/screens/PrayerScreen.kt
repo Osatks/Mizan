@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -160,6 +161,8 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
                 }
             }
         }
+        // القبلة مع المواقيت كما هو المعتاد: بوصلة صغيرة حية، والزاوية والجهة والمسافة، وتفتح شاشة القبلة
+        item { QiblaCard(onOpen = { open("qibla") }) }
         side { Reveal(showMonth || LocalPageColumns.current == 2) { MonthTable(day) } }
         item {
             SectionCard(s.locationAndMethod) {
@@ -304,6 +307,63 @@ private fun MonthTable(ref: LocalDate) {
                     }
                 }
             }
+        }
+    }
+}
+
+
+/** بطاقة القبلة في شاشة المواقيت: البوصلة تدور مع الهاتف، والإبرة الذهبية إلى الكعبة، وتتذهّب الحلقة عند الاتجاه الصحيح */
+@Composable
+private fun QiblaCard(onOpen: () -> Unit) {
+    val s = LocalStrings.current
+    val place = AppSettings.place
+    val qibla = PrayTimes.qibla(place.lat, place.lng)
+    val compass = com.osatks.mizan.platform.rememberCompass(place.lat, place.lng)
+    val heading = if (compass.available) compass.heading else 0f
+    val diff = ((((qibla - heading) % 360) + 540) % 360 - 180).toFloat()
+    val aligned = compass.available && kotlin.math.abs(diff) < 4
+    val gold = androidx.compose.ui.graphics.Color(0xFFE0B54A)
+    val ring by androidx.compose.animation.animateColorAsState(
+        if (aligned) gold else MaterialTheme.colorScheme.outlineVariant, tween(Motion.MEDIUM), label = "qiblaRing"
+    )
+    // الإبرة تدور بأقصر طريق وبنعومة
+    val needle by androidx.compose.animation.core.animateFloatAsState(diff, tween(220), label = "qiblaNeedle")
+    val dirs = s.directions[(kotlin.math.round(qibla / 45.0).toInt()) % 8]
+    SectionCard {
+        Row(
+            Modifier.fillMaxWidth().clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                .clickable(onClick = onOpen).padding(vertical = 6.dp, horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+                androidx.compose.foundation.Canvas(Modifier.size(52.dp)) {
+                    val r = size.minDimension / 2
+                    val c = center
+                    drawCircle(ring, r - 2.dp.toPx(), c, style = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))
+                    // علامات الجهات الأربع تدور مع الهاتف
+                    for (i in 0 until 4) {
+                        val a = Math.toRadians((i * 90 - heading).toDouble())
+                        val o = androidx.compose.ui.geometry.Offset((c.x + kotlin.math.sin(a) * (r - 7.dp.toPx())).toFloat(), (c.y - kotlin.math.cos(a) * (r - 7.dp.toPx())).toFloat())
+                        drawCircle(if (i == 0) androidx.compose.ui.graphics.Color(0xFFE5534B) else ring, (if (i == 0) 2.6f else 1.6f).dp.toPx(), o)
+                    }
+                    // الإبرة إلى الكعبة، ورأسها الكعبة
+                    val a = Math.toRadians(needle.toDouble())
+                    val tip = androidx.compose.ui.geometry.Offset((c.x + kotlin.math.sin(a) * (r - 13.dp.toPx())).toFloat(), (c.y - kotlin.math.cos(a) * (r - 13.dp.toPx())).toFloat())
+                    drawLine(gold, c, tip, 3.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    drawCircle(gold, 3.dp.toPx(), c)
+                    val k = 5.dp.toPx()
+                    drawRect(androidx.compose.ui.graphics.Color(0xFF111111), androidx.compose.ui.geometry.Offset(tip.x - k, tip.y - k), androidx.compose.ui.geometry.Size(2 * k, 2 * k))
+                    drawRect(gold, androidx.compose.ui.geometry.Offset(tip.x - k, tip.y - k * 0.45f), androidx.compose.ui.geometry.Size(2 * k, k * 0.35f))
+                }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(if (aligned) s.facingQibla else s.qiblaTitle, fontWeight = FontWeight.Bold,
+                    color = if (aligned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                Text(
+                    "${Fmt.num(qibla, 0)}° · ${s.towards(dirs)} · ${Fmt.num(PrayTimes.distanceKm(place.lat, place.lng), 0)} ${s.unitKm}",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

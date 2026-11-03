@@ -216,6 +216,9 @@ private class HeadingWatcher(val onHeading: (Float, Boolean) -> Unit) : NSObject
     }
     override fun locationManager(manager: CLLocationManager, didUpdateLocations: List<*>) {}
     override fun locationManager(manager: CLLocationManager, didFailWithError: NSError) {}
+    // دقة البوصلة منخفضة: يعرض iOS شاشة معايرته (حرّك الهاتف على شكل 8)
+    override fun locationManagerShouldDisplayHeadingCalibration(manager: CLLocationManager): Boolean = true
+
     override fun locationManager(manager: CLLocationManager, didUpdateHeading: platform.CoreLocation.CLHeading) {
         val h = if (didUpdateHeading.trueHeading >= 0) didUpdateHeading.trueHeading else didUpdateHeading.magneticHeading
         onHeading(h.toFloat(), didUpdateHeading.headingAccuracy < 0 || didUpdateHeading.headingAccuracy > 25)
