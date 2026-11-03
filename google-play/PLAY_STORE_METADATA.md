@@ -36,11 +36,13 @@
 
   🕌 مواقيت الصلاة والأذان:
   • حساب دقيق لمواقيت الصلوات الخمس والشروق حسب موقعك الجغرافي.
-  • تنبيهات الأذان والإشعارات لكل صلاة بدون الحاجة للإنترنت.
+  • تنبيهات الأذان لكل صلاة بدون إنترنت: أول تكبيرتين ثم يخفت الصوت، ويكمل الأذان كاملاً إن فتحت التطبيق.
+  • وقت الإقامة لكل صلاة، واختيار المؤذن (فؤاد افتراضياً).
   • دعم مختلف طرق الحساب المعتمدة (أم القرى، رابطة العالم الإسلامي، الهيئة المصرية، وغيرها).
 
   🧭 اتجاه القبلة:
-  • بوصلة تفاعلية دقيقة لتحديد اتجاه الكعبة المشرفة في أي مكان حول العالم.
+  • بوصلة تفاعلية دقيقة لتحديد اتجاه الكعبة المشرفة في أي مكان حول العالم، وتظهر أيضاً في شاشة المواقيت.
+  • خطوات واضحة لمعايرة البوصلة.
 
   📿 الأذكار وحصن المسلم:
   • أكثر من 24 قسماً للأذكار تشمل 334 ذكراً من القرآن الكريم وحصن المسلم.
@@ -96,11 +98,13 @@
 
   🕌 Prayer Times & Adhan Notifications:
   • Precise prayer times calculated locally based on your coordinates.
-  • Local adhan notifications for upcoming prayers without needing internet.
+  • Offline adhan alerts: the first two takbirs, then a gentle fade; open the app to hear the full adhan.
+  • Iqama times per prayer and a choice of muezzin (Fouad by default).
   • Supports all standard calculation methods (Umm al-Qura, Muslim World League, Egyptian Authority, etc.).
 
   🧭 Qibla Direction:
-  • Interactive compass sensor accurately pointing towards the Kaaba.
+  • Interactive compass pointing to the Kaaba, also shown on the prayer times screen.
+  • Clear steps to calibrate the compass.
 
   📿 Adhkar & Hisn al-Muslim:
   • Over 330 authenticated daily supplications and Quranic prayers.
@@ -200,6 +204,8 @@ cd android-app
 # 2. إنشاء حزمة النشر الموقعة
 .\gradlew.bat bundleRelease
 ```
+
+أو دون جهاز: GitHub ← Actions ← **Android** ← Run workflow مع `play_track` (internal أو production) فيُبنى ويُوقَّع ويُرفع إلى Google Play مباشرة. رقم النسخة من ملف `VERSION` في جذر المستودع (`2.3.0`)، ورمز النسخة يزيد وحده مع كل commit.
 
 ستجد ملف الحزمة الناتج في:
 `android-app/app/build/outputs/bundle/release/app-release.aab`

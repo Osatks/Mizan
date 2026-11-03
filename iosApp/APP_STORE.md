@@ -30,6 +30,7 @@
    - في Capabilities فعّل **App Groups** ← Continue ← Register.
    - افتح المعرّف الجديد ← بجانب App Groups اضغط **Configure** (أو Edit) ← اختر `group.com.mizan.almuslim` ← Continue ← Save.
 4. **معرّف الأدوات**: كرر الخطوة 3 بـ Description: `Mizan Widgets` و Bundle ID: `com.mizan.almuslim.widgets` مع App Groups ومجموعة `group.com.mizan.almuslim` نفسها.
+   **ومعرّفا Apple Watch** بالطريقة نفسها والمجموعة نفسها: `com.mizan.almuslim.watchkitapp` (تطبيق الساعة) و `com.mizan.almuslim.watchkitapp.widgets` (مضاعفاتها). بدون المجموعة فيهما تفشل الأرشفة.
 5. **سجّل جهاز iPhone واحداً** (مطلوب: الأرشفة بالتوقيع التلقائي تحتاج ملف تطوير، وApple لا تنشئه لحساب بلا أجهزة): **Devices** ← **+** ← Platform iOS ، Device Name: `My iPhone` ، Device ID (UDID).
    - لمعرفة UDID على Windows: وصّل الجهاز ← تطبيق **Apple Devices** أو iTunes ← صفحة الجهاز ← اضغط على **Serial Number** فيتحول إلى UDID ← انسخه. (Sideloadly يعرضه أيضاً.)
 
@@ -94,7 +95,8 @@
    - ثم إطار Kotlin على macos-15 (Xcode 16)، والأرشفة والتوقيع على xcode-27 (Xcode 27.1). التصدير يُخرج ملف .ipa موقَّعاً فقط، ثم يُرفع بـ `xcrun altool`، وإن فشل فبـ `fastlane pilot` بالمفتاح نفسه (يُطبع خطأ كل منهما). الرفع المدمج في التصدير رُفض من قبل بالمفتاح نفسه («Cannot verify client's JWT headers»).
 3. **الإرسال للمراجعة**: **iOS Release (App Store)** ← Run workflow ← submit: ✓. يبني ويرفع، ثم يرفع النصوص واللقطات، وينتظر معالجة البناء، ويرسله للمراجعة مع **النشر التلقائي بعد القبول**. (المراجعة عادة 24–48 ساعة.)
    - `metadata_only: ✓` يرفع النصوص واللقطات وحدها دون بناء ولا إرسال.
-   - في كل إصدار لاحق: حدّث `release_notes.txt` في كل لغة ثم شغّل submit: ✓ مرة أخرى (رقم البناء = عدد الـ commits فيزيد وحده).
+   - في كل إصدار لاحق: حدّث `release_notes.txt` في كل لغة ثم شغّل submit: ✓ مرة أخرى (رقم البناء = عدد الـ commits فيزيد وحده، ورقم النسخة من ملف `VERSION`: ارفعه، مثلاً إلى `2.3.1`، قبل كل إصدار جديد للمتجر).
+   - لا تُرسل نسخة جديدة للمراجعة ونسخة سابقة ما زالت فيها؛ نسخ TestFlight (submit: ✗) لا تمسّها.
 
 ### ز) ما تسأل عنه المراجعة عادة وكيف تجيب (بالإنجليزية في Resolution Center)
 ملاحظات المراجِع جاهزة في `metadata/review_information/notes.txt` وتُرفع تلقائياً.
@@ -114,7 +116,7 @@
 ### ما لا يمكن التحقق منه إلا بتشغيل على Mac
 التوقيع التلقائي بالمفتاح (إنشاء الشهادة وملفات التطوير والتوزيع)، ورفع البناء بـ altool، وبناء التطبيق بـ Xcode 27.1 مع إطار Kotlin المربوط بـ Xcode 16 (Kotlin 2.1.21 غير مختبَر مع Xcode 27، فلا يُستعمل Xcode 27 إلا للتطبيق نفسه)، وتنقل اللقطات بالروابط وأزمنة الانتظار، وتدوير محاكي iPad وحالة الطي في محاكي iPhone Duo من سطر الأوامر، واختيار fastlane للبناء. إن فشلت الأرشفة أو الرفع فسجلاتهما (archive و export و altool و pilot) في الملف المرفق `mizan-ios-release-N`.
 - «No profiles / no devices»: سجّل جهازاً (أ‑5).
-- «maximum number of certificates»: في Certificates احذف شهادات Apple Development القديمة التي أنشأها «Xcode (API)».
+- «maximum number of certificates»: كل تشغيل على GitHub ينشئ شهادة توقيع جديدة. في Certificates احذف بنفسك الشهادات القديمة التي أنشأها «Xcode (API)» أو «Created via API» (الحذف قرارك، ولا يفعله سير العمل).
 - «Cannot create cloud managed certificate / permission»: المفتاح ليس Admin.
 
 ---
@@ -131,7 +133,7 @@ Mizan is a **universal app (iPhone + iPad)** and **iPhone Duo-ready** (both disp
 1. https://developer.apple.com/account → **Certificates, IDs & Profiles** → **Identifiers**.
 2. **+** → **App Groups** → Description `Mizan`, Identifier `group.com.mizan.almuslim` → Register.
 3. **+** → **App IDs** → **App** → Description `Mizan`, **Explicit** Bundle ID `com.mizan.almuslim`, tick **App Groups** → Register. Open it → App Groups **Configure** → select `group.com.mizan.almuslim` → Save.
-4. Repeat for `com.mizan.almuslim.widgets` (Description `Mizan Widgets`) with the same App Group.
+4. Repeat for `com.mizan.almuslim.widgets` (Description `Mizan Widgets`) with the same App Group, and for the two Apple Watch IDs `com.mizan.almuslim.watchkitapp` and `com.mizan.almuslim.watchkitapp.widgets`. Archiving fails without the App Group on them.
 5. **Devices** → **+** → register one iPhone UDID. This is required: automatic signing needs a development profile to archive, and Apple won't create one for a team with no devices. On Windows: the Apple Devices app or iTunes → device page → click **Serial Number** to show the UDID. Sideloadly also shows it.
 
 ### b) App Store Connect API key and Team ID
@@ -164,7 +166,7 @@ Repo → **Settings** → **Secrets and variables** → **Actions** → New repo
 2. Optional TestFlight check: **iOS Release (App Store)** → submit ✗. The build appears in TestFlight after 5–30 min.
    - The first job (**preflight**, Linux, under a minute) trims stray spaces/newlines from the secrets, checks their shape, then signs a JWT with the key and asks the App Store Connect API for the app record. It fails fast with the actual cause: no app record for `com.mizan.almuslim` (step c), a key without permission (Admin role, pending agreements in Business), an **Individual key** instead of a Team key, or IDs that do not match the .p8.
    - Then the Kotlin framework is built on macos-15 (Xcode 16) and the app is archived and signed on xcode-27 (Xcode 27.1). Export only produces the signed .ipa; it is uploaded with `xcrun altool`, falling back to `fastlane pilot` with the same key (both errors are printed). The upload built into `-exportArchive` had been rejected with this same key ("Cannot verify client's JWT headers").
-3. **iOS Release (App Store)** → submit ✓: builds, uploads, uploads metadata and screenshots, waits for processing, submits for review, and releases automatically after approval. `metadata_only` ✓ uploads only the texts and screenshots. For later releases, update each `release_notes.txt` first.
+3. **iOS Release (App Store)** → submit ✓: builds, uploads, uploads metadata and screenshots, waits for processing, submits for review, and releases automatically after approval. `metadata_only` ✓ uploads only the texts and screenshots. For later releases, update each `release_notes.txt` first. The version name comes from the `VERSION` file (bump it, e.g. to `2.3.1`, for each new store release), and the build number is the commit count. Don't submit while an earlier version is still in review; TestFlight-only runs (submit ✗) don't affect it.
 
 ### g) Common review questions
 Reviewer notes are in `metadata/review_information/notes.txt` and are uploaded automatically. Background audio (2.5.4) is used for Quran recitation on the lock screen. Location (5.1.1) is optional and on-device only. For third-party content (5.2), cite Tanzil, EveryAyah and King Fahd Complex. **iPad (2.4.1, 4.0)**: the app is universal (`TARGETED_DEVICE_FAMILY: "1,2"` for the app and the widgets) with layouts designed for iPad (sidebar, two columns, two-page Mushaf in landscape, centered menus and sheets, all orientations, Split View and Slide Over); 13-inch iPad screenshots are mandatory and produced by the screenshot workflow. **iPhone Duo**: the outer display uses the phone layout, the inner display the wide layouts; folding keeps the same page and open panels. The reviewer notes explain what to try on iPad and iPhone Duo. Never use Apple's name or logos in a way that suggests Apple made or endorses the app (5.2.5). Answer in English in the Resolution Center.
@@ -173,4 +175,4 @@ Reviewer notes are in `metadata/review_information/notes.txt` and are uploaded a
 In private repos, macOS minutes count 10×. A release run takes about 25–35 min (≈250–350 quota minutes) and a screenshot run about 30–40 min. The free plan's 2,000 minutes ≈ 6 macOS runs per month. Standard runners are free in public repos.
 
 ### Only verifiable on a Mac run
-These can only be confirmed by a real run: automatic signing with the API key (certificate and profile creation), the altool upload, building the app with Xcode 27.1 against the Kotlin framework linked with Xcode 16 (Kotlin 2.1.21 is not tested with Xcode 27, so Xcode 27 only builds the app itself), screenshot navigation timings, rotating the iPad simulator and setting the iPhone Duo fold state from the command line, and fastlane picking the build. Archive, export, altool and pilot logs are attached as the `mizan-ios-release-N` artifact. To fix common failures: register a device (a‑5), revoke old “Apple Development” certificates created by Xcode (API), or give the key the Admin role.
+These can only be confirmed by a real run: automatic signing with the API key (certificate and profile creation), the altool upload, building the app with Xcode 27.1 against the Kotlin framework linked with Xcode 16 (Kotlin 2.1.21 is not tested with Xcode 27, so Xcode 27 only builds the app itself), screenshot navigation timings, rotating the iPad simulator and setting the iPhone Duo fold state from the command line, and fastlane picking the build. Archive, export, altool and pilot logs are attached as the `mizan-ios-release-N` artifact. To fix common failures: register a device (a‑5), revoke old certificates created by “Xcode (API)” / “Created via API” yourself (every CI run creates one; the workflow never deletes anything), or give the key the Admin role.

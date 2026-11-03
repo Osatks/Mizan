@@ -84,7 +84,8 @@ jobs:
         run: |
           n=$(git rev-list --count HEAD)
           echo "build=$n" >> "$GITHUB_OUTPUT"
-          echo "name=2.2.$(( n > 53 ? n - 53 : 1 ))" >> "$GITHUB_OUTPUT"
+          # رقم النسخة للناس من ملف VERSION (يُرفع بيدك عند كل إصدار للمتجر)، ورقم البناء يزيد مع كل commit
+          echo "name=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
 
       # SDK iOS 27.1 فما بعده شرط ملء الشاشة الداخلية لـ iPhone Duo
       - name: Xcode 27.1

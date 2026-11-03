@@ -47,6 +47,11 @@ struct ArQiblaInfo: Decodable {
     var hero1: String
     var hero2: String
     var gold: String
+    /// معايرة البوصلة: العنوان، والخطوات (سطر لكل خطوة)، وإعادة الضبط، والإغلاق
+    var calibTitle: String? = nil
+    var calibSteps: String? = nil
+    var calibReset: String? = nil
+    var calibDone: String? = nil
 }
 
 final class ArQiblaController: UIViewController, ARSCNViewDelegate {
@@ -59,6 +64,12 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
     private let hintLabel = UILabel()
     private let message = UIStackView()
     private let haptic = UINotificationFeedbackGenerator()
+    /// نقرة خفيفة كلما اقترب الاتجاه عشر درجات
+    private let tick = UISelectionFeedbackGenerator()
+    private var lastBucket = -1
+    /// سهم على حافة الشاشة نحو الكعبة حين تكون خارج النظر
+    private let edgeArrow = UIImageView()
+    private let calibrate = UIButton(type: .system)
     private var lastState = ""
     private var wasFacing = false
     private var tracking = false
@@ -93,6 +104,7 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
         buildKaaba()
         buildOverlay()
         haptic.prepare()
+        tick.prepare()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -121,38 +133,76 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
 
     // ---------- المشهد ----------
 
-    /// كعبة صغيرة سوداء بحزام ذهبي، وحلقة ذهبية مضيئة تحتها، تواجه المستخدم دائماً
+    /// الكعبة: كسوة سوداء بحريرها وطيّاتها، وحزام ذهبي مزخرف، وباب ذهبي على الوجه المقابل للمستخدم، وقاعدة رخامية
+    /// (الشاذروان)؛ والقوام كله مرسوم في صور (إضاءة ثابتة): لا تبيضّ تحت ضوء الغرفة القوي ولا تسودّ في العتمة.
+    /// وتحتها هالة ذهبية تتموّج، وعمود نور يصعد منها حين تتجه إلى القبلة. تواجه المستخدم دائماً.
+    private let beam = SCNNode()
+    private let model = SCNNode()
+
     private func buildKaaba() {
-        let body = SCNBox(width: 0.42, height: 0.48, length: 0.42, chamferRadius: 0.012)
-        let black = SCNMaterial()
-        black.diffuse.contents = UIColor(white: 0.06, alpha: 1)
-        black.roughness.contents = 0.85
-        black.lightingModel = .physicallyBased
-        body.materials = [black]
-        kaaba.addChildNode(SCNNode(geometry: body))
+        let w: CGFloat = 0.40, h: CGFloat = 0.46, l: CGFloat = 0.44
+        let body = SCNBox(width: w, height: h, length: l, chamferRadius: 0.003)
+        // الوجوه: الأمام، اليمين، الخلف، اليسار، الأعلى، الأسفل (الجانبان أعتم قليلاً فتظهر الكتلة)
+        body.materials = [
+            flat(kiswa(door: true, shade: 1.0, aspect: w / h)),
+            flat(kiswa(door: false, shade: 0.72, aspect: l / h)),
+            flat(kiswa(door: false, shade: 0.8, aspect: w / h)),
+            flat(kiswa(door: false, shade: 0.72, aspect: l / h)),
+            flat(UIColor(white: 0.13, alpha: 1)),
+            flat(UIColor(white: 0.05, alpha: 1)),
+        ]
+        model.addChildNode(SCNNode(geometry: body))
 
-        let band = SCNBox(width: 0.425, height: 0.05, length: 0.425, chamferRadius: 0.004)
-        let goldMaterial = SCNMaterial()
-        goldMaterial.diffuse.contents = gold
-        goldMaterial.emission.contents = gold.withAlphaComponent(0.35)
-        goldMaterial.metalness.contents = 0.9
-        goldMaterial.roughness.contents = 0.3
-        goldMaterial.lightingModel = .physicallyBased
-        band.materials = [goldMaterial]
-        let bandNode = SCNNode(geometry: band)
-        bandNode.position = SCNVector3(0, 0.12, 0)
-        kaaba.addChildNode(bandNode)
+        // الشاذروان: قاعدة رخامية مائلة الحواف
+        let base = SCNBox(width: w + 0.04, height: 0.026, length: l + 0.04, chamferRadius: 0.006)
+        base.materials = [flat(marble())]
+        let baseNode = SCNNode(geometry: base)
+        baseNode.position = SCNVector3(0, Float(-h / 2 - 0.013), 0)
+        model.addChildNode(baseNode)
+        kaaba.addChildNode(model)
 
-        let ring = SCNTorus(ringRadius: 0.46, pipeRadius: 0.012)
-        let glow = SCNMaterial()
-        glow.diffuse.contents = gold
-        glow.emission.contents = gold
-        glow.lightingModel = .constant
-        ring.materials = [glow]
-        let ringNode = SCNNode(geometry: ring)
-        ringNode.position = SCNVector3(0, -0.26, 0)
-        ringNode.runAction(.repeatForever(.sequence([.fadeOpacity(to: 0.35, duration: 1.1), .fadeOpacity(to: 1, duration: 1.1)])))
-        kaaba.addChildNode(ringNode)
+        let ground = Float(-h / 2 - 0.026)
+        // هالة ناعمة على الأرض
+        let glowPlane = SCNPlane(width: 1.3, height: 1.3)
+        let glowMat = flat(radial(gold))
+        glowMat.blendMode = .add
+        glowMat.writesToDepthBuffer = false
+        glowPlane.materials = [glowMat]
+        let glowNode = SCNNode(geometry: glowPlane)
+        glowNode.eulerAngles.x = -.pi / 2
+        glowNode.position = SCNVector3(0, ground + 0.002, 0)
+        glowNode.runAction(.repeatForever(.sequence([.fadeOpacity(to: 0.55, duration: 1.6), .fadeOpacity(to: 1, duration: 1.6)])))
+        kaaba.addChildNode(glowNode)
+
+        // حلقة رفيعة ثابتة، وأخرى تتموّج منها وتتلاشى
+        func ring(_ radius: CGFloat) -> SCNNode {
+            let t = SCNTorus(ringRadius: radius, pipeRadius: 0.004)
+            let m = flat(gold)
+            m.emission.contents = gold
+            t.materials = [m]
+            let n = SCNNode(geometry: t)
+            n.position = SCNVector3(0, ground + 0.004, 0)
+            return n
+        }
+        kaaba.addChildNode(ring(0.4))
+        let ripple = ring(0.4)
+        ripple.runAction(.repeatForever(.sequence([
+            .group([.scale(to: 1.7, duration: 2.2), .fadeOut(duration: 2.2)]),
+            .group([.scale(to: 1, duration: 0), .fadeIn(duration: 0)]),
+        ])))
+        kaaba.addChildNode(ripple)
+
+        // عمود النور: يظهر حين تتجه إلى القبلة
+        let column = SCNCylinder(radius: 0.06, height: 2.6)
+        let beamMat = flat(beamImage(gold))
+        beamMat.blendMode = .add
+        beamMat.writesToDepthBuffer = false
+        beamMat.isDoubleSided = true
+        column.materials = [beamMat]
+        beam.geometry = column
+        beam.position = SCNVector3(0, Float(h / 2) + 1.3, 0)
+        beam.opacity = 0
+        kaaba.addChildNode(beam)
 
         // يدور حول محوره الرأسي فقط ليواجه الكاميرا
         let face = SCNBillboardConstraint()
@@ -160,14 +210,142 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
         kaaba.constraints = [face]
         kaaba.isHidden = true
         sceneView.scene.rootNode.addChildNode(kaaba)
+    }
 
-        let light = SCNLight()
-        light.type = .omni
-        light.intensity = 900
-        let lightNode = SCNNode()
-        lightNode.light = light
-        lightNode.position = SCNVector3(0, 0.8, 0.6)
-        kaaba.addChildNode(lightNode)
+    /// مادة بلا إضاءة: لونها أو صورتها كما رُسمت
+    private func flat(_ contents: Any) -> SCNMaterial {
+        let m = SCNMaterial()
+        m.diffuse.contents = contents
+        m.lightingModel = .constant
+        return m
+    }
+
+    private func shade(_ c: UIColor, _ f: CGFloat) -> UIColor {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        c.getRed(&r, green: &g, blue: &b, alpha: &a)
+        return UIColor(red: min(1, r * f), green: min(1, g * f), blue: min(1, b * f), alpha: a)
+    }
+
+    /// وجه من الكسوة: حرير أسود بطيّات، والحزام الذهبي بزخرفته في ثلثها الأعلى، والباب على الوجه الأمامي
+    private func kiswa(door: Bool, shade k: CGFloat, aspect: CGFloat) -> UIImage {
+        let H: CGFloat = 640, W = (H * aspect).rounded()
+        let gold = self.gold
+        return UIGraphicsImageRenderer(size: CGSize(width: W, height: H)).image { ctx in
+            let c = ctx.cgContext
+            let space = CGColorSpaceCreateDeviceRGB()
+            // الحرير: أفتح قليلاً في الأعلى
+            let silk = CGGradient(colorsSpace: space, colors: [
+                UIColor(white: 0.16 * k, alpha: 1).cgColor, UIColor(white: 0.07 * k, alpha: 1).cgColor, UIColor(white: 0.03, alpha: 1).cgColor,
+            ] as CFArray, locations: [0, 0.45, 1])!
+            c.drawLinearGradient(silk, start: .zero, end: CGPoint(x: 0, y: H), options: [])
+            // طيّات القماش ونقش خفيف في نسيجه
+            for x in stride(from: CGFloat(10), to: W, by: 22) {
+                c.setFillColor(UIColor(white: 1, alpha: 0.025 * k).cgColor)
+                c.fill(CGRect(x: x, y: 0, width: 3, height: H))
+            }
+            for y in stride(from: CGFloat(30), to: H, by: 46) {
+                for x in stride(from: CGFloat(y.truncatingRemainder(dividingBy: 92) == 30 ? 0 : 23), to: W, by: 46) {
+                    c.setFillColor(UIColor(white: 1, alpha: 0.03 * k).cgColor)
+                    c.fillEllipse(in: CGRect(x: x, y: y, width: 5, height: 5))
+                }
+            }
+            // الحزام الذهبي
+            let band = CGRect(x: 0, y: H * 0.2, width: W, height: H * 0.09)
+            c.saveGState()
+            c.clip(to: band)
+            let metal = CGGradient(colorsSpace: space, colors: [
+                self.shade(gold, 0.55 * k).cgColor, self.shade(gold, 1.15 * k).cgColor, self.shade(gold, 0.7 * k).cgColor,
+            ] as CFArray, locations: [0, 0.5, 1])!
+            c.drawLinearGradient(metal, start: CGPoint(x: 0, y: band.minY), end: CGPoint(x: 0, y: band.maxY), options: [])
+            // زخرفة الحزام: معيّنات متصلة بنقاط، كخط الثلث في الكسوة من بعيد
+            c.setStrokeColor(self.shade(gold, 0.35).cgColor)
+            c.setLineWidth(2)
+            let step = band.height * 0.9
+            var x: CGFloat = 0
+            while x < W {
+                let mid = band.midY, r = band.height * 0.3
+                c.move(to: CGPoint(x: x, y: mid)); c.addLine(to: CGPoint(x: x + step / 2, y: mid - r))
+                c.addLine(to: CGPoint(x: x + step, y: mid)); c.addLine(to: CGPoint(x: x + step / 2, y: mid + r)); c.closePath()
+                c.strokePath()
+                c.setFillColor(self.shade(gold, 0.35).cgColor)
+                c.fillEllipse(in: CGRect(x: x + step / 2 - 3, y: mid - 3, width: 6, height: 6))
+                x += step
+            }
+            c.restoreGState()
+            // خيطان ذهبيان رفيعان فوق الحزام وتحته
+            c.setFillColor(self.shade(gold, 0.9 * k).cgColor)
+            c.fill(CGRect(x: 0, y: band.minY - 7, width: W, height: 2.5))
+            c.fill(CGRect(x: 0, y: band.maxY + 4.5, width: W, height: 2.5))
+            // قناديل (مربعات مطرزة) تحت الحزام
+            for i in 0..<3 {
+                let cx = W * (0.2 + 0.3 * CGFloat(i))
+                let sq = CGRect(x: cx - 15, y: band.maxY + 26, width: 30, height: 30)
+                c.saveGState()
+                c.translateBy(x: sq.midX, y: sq.midY); c.rotate(by: .pi / 4)
+                c.setStrokeColor(self.shade(gold, 0.8 * k).cgColor); c.setLineWidth(2.5)
+                c.stroke(CGRect(x: -11, y: -11, width: 22, height: 22))
+                c.restoreGState()
+            }
+            guard door else { return }
+            // الباب: إطار ذهبي بقوس خفيف وألواح، مرتفع عن الأرض كما هو
+            let d = CGRect(x: W * 0.56, y: H * 0.48, width: W * 0.24, height: H * 0.4)
+            let frame = UIBezierPath(roundedRect: d, byRoundingCorners: [.topLeft, .topRight], cornerRadii: CGSize(width: d.width * 0.28, height: d.width * 0.28))
+            c.saveGState()
+            c.addPath(frame.cgPath); c.clip()
+            let doorMetal = CGGradient(colorsSpace: space, colors: [
+                self.shade(gold, 1.2).cgColor, self.shade(gold, 0.85).cgColor, self.shade(gold, 0.6).cgColor,
+            ] as CFArray, locations: [0, 0.5, 1])!
+            c.drawLinearGradient(doorMetal, start: CGPoint(x: d.minX, y: d.minY), end: CGPoint(x: d.maxX, y: d.maxY), options: [])
+            c.restoreGState()
+            c.setStrokeColor(self.shade(gold, 0.4).cgColor); c.setLineWidth(3)
+            c.addPath(frame.cgPath); c.strokePath()
+            // مصراعان وألواح
+            c.setLineWidth(2)
+            c.move(to: CGPoint(x: d.midX, y: d.minY + d.width * 0.25)); c.addLine(to: CGPoint(x: d.midX, y: d.maxY)); c.strokePath()
+            for row in 0..<3 {
+                let y = d.minY + d.height * (0.3 + 0.22 * CGFloat(row))
+                for col in 0..<2 {
+                    let px = d.minX + d.width * (0.1 + 0.45 * CGFloat(col))
+                    c.stroke(CGRect(x: px, y: y, width: d.width * 0.35, height: d.height * 0.16))
+                }
+            }
+        }
+    }
+
+    /// رخام الشاذروان: أبيض مائل إلى الرمادي بعروق خفيفة
+    private func marble() -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: 256, height: 32)).image { ctx in
+            let c = ctx.cgContext
+            c.setFillColor(UIColor(white: 0.86, alpha: 1).cgColor)
+            c.fill(CGRect(x: 0, y: 0, width: 256, height: 32))
+            c.setStrokeColor(UIColor(white: 0.7, alpha: 0.6).cgColor)
+            c.setLineWidth(1)
+            for i in 0..<6 {
+                c.move(to: CGPoint(x: CGFloat(i) * 48, y: 0)); c.addLine(to: CGPoint(x: CGFloat(i) * 48 + 30, y: 32))
+            }
+            c.strokePath()
+        }
+    }
+
+    /// هالة دائرية: ذهبي في الوسط يتلاشى إلى الشفافية
+    private func radial(_ color: UIColor) -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: 256, height: 256)).image { ctx in
+            let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: [
+                color.withAlphaComponent(0.55).cgColor, color.withAlphaComponent(0.18).cgColor, color.withAlphaComponent(0).cgColor,
+            ] as CFArray, locations: [0, 0.45, 1])!
+            ctx.cgContext.drawRadialGradient(g, startCenter: CGPoint(x: 128, y: 128), startRadius: 0,
+                                             endCenter: CGPoint(x: 128, y: 128), endRadius: 128, options: [])
+        }
+    }
+
+    /// عمود النور: ساطع في أسفله ويتلاشى صعوداً
+    private func beamImage(_ color: UIColor) -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: 8, height: 256)).image { ctx in
+            let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: [
+                color.withAlphaComponent(0).cgColor, color.withAlphaComponent(0.25).cgColor, color.withAlphaComponent(0.7).cgColor,
+            ] as CFArray, locations: [0, 0.6, 1])!
+            ctx.cgContext.drawLinearGradient(g, start: .zero, end: CGPoint(x: 0, y: 256), options: [])
+        }
     }
 
     // ---------- الواجهة فوق الكاميرا ----------
@@ -229,6 +407,33 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
         hud.alpha = 0
         view.addSubview(hud)
 
+        edgeArrow.tintColor = gold
+        edgeArrow.contentMode = .scaleAspectFit
+        edgeArrow.alpha = 0
+        edgeArrow.layer.shadowColor = UIColor.black.cgColor
+        edgeArrow.layer.shadowOpacity = 0.5
+        edgeArrow.layer.shadowRadius = 6
+        edgeArrow.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(edgeArrow)
+
+        // معايرة البوصلة: خطواتها، و«إعادة الضبط» تعيد تتبّع الاتجاه من جديد
+        var cal = UIButton.Configuration.plain()
+        cal.image = UIImage(systemName: "location.north.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold))
+        cal.imagePadding = 6
+        cal.title = info.calibTitle
+        cal.baseForegroundColor = .white
+        cal.background.backgroundColor = UIColor.black.withAlphaComponent(0.45)
+        cal.cornerStyle = .capsule
+        cal.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
+        cal.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { a in
+            var a = a; a.font = .systemFont(ofSize: 13, weight: .semibold); return a
+        }
+        calibrate.configuration = cal
+        calibrate.isHidden = info.calibTitle == nil
+        calibrate.addTarget(self, action: #selector(showCalibration), for: .touchUpInside)
+        calibrate.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(calibrate)
+
         // الجهتان بلغة التطبيق (قد تخالف لغة الجهاز): العنوان في البداية وزر الإغلاق في النهاية
         let g = view.safeAreaLayoutGuide
         let rtl = info.rtl
@@ -255,7 +460,15 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
             row.centerYAnchor.constraint(equalTo: hud.centerYAnchor),
             hudIcon.widthAnchor.constraint(equalToConstant: 24),
             hudIcon.heightAnchor.constraint(equalToConstant: 24),
+            edgeArrow.centerYAnchor.constraint(equalTo: g.centerYAnchor),
+            edgeArrow.widthAnchor.constraint(equalToConstant: 54),
+            edgeArrow.heightAnchor.constraint(equalToConstant: 54),
+            calibrate.centerXAnchor.constraint(equalTo: g.centerXAnchor),
+            calibrate.bottomAnchor.constraint(equalTo: hud.topAnchor, constant: -12),
         ])
+        arrowLeft = edgeArrow.leftAnchor.constraint(equalTo: g.leftAnchor, constant: 12)
+        arrowRight = edgeArrow.rightAnchor.constraint(equalTo: g.rightAnchor, constant: -12)
+        arrowRight?.isActive = true
     }
 
     /// رسالة بدل الكاميرا (لا إذن، أو الجهاز لا يدعم الواقع المعزز)، وزر الإعدادات إن نفع
@@ -298,6 +511,23 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
                 message.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             ])
         }
+    }
+
+    private var arrowLeft: NSLayoutConstraint?
+    private var arrowRight: NSLayoutConstraint?
+
+    /// خطوات المعايرة، و«إعادة الضبط»: يبدأ التتبّع من جديد بعد المعايرة فيستقر الشمال
+    @objc private func showCalibration() {
+        let alert = UIAlertController(title: info.calibTitle, message: info.calibSteps, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: info.calibReset ?? "Reset", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            let config = ARWorldTrackingConfiguration()
+            config.worldAlignment = .gravityAndHeading
+            self.sceneView.session.run(config, options: [.resetTracking, .removeExistingAnchors])
+            self.lastState = ""
+        })
+        alert.addAction(UIAlertAction(title: info.calibDone ?? "OK", style: .cancel))
+        present(alert, animated: true)
     }
 
     @objc private func dismissSelf() { dismiss(animated: true) }
@@ -364,8 +594,40 @@ final class ArQiblaController: UIViewController, ARSCNViewDelegate {
             hudText.text = info.hint
             hudText.textColor = .white
         }
-        if facing && !wasFacing { haptic.notificationOccurred(.success) }
+        if facing && !wasFacing {
+            haptic.notificationOccurred(.success)
+            // عمود النور ونبضة الكعبة
+            beam.runAction(.fadeOpacity(to: 0.85, duration: 0.5))
+            model.runAction(.sequence([.scale(to: 1.08, duration: 0.18), .scale(to: 1, duration: 0.3)]))
+        } else if !facing && wasFacing {
+            beam.runAction(.fadeOpacity(to: 0, duration: 0.4))
+        }
         wasFacing = facing
+        // نقرة خفيفة كلما اقترب عشر درجات (لا عند الابتعاد الكبير)
+        let bucket = state == "hint" ? -1 : (facing ? 0 : min(degrees / 10 + 1, 19))
+        if bucket != lastBucket, bucket > 0, bucket < lastBucket || lastBucket <= 0, degrees < 90 { tick.selectionChanged() }
+        lastBucket = bucket
+        // الكعبة خارج النظر: سهم ذهبي ينبض على حافة الشاشة في جهتها
+        let away = (state == "right" || state == "left") && degrees > 28
+        if away {
+            let right = state == "right"
+            edgeArrow.image = UIImage(systemName: right ? "chevron.right.2" : "chevron.left.2",
+                                      withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .bold))
+            arrowRight?.isActive = right
+            arrowLeft?.isActive = !right
+            if edgeArrow.layer.animation(forKey: "nudge") == nil {
+                let a = CABasicAnimation(keyPath: "transform.translation.x")
+                a.fromValue = 0
+                a.toValue = right ? 8 : -8
+                a.duration = 0.6
+                a.autoreverses = true
+                a.repeatCount = .infinity
+                edgeArrow.layer.add(a, forKey: "nudge")
+            }
+        } else {
+            edgeArrow.layer.removeAnimation(forKey: "nudge")
+        }
+        UIView.animate(withDuration: 0.25) { self.edgeArrow.alpha = away ? 1 : 0 }
     }
 
     func session(_ session: ARSession, didFailWithError error: Error) {
