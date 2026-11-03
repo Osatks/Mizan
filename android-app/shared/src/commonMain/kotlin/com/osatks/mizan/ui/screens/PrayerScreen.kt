@@ -341,12 +341,12 @@ private fun QiblaCard(onOpen: () -> Unit) {
                     drawCircle(ring, r - 2.dp.toPx(), c, style = androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))
                     // علامات الجهات الأربع تدور مع الهاتف
                     for (i in 0 until 4) {
-                        val a = Math.toRadians((i * 90 - heading).toDouble())
+                        val a = (i * 90 - heading).toDouble() * kotlin.math.PI / 180
                         val o = androidx.compose.ui.geometry.Offset((c.x + kotlin.math.sin(a) * (r - 7.dp.toPx())).toFloat(), (c.y - kotlin.math.cos(a) * (r - 7.dp.toPx())).toFloat())
                         drawCircle(if (i == 0) androidx.compose.ui.graphics.Color(0xFFE5534B) else ring, (if (i == 0) 2.6f else 1.6f).dp.toPx(), o)
                     }
                     // الإبرة إلى الكعبة، ورأسها الكعبة
-                    val a = Math.toRadians(needle.toDouble())
+                    val a = needle.toDouble() * kotlin.math.PI / 180
                     val tip = androidx.compose.ui.geometry.Offset((c.x + kotlin.math.sin(a) * (r - 13.dp.toPx())).toFloat(), (c.y - kotlin.math.cos(a) * (r - 13.dp.toPx())).toFloat())
                     drawLine(gold, c, tip, 3.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
                     drawCircle(gold, 3.dp.toPx(), c)
