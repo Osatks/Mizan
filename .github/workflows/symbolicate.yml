@@ -1,0 +1,56 @@
+name: Symbolicate iOS crash (Kotlin framework)
+
+# يعيد بناء Shared.framework (Kotlin) من الـ commit الذي بُني منه التقرير، ويتحقق أن UUID يطابق ما في تقرير العطل،
+# ثم يترجم عناوين المكدّس إلى أسماء الدوال والأسطر بـ atos. للتقارير التي يجلبها asc-crashes.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "commit الذي بُني منه البناء المعطوب"
+        required: true
+      load_address:
+        description: "عنوان تحميل Shared في التقرير (Binary Images)، مثل 0x100c6c000"
+        required: true
+      addresses:
+        description: "عناوين المكدّس مفصولة بمسافات"
+        required: true
+      uuid:
+        description: "UUID لـ Shared في التقرير (للتحقق)"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  symbolicate:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+      - name: Build Kotlin framework (iosArm64, release)
+        working-directory: android-app
+        run: gradle :shared:linkReleaseFrameworkIosArm64 --no-daemon
+      - name: atos
+        working-directory: android-app/shared/build/bin/iosArm64/releaseFramework
+        run: |
+          ls
+          dwarfdump --uuid Shared.framework/Shared
+          want="${{ inputs.uuid }}"
+          got=$(dwarfdump --uuid Shared.framework/Shared | awk '{print $2}' | tr -d '-' | tr 'A-Z' 'a-z')
+          if [ -n "$want" ] && [ "$got" != "$(echo $want | tr -d '-' | tr 'A-Z' 'a-z')" ]; then
+            echo "::warning::UUID differs from the report ($got vs $want): symbols may be off"
+          fi
+          bin=Shared.framework/Shared
+          [ -d Shared.framework.dSYM ] && bin=Shared.framework.dSYM/Contents/Resources/DWARF/Shared
+          echo "## Symbolicated" >> "$GITHUB_STEP_SUMMARY"
+          atos -arch arm64 -o "$bin" -l ${{ inputs.load_address }} ${{ inputs.addresses }} | tee -a "$GITHUB_STEP_SUMMARY"
