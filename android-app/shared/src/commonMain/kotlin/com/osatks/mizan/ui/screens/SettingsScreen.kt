@@ -5,6 +5,7 @@ import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.platform.AppStore
 import com.osatks.mizan.platform.StoreLinks
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material.icons.filled.Explore
@@ -130,6 +131,15 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
                 GroupRow(s.rateApp, s.rateAppSub, onClick = { AppStore.openRating() }, leading = Icons.Filled.StarRate) { Chevron() }
                 GroupDivider()
                 GroupRow(s.shareApp, s.shareAppSub, onClick = { Platform.share(s.shareAppText(StoreLinks.forThisPlatform), s.share) }, leading = Icons.Filled.Share) { Chevron() }
+                GroupDivider()
+                // الملاحظات: رسالة بريد فيها الإصدار والنظام
+                val ht = com.osatks.mizan.i18n.HomeText.of(LocalLang.current.code)
+                val uri = androidx.compose.ui.platform.LocalUriHandler.current
+                val langCode = LocalLang.current.code
+                GroupRow(ht.feedback, ht.feedbackSub, onClick = {
+                    runCatching { uri.openUri(com.osatks.mizan.core.Feedback.mailto(langCode)) }
+                        .onFailure { Platform.toast(com.osatks.mizan.core.Feedback.EMAIL) }
+                }, leading = Icons.Filled.Email) { Chevron() }
             }
         }
         item {

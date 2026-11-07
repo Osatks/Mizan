@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Hicri ve miladi tarih</string>
     <string name="widget_khatma_desc">Hatim ilerlemeniz, kaldığınız yer ve günün virdi</string>
     <string name="widget_ayah_desc">Her gün anlamıyla kısa bir ayet</string>
+    <string name="widget_hadith">Günün hadisi</string>
+    <string name="widget_hadith_desc">Her gün sahih bir hadis; açıklamasını okumak için dokunun</string>
     <string name="widget_adhkar_desc">Vakte uygun zikirler: sabah, akşam, uyku, namaz sonrası ve cuma</string>
     <string name="sample_prayer">İkindi</string>
     <string name="sample_fajr">İmsak</string>

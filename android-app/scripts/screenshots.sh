@@ -79,6 +79,9 @@ adb shell input swipe 540 1250 540 1250 900; sleep 2
 tap_text "مشاركة"
 sleep 4
 adb exec-out screencap -p > "$OUT/19d-share-card.png"; echo "captured 19d-share-card"
+tap_text "قصة"
+sleep 3
+adb exec-out screencap -p > "$OUT/19h-share-story.png"; echo "captured 19h-share-story"
 tap_text "صورة"
 sleep 5
 adb exec-out screencap -p > "$OUT/19e-share-sheet.png"; echo "captured 19e-share-sheet"
@@ -91,6 +94,20 @@ sleep 4
 adb exec-out screencap -p > "$OUT/19g-share-card-en.png"; echo "captured 19g-share-card-en"
 adb shell input keyevent KEYCODE_BACK; sleep 1
 shot quran          16-quran-en en
+
+# حديث اليوم: الحديث وشرحه وفوائده، ثم صورة القصة
+shot hadith      20-hadith
+adb shell input swipe 540 1700 540 500 400; sleep 2
+adb exec-out screencap -p > "$OUT/20b-hadith-benefits.png"; echo "captured 20b-hadith-benefits"
+adb shell input swipe 540 1700 540 300 300; sleep 2
+tap_text "مشاركة صورة"
+sleep 4
+adb exec-out screencap -p > "$OUT/20c-hadith-story.png"; echo "captured 20c-hadith-story"
+adb shell input keyevent KEYCODE_BACK; sleep 1
+shot hadith      20d-hadith-en en
+shot home        20e-home-scrolled
+adb shell input swipe 540 1800 540 400 500; sleep 2
+adb exec-out screencap -p > "$OUT/20f-home-cards.png"; echo "captured 20f-home-cards"
 
 # ألوان التطبيق
 adb shell cmd uimode night no || true

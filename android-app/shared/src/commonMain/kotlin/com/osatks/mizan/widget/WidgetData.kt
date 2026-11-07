@@ -140,7 +140,7 @@ object WidgetData {
         PrayTimes.format(t.time.toSecondOfDay() / 3600.0, h24, s.am, s.pm)
 
     /** عناوين الأدوات ونصوصها الثابتة بلغة الواجهة (في اللقطة، وفي بيانات الأداة المستقلة في iOS) */
-    fun labels(s: Strings, wt: WidgetText, lt: LiveText = LiveText.EN): Map<String, String> = linkedMapOf(
+    fun labels(s: Strings, wt: WidgetText, lt: LiveText = LiveText.EN, ht: com.osatks.mizan.i18n.HomeText = com.osatks.mizan.i18n.HomeText.of("en")): Map<String, String> = linkedMapOf(
         "adhkar" to wt.adhkar, "nextPrayer" to wt.nextPrayer, "prayerTimes" to wt.prayerTimes, "hijri" to wt.hijri,
         "ayah" to s.ayahOfDay, "next" to wt.next, "in" to wt.inTime, "openApp" to wt.openApp,
         "descNext" to wt.descNext, "descTimes" to wt.descTimes, "descHijri" to wt.descHijri,
@@ -148,6 +148,8 @@ object WidgetData {
         "allowLocation" to wt.allowLocation, "locationHint" to wt.locationHint,
         // أداتا المسبحة والورد (iOS)
         "tasbih" to lt.tasbih, "descTasbih" to lt.descTasbih, "wird" to lt.wird, "descWird" to lt.descWird,
+        // أداة حديث اليوم
+        "hadith" to ht.hadithOfDay, "descHadith" to ht.hadithDesc,
     )
 
     /**
@@ -253,7 +255,8 @@ object WidgetData {
                     "text" to QuranData.withoutBismillah(q, idx),
                     "ref" to s.surahAyah(s.surahName(sn), an),
                     "meaning" to meaning?.getOrNull(idx),
-                    "route" to surahRoute(sn, an, "widget"),
+                    // آية اليوم: لمسها يفتح تفسيرها
+                    "route" to surahRoute(sn, an, "tafsir"),
                 )
             }
             mapOf(
@@ -274,6 +277,10 @@ object WidgetData {
                     )
                 },
                 "ayah" to ayah,
+                // حديث اليوم: طرفه بالعربية وترجمته ودرجته؛ لمسه يفتح الحديث وشرحه
+                "hadith" to runCatching { com.osatks.mizan.hadith.Hadiths.forDay(d, lang.code) }.getOrNull()?.let { h ->
+                    mapOf("text" to h.ar.title, "meaning" to h.tr?.title, "grade" to (h.tr ?: h.ar).grade, "route" to "hadith")
+                },
             )
         }
 
@@ -308,7 +315,7 @@ object WidgetData {
             ),
             "place" to s.placeName(place),
             "rotateSec" to AdhkarClock.ROTATE_SEC,
-            "labels" to labels(s, wt, LiveText.of(lang.code)),
+            "labels" to labels(s, wt, LiveText.of(lang.code), com.osatks.mizan.i18n.HomeText.of(lang.code)),
             "khatma" to khatma(s),
             "watch" to watch(lang, place, iqama, (0 until days).map { today.plusDays(it) }),
             "days" to dayList,

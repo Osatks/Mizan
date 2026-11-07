@@ -12,6 +12,7 @@ struct MizanWidgets: WidgetBundle {
         AdhkarWidget()
         HijriWidget()
         AyahWidget()
+        HadithWidget()
         // المسبحة (TasbihWidget.swift) وورد اليوم (KhatmaWidget.swift)
         TasbihWidget()
         KhatmaWidget()

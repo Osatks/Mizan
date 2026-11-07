@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">تاریخ قمری و میلادی</string>
     <string name="widget_khatma_desc">پیشرفت ختم، جای ادامه و ورد امروز</string>
     <string name="widget_ayah_desc">هر روز آیه‌ای کوتاه با معنایش</string>
+    <string name="widget_hadith">حدیث امروز</string>
+    <string name="widget_hadith_desc">هر روز یک حدیث صحیح؛ برای خواندن شرح آن لمس کنید</string>
     <string name="widget_adhkar_desc">اذکار مناسب وقت: صبح، شام، خواب، پس از نماز و جمعه</string>
     <string name="sample_prayer">عصر</string>
     <string name="sample_fajr">صبح</string>

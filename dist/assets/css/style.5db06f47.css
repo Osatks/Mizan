@@ -726,16 +726,13 @@ body.tool .page-hero { view-transition-name: tool-hero; }
 .store-badge b { font-size: 1.32rem; font-weight: 700; letter-spacing: .2px; }
 a.store-badge:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.5); box-shadow: 0 16px 30px -14px rgba(0,0,0,.9); color: #fff; }
 a.store-badge:focus-visible { outline: 3px solid #f1cf72; outline-offset: 3px; }
-.store-badge.soon { opacity: .62; cursor: default; filter: saturate(.6); }
-.soon-tag {
-  position: absolute; top: -10px; left: -8px; font-style: normal; font-size: .74rem; font-weight: 800;
-  background: #f1cf72; color: #2a1f00; padding: 2px 10px; border-radius: 99px; direction: rtl;
-  box-shadow: 0 4px 10px -4px rgba(0,0,0,.5);
-}
 .device-note { margin: 16px 0 0; padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); font-size: .95rem; max-width: 560px; }
 .apk-link { margin: 14px 0 0; font-size: .92rem; opacity: .85; }
 .apk-link a { color: #f1cf72; font-weight: 700; }
-.is-android .store-badge.play { border-color: #f1cf72; box-shadow: 0 0 0 4px rgba(241,207,114,.2), 0 10px 24px -14px rgba(0,0,0,.8); }
+.is-android .store-badge.play, .is-ios .store-badge.apple { border-color: #f1cf72; box-shadow: 0 0 0 4px rgba(241,207,114,.2), 0 10px 24px -14px rgba(0,0,0,.8); }
+/* زائر iPhone/iPad: زر App Store أولًا، ولا حاجة لرابط ملف APK */
+.is-ios .store-badge.apple { order: -1; }
+.is-ios .apk-link { display: none; }
 
 /* إطارات الهواتف */
 .phone {
@@ -774,6 +771,32 @@ a.store-badge:focus-visible { outline: 3px solid #f1cf72; outline-offset: 3px; }
 .app-shots .phone { border-radius: 28px; padding: 7px; box-shadow: var(--shadow-lg); }
 .app-shots .phone img { border-radius: 22px; }
 .app-shots figcaption { margin-top: 10px; font-weight: 700; font-size: .95rem; }
+
+/* مصمَّم لـ iPhone: لقطات App Store (فيها إطار الجهاز) ومزايا iPhone وApple Watch */
+.ios-lead { margin: -6px 0 18px; color: var(--text-soft); font-size: 1.02rem; max-width: 760px; }
+.ios-shots {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px;
+  max-width: 940px; margin: 0 auto 22px; padding: 4px 4px 14px;
+}
+.ios-shots img {
+  display: block; width: 100%; height: auto; border-radius: 22px;
+  box-shadow: var(--shadow-lg); background: var(--surface-2);
+}
+.ios-features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.ios-watch .watch-shots { display: flex; gap: 14px; margin-top: 16px; }
+.watch-shots img {
+  display: block; width: min(140px, 40%); height: auto; border-radius: 26%/21%;
+  background: #000; box-shadow: 0 0 0 3px #1c2321, 0 0 0 5px var(--border), var(--shadow);
+}
+.ios-note { margin: 14px 0 0; color: var(--muted); font-size: .85rem; line-height: 1.7; }
+@media (max-width: 760px) {
+  .ios-shots {
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(62vw, 220px);
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+  }
+  .ios-shots img { scroll-snap-align: start; }
+  .ios-features { grid-template-columns: 1fr; }
+}
 
 .app-platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 40px; }
 .platform-head { display: flex; align-items: center; gap: 14px; }

@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">হিজরি ও খ্রিস্টীয় তারিখ</string>
     <string name="widget_khatma_desc">খতমের অগ্রগতি, কোথা থেকে পড়বেন ও আজকের অংশ</string>
     <string name="widget_ayah_desc">প্রতিদিন অর্থসহ একটি ছোট আয়াত</string>
+    <string name="widget_hadith">আজকের হাদিস</string>
+    <string name="widget_hadith_desc">প্রতিদিন একটি সহিহ হাদিস; ব্যাখ্যা পড়তে ট্যাপ করুন</string>
     <string name="widget_adhkar_desc">সময় অনুযায়ী জিকির: সকাল, সন্ধ্যা, ঘুম, নামাজের পর ও জুমা</string>
     <string name="sample_prayer">আসর</string>
     <string name="sample_fajr">ফজর</string>

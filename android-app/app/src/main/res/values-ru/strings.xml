@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Дата по хиджре и григорианская</string>
     <string name="widget_khatma_desc">Прогресс хатма, где продолжить и норма на сегодня</string>
     <string name="widget_ayah_desc">Короткий аят каждый день с его смыслом</string>
+    <string name="widget_hadith">Хадис дня</string>
+    <string name="widget_hadith_desc">Каждый день достоверный хадис; нажмите, чтобы прочитать пояснение</string>
     <string name="widget_adhkar_desc">Азкары по времени: утро, вечер, сон, после намаза и пятница</string>
     <string name="sample_prayer">Аср</string>
     <string name="sample_fajr">Фаджр</string>

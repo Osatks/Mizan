@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- حديث اليوم: طرفه بالعربية في الوسط، وفوقه درجته، وتحته ترجمته بلغة الواجهة -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_surface" android:clipToOutline="true">
+    <!-- السطح بلون التطبيق، ثم ظل التدرج، ثم لمعة ذهبية وحافة رفيعة، ثم زخرفة النجمة -->
+    <ImageView android:id="@+id/bg" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_surface" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_shade" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:src="@drawable/widget_sheen" android:scaleType="fitXY" android:importantForAccessibility="no" />
+    <ImageView android:layout_width="190dp" android:layout_height="190dp" android:layout_gravity="top|end"
+        android:layout_marginTop="-60dp" android:layout_marginEnd="-60dp" android:alpha="0.16"
+        android:src="@drawable/widget_ornament" android:importantForAccessibility="no" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="@dimen/w_pad">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <ImageView android:id="@+id/icon" android:layout_width="15dp" android:layout_height="15dp" android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_w_quote" android:tint="@color/w_gold" android:importantForAccessibility="no" />
+            <TextView android:id="@+id/title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="@string/widget_hadith" android:textColor="@color/w_gold" android:textSize="12sp" android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02" android:maxLines="1" android:ellipsize="end" android:textAlignment="viewStart" />
+            <TextView android:id="@+id/ref" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/widget_chip_light" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+                android:textColor="@color/w_text" android:textSize="11sp" android:maxLines="1" />
+        </LinearLayout>
+
+        <TextView android:id="@+id/hadith" android:text="«إنما الأعمال بالنيات»" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+            android:layout_marginTop="6dp" android:gravity="center" android:textColor="@color/w_text" android:fontFamily="sans-serif-medium"
+            android:textDirection="rtl" android:lineSpacingMultiplier="1.15"
+            android:autoSizeTextType="uniform" android:autoSizeMinTextSize="12sp" android:autoSizeMaxTextSize="20sp" android:autoSizeStepGranularity="1sp" />
+        <TextView android:id="@+id/meaning" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"
+            android:gravity="center" android:textColor="@color/w_text2" android:textSize="12sp" android:maxLines="3" android:ellipsize="end" />
+    </LinearLayout>
+</FrameLayout>

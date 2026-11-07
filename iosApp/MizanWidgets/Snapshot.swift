@@ -171,6 +171,7 @@ enum Fallback {
         "locationHint": "الإعدادات ← ميزان ← الموقع: أثناء استخدام التطبيق أو الأدوات",
         "tasbih": "المسبحة", "descTasbih": "سبّح بلمسة من الشاشة الرئيسية أو شاشة القفل",
         "wird": "ورد اليوم", "descWird": "صفحات وردك اليوم وتقدّم ختمتك",
+        "hadith": "حديث اليوم", "descHadith": "حديث نبوي صحيح كل يوم، ولمسه يفتح شرحه",
     ]
     private static let en: [String: String] = [
         "adhkar": "Adhkar for now", "nextPrayer": "Next prayer", "prayerTimes": "Prayer times", "hijri": "Hijri date",
@@ -182,6 +183,7 @@ enum Fallback {
         "locationHint": "Settings › Mizan › Location: While Using the App or Widgets",
         "tasbih": "Tasbih", "descTasbih": "Count with a tap from the Home Screen or Lock Screen",
         "wird": "Today's portion", "descWird": "Today's Quran pages and your khatma progress",
+        "hadith": "Hadith of the day", "descHadith": "An authentic hadith every day; tap to read its explanation",
     ]
 
     static func text(_ key: String) -> String {

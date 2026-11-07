@@ -86,7 +86,12 @@ import com.osatks.mizan.ui.theme.MizanTheme
  * التطبيق كله: التنقل بين الشاشات، وشريط التبويبات، وجولة أول تشغيل.
  * يستضيفه MainActivity في أندرويد و MainViewController في iOS.
  */
-internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses")
+/** نسخة دليل التطبيق: تُرفع حين تضاف صفحات جديدة فيراها من حدّث التطبيق مرة واحدة */
+private const val GUIDE_VERSION = 2
+/** صفحات الجولة الأساسية (Strings.onboarding) قبل صفحات الدليل الجديدة */
+private const val BASE_GUIDE_PAGES = 5
+
+internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses", "hadith")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 /**
@@ -214,10 +219,16 @@ fun MizanApp(startRoute: String? = null) {
 
         // جولة أول تشغيل فوق كل شيء، مرة واحدة
         var firstRun by remember { mutableStateOf(!AppSettings.getBool("onboarded", false) && startRoute == null) }
+        // بعد التحديث: من مرّ بالجولة من قبل يرى صفحات الدليل الجديدة وحدها، مرة واحدة
+        val guideFrom = remember { if (AppSettings.getBool("onboarded", false) && AppSettings.getInt("guideSeen", 0) < GUIDE_VERSION) BASE_GUIDE_PAGES else 0 }
+        LaunchedEffect(Unit) { if (guideFrom > 0 && startRoute == null) firstRun = true }
         AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
             // لا يصل لمس الأماكن الفارغة من الجولة إلى الرئيسية تحتها
             Box(Modifier.fillMaxSize().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } } }) {
-                com.osatks.mizan.ui.screens.Onboarding { firstRun = false; AppSettings.putBool("onboarded", true) }
+                com.osatks.mizan.ui.screens.Onboarding(
+                    onDone = { firstRun = false; AppSettings.putBool("onboarded", true); AppSettings.putInt("guideSeen", GUIDE_VERSION) },
+                    from = guideFrom,
+                )
             }
         }
         // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية.
@@ -262,6 +273,7 @@ private fun Route(route: String, app: AppNav, open: (String) -> Unit, back: () -
         "guide" -> com.osatks.mizan.ui.screens.Onboarding(back)
         "adhan" -> com.osatks.mizan.ui.screens.AdhanScreen(back)
         "licenses" -> com.osatks.mizan.ui.screens.LicensesScreen(back)
+        "hadith" -> com.osatks.mizan.ui.screens.HadithScreen(back)
         "zakat" -> ZakatScreen(back)
         "fitr" -> FitrScreen(back)
         "inheritance" -> InheritanceScreen(back)

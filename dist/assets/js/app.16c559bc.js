@@ -1,4 +1,4 @@
-// صفحة التطبيق: تُبرز زر المتجر المناسب لجهاز الزائر
+// صفحة التطبيق: تُبرز زر المتجر المناسب لجهاز الزائر (Google Play لـ Android، وApp Store لـ iPhone وiPad)
 (function () {
   var ua = navigator.userAgent || "";
   var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -10,7 +10,7 @@
     if (note) { note.textContent = t("جهازك يعمل بنظام Android: اضغط زر Google Play للتثبيت."); note.hidden = false; }
   } else if (ios) {
     root.classList.add("is-ios");
-    if (note) { note.textContent = t("نسخة iPhone وiPad قيد التطوير وستصدر قريبًا على App Store. يمكنك الآن استخدام أدوات ميزان من المتصفح."); note.hidden = false; }
+    if (note) { note.textContent = t("جهازك iPhone أو iPad: اضغط زر App Store للتثبيت."); note.hidden = false; }
   }
 })();
 

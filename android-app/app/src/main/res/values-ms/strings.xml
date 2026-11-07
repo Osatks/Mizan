@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Tarikh Hijrah dan Masihi</string>
     <string name="widget_khatma_desc">Kemajuan khatam, tempat menyambung dan bahagian hari ini</string>
     <string name="widget_ayah_desc">Satu ayat pendek setiap hari bersama maknanya</string>
+    <string name="widget_hadith">Hadis hari ini</string>
+    <string name="widget_hadith_desc">Satu hadis sahih setiap hari; ketik untuk membaca penjelasannya</string>
     <string name="widget_adhkar_desc">Zikir mengikut waktu: pagi, petang, tidur, selepas solat dan Jumaat</string>
     <string name="sample_prayer">Asar</string>
     <string name="sample_fajr">Subuh</string>

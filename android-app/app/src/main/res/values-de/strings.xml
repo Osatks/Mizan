@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Hidschri- und gregorianisches Datum</string>
     <string name="widget_khatma_desc">Dein Khatm-Fortschritt, wo es weitergeht und das heutige Pensum</string>
     <string name="widget_ayah_desc">Jeden Tag ein kurzer Vers mit seiner Bedeutung</string>
+    <string name="widget_hadith">Hadith des Tages</string>
+    <string name="widget_hadith_desc">Jeden Tag ein authentischer Hadith; tippen für die Erläuterung</string>
     <string name="widget_adhkar_desc">Die passenden Adhkar zur Zeit: Morgen, Abend, Schlaf, nach dem Gebet und Freitag</string>
     <string name="sample_prayer">Asr</string>
     <string name="sample_fajr">Fadschr</string>

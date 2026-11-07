@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Date hégirienne et grégorienne</string>
     <string name="widget_khatma_desc">Votre progression du khatm, où reprendre et la portion du jour</string>
     <string name="widget_ayah_desc">Un court verset chaque jour avec son sens</string>
+    <string name="widget_hadith">Hadith du jour</string>
+    <string name="widget_hadith_desc">Un hadith authentique chaque jour ; touchez pour lire son explication</string>
     <string name="widget_adhkar_desc">Les adhkar du moment : matin, soir, sommeil, après la prière et vendredi</string>
     <string name="sample_prayer">Asr</string>
     <string name="sample_fajr">Fajr</string>

@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Fecha de la Hégira y gregoriana</string>
     <string name="widget_khatma_desc">Tu progreso del jatm, dónde seguir y la porción de hoy</string>
     <string name="widget_ayah_desc">Una aleya breve cada día con su significado</string>
+    <string name="widget_hadith">Hadiz del día</string>
+    <string name="widget_hadith_desc">Un hadiz auténtico cada día; toca para leer su explicación</string>
     <string name="widget_adhkar_desc">Los adhkar del momento: mañana, tarde, sueño, tras la oración y viernes</string>
     <string name="sample_prayer">Asr</string>
     <string name="sample_fajr">Fajr</string>

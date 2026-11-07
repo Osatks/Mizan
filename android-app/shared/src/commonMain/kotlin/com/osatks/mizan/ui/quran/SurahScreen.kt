@@ -168,7 +168,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val startIndex = QuranMeta.index(surah, startAyah.coerceAtLeast(1))
     // «تابع في وضع التركيز» يفتح الصفحة نفسها دون تظليل آية
     var selIdx by rememberSaveable { mutableIntStateOf(if (startAyah > 0 && from != "focus") startIndex else -1) }
-    var sheetIdx by remember { mutableStateOf<Int?>(null) }
+    // from=tafsir (آية اليوم في الرئيسية وأداتها): يفتح تفسير الآية مباشرة
+    var sheetIdx by remember { mutableStateOf<Int?>(if (from == "tafsir" && startAyah > 0) startIndex else null) }
     var listSurah by rememberSaveable { mutableIntStateOf(surah) }
     val list = rememberLazyListState()
     // صفحة واحدة أو صفحتان متقابلتان بحسب النافذة (iPad بالعرض، والشاشة الداخلية لـ iPhone Duo)
