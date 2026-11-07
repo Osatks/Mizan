@@ -1,0 +1,39 @@
+name: App Store crash reports
+
+# يجلب أعطال TestFlight وتوقيعات التشخيص (التعليق، والإقلاع البطيء، والكتابة على القرص) من App Store Connect API
+# في ملف crash-reports (iosApp/fastlane/asc_crashes.py). لا يبني ولا يرفع شيئاً.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RAW_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      RAW_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      RAW_ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: iosApp/fastlane
+      - name: Secrets
+        run: |
+          for k in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do
+            raw="RAW_$k"
+            v=$(printf '%s' "${!raw}" | tr -d '[:space:]')
+            [ -n "$v" ] && echo "::add-mask::$v"
+            echo "$k=$v" >> "$GITHUB_ENV"
+          done
+      - run: pip install pyjwt cryptography
+      - name: Fetch reports
+        run: python3 iosApp/fastlane/asc_crashes.py com.mizan.almuslim
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crash-reports
+          path: crash-reports
+          if-no-files-found: ignore
