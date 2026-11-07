@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Һижри және григориан күні</string>
     <string name="widget_khatma_desc">Хатым барысы, жалғастыратын жер және бүгінгі үлес</string>
     <string name="widget_ayah_desc">Күн сайын мағынасымен қысқа аят</string>
+    <string name="widget_hadith">Күннің хадисі</string>
+    <string name="widget_hadith_desc">Күн сайын бір сахих хадис; түсіндірмесін оқу үшін түртіңіз</string>
     <string name="widget_adhkar_desc">Уақытқа сай зікірлер: таң, кеш, ұйқы, намаздан кейін және жұма</string>
     <string name="sample_prayer">Екінті</string>
     <string name="sample_fajr">Таң (бамдат)</string>

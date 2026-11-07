@@ -12,7 +12,7 @@ object StoreLinks {
      * بعد إنشاء سجل التطبيق، وهو الرقم نفسه في رابطه apps.apple.com/app/id<الرقم>.
      * ما دام فارغاً تشير المشاركة في iOS إلى صفحة التنزيل في موقع ميزان، ويطلب صف «قيّم ميزان» نافذة التقييم من النظام.
      */
-    const val APP_STORE_ID = ""
+    const val APP_STORE_ID = "6829457007"
 
     /** صفحة التنزيل في موقع ميزان (روابط المتجرين) */
     const val SITE_DOWNLOAD = "https://mizan-al-muslem.com/app/"

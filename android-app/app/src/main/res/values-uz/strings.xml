@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Hijriy va milodiy sana</string>
     <string name="widget_khatma_desc">Xatm yutug‘i, davom etish joyi va bugungi vird</string>
     <string name="widget_ayah_desc">Har kuni ma’nosi bilan qisqa oyat</string>
+    <string name="widget_hadith">Kun hadisi</string>
+    <string name="widget_hadith_desc">Har kuni bitta sahih hadis; sharhini o‘qish uchun bosing</string>
     <string name="widget_adhkar_desc">Vaqtga mos zikrlar: tong, kech, uyqu, namozdan keyin va juma</string>
     <string name="sample_prayer">Asr</string>
     <string name="sample_fajr">Bomdod</string>

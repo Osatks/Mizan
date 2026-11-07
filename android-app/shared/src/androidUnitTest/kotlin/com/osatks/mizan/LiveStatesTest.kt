@@ -32,6 +32,7 @@ class LiveStatesTest {
     init {
         TestPacks.load()
         Adhkar.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        com.osatks.mizan.hadith.Hadiths.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
         QuranData.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
         Adhkar.clearTranslations()
     }

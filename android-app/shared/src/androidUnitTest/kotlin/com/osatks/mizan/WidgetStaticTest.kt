@@ -161,7 +161,7 @@ object WidgetStatic {
             "prayers" to PrayTimes.PRAYERS.associateWith { s.prayer(it) },
             "myLocation" to s.myLocation,
             "cities" to PrayTimes.CITIES.associate { it.key to s.city(it.key) },
-            "labels" to WidgetData.labels(s, wt, com.osatks.mizan.widget.LiveText.of(lang.code)),
+            "labels" to WidgetData.labels(s, wt, com.osatks.mizan.widget.LiveText.of(lang.code), com.osatks.mizan.i18n.HomeText.of(lang.code)),
             "titles" to KINDS.associateWith { WidgetData.title(AdhkarWindow(it, probe, probe, "", emptyList()), lang, wt, tr) },
             "chips" to linkedMapOf("friday" to s.weekdays[4], "fridayEve" to wt.fridayEve, "lastTen" to wt.lastTen),
             "until" to wt.until,
@@ -231,6 +231,7 @@ class WidgetStaticTest {
     init {
         TestPacks.load()
         Adhkar.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        com.osatks.mizan.hadith.Hadiths.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
         QuranData.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
         Adhkar.clearTranslations()
     }

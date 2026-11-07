@@ -108,7 +108,6 @@ import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.ToolPage
 import com.osatks.mizan.ui.pressScale
 import com.osatks.mizan.ui.quran.QuranFont
-import com.osatks.mizan.ui.shareText
 import com.osatks.mizan.ui.theme.Gold
 import com.osatks.mizan.ui.theme.HeroBrush
 import kotlinx.coroutines.Dispatchers
@@ -301,6 +300,7 @@ private fun DhikrCard(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<String>?,
     val border by animateColorAsState(if (finished) Gold else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f), label = "border")
     val src = remember { MutableInteractionSource() }
     val t = translation(d, tr, lang, quran)
+    var story by remember { mutableStateOf(false) }
     // الملاحظة القصيرة (متى يقال) على البطاقة، والطويلة (التخريج والخلاف) في الدليل فقط
     val note = (if (lang == Lang.AR) d.note else tr.items[d.id]?.note ?: d.note)?.takeIf { it.length <= 80 }
     Surface(
@@ -326,12 +326,20 @@ private fun DhikrCard(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<String>?,
                     Spacer(Modifier.width(6.dp))
                     Text(s.dhikrEvidence, fontWeight = FontWeight.Bold)
                 }
-                IconButton(onClick = { shareText(s, shareBody(d, tr, lang, s, t)) }) {
+                IconButton(onClick = { story = true }) {
                     Icon(Icons.Filled.Share, s.share, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
     }
+    // المشاركة صورةَ قصة (أو نصاً من اللوحة نفسها)
+    if (story) com.osatks.mizan.ui.quran.StoryShareSheet(
+        com.osatks.mizan.ui.quran.StoryContent(
+            com.osatks.mizan.i18n.HomeText.of(lang.code).dhikr, d.ar, t,
+            "${sourceLine(d, tr, s).take(2).joinToString(" · ")} (${gradeLine(d, tr)})",
+            shareBody(d, tr, lang, s, t),
+        ),
+    ) { story = false }
 }
 
 @Composable

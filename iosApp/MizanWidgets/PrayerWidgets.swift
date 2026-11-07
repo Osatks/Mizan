@@ -474,3 +474,60 @@ struct AyahView: View {
         }
     }
 }
+
+// ---------- حديث اليوم ----------
+
+/// حديث اليوم من موسوعة الأحاديث النبوية (HadeethEnc.com): طرفه بالعربية، وترجمته بلغة التطبيق، ودرجته؛
+/// لمسه يفتح الحديث كاملاً بشرحه وفوائده في التطبيق
+struct HadithWidget: Widget {
+    let kind = "MizanHadith"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: MizanProvider(kind: .day)) { entry in
+            HadithView(entry: entry)
+        }
+        .configurationDisplayName(Fallback.gallery("hadith"))
+        .description(Fallback.gallery("descHadith"))
+        .supportedFamilies([.systemMedium, .systemLarge, .systemExtraLarge])
+    }
+}
+
+struct HadithView: View {
+    let entry: MizanEntry
+    @WidgetFamilyValue var family
+
+    var body: some View {
+        let hadith = entry.snap?.day(at: entry.date)?.hadith
+        let large = family == .systemLarge || family == .systemExtraLarge
+        Shell(snap: entry.snap, url: Deep.url(hadith?.route ?? "hadith")) {
+            if let snap = entry.snap, let hadith = hadith {
+                VStack(spacing: 0) {
+                    Header(symbol: "quote.opening", title: snap.label("hadith")) {
+                        Chip(text: hadith.grade)
+                    }
+                    Spacer(minLength: 6)
+                    Text(verbatim: "«\(hadith.text)»")
+                        .font(.system(size: family == .systemExtraLarge ? 30 : (large ? 26 : 19), weight: .semibold, design: .serif))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(large ? 8 : 4)
+                        .lineLimit(large ? 8 : 3)
+                        .minimumScaleFactor(0.5)
+                        .environment(\.layoutDirection, .rightToLeft)
+                    if let meaning = hadith.meaning, !meaning.isEmpty {
+                        Text(meaning)
+                            .font(Mizan.rounded(large ? 13 : 11))
+                            .foregroundColor(Mizan.text2)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(large ? 6 : 2)
+                            .minimumScaleFactor(0.8)
+                            .padding(.top, 6)
+                    }
+                    Spacer(minLength: 4)
+                }
+                .frame(maxWidth: .infinity)
+            } else {
+                NeedsApp(snap: entry.snap)
+            }
+        }
+    }
+}

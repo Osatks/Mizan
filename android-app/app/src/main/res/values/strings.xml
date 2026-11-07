@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">التاريخ الهجري والميلادي</string>
     <string name="widget_khatma_desc">تقدّمك في الختمة وموضع المتابعة وورد اليوم</string>
     <string name="widget_ayah_desc">آية قصيرة كل يوم مع معناها</string>
+    <string name="widget_hadith">حديث اليوم</string>
+    <string name="widget_hadith_desc">حديث نبوي صحيح كل يوم، ولمسه يفتح شرحه</string>
     <string name="widget_adhkar_desc">الأذكار المناسبة للوقت: الصباح والمساء والنوم وبعد الصلاة والجمعة</string>
     <string name="sample_prayer">العصر</string>
     <string name="sample_fajr">الفجر</string>

@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.i18n.FeatureText
+import com.osatks.mizan.i18n.HomeText
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
@@ -94,9 +95,9 @@ import kotlin.math.sqrt
 
 enum class CardStyle { EMERALD, PAPER, NIGHT }
 
-private class CardColors(val top: Color, val bottom: Color, val text: Color, val sub: Color, val gold: Color)
+internal class CardColors(val top: Color, val bottom: Color, val text: Color, val sub: Color, val gold: Color)
 
-private fun cardColors(style: CardStyle, accent: String): CardColors = when (style) {
+internal fun cardColors(style: CardStyle, accent: String): CardColors = when (style) {
     CardStyle.EMERALD -> WidgetColors.of(accent).let {
         CardColors(Color(it.hero1), Color(it.hero2), Color.White, Color.White.copy(alpha = .82f), Color(0xFFE8C15A))
     }
@@ -124,6 +125,8 @@ internal fun AyahShareContent(index: Int, text: Array<String>, onDone: () -> Uni
     }
     var withMeaning by rememberSaveable { mutableStateOf(true) }
     var style by rememberSaveable { mutableStateOf(CardStyle.EMERALD) }
+    var story by rememberSaveable { mutableStateOf(false) }
+    val ht = remember(lang) { HomeText.of(lang.code) }
     val layer = rememberGraphicsLayer()
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
@@ -146,9 +149,15 @@ internal fun AyahShareContent(index: Int, text: Array<String>, onDone: () -> Uni
                 Text(ref, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
+        // الشكل: بطاقة (منشور) أو قصة (9:16)
+        FormatToggle(story, ht.post, ht.story) { story = it }
         // المعاينة هي الصورة: تُسجَّل في الطبقة كما تُرسم (بلا قصّ الزوايا، فالصورة مربعة الزوايا)
         val shape = RoundedCornerShape(18.dp)
-        AyahCard(
+        if (story) StoryCard(
+            StoryContent("سُورَةُ ${QuranMeta.NAMES_AR[surah - 1]}", "$ayahText ۝${arabicDigits(ayah)}", meaning, ref, plain),
+            withMeaning, style, s.appName,
+            Modifier.widthIn(max = 250.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).recordStory(layer),
+        ) else AyahCard(
             ayahText, surah, ayah, ref, shown, style, s.appName,
             Modifier.widthIn(max = 330.dp).fillMaxWidth().clip(shape)
                 .drawWithContent {
@@ -202,8 +211,28 @@ internal fun AyahShareContent(index: Int, text: Array<String>, onDone: () -> Uni
     }
 }
 
+/** اختيار شكل الصورة: بطاقة أو قصة */
 @Composable
-private fun StyleSwatch(style: CardStyle, selected: Boolean, onClick: () -> Unit) {
+internal fun FormatToggle(story: Boolean, post: String, storyLabel: String, set: (Boolean) -> Unit) {
+    Row(
+        Modifier.clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f)).padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        listOf(false to post, true to storyLabel).forEach { (v, label) ->
+            val on = v == story
+            Text(
+                label, maxLines = 1,
+                style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold,
+                color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clip(RoundedCornerShape(50)).background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
+                    .clickable { set(v) }.padding(horizontal = 18.dp, vertical = 7.dp),
+            )
+        }
+    }
+}
+
+@Composable
+internal fun StyleSwatch(style: CardStyle, selected: Boolean, onClick: () -> Unit) {
     val c = cardColors(style, AppSettings.accent)
     val scale by animateFloatAsState(if (selected) 1f else 0.86f, label = "swatch")
     Box(
@@ -276,7 +305,7 @@ internal fun AyahCard(
 
 /** نص بأكبر خط بين [minSize] و [maxSize] يسعه مكانه، في وسطه */
 @Composable
-private fun FitText(text: String, style: TextStyle, maxSize: Float, minSize: Float, lineHeight: Float, modifier: Modifier) {
+internal fun FitText(text: String, style: TextStyle, maxSize: Float, minSize: Float, lineHeight: Float, modifier: Modifier) {
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
@@ -301,7 +330,7 @@ private fun FitText(text: String, style: TextStyle, maxSize: Float, minSize: Flo
 }
 
 /** إطار ذهبي رفيع داخل البطاقة، ونجمة ثمانية خافتة في زاويتها العليا */
-private fun DrawScope.ornament(gold: Color) {
+internal fun DrawScope.ornament(gold: Color) {
     val inset = 12.dp.toPx()
     val r = 14.dp.toPx()
     drawRoundRect(
@@ -323,7 +352,7 @@ private fun DrawScope.ornament(gold: Color) {
 }
 
 /** نجمة ثمانية ممتلئة صغيرة (رمز ميزان) */
-private fun DrawScope.star(gold: Color) {
+internal fun DrawScope.star(gold: Color) {
     val c = Offset(size.width / 2, size.height / 2)
     val r = size.minDimension / 2
     val p = Path()

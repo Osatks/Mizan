@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">ہجری اور عیسوی تاریخ</string>
     <string name="widget_khatma_desc">ختم کی پیش رفت، جہاں سے جاری رکھنا ہے اور آج کا ورد</string>
     <string name="widget_ayah_desc">ہر روز ایک مختصر آیت اور اس کا مفہوم</string>
+    <string name="widget_hadith">آج کی حدیث</string>
+    <string name="widget_hadith_desc">ہر روز ایک صحیح حدیث؛ تشریح پڑھنے کے لیے ٹیپ کریں</string>
     <string name="widget_adhkar_desc">وقت کے مطابق اذکار: صبح، شام، سونا، نماز کے بعد اور جمعہ</string>
     <string name="sample_prayer">عصر</string>
     <string name="sample_fajr">فجر</string>

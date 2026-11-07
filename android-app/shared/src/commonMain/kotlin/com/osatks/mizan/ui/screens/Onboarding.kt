@@ -35,6 +35,13 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Watch
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -43,6 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,16 +74,28 @@ import kotlin.math.absoluteValue
 /** أيقونة كل صفحة من الجولة */
 private val PAGE_ICONS = listOf(Icons.Filled.Star, Icons.Filled.Explore, Icons.AutoMirrored.Filled.MenuBook, Icons.Filled.Calculate, Icons.Filled.Search)
 
+/** أيقونات صفحات الدليل الجديدة (GuideText.pages) بترتيبها لكل نظام */
+private fun guideIcons(ios: Boolean) = buildList {
+    add(Icons.Filled.Widgets); add(Icons.Filled.FormatQuote); add(Icons.Filled.Share)
+    if (ios) { add(Icons.Filled.Lock); add(Icons.Filled.TouchApp); add(Icons.Filled.Watch) }
+    add(Icons.Filled.NotificationsActive)
+}
+
 /**
- * جولة أول تشغيل: خمس صفحات تعرّف بأهم ما في التطبيق، تُقلَّب بالسحب أو بزر «التالي»، ويمكن تخطيها.
+ * جولة أول تشغيل: صفحات تعرّف بأهم ما في التطبيق وبما قد يفوت المستخدم (GuideText)، تُقلَّب بالسحب أو بزر «التالي»، ويمكن تخطيها.
  * تُعاد من الإعدادات («دليل التطبيق»).
  */
 @Composable
-fun Onboarding(onDone: () -> Unit) {
+fun Onboarding(onDone: () -> Unit, from: Int = 0) {
     val s = LocalStrings.current
-    val pages = s.onboarding
+    val lang = com.osatks.mizan.i18n.LocalLang.current
+    // الصفحات الأساسية، ثم ما قد يفوت المستخدم (الأدوات، وحديث اليوم، والمشاركة قصة، وميزات iPhone، والأذان)
+    // [from]: بعد التحديث تبدأ الجولة من الصفحات الجديدة وحدها
+    val pages = remember(s, lang, from) { (s.onboarding + com.osatks.mizan.i18n.GuideText.of(lang.code).pages(com.osatks.mizan.ui.IsIos)).drop(from) }
+    val icons = remember(from) { (PAGE_ICONS + guideIcons(com.osatks.mizan.ui.IsIos)).drop(from) }
     // الصفحة الأخيرة تطلب الموقع: لا نفترض مكة، فالمواقيت والقبلة تُحسب من موقع المستخدم
-    val count = pages.size + 1
+    // (ولا تُعرض بعد التحديث لمن اختار موقعه)
+    val count = pages.size + if (from > 0 && AppSettings.placeSet) 0 else 1
     val pager = rememberPagerState { count }
     val scope = rememberCoroutineScope()
     val last = pager.currentPage == count - 1
@@ -112,7 +132,7 @@ fun Onboarding(onDone: () -> Unit) {
                             drawStar8(Offset(size.width / 2, size.height / 2), size.minDimension * 0.42f, Gold.copy(alpha = .9f), 2.5.dp.toPx(), rings = false)
                             drawCircle(Color.White.copy(alpha = .10f), size.minDimension * 0.27f)
                         }
-                        Icon(if (i == pages.size) Icons.Filled.Place else PAGE_ICONS.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(if (short) 40.dp else 56.dp), tint = Gold)
+                        Icon(if (i == pages.size) Icons.Filled.Place else icons.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(if (short) 40.dp else 56.dp), tint = Gold)
                     }
                     Spacer(Modifier.height(if (short) 20.dp else 36.dp))
                     Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
@@ -136,12 +156,12 @@ fun Onboarding(onDone: () -> Unit) {
             }
             // النقاط وزر المتابعة (بعرض أقصاه 640 في الوسط على الشاشات العريضة)
             Row(Modifier.fillMaxWidth().wrapContentWidth().widthIn(max = 640.dp).padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
-                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     (0 until count).forEach { i ->
                         val on = i == pager.currentPage
-                        val w by animateDpAsState(if (on) 22.dp else 8.dp, tween(250), label = "dot")
+                        val w by animateDpAsState(if (on) 18.dp else 6.dp, tween(250), label = "dot")
                         val c by animateColorAsState(if (on) Gold else Color.White.copy(alpha = .35f), tween(250), label = "dotColor")
-                        Box(Modifier.height(8.dp).width(w).clip(CircleShape).background(c))
+                        Box(Modifier.height(6.dp).width(w).clip(CircleShape).background(c))
                     }
                 }
                 Button(

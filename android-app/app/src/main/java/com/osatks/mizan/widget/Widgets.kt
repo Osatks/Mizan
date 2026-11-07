@@ -82,7 +82,7 @@ abstract class MizanWidget : AppWidgetProvider() {
 object Widgets {
     private val PROVIDERS = listOf(
         NextPrayerWidget::class.java, PrayerTimesWidget::class.java, HijriWidget::class.java,
-        KhatmaWidget::class.java, AyahWidget::class.java, AdhkarWidget::class.java,
+        KhatmaWidget::class.java, AyahWidget::class.java, HadithWidget::class.java, AdhkarWidget::class.java,
     )
     /** ما يتغير خلال الوقت نفسه: الذكر المعروض وشريط ما مضى من وقت الصلاة */
     private val LIVE = listOf(AdhkarWidget::class.java, NextPrayerWidget::class.java)
@@ -355,6 +355,23 @@ class AyahWidget : MizanWidget() {
         setTextViewText(R.id.ref, s.surahAyah(s.surahName(sn), an))
         // آية اليوم: لمسها يفتح تفسيرها
         Widgets.open(ctx, surahRoute(sn, an, "tafsir"), 5)?.let { setOnClickPendingIntent(R.id.root, it) }
+    }
+}
+
+/** حديث اليوم من موسوعة الأحاديث النبوية: طرفه بالعربية وترجمته بلغة الواجهة ودرجته؛ لمسه يفتح الحديث وشرحه */
+class HadithWidget : MizanWidget() {
+    override fun build(ctx: Context, s: Strings, lang: Lang, variant: Int, id: Int) = RemoteViews(ctx.packageName, R.layout.widget_hadith).apply {
+        val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
+        val h = com.osatks.mizan.hadith.Hadiths.forDay(Widgets.today(), lang.code)
+        setTextViewText(R.id.title, ht.hadithOfDay)
+        setTextViewText(R.id.hadith, h?.let { "«${it.ar.title}»" } ?: "")
+        val tr = h?.tr
+        if (tr != null) {
+            setTextViewText(R.id.meaning, tr.title)
+            setViewVisibility(R.id.meaning, View.VISIBLE)
+        } else setViewVisibility(R.id.meaning, View.GONE)
+        setTextViewText(R.id.ref, (tr ?: h?.ar)?.grade ?: "")
+        Widgets.open(ctx, "hadith", 7)?.let { setOnClickPendingIntent(R.id.root, it) }
     }
 }
 

@@ -14,6 +14,8 @@
     <string name="widget_hijri_desc">Hijri and Gregorian date</string>
     <string name="widget_khatma_desc">Your khatma progress, where to continue and today\'s portion</string>
     <string name="widget_ayah_desc">A short ayah every day with its meaning</string>
+    <string name="widget_hadith">Hadith of the day</string>
+    <string name="widget_hadith_desc">An authentic hadith every day; tap to read its explanation</string>
     <string name="widget_adhkar_desc">The right adhkar for the time: morning, evening, sleep, after prayer and Friday</string>
     <string name="sample_prayer">Asr</string>
     <string name="sample_fajr">Fajr</string>

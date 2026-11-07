@@ -126,6 +126,18 @@
         </receiver>
 
         <receiver
+            android:name=".widget.HadithWidget"
+            android:label="@string/widget_hadith"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_hadith_info" />
+        </receiver>
+
+        <receiver
             android:name=".widget.AyahWidget"
             android:label="@string/widget_ayah"
             android:exported="true">

@@ -95,6 +95,8 @@ struct Day: Codable {
     var hijriMonth: String
     var times: [PrayerTime]
     var ayah: Ayah?
+    /// حديث اليوم (طرفه بالعربية وترجمته ودرجته)؛ يغيب في اللقطات القديمة وفي الأدوات المستقلة
+    var hadith: HadithDay?
 }
 
 struct PrayerTime: Codable {
@@ -111,6 +113,13 @@ struct Ayah: Codable {
     var text: String
     var ref: String
     var meaning: String?
+    var route: String
+}
+
+struct HadithDay: Codable {
+    var text: String
+    var meaning: String?
+    var grade: String
     var route: String
 }
 

@@ -54,6 +54,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -176,6 +177,7 @@ fun HomeScreen(open: (String) -> Unit) {
             }
         }
         item { AyahOfDayCard(today, pad.padding(top = 14.dp).reveal(reveal, 9), open) }
+        item { HadithOfDayCard(today, pad.padding(top = 14.dp).reveal(reveal, 9), open) }
         item { SectionHeader(s.toolsTitle, pad.padding(top = 22.dp).reveal(reveal, 10)) }
         TOOL_ORDER.chunked(cols).forEachIndexed { row, chunk ->
             item {
@@ -484,6 +486,58 @@ private fun AyahOfDayCard(today: LocalDate, modifier: Modifier, open: (String) -
             )
             Spacer(Modifier.height(6.dp))
             Text(s.surahAyah(s.surahName(sn), an), style = MaterialTheme.typography.labelMedium, color = cs.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterHorizontally))
+        }
+    }
+}
+
+/** حديث اليوم (حديث الأداة نفسه): طرفه بالعربية وترجمته بلغة الواجهة؛ لمسه يفتح الحديث وشرحه */
+@Composable
+private fun HadithOfDayCard(today: LocalDate, modifier: Modifier, open: (String) -> Unit) {
+    val lang = LocalLang.current
+    val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
+    val cs = MaterialTheme.colorScheme
+    val h by androidx.compose.runtime.produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang) {
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+            runCatching { com.osatks.mizan.hadith.Hadiths.forDay(today, lang.code) }.getOrNull()
+        }
+    }
+    val hadith = h ?: return
+    val src = remember { MutableInteractionSource() }
+    Surface(
+        onClick = { open("hadith") },
+        shape = RoundedCornerShape(22.dp), color = cs.surface, border = BorderStroke(1.dp, cs.outlineVariant.copy(alpha = .6f)),
+        interactionSource = src, modifier = modifier.fillMaxWidth().pressScale(src, 0.98f),
+    ) {
+        Column(Modifier.padding(18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.FormatQuote, null, tint = Gold, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(ht.hadithOfDay, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = cs.primary, modifier = Modifier.weight(1f))
+                Text(ht.explanation, style = MaterialTheme.typography.labelLarge, color = GoldDeep, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                "«${hadith.ar.title}»",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    textDirection = androidx.compose.ui.text.style.TextDirection.Rtl, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    lineHeight = 30.sp,
+                ),
+                color = cs.onSurface, modifier = Modifier.fillMaxWidth(), maxLines = 4, overflow = TextOverflow.Ellipsis,
+            )
+            hadith.tr?.let { tr ->
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    tr.title, style = MaterialTheme.typography.bodyMedium.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
+                    color = cs.onSurfaceVariant, modifier = Modifier.fillMaxWidth(), maxLines = 3, overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+            val main = hadith.tr ?: hadith.ar
+            Text(
+                listOf(main.grade, main.takhrij).filter { it.isNotBlank() }.joinToString(" · "),
+                style = MaterialTheme.typography.labelMedium, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
         }
     }
 }
