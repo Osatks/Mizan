@@ -551,7 +551,11 @@ def build():
                         .replace("{{site_name}}", esc(site_name))
                         .replace("{{contact_email}}", esc(CONFIG["contact_email"]))
                         .replace("{{site_url}}", esc(CONFIG["site_url"]))
-                        .replace("{{play_url}}", esc(CONFIG["play_url"])))
+                        .replace("{{play_url}}", esc(CONFIG["play_url"]))
+                        .replace("{{appstore_url}}", esc(CONFIG["appstore_url"]))
+                        # لقطة الشاشة الرئيسية في iPhone: نسخة عربية للصفحات العربية، وإنجليزية لبقية اللغات
+                        .replace("{{ios_home_img}}", "/assets/img/app/ios-home.webp" if code == "ar"
+                                 else "/assets/img/app/ios-home-en.webp"))
 
             if meta.get("type") == "tool":
                 body += (f'<section class="related"><h2>{T("أدوات أخرى قد تفيدك")}</h2>'
@@ -578,9 +582,10 @@ def build():
                            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
             if meta.get("type") == "app":
                 ld.append({"@context": "https://schema.org", "@type": "MobileApplication",
-                           "name": site_name, "url": url, "operatingSystem": "Android 8.0+",
+                           "name": site_name, "url": url, "operatingSystem": "Android 8.0+, iOS 15.0+",
                            "applicationCategory": "LifestyleApplication", "inLanguage": code,
-                           "installUrl": CONFIG["play_url"], "downloadUrl": CONFIG["play_url"],
+                           "installUrl": [CONFIG["play_url"], CONFIG["appstore_url"]],
+                           "downloadUrl": [CONFIG["play_url"], CONFIG["appstore_url"]],
                            "image": CONFIG["site_url"] + "/assets/img/icon-512.png",
                            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}})
             if meta.get("type") == "article":
