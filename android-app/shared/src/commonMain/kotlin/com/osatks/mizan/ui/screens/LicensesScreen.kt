@@ -26,6 +26,17 @@ fun LicensesScreen(onBack: () -> Unit) {
     ToolPage(s.licenses, s.licensesSub, onBack) {
         item { SectionCard(s.quranTitle) { LinkedText(s.quranSources) } }
         item {
+            // مصحف المدينة: خطوط المجمع وبيانات الأسطر
+            SectionCard(com.osatks.mizan.i18n.ScriptText.of(lang.code).madinah) {
+                Text(
+                    "King Fahd Glorious Quran Printing Complex (KFGQPC), Madinah: QPC V2 page fonts, surah header font and " +
+                        "Uthmanic Hafs font, used unmodified. Page layout and glyph data: Quranic Universal Library " +
+                        "(qul.tarteel.ai) and Quran.com. Hadith of the day: HadeethEnc.com.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        item {
             SectionCard(s.tafsirLibrary) {
                 Text(s.tafsirLibraryNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

@@ -22,3 +22,9 @@ expect fun mushafPaint(): GlyphPaint
 
 /** خط المصحف لعناصر Compose (Amiri Quran، رخصة SIL OFL) */
 expect val QuranFont: FontFamily
+
+/** قلم بخط من ملف في الجهاز (خط صفحة من مصحف المدينة)؛ null إن تعذّرت قراءته */
+expect fun filePaint(path: String): GlyphPaint?
+
+/** قلم بخط من assets (ترويسات السور وخط البسملة في مصحف المدينة)؛ null إن تعذّرت قراءته */
+expect fun assetPaint(asset: String): GlyphPaint?

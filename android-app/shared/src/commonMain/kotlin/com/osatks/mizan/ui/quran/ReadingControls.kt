@@ -64,6 +64,7 @@ import androidx.compose.material.icons.filled.BrightnessHigh
 import androidx.compose.material.icons.filled.BrightnessLow
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -415,6 +416,7 @@ fun DisplayOptions(showTextSize: Boolean) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         SheetTitle(Icons.Filled.FormatSize, s.displayTitle)
+        ScriptOptions()
         OptionLabel(s.pageColor)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             ToneSwatch("", s.toneAuto)
@@ -442,6 +444,64 @@ fun DisplayOptions(showTextSize: Boolean) {
                 IconButton(onClick = { QuranPrefs.updateSize(size - 2) }, enabled = size > 18) { Icon(Icons.Filled.TextDecrease, s.textSmaller) }
                 Text("$size", Modifier.width(48.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium)
                 IconButton(onClick = { QuranPrefs.updateSize(size + 2) }, enabled = size < 40) { Icon(Icons.Filled.TextIncrease, s.textLarger) }
+            }
+        }
+    }
+}
+
+/**
+ * خط المصحف: مصحف المدينة (الافتراضي، صفحة بصفحة كطبعة المجمع) أو الخط الآخر، وتنزيل مصحف المدينة كاملاً
+ * للقراءة دون إنترنت
+ */
+@Composable
+private fun ScriptOptions() {
+    val st = com.osatks.mizan.i18n.ScriptText.of(com.osatks.mizan.i18n.LocalLang.current.code)
+    val madinah = QuranPrefs.script != "amiri"
+    OptionLabel(st.title)
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        listOf("madinah" to st.madinah, "amiri" to st.other).forEach { (key, label) ->
+            val on = (key == "madinah") == madinah
+            Surface(
+                onClick = { QuranPrefs.updateScript(key) }, shape = RoundedCornerShape(16.dp),
+                color = if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .5f),
+                border = BorderStroke(if (on) 2.dp else 1.dp, if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+                modifier = Modifier.weight(1f).height(52.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        label, style = MaterialTheme.typography.titleSmall, maxLines = 1, textAlign = TextAlign.Center,
+                        fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
+                        color = if (on) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+    if (!madinah) return
+    Text(st.note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    val m = com.osatks.mizan.quran.Madinah
+    @Suppress("UNUSED_VARIABLE") val v = m.fontsVersion
+    val count = androidx.compose.runtime.remember(v, m.downloading) { m.downloadedCount() }
+    when {
+        count >= m.PAGES -> Text("✓ " + st.downloaded, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+        m.downloading -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${st.downloading} · ${(m.progress * 100).toInt()}%", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                androidx.compose.material3.TextButton(onClick = { m.cancelDownload() }) { Text(st.cancel) }
+            }
+            androidx.compose.material3.LinearProgressIndicator(progress = { m.progress }, modifier = Modifier.fillMaxWidth())
+        }
+        else -> Surface(
+            onClick = { m.downloadAll() }, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .5f),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Download, null, tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(st.downloadAll, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(st.downloadSub + " · $count / ${m.PAGES}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
     }

@@ -47,11 +47,11 @@ import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -97,7 +97,8 @@ val TABS = listOf(
     TabItem("home", { it.tabHome }, Icons.Filled.Home, Icons.Outlined.Home, "house"),
     TabItem("prayer", { it.tabPrayer }, Icons.Filled.Schedule, Icons.Outlined.Schedule, "clock"),
     TabItem("quran", { it.tabQuran }, Icons.AutoMirrored.Filled.MenuBook, Icons.AutoMirrored.Outlined.MenuBook, "book"),
-    TabItem("tasbih", { it.tabTasbih }, Icons.Filled.TouchApp, Icons.Outlined.TouchApp, "hand.tap"),
+    // الأدوات (الحاسبات والتواريخ والمسبحة…) في تبويب خاص؛ والمسبحة بلمسة من الرئيسية
+    TabItem("tools", { it.toolsTitle }, Icons.Filled.GridView, Icons.Outlined.GridView, "square.grid.2x2"),
     TabItem("settings", { it.tabSettings }, Icons.Filled.Settings, Icons.Outlined.Settings, "gearshape"),
 )
 
