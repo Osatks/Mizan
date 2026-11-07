@@ -86,7 +86,7 @@ val DHIKR get() = Tasbih.DHIKR
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TasbihScreen() {
+fun TasbihScreen(onBack: (() -> Unit)? = null) {
     val s = LocalStrings.current
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
@@ -133,7 +133,7 @@ fun TasbihScreen() {
         spring(dampingRatio = 0.8f, stiffness = 200f), label = "p"
     )
 
-    ToolPage(s.tasbihTitle, s.tasbihSubtitle, sharedKey = "tasbih", icon = TOOL_ICONS["tasbih"]) {
+    ToolPage(s.tasbihTitle, s.tasbihSubtitle, onBack, sharedKey = "tasbih", icon = TOOL_ICONS["tasbih"]) {
         item {
             SectionCard {
                 Segmented(listOf("free" to s.modeFree, "salah" to s.modeAfterPrayer), st.mode) { Tasbih.setMode(it) }

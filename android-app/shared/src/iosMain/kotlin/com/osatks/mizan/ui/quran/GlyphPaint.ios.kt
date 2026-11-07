@@ -18,7 +18,7 @@ private const val FONT = "fonts/amiri_quran.ttf"
 private val fontBytes: ByteArray by lazy { Platform.asset(FONT) ?: ByteArray(0) }
 private val typeface: Typeface? by lazy { FontMgr.default.makeFromData(Data.makeFromBytes(fontBytes)) }
 
-private data class ShapeKey(val size: Float, val text: String)
+private data class ShapeKey(val size: Float, val text: String, val font: String = "")
 
 /**
  * ذاكرة مشتركة بين كل الأقلام وكل الخيوط: الكلمة تُشكَّل (HarfBuzz) مرة واحدة لكل مقاس.
@@ -50,17 +50,18 @@ private val lines = SharedCache<TextLine>(2500)
 private val boxes = SharedCache<FloatArray>(600)
 
 /** TextLine يشكّل الحروف (HarfBuzz) فتتصل الحروف العربية كما في أندرويد */
-private class SkiaGlyphPaint : GlyphPaint {
+private class SkiaGlyphPaint(face: Typeface? = typeface, private val id: String = "") : GlyphPaint {
     private val paint = Paint().apply { isAntiAlias = true }
-    private val font = SkFont(typeface, 16f).apply { isSubpixel = true }
+    private val font = SkFont(face, 16f).apply { isSubpixel = true }
 
-    private fun line(text: String): TextLine = lines.get(ShapeKey(font.size, text)) { TextLine.make(text, font) }
+    // رموز خطوط صفحات المصحف تتكرر بين الصفحات بأشكال مختلفة: المفتاح يحمل اسم الخط
+    private fun line(text: String): TextLine = lines.get(ShapeKey(font.size, text, id)) { TextLine.make(text, font) }
 
     override var textSize: Float get() = font.size; set(v) { font.size = v }
     override var color: Int get() = paint.color; set(v) { paint.color = v }
     override fun measure(text: String) = line(text).width
     /** حدود الحروف الفعلية (تُستعمل للأرقام وعلامات الوقف، ولا تحتاج تشكيلاً) */
-    override fun bounds(text: String): FloatArray = boxes.get(ShapeKey(font.size, text)) {
+    override fun bounds(text: String): FloatArray = boxes.get(ShapeKey(font.size, text, id)) {
         val r = font.measureText(text, paint)
         floatArrayOf(r.left, r.top, r.right, r.bottom)
     }
@@ -70,3 +71,23 @@ private class SkiaGlyphPaint : GlyphPaint {
 actual fun mushafPaint(): GlyphPaint = SkiaGlyphPaint()
 
 actual val QuranFont: FontFamily by lazy { FontFamily(Font("amiri_quran", fontBytes)) }
+
+/** خطوط الملفات المقروءة (آخر ما استُعمل منها) */
+private val faceLock = Lock()
+private val faces = LinkedHashMap<String, Typeface>()
+
+private fun face(key: String, bytes: () -> ByteArray?): Typeface? {
+    val hit = faceLock.locked { faces.remove(key)?.also { faces[key] = it } }
+    if (hit != null) return hit
+    val data = bytes() ?: return null
+    val made = runCatching { FontMgr.default.makeFromData(Data.makeFromBytes(data)) }.getOrNull() ?: return null
+    faceLock.locked {
+        faces[key] = made
+        while (faces.size > 24) faces.remove(faces.keys.first())
+    }
+    return made
+}
+
+actual fun filePaint(path: String): GlyphPaint? = face(path) { com.osatks.mizan.platform.Fs.read(path) }?.let { SkiaGlyphPaint(it, path) }
+
+actual fun assetPaint(asset: String): GlyphPaint? = face("asset:$asset") { Platform.asset(asset) }?.let { SkiaGlyphPaint(it, asset) }

@@ -211,6 +211,9 @@ object QuranPrefs {
     /** مؤقت الإيقاف بالدقائق (0 بلا مؤقت) */
     var sleep by mutableIntStateOf(0)
         private set
+    /** خط المصحف: madinah مصحف المدينة (الافتراضي) | amiri الخط الآخر */
+    var script by mutableStateOf("madinah")
+        private set
 
     fun ensure() {
         if (loaded) return
@@ -233,6 +236,7 @@ object QuranPrefs {
         gap = AppSettings.getInt("q_gap", 0)
         speed = AppSettings.getInt("q_speed", 100) / 100f
         sleep = AppSettings.getInt("q_sleep", 0)
+        script = AppSettings.getString("q_script").ifEmpty { "madinah" }
         bookmarks.clear()
         bookmarks += AppSettings.getString("q_marks").split(',').mapNotNull { it.toIntOrNull() }.filter { it in 0 until QuranMeta.AYAHS }
     }
@@ -263,6 +267,7 @@ object QuranPrefs {
     fun updateGap(n: Int) { gap = n; AppSettings.putInt("q_gap", n) }
     fun updateSpeed(v: Float) { speed = v; AppSettings.putInt("q_speed", (v * 100).toInt()) }
     fun updateSleep(n: Int) { sleep = n; AppSettings.putInt("q_sleep", n) }
+    fun updateScript(v: String) { script = v; AppSettings.putString("q_script", v) }
     fun updateFocusLast(i: Int) { if (i != focusLast) { focusLast = i; AppSettings.putInt("q_focus_last", i) } }
 
     fun isBookmarked(i: Int) = i in bookmarks

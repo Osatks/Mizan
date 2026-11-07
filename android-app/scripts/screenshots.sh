@@ -95,6 +95,15 @@ adb exec-out screencap -p > "$OUT/19g-share-card-en.png"; echo "captured 19g-sha
 adb shell input keyevent KEYCODE_BACK; sleep 1
 shot quran          16-quran-en en
 
+# مصحف المدينة: الفاتحة، وأول البقرة، وأول المائدة (خط الصفحة يُنزَّل عند فتحها)
+WAIT=14 shot "surah/1"          21-madinah-fatiha
+WAIT=14 shot "surah/2"          21b-madinah-baqara
+WAIT=14 shot "surah/5?ayah=1"   21c-madinah-maidah
+adb shell cmd uimode night yes || true; sleep 2
+WAIT=14 shot "surah/2"          21d-madinah-baqara-dark
+adb shell cmd uimode night no || true; sleep 2
+shot tools       22-tools
+
 # حديث اليوم: الحديث وشرحه وفوائده، ثم صورة القصة
 shot hadith      20-hadith
 adb shell input swipe 540 1700 540 500 400; sleep 2

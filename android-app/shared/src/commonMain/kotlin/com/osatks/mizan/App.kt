@@ -91,7 +91,7 @@ private const val GUIDE_VERSION = 2
 /** صفحات الجولة الأساسية (Strings.onboarding) قبل صفحات الدليل الجديدة */
 private const val BASE_GUIDE_PAGES = 5
 
-internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses", "hadith")
+internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses", "hadith", "tools")
 private val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 /**
@@ -266,7 +266,8 @@ private fun Route(route: String, app: AppNav, open: (String) -> Unit, back: () -
         "prayer" -> PrayerScreen(open = open)
         "qibla" -> QiblaScreen(back)
         "quran" -> QuranScreen(open = open)
-        "tasbih" -> TasbihScreen()
+        "tasbih" -> TasbihScreen(back)
+        "tools" -> com.osatks.mizan.ui.screens.ToolsScreen(open)
         "adhkar" -> com.osatks.mizan.ui.screens.AdhkarScreen(back)
         "settings" -> SettingsScreen(open = open)
         "tafsirs" -> com.osatks.mizan.ui.quran.TafsirLibraryScreen(back)

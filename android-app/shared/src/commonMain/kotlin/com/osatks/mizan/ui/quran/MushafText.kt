@@ -76,7 +76,11 @@ internal class BannerRow(top: Float, height: Float, val surah: Int) : MRow(top, 
 internal class BasmalaRow(top: Float, height: Float) : MRow(top, height)
 
 /** نتيجة الحساب: مقاس الخط، والصفوف بمواضعها، وارتفاع المحتوى، وهل وسعته الصفحة */
-internal class PageLayout(val textSize: Float, val lineH: Float, val rows: List<MRow>, val height: Float, val fits: Boolean, val capped: Boolean = false) {
+internal class PageLayout(
+    val textSize: Float, val lineH: Float, val rows: List<MRow>, val height: Float, val fits: Boolean, val capped: Boolean = false,
+    /** صفحة مصحف المدينة (رقمها) وخطها، أو 0 للمصحف بخط أميري */
+    val qcf: Int = 0, val font: String? = null,
+) {
     /** الآية تحت نقطة اللمس، أو -1 */
     fun hit(x: Float, y: Float): Int {
         val row = rows.filterIsInstance<TextRow>().minByOrNull { r ->
@@ -336,7 +340,7 @@ private object PageLayouts {
     // صفحتان معروضتان وما حولهما (حتى ثماني في كل جهة في عرض الصفحتين) ومقاس سابق أثناء تغيّر النافذة
     private const val KEEP = 32
 
-    fun key(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float) = "$page:${text.hashCode()}:$w:$h:$spPx"
+    fun key(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float, madinah: Boolean) = "$page:${text.hashCode()}:$w:$h:$spPx:$madinah"
 
     fun peek(key: String): PageLayout? = lock.locked { map[key] }
 
@@ -347,14 +351,14 @@ private object PageLayouts {
         }
     }
 
-    private fun start(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float): Deferred<PageLayout> {
-        val key = key(page, text, w, h, spPx)
+    private fun start(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float, madinah: Boolean): Deferred<PageLayout> {
+        val key = key(page, text, w, h, spPx, madinah)
         return lock.locked {
             val ready = map[key]
             if (ready != null) CompletableDeferred(ready)
             else running.getOrPut(key) {
                 scope.async {
-                    try { preparePage(page, text, w, h, spPx).also { put(key, it) } }
+                    try { ((if (madinah) prepareMadinah(page, w, h) else null) ?: preparePage(page, text, w, h, spPx)).also { put(key, it) } }
                     finally { lock.locked { running.remove(key) } }
                 }
             }
@@ -362,12 +366,12 @@ private object PageLayouts {
     }
 
     /** الصفحة محسوبة: من الذاكرة، أو بانتظار حسابها في الخلفية (إن كان جارياً لا يُعاد) */
-    suspend fun obtain(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float): PageLayout =
-        start(page, text, w, h, spPx).await()
+    suspend fun obtain(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float, madinah: Boolean): PageLayout =
+        start(page, text, w, h, spPx, madinah).await()
 
     /** تحضير صفحة لم تُعرض بعد، دون انتظار */
-    fun prefetch(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float) {
-        if (page in 1..QuranMeta.PAGES.size) start(page, text, w, h, spPx)
+    fun prefetch(page: Int, text: Array<String>, w: Float, h: Float, spPx: Float, madinah: Boolean) {
+        if (page in 1..QuranMeta.PAGES.size) start(page, text, w, h, spPx, madinah && com.osatks.mizan.quran.Madinah.hasFont(page))
     }
 }
 
@@ -451,7 +455,11 @@ fun MushafCanvas(
         val w = constraints.maxWidth.toFloat()
         val h = constraints.maxHeight.toFloat()
         val spPx = with(density) { 1.sp.toPx() }
-        val key = PageLayouts.key(page, text, w, h, spPx)
+        // مصحف المدينة (الافتراضي) متى وصل خط الصفحة، وإلى ذلك الحين المصحف بخط أميري
+        val madinahOn = com.osatks.mizan.quran.QuranPrefs.script != "amiri"
+        @Suppress("UNUSED_VARIABLE") val fontsReady = com.osatks.mizan.quran.Madinah.fontsVersion
+        val useMadinah = madinahOn && com.osatks.mizan.quran.Madinah.hasFont(page)
+        val key = PageLayouts.key(page, text, w, h, spPx, useMadinah)
         // تُحسب الصفحة في الخلفية (والمجاورة قبل أن تظهر). إذا تغيّر المقاس (ظهور الرأس أو اختفاؤه
         // في وضع التركيز) تبقى الصفحة السابقة معروضة حتى يستقر المقاس، ثم تحل محلها الجديدة بتلاشٍ متقاطع.
         val current = remember(page) {
@@ -460,14 +468,19 @@ fun MushafCanvas(
         val leaving = remember { mutableStateOf<PageLayout?>(null) }
         val mix = remember { Animatable(1f) }
         LaunchedEffect(key) {
+            // خط الصفحة وما حولها من مصحف المدينة يُنزَّل في الخلفية؛ وصوله يغيّر المفتاح فتُعاد الصفحة به
+            if (madinahOn) {
+                if (!useMadinah) scope.launch { com.osatks.mizan.quran.Madinah.ensureFont(page) }
+                com.osatks.mizan.quran.Madinah.prefetch(page + 1, page - 1, page + 2, page - 2, page + 3)
+            }
             val next = PageLayouts.peek(key) ?: run {
                 if (current.value != null) delay(140)
-                PageLayouts.obtain(page, text, w, h, spPx)
+                PageLayouts.obtain(page, text, w, h, spPx, useMadinah)
             }
             // ست صفحات حولها (ثلاث في كل جهة، الأقرب أولاً) تُحضَّر الآن، فلا تُحسب صفحة ولا تُشكَّل كلماتها لحظة وصولها
             for (d in 1..prefetch) {
-                PageLayouts.prefetch(page + d, text, w, h, spPx)
-                PageLayouts.prefetch(page - d, text, w, h, spPx)
+                PageLayouts.prefetch(page + d, text, w, h, spPx, madinahOn)
+                PageLayouts.prefetch(page - d, text, w, h, spPx, madinahOn)
             }
             if (next !== current.value) {
                 leaving.value = current.value
@@ -515,8 +528,11 @@ fun MushafCanvas(
         val pressA = remember { Animatable(0f) }
 
         val paint = remember { mushafPaint() }
+        // علامات الآيات وترويسات السور في مصحف المدينة بلون التطبيق
+        val accent = androidx.compose.material3.MaterialTheme.colorScheme.primary
         @Composable
         fun layer(l: PageLayout, alpha: () -> Float, interactive: Boolean) {
+            val qp = remember(l.font) { l.font?.let { madinahPaints(it) } }
             val area = if (l.fits) Modifier.fillMaxSize() else Modifier.fillMaxWidth().height(with(density) { l.height.toDp() })
             val canvas = area
                 .then(
@@ -552,7 +568,7 @@ fun MushafCanvas(
                 }
                 // ...والنص في طبقة فوقها تُسجَّل مرة واحدة ولا تتأثر بحركة الأشرطة
                 .graphicsLayer()
-                .drawBehind { drawPage(l, p, paint, text[0], 1f, hide) }
+                .drawBehind { drawPage(l, p, paint, text[0], 1f, hide, qp, accent) }
             if (l.fits) Spacer(canvas) else Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { Spacer(canvas) }
         }
         leaving.value?.let { old -> layer(old, { 1f - mix.value }, interactive = false) }
@@ -577,7 +593,10 @@ private fun DrawScope.band(l: PageLayout, index: Int, color: Color, alpha: Float
     }
 }
 
-private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: GlyphPaint, basmala: String, alpha: Float, hide: (Int) -> Float = { 0f }) {
+private fun DrawScope.drawPage(
+    l: PageLayout, p: MushafPalette, paint: GlyphPaint, basmala: String, alpha: Float, hide: (Int) -> Float = { 0f },
+    qp: MadinahPaints? = null, accent: Color = p.marker,
+) {
     // صفحتا الفاتحة وأول البقرة (نص قليل في وسط الصفحة): إطار مزخرف حول النص كما في المصاحف المطبوعة
     if (l.capped && l.rows.isNotEmpty()) {
         val pad = l.lineH * 0.45f
@@ -600,6 +619,8 @@ private fun DrawScope.drawPage(l: PageLayout, p: MushafPalette, paint: GlyphPain
             drawStar8(Offset(size.width / 2, (bottom + size.height) / 2), rr, p.gold.copy(alpha = .5f * alpha), 1.2.dp.toPx())
         }
     }
+    // مصحف المدينة: الصفحة كما في الطبعة بخطوط المجمع
+    if (l.qcf > 0 && qp != null) { drawMadinah(l, p, accent, qp, alpha, hide); return }
     // الترويسات أولاً، ثم كل النصوص فوقها
     for (row in l.rows) if (row is BannerRow) {
         val pad = row.height * 0.1f

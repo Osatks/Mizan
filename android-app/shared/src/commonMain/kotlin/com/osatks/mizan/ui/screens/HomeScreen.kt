@@ -147,9 +147,7 @@ fun HomeScreen(open: (String) -> Unit) {
     val haze = rememberHazeState()
     val lead = LocalLeadingInset.current
     BoxWithConstraints(Modifier.fillMaxSize()) { androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) {
-    // الأدوات عمودان على الهاتف، وثلاثة في العرض المتوسط، وأربعة في الواسع؛ والمحتوى في الوسط بعرض أقصاه 1040
-    val region = maxWidth - lead
-    val cols = when (widthClassOf(region)) { SizeClass.Compact -> 2; SizeClass.Medium -> 3; SizeClass.Expanded -> 4 }
+    // المحتوى في الوسط بعرض أقصاه 1040 (والأدوات في تبويبها: ToolsScreen)
     val g = gutters(maxWidth, HomeMax, lead)
     val list = rememberLazyListState()
     val pad = Modifier.padding(start = g.start, end = g.end)
@@ -178,22 +176,34 @@ fun HomeScreen(open: (String) -> Unit) {
         }
         item { AyahOfDayCard(today, pad.padding(top = 14.dp).reveal(reveal, 9), open) }
         item { HadithOfDayCard(today, pad.padding(top = 14.dp).reveal(reveal, 9), open) }
-        item { SectionHeader(s.toolsTitle, pad.padding(top = 22.dp).reveal(reveal, 10)) }
-        TOOL_ORDER.chunked(cols).forEachIndexed { row, chunk ->
-            item {
-                Row(
-                    Modifier.padding(start = g.start, end = g.end, top = 6.dp, bottom = 6.dp).reveal(reveal, 11 + row).height(IntrinsicSize.Max),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    chunk.forEach { key -> ToolTile(key, Modifier.weight(1f)) { open(key) } }
-                    repeat(cols - chunk.size) { Spacer(Modifier.weight(1f)) }
-                }
-            }
-        }
     }
     GlassTopBar(list, haze, s.appName, onBack = null)
 } }
     if (showLang) LanguageSheet { showLang = false }
+}
+
+/**
+ * تبويب الأدوات: الحاسبات والتواريخ والمسبحة والأذكار والقبلة في شبكة، عمودان على الهاتف وثلاثة في العرض المتوسط
+ * وأربعة في الواسع
+ */
+@Composable
+fun ToolsScreen(open: (String) -> Unit) {
+    val s = LocalStrings.current
+    com.osatks.mizan.ui.ToolPage(s.toolsTitle, s.appTagline) {
+        item(key = "tools") {
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val cols = when { maxWidth >= 840.dp -> 4; maxWidth >= 560.dp -> 3; else -> 2 }
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    TOOL_ORDER.chunked(cols).forEach { chunk ->
+                        Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            chunk.forEach { key -> ToolTile(key, Modifier.weight(1f)) { open(key) } }
+                            repeat(cols - chunk.size) { Spacer(Modifier.weight(1f)) }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /** أقصى عرض لمحتوى الرئيسية على الشاشات العريضة */
@@ -216,12 +226,6 @@ private fun HomeHeader(
     val lang = LocalLang.current
     val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
     val cs = MaterialTheme.colorScheme
-    val sec = now.time.toSecondOfDay().toDouble()
-    val greeting = when {
-        !secOf(times, "fajr").isNaN() && sec >= secOf(times, "fajr") && sec < secOf(times, "dhuhr") -> ht.morning
-        sec >= secOf(times, "dhuhr") && sec < secOf(times, "maghrib") -> ht.day
-        else -> ht.evening
-    }
     Box(
         Modifier.fillMaxWidth()
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(cs.primaryContainer, cs.primaryContainer.copy(alpha = .55f), cs.background)))
@@ -230,8 +234,8 @@ private fun HomeHeader(
         Column(Modifier.statusBarsPadding().padding(start = start + 4.dp, end = end + 4.dp, top = 14.dp, bottom = 8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.reveal(reveal, 0)) {
                 Column(Modifier.weight(1f)) {
-                    Text(greeting, color = cs.primary, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(s.appName + " · " + s.appTagline, color = cs.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(s.appName, color = cs.primary, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(s.appTagline, color = cs.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 RoundButton(Icons.Filled.Search, s.searchHint, Modifier.sharedCard("search-bar", CircleShape)) { open("search") }
                 Spacer(Modifier.width(10.dp))

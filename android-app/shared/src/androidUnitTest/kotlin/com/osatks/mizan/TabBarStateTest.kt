@@ -22,8 +22,8 @@ class TabBarStateTest {
         assertEquals(setOf("tabs", "selected", "visible", "rtl", "dark", "accent"), m.keys)
         val tabs = (m["tabs"] as List<*>).map { it as Map<*, *> }
         assertEquals(TABS.map { it.route }, tabs.map { it["route"] })
-        assertEquals(listOf("house", "clock", "book", "hand.tap", "gearshape"), tabs.map { it["symbol"] })
-        assertEquals(listOf(Ar.tabHome, Ar.tabPrayer, Ar.tabQuran, Ar.tabTasbih, Ar.tabSettings), tabs.map { it["title"] })
+        assertEquals(listOf("house", "clock", "book", "square.grid.2x2", "gearshape"), tabs.map { it["symbol"] })
+        assertEquals(listOf(Ar.tabHome, Ar.tabPrayer, Ar.tabQuran, Ar.toolsTitle, Ar.tabSettings), tabs.map { it["title"] })
         assertEquals("prayer", m["selected"])
         assertEquals(true, m["visible"])
         assertEquals(true, m["rtl"])
