@@ -253,7 +253,8 @@ object WidgetData {
                     "text" to QuranData.withoutBismillah(q, idx),
                     "ref" to s.surahAyah(s.surahName(sn), an),
                     "meaning" to meaning?.getOrNull(idx),
-                    "route" to surahRoute(sn, an, "widget"),
+                    // آية اليوم: لمسها يفتح تفسيرها
+                    "route" to surahRoute(sn, an, "tafsir"),
                 )
             }
             mapOf(

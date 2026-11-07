@@ -353,7 +353,8 @@ class AyahWidget : MizanWidget() {
             setViewVisibility(R.id.meaning, View.VISIBLE)
         } else setViewVisibility(R.id.meaning, View.GONE)
         setTextViewText(R.id.ref, s.surahAyah(s.surahName(sn), an))
-        Widgets.open(ctx, surahRoute(sn, an, "widget"), 5)?.let { setOnClickPendingIntent(R.id.root, it) }
+        // آية اليوم: لمسها يفتح تفسيرها
+        Widgets.open(ctx, surahRoute(sn, an, "tafsir"), 5)?.let { setOnClickPendingIntent(R.id.root, it) }
     }
 }
 

@@ -130,7 +130,7 @@ object WidgetStatic {
                 "days" to days,
                 "pool" to pool.map { idx ->
                     val (sn, an) = QuranMeta.locate(idx)
-                    linkedMapOf("text" to QuranData.withoutBismillah(q, idx), "s" to sn, "a" to an, "route" to surahRoute(sn, an, "widget"))
+                    linkedMapOf("text" to QuranData.withoutBismillah(q, idx), "s" to sn, "a" to an, "route" to surahRoute(sn, an, "tafsir"))
                 },
             ),
         )
