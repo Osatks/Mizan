@@ -1,8 +1,5 @@
-• Compteur de tasbih sur l'écran verrouillé et dans la Dynamic Island : comptez et remettez à zéro sans ouvrir l'app.
-• Compteur des adhkar du matin et du soir sur l'écran verrouillé ; il passe seul au dhikr suivant.
-• Compte à rebours de la prochaine prière, puis jusqu'à l'iqama, avec l'iftar, le suhour et la dua de l'iftar pendant le Ramadan.
-• Bouton Action, centre de contrôle et Siri : tasbih, compte à rebours, adhkar et verset du jour.
-• Nouveaux widgets : touchez l'anneau pour compter, la portion du jour de la khatma, et la prochaine prière en mode En veille.
-• Partagez un verset en image, dans la police du Mushaf avec son sens, en trois couleurs.
-• Horaires de prière dans le Calendrier de l'iPhone, et qibla avec l'appareil photo.
-• App Apple Watch : prochaine prière et horaires du jour, tasbih avec la Digital Crown, et complications.
+• Le Mushaf de Médine : l’édition du Complexe du Roi Fahd, ligne par ligne comme l’imprimé, avec ses propres polices, et Amiri en option.
+• Le hadith du jour de HadeethEnc.com avec son explication et ses enseignements, et un widget pour l’écran d’accueil.
+• Le verset du jour ouvre directement son tafsir.
+• Partagez un verset, un hadith ou un dhikr en image au format story.
+• Un accueil plus apaisé, un onglet Outils, un guide des fonctions à découvrir et un moyen d’envoyer vos remarques.

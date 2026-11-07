@@ -1,8 +1,5 @@
-• Kilit ekranında ve Dynamic Island'da tesbih sayacı: uygulamayı açmadan sayın ve sıfırlayın.
-• Kilit ekranında sabah ve akşam zikirleri sayacı; kendiliğinden sonraki zikre geçer.
-• Sıradaki namaza geri sayım, ardından kamete geri sayım; Ramazan'da iftar, sahur ve iftar duası.
-• Eylem düğmesi, Denetim Merkezi ve Siri: tesbih, namaz geri sayımı, zikirler ve günün ayeti.
-• Yeni araç takımları: halkaya dokunarak tesbih, hatmin bugünkü bölümü ve Bekleme modunda sıradaki namaz.
-• Bir ayeti Mushaf yazısıyla ve anlamıyla, üç renkte görsel olarak paylaşın.
-• iPhone Takvimi'nde namaz vakitleri ve kamerayla kıble.
-• Apple Watch uygulaması: sıradaki namaz ve günün vakitleri, Digital Crown ile tesbih ve saat yüzü komplikasyonları.
+• Medine Mushafı: Kral Fahd Kompleksi baskısı, basılı hâliyle satır satır, kendi yazı tipleriyle; isteğe bağlı Amiri hattı.
+• HadeethEnc.com'dan açıklaması ve faydalarıyla günün hadisi ve ana ekran araç takımı.
+• Günün ayeti doğrudan tefsirini açar.
+• Bir ayeti, hadisi veya zikri hikâye boyutunda görsel olarak paylaşın.
+• Daha sakin bir ana ekran, Araçlar sekmesi, gözden kaçabilecek özellikler rehberi ve geri bildirim gönderme.
