@@ -130,8 +130,8 @@ internal fun DrawScope.drawMadinah(l: PageLayout, p: MushafPalette, accent: Colo
                 if (code.isEmpty()) continue
                 hp.textSize = 100f
                 val gw = hp.measure(code).coerceAtLeast(1f)
-                // الإطار بعرض الأسطر، ولا يتجاوز ارتفاع السطر (ارتفاعه نحو 0.39 من المقاس وعرضه 3.3)
-                val ts = min(100f * lineW / gw, row.height * 0.92f / 0.4f)
+                // الإطار ممتد إلى طرفي الصفحة (وفي صفحتي الفاتحة وأول البقرة بعرض أسطرهما داخل إطارهما) (ارتفاعه نحو 0.39 من المقاس وعرضه 3.3)، ولا يتجاوز ارتفاع السطر إلا قليلاً
+                val ts = min(100f * (if (l.capped) lineW else size.width) / gw, row.height * 1.12f / 0.39f)
                 hp.textSize = ts
                 hp.color = mark
                 val w = hp.measure(code)
