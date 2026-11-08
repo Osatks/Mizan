@@ -228,6 +228,7 @@ internal actual fun NativeHomeView(open: (String) -> Unit, onLanguage: () -> Uni
                 "rtl" to lang.rtl, "lang" to lang.code, "dark" to dark,
                 "top" to top.value.toDouble(), "bottom" to bottom.value.toDouble(),
                 "start" to g.start.value.toDouble(), "end" to g.end.value.toDouble(),
+                "width" to (maxWidth - g.start - g.end).value.toDouble(),
                 "appName" to s.appName, "tagline" to s.appTagline, "search" to s.searchHint, "language" to s.language,
                 "prayersTitle" to wt.prayerTimes, "place" to s.placeName(AppSettings.place), "daily" to ht.daily,
                 "sinceAdhan" to ht.sinceAdhan, "ayahTitle" to s.ayahOfDay, "tafsir" to ht.tafsir,

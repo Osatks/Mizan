@@ -66,6 +66,8 @@ struct HomeState: Decodable {
     let lang: String
     let dark: Bool
     let top, bottom, start, end: Double
+    /// عرض المحتوى بين الهامشين (نقاط)
+    let width: Double
     let appName, tagline, search, language, prayersTitle, place, daily, sinceAdhan, ayahTitle, tafsir, hadithTitle, explanation: String
     let day: Day
     let adhkar: Adhkar?
@@ -338,7 +340,9 @@ private struct HomeHeader: View {
                 RoundButton(symbol: "globe", label: s.language, p: p) { model.language() }
             }
             HStack(alignment: .center, spacing: 14) {
-                DayCard(d: s.day, arabic: s.lang == "ar", p: p).frame(maxWidth: .infinity)
+                // بطاقة اليوم وعمود أذكار الوقت بنسبة 1 : 1.15 كما في رئيسية Compose (عنوان الأذكار الطويل لا يُقص)
+                DayCard(d: s.day, arabic: s.lang == "ar", p: p)
+                    .frame(width: max(120, (CGFloat(s.width) - 8 - 14) / 2.15))
                 VStack(spacing: 10) {
                     if let a = s.adhkar {
                         Button { model.adhkar(a.section) } label: {
