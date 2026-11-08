@@ -21,6 +21,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         LiquidTabBar.install()
         // صفحات مصحف المدينة يقلّبها ويرسمها النظام (UICollectionView و Core Text) بدل Compose (NativeMushaf.swift)
         NativeMushafReader.install()
+        // والرئيسية بواجهة SwiftUI (NativeHome.swift)
+        NativeHomeScreen.install()
         if !AppDelegate.usesScenes {
             let w = UIWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()

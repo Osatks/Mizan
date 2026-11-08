@@ -128,6 +128,13 @@ val TOOL_ICONS: Map<String, ImageVector> = mapOf(
 @Composable
 fun HomeScreen(open: (String) -> Unit) {
     QuranPrefs.ensure()
+    // في iOS: الرئيسية بواجهة النظام (SwiftUI) متى اختير الموقع؛ وقبل ذلك هذه، ففيها طلب الموقع
+    if (nativeHomeAvailable && AppSettings.placeSet) {
+        var showLanguage by remember { mutableStateOf(false) }
+        NativeHomeView(open, onLanguage = { showLanguage = true }, Modifier.fillMaxSize())
+        if (showLanguage) LanguageSheet { showLanguage = false }
+        return
+    }
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
