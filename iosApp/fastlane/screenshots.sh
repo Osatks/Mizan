@@ -24,7 +24,7 @@ LOCALES="${3:-ar-SA en-US}"
 DEVICES="${4:-iphone ipad duo}"
 BUNDLE=com.mizan.almuslim
 LAUNCH_WAIT="${LAUNCH_WAIT:-10}"   # ثوانٍ بعد التشغيل حتى يستقر أول إطار
-ROUTE_WAIT="${ROUTE_WAIT:-8}"      # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص)
+ROUTE_WAIT="${ROUTE_WAIT:-14}"     # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص + تنزيل خط صفحة مصحف المدينة)
 LOGS="${LOGS:-$OUT/../screenshot-logs}"
 mkdir -p "$OUT" "$LOGS"
 
@@ -33,25 +33,25 @@ log() { echo "▸ $*"; }
 # الترتيب = ترتيب ظهورها في المتجر (أول ثلاث هي الأهم)
 IPHONE_SHOTS=(
   "01_home:home"
-  "02_quran_page:surah/1?ayah=0&from=row"
-  "03_prayer:prayer"
-  "04_adhkar:adhkar"
-  "05_quran_index:quran"
-  "06_qibla:qibla"
-  "07_zakat:zakat"
-  "08_tasbih:tasbih"
+  "02_quran_page:surah/18?ayah=0&from=row"
+  "03_hadith:hadith"
+  "04_prayer:prayer"
+  "05_adhkar:adhkar"
+  "06_tools:tools"
+  "07_tafsir:surah/2?ayah=255&from=tafsir"
+  "08_qibla:qibla"
 )
 # iPad: القائمة الجانبية والأعمدة؛ والثانية (المصحف صفحتين متقابلتين) تُلتقط بالعرض
 IPAD_SHOTS=(
   "ipad_01_home:home"
-  "ipad_03_prayer:prayer"
-  "ipad_04_quran_index:quran"
-  "ipad_05_quran_page:surah/2?ayah=255&from=row"
+  "ipad_03_hadith:hadith"
+  "ipad_04_prayer:prayer"
+  "ipad_05_tools:tools"
   "ipad_06_adhkar:adhkar"
-  "ipad_07_tasbih:tasbih"
+  "ipad_07_tafsir:surah/2?ayah=255&from=tafsir"
 )
 IPAD_LANDSCAPE=(
-  "ipad_02_quran_spread:surah/1?ayah=0&from=row"
+  "ipad_02_quran_spread:surah/18?ayah=0&from=row"
 )
 DUO_SHOTS=(
   "01_home:home"
@@ -137,10 +137,11 @@ launch() {
   local lang="$1" route="${2:-}"
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   sleep 1
-  # مكة المكرمة: مفتاح المدينة وإحداثياتها كما في PrayTimes.CITIES
+  # المدينة المنورة (لا مكة: القبلة منها بمسافة واتجاه)، مفتاحها وإحداثياتها كما في PrayTimes.CITIES.
+  # الجولة الأولى وصفحات الدليل الجديدة بعد التحديث (guideSeen) مُشاهَدة، والمصحف بصفحاته في كل لغة (q_mode)
   xcrun simctl launch "$UDID" "$BUNDLE" \
-    -mizan.onboarded YES -mizan.lang "$lang" \
-    -mizan.place_key makkah -mizan.place_lat 21.4225 -mizan.place_lng 39.8262 \
+    -mizan.onboarded YES -mizan.guideSeen 99 -mizan.q_mode mushaf -mizan.lang "$lang" \
+    -mizan.place_key madinah -mizan.place_lat 24.4672 -mizan.place_lng 39.6111 \
     -mizan.place_tz Asia/Riyadh -mizan.place_method makkah -mizan.place_gps NO -mizan.method makkah \
     -mizan.theme light ${route:+-mizan.open_route "$route"} >/dev/null
   sleep "$LAUNCH_WAIT"
@@ -171,9 +172,9 @@ take() {
 prepare() {
   boot
   xcrun simctl install "$UDID" "$APP"
-  # إذن الموقع مسبقاً (لا نافذة إذن فوق القبلة)، وموقع المحاكي مكة
+  # إذن الموقع مسبقاً (لا نافذة إذن فوق القبلة)، وموقع المحاكي المدينة المنورة
   xcrun simctl privacy "$UDID" grant location "$BUNDLE" || true
-  xcrun simctl location "$UDID" set 21.4225,39.8262 || true
+  xcrun simctl location "$UDID" set 24.4672,39.6111 || true
   # تشغيل أول للتهيئة (نسخ الخطوط والقاعدة إلى الذاكرة) قبل أول لقطة
   launch ar
   sleep 5

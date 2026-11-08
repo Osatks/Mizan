@@ -1,0 +1,22 @@
+name: Google Play listing images
+
+# يرفع صور الهاتف في المتجر من google-play/screenshots/<لغة>/phone (google-play/upload_listing_images.py)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: google-play
+      - run: pip install google-auth requests
+      - name: Upload screenshots
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: python3 google-play/upload_listing_images.py com.mizan.almuslim google-play/screenshots

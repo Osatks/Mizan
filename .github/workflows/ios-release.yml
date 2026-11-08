@@ -124,9 +124,12 @@ jobs:
           cp iosApp/Privacy/Shared/PrivacyInfo.xcprivacy android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/
           plutil -lint android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework/PrivacyInfo.xcprivacy
 
-      # tar يحفظ أذونات الملفات (upload-artifact لا يحفظها)
+      # tar يحفظ أذونات الملفات (upload-artifact لا يحفظها). ومعه رموز Kotlin (Shared.framework.dSYM) لقراءة تقارير الأعطال
       - name: Pack framework
-        run: tar -czf "$RUNNER_TEMP/shared-framework.tgz" -C android-app/shared/build/bin/iosArm64/releaseFramework Shared.framework
+        run: |
+          d=android-app/shared/build/bin/iosArm64/releaseFramework
+          test -d "$d/Shared.framework.dSYM" || { echo "::error::Shared.framework.dSYM was not produced"; exit 1; }
+          tar -czf "$RUNNER_TEMP/shared-framework.tgz" -C "$d" Shared.framework Shared.framework.dSYM
 
       - uses: actions/upload-artifact@v4
         with:
@@ -262,6 +265,14 @@ jobs:
           codesign -d --entitlements - "$APP/PlugIns/MizanWidgets.appex" 2>&1 | tail -n 15
           codesign -d --entitlements - "$APP/Watch/MizanWatch.app" 2>&1 | tail -n 15
 
+      # رموز Kotlin في الأرشيف: تُرفع مع البناء فتقرأ Apple تقارير الأعطال بأسماء الدوال (TestFlight و Xcode Organizer)
+      - name: Kotlin symbols in the archive
+        if: ${{ !inputs.metadata_only }}
+        run: |
+          cp -R android-app/shared/build/bin/iosArm64/releaseFramework/Shared.framework.dSYM "$RUNNER_TEMP/Mizan.xcarchive/dSYMs/"
+          dwarfdump --uuid "$RUNNER_TEMP/Mizan.xcarchive/dSYMs/Shared.framework.dSYM"
+          dwarfdump --uuid "$RUNNER_TEMP/Mizan.xcarchive/Products/Applications/Mizan.app/Frameworks/Shared.framework/Shared"
+
       # ملف .ipa موقَّع بشهادة التوزيع (يُنشئها App Store Connect بالمفتاح، وتحتاج دور Admin) دون رفع
       - name: Export signed .ipa
         if: ${{ !inputs.metadata_only }}
@@ -327,7 +338,8 @@ jobs:
             ${{ runner.temp }}/altool.log
             ${{ runner.temp }}/pilot.log
           if-no-files-found: ignore
-          retention-days: 30
+          # الرموز لقراءة تقارير الأعطال (asc-crashes.yml): أطول مدة يسمح بها GitHub
+          retention-days: 90
 
       - name: Check App Store metadata limits
         if: ${{ inputs.submit || inputs.metadata_only }}

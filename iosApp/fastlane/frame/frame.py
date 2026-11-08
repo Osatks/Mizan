@@ -25,8 +25,24 @@ CAPTIONS = {
         "en": ("Everything a Muslim needs", "Prayer times, Quran, adhkar and qibla in one app"),
     },
     "quran_page": {
-        "ar": ("المصحف بالرسم العثماني", "مع التفسير والترجمة والتلاوة الصوتية"),
-        "en": ("The Mushaf, beautifully", "Uthmani script with tafsir, translations and recitation"),
+        "ar": ("مصحف المدينة النبوية", "طبعة مجمع الملك فهد صفحة بصفحة كالمطبوع"),
+        "en": ("The Madinah Mushaf", "The King Fahd Complex print, page by page"),
+    },
+    "quran_spread": {
+        "ar": ("مصحف المدينة النبوية", "صفحتان متقابلتان كالمصحف المطبوع"),
+        "en": ("The Madinah Mushaf", "Two facing pages, just like the printed Mushaf"),
+    },
+    "hadith": {
+        "ar": ("حديث اليوم", "حديث صحيح كل يوم بشرحه وفوائده"),
+        "en": ("Hadith of the day", "An authentic hadith daily, with its explanation"),
+    },
+    "tools": {
+        "ar": ("أدواتك في مكان واحد", "الزكاة والمواريث والتاريخ الهجري والمسبحة"),
+        "en": ("All your tools in one place", "Zakat, inheritance, Hijri dates and tasbih"),
+    },
+    "share": {
+        "ar": ("شاركها قصةً", "الآية والحديث والذكر في صورة أنيقة"),
+        "en": ("Share it as a story", "Ayahs, hadith and dhikr as elegant images"),
     },
     "prayer": {
         "ar": ("مواقيت دقيقة لبلدك", "حسب الجهة الرسمية، مع الأذان والإقامة"),
@@ -96,10 +112,13 @@ def fit_text(text, path, size, max_w, lang):
     return font(path, size)
 
 
-def compose(raw: Path, out: Path, key: str, lang: str, index: int):
+def compose(raw: Path, out: Path, key: str, lang: str, index: int, size=None):
     shot = Image.open(raw).convert("RGB")
     W, H = shot.size
-    if W < 1000:
+    if size:
+        # مقاس ثابت للصورة (Google Play: 1080×1920، نسبة 9:16)
+        W, H = size
+    elif W < 1000:
         # لقطة صغيرة (صور الموقع 540×1137): الصورة بمقاس iPhone 6.9 بوصة، واللقطة بنسبتها داخل الإطار
         W, H = 1320, 2868
     ipad = W > 1500
@@ -134,6 +153,10 @@ def compose(raw: Path, out: Path, key: str, lang: str, index: int):
     sw, shh = round(W * scale), round(H * scale)
     if abs(shot.width / shot.height - W / H) > 0.01:
         shh = round(sw * shot.height / shot.width)
+    # لقطة أطول من الصورة (هاتف 20:9 في صورة 16:9): تصغر حتى تترك مكان العنوان
+    if shh > H * 0.74:
+        shh = round(H * 0.74)
+        sw = round(shh * shot.width / shot.height)
     small = shot.resize((sw, shh), Image.LANCZOS)
     radius = round(sw * (0.045 if ipad else 0.11))
     border = max(10, round(sw * 0.018))
@@ -171,7 +194,8 @@ def key_of(name: str) -> str:
     return stem.split("_", 1)[1]
 
 
-def main(src: str, dst: str):
+def main(src: str, dst: str, size: str = ""):
+    wh = tuple(int(x) for x in size.lower().split("x")) if size else None
     if not features.check("raqm"):
         sys.exit("Pillow needs libraqm for Arabic shaping")
     src_p, dst_p = Path(src), Path(dst)
@@ -185,10 +209,10 @@ def main(src: str, dst: str):
                 if key not in CAPTIONS:
                     print("skip (no caption):", f)
                     continue
-                compose(f, dst_p / loc_dir.name / f.name, key, lang, i)
+                compose(f, dst_p / loc_dir.name / f.name, key, lang, i, wh)
                 count += 1
     print(f"{count} framed screenshots in {dst_p}")
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    main(*sys.argv[1:4])
