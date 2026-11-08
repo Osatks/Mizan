@@ -432,4 +432,4 @@ for device in $DEVICES; do
 done
 
 log "Done"
-find "$OUT" "$CHECK_OUT" -name '*.png' 2>/dev/null | sort
+find "$OUT" "$CHECK_OUT" -name '*.png' 2>/dev/null | sort || true
