@@ -137,10 +137,11 @@ launch() {
   local lang="$1" route="${2:-}"
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   sleep 1
-  # مكة المكرمة: مفتاح المدينة وإحداثياتها كما في PrayTimes.CITIES
+  # المدينة المنورة (لا مكة: القبلة منها بمسافة واتجاه)، مفتاحها وإحداثياتها كما في PrayTimes.CITIES.
+  # الجولة الأولى وصفحات الدليل الجديدة بعد التحديث (guideSeen) مُشاهَدة، والمصحف بصفحاته في كل لغة (q_mode)
   xcrun simctl launch "$UDID" "$BUNDLE" \
-    -mizan.onboarded YES -mizan.lang "$lang" \
-    -mizan.place_key makkah -mizan.place_lat 21.4225 -mizan.place_lng 39.8262 \
+    -mizan.onboarded YES -mizan.guideSeen 99 -mizan.q_mode mushaf -mizan.lang "$lang" \
+    -mizan.place_key madinah -mizan.place_lat 24.4672 -mizan.place_lng 39.6111 \
     -mizan.place_tz Asia/Riyadh -mizan.place_method makkah -mizan.place_gps NO -mizan.method makkah \
     -mizan.theme light ${route:+-mizan.open_route "$route"} >/dev/null
   sleep "$LAUNCH_WAIT"
@@ -171,9 +172,9 @@ take() {
 prepare() {
   boot
   xcrun simctl install "$UDID" "$APP"
-  # إذن الموقع مسبقاً (لا نافذة إذن فوق القبلة)، وموقع المحاكي مكة
+  # إذن الموقع مسبقاً (لا نافذة إذن فوق القبلة)، وموقع المحاكي المدينة المنورة
   xcrun simctl privacy "$UDID" grant location "$BUNDLE" || true
-  xcrun simctl location "$UDID" set 21.4225,39.8262 || true
+  xcrun simctl location "$UDID" set 24.4672,39.6111 || true
   # تشغيل أول للتهيئة (نسخ الخطوط والقاعدة إلى الذاكرة) قبل أول لقطة
   launch ar
   sleep 5
