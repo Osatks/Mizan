@@ -53,6 +53,9 @@ fun MainViewController(): UIViewController {
     // يُفتح بعد أن تستقر الواجهة، كما يصل لمس أداة إلى تطبيق يعمل (فتحه مع أول إطار كان يُغلق التطبيق)
     platform.Foundation.NSUserDefaults.standardUserDefaults.stringForKey("mizan.open_route")
         ?.takeIf { it.isNotBlank() }?.let { route -> MainScope().launch { delay(2500); IosWidgets.open(route, null) } }
+    // تسجيل حركة التنقل في المحاكي (fastlane/screenshots.sh، motion): خطوات تنقل بلا لمس بعد أن تستقر الواجهة
+    platform.Foundation.NSUserDefaults.standardUserDefaults.stringForKey("mizan.motion_script")
+        ?.takeIf { it.isNotBlank() }?.let { script -> MainScope().launch { MotionScript.run(script) } }
     // الإشعارات المجدولة لأيام قادمة تُجدَّد عند كل فتح (لا تعمل منبّهات في الخلفية في iOS)،
     // ولقطة أدوات الشاشة الرئيسية في حاوية App Group (وتُحدَّث أيضاً عند الخروج منه)؛
     // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت وطلبات الإشعار لا ينتظرها أول إطار

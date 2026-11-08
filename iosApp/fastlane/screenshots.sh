@@ -9,6 +9,8 @@
 #                                                                      → <المجلد>/<اللغة>/watch_*.png
 #   mushaf  صفحات من مصحف المدينة على iPhone للتحقق من رسمها (ليست لقطات متجر، فلا تدخل حدّ العشر لقطات)
 #                                                                      → <المجلد>/../screenshots-check/<اللغة>/p*.png
+#   motion  فيديو من iPhone لانتقالات التنقل (فتح صفحة، رجوع، تبديل التبويبات) بخطوات بلا لمس (MotionScript في App.kt)
+#                                                                      → <المجلد>/../screenshots-check/<اللغة>/motion.mp4
 #   screenshots.sh <Mizan.app للمحاكي> <مجلد الإخراج> "<ar-SA en-US ...>" ["iphone ipad duo"]
 #
 # أسماء الملفات تحدد ترتيبها في المتجر، ومقاسها يحدد نوع الشاشة عند deliver (fastlane/check_screenshots.rb يتحقق منه،
@@ -67,6 +69,9 @@ MUSHAF_CHECK=(
   "p604_ikhlas:surah/112?ayah=0&from=row"
 )
 CHECK_OUT="${CHECK_OUT:-$OUT/../screenshots-check}"
+# فتح الأذكار والرجوع، ثم التبويبات الثلاثة، ثم المصحف والرجوع، ثم أداة (الزكاة) والرجوع
+MOTION_SCRIPT="${MOTION_SCRIPT:-wait:5000,open:adhkar,wait:2600,back,wait:2200,tab:prayer,wait:2200,tab:tools,wait:2200,tab:home,wait:2000,open:surah/18?ayah=0&from=row,wait:3800,back,wait:2400,open:zakat,wait:2600,back,wait:2400}"
+MOTION_SECONDS="${MOTION_SECONDS:-38}"
 DUO_SHOTS=(
   "01_home:home"
   "02_quran_page:surah/1?ayah=0&from=row"
@@ -378,6 +383,33 @@ run_mushaf() {
   done
 }
 
+run_motion() {
+  local lang rec
+  new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
+  prepare
+  for loc in $LOCALES; do
+    log "Motion · $loc"
+    set_locale "$loc"
+    mkdir -p "$CHECK_OUT/$loc"
+    lang="${loc%%-*}"
+    xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
+    sleep 1
+    # الفيديو يبدأ قبل التشغيل، ويُختم بإشارة SIGINT (بغيرها يبقى الملف ناقصاً)
+    xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$CHECK_OUT/$loc/motion.mp4" &
+    rec=$!
+    sleep 2
+    xcrun simctl launch "$UDID" "$BUNDLE" \
+      -mizan.onboarded YES -mizan.guideSeen 99 -mizan.q_mode mushaf -mizan.lang "$lang" \
+      -mizan.place_key madinah -mizan.place_lat 24.4672 -mizan.place_lng 39.6111 \
+      -mizan.place_tz Asia/Riyadh -mizan.place_method makkah -mizan.place_gps NO -mizan.method makkah \
+      -mizan.theme light -mizan.motion_script "$MOTION_SCRIPT" >/dev/null
+    sleep "$MOTION_SECONDS"
+    kill -INT "$rec" 2>/dev/null || true
+    wait "$rec" 2>/dev/null || true
+    ls -la "$CHECK_OUT/$loc/motion.mp4" || echo "::warning title=Motion::no video for $loc"
+  done
+}
+
 run_ipad() {
   new_device ipad "$(pick_device_type "iPad Pro 13-inch (M5)" "iPad Pro 13-inch (M4)" "iPad Air 13-inch (M4)" "iPad Air 13-inch (M3)")"
   prepare
@@ -425,6 +457,7 @@ for device in $DEVICES; do
     iphone) run_iphone ;;
     ipad) run_ipad ;;
     mushaf) run_mushaf ;;
+    motion) run_motion || echo "::warning title=Motion::motion recording failed (see log)" ;;
     duo) run_duo || echo "::warning title=iPhone Duo::Duo screenshots failed (see log); iPhone and iPad screenshots are unaffected" ;;
     watch) run_watch || echo "::warning title=Apple Watch::watch screenshots failed (see log); the other screenshots are unaffected" ;;
     *) echo "::error::unknown device $device"; exit 1 ;;

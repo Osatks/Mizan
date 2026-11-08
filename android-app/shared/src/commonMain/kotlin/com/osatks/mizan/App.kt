@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -153,12 +154,41 @@ private class IosNav(val stack: StackNav) : AppNav {
     }
 }
 
+/**
+ * تسجيل حركة التنقل من المحاكي (fastlane/screenshots.sh، الوسيط «-mizan.motion_script»): خطوات بلا لمس تُنفَّذ بالترتيب،
+ * مفصولة بفواصل: wait:<ms>، open:<route>، back، tab:<route>. لفحص سلاسة الانتقالات في فيديو؛ لا يصل إليه المستخدم
+ * (وسائط التشغيل لا تُحفظ في الجهاز).
+ */
+object MotionScript {
+    internal var open: ((String) -> Unit)? = null
+    internal var back: (() -> Unit)? = null
+    internal var tab: ((String) -> Unit)? = null
+
+    suspend fun run(script: String) {
+        for (step in script.split(',').map { it.trim() }.filter { it.isNotEmpty() }) {
+            val name = step.substringBefore(':')
+            val arg = step.substringAfter(':', "")
+            when (name) {
+                "wait" -> kotlinx.coroutines.delay(arg.toLongOrNull() ?: 0L)
+                "open" -> open?.invoke(arg)
+                "back" -> back?.invoke()
+                "tab" -> tab?.invoke(arg)
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MizanApp(startRoute: String? = null) {
     val navController = if (IsIos) null else rememberNavController()
     val stack = if (IsIos) remember { StackNav("home") } else null
     val app: AppNav = remember { if (stack != null) IosNav(stack) else AndroidNav(navController!!) }
+    SideEffect {
+        MotionScript.open = { app.open(it) }
+        MotionScript.back = { app.back() }
+        MotionScript.tab = { app.goTab(it) }
+    }
     // المسار الظاهر: أثناء رجوع في iOS هو الصفحة التي يُرجع إليها (فيعود شريط التبويبات مع الحركة)
     val current: String? = if (stack != null) stack.current else navController!!.currentBackStackEntryAsState().value?.destination?.route
     val onTab = current == null || current in TAB_ROUTES
