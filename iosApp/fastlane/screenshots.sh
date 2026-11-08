@@ -7,6 +7,8 @@
 #                                                                      → <المجلد>/<اللغة>/duo_*.png
 #   watch   Apple Watch Ultra (410×502): المواقيت والمسبحة، بلقطة من حالات Kotlin (FIXTURES=live-fixtures.json)
 #                                                                      → <المجلد>/<اللغة>/watch_*.png
+#   mushaf  صفحات من مصحف المدينة على iPhone للتحقق من رسمها (ليست لقطات متجر، فلا تدخل حدّ العشر لقطات)
+#                                                                      → <المجلد>/../screenshots-check/<اللغة>/p*.png
 #   screenshots.sh <Mizan.app للمحاكي> <مجلد الإخراج> "<ar-SA en-US ...>" ["iphone ipad duo"]
 #
 # أسماء الملفات تحدد ترتيبها في المتجر، ومقاسها يحدد نوع الشاشة عند deliver (fastlane/check_screenshots.rb يتحقق منه،
@@ -53,6 +55,18 @@ IPAD_SHOTS=(
 IPAD_LANDSCAPE=(
   "ipad_02_quran_spread:surah/18?ayah=0&from=row"
 )
+# الفاتحة وأول البقرة (إطارهما المزخرف)، وآية مظلَّلة، والتوبة بلا بسملة، وصفحات من وسط المصحف وآخره
+MUSHAF_CHECK=(
+  "p001_fatiha:surah/1?ayah=0&from=row"
+  "p002_baqarah:surah/2?ayah=0&from=row"
+  "p050_imran_selected:surah/3?ayah=1&from=row"
+  "p187_tawbah:surah/9?ayah=0&from=row"
+  "p293_kahf:surah/18?ayah=0&from=row"
+  "p440_yasin:surah/36?ayah=0&from=row"
+  "p562_mulk:surah/67?ayah=0&from=row"
+  "p604_ikhlas:surah/112?ayah=0&from=row"
+)
+CHECK_OUT="${CHECK_OUT:-$OUT/../screenshots-check}"
 DUO_SHOTS=(
   "01_home:home"
   "02_quran_page:surah/1?ayah=0&from=row"
@@ -165,7 +179,7 @@ take() {
     name="${s%%:*}"
     route="${s#*:}"
     if [ "$route" = "home" ]; then launch "${loc%%-*}"; else launch "${loc%%-*}" "$route"; fi
-    shot "$OUT/$loc/$prefix$name.png" "$display"
+    shot "${TAKE_OUT:-$OUT}/$loc/$prefix$name.png" "$display"
   done
 }
 
@@ -353,6 +367,17 @@ run_iphone() {
   done
 }
 
+run_mushaf() {
+  new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
+  prepare
+  for loc in $LOCALES; do
+    log "Mushaf check · $loc"
+    set_locale "$loc"
+    mkdir -p "$CHECK_OUT/$loc"
+    TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${MUSHAF_CHECK[@]}"
+  done
+}
+
 run_ipad() {
   new_device ipad "$(pick_device_type "iPad Pro 13-inch (M5)" "iPad Pro 13-inch (M4)" "iPad Air 13-inch (M4)" "iPad Air 13-inch (M3)")"
   prepare
@@ -399,6 +424,7 @@ for device in $DEVICES; do
   case "$device" in
     iphone) run_iphone ;;
     ipad) run_ipad ;;
+    mushaf) run_mushaf ;;
     duo) run_duo || echo "::warning title=iPhone Duo::Duo screenshots failed (see log); iPhone and iPad screenshots are unaffected" ;;
     watch) run_watch || echo "::warning title=Apple Watch::watch screenshots failed (see log); the other screenshots are unaffected" ;;
     *) echo "::error::unknown device $device"; exit 1 ;;
@@ -406,4 +432,4 @@ for device in $DEVICES; do
 done
 
 log "Done"
-find "$OUT" -name '*.png' | sort
+find "$OUT" "$CHECK_OUT" -name '*.png' 2>/dev/null | sort

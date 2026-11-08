@@ -17,7 +17,7 @@ on:
         type: string
         default: "ar-SA en-US"
       devices:
-        description: "Simulators (space separated: iphone ipad duo watch)"
+        description: "Simulators (space separated: iphone ipad duo watch; mushaf = Madinah pages to check the drawing, not store shots)"
         type: string
         default: "iphone ipad duo watch"
       commit:
@@ -200,6 +200,7 @@ jobs:
           path: |
             iosApp/fastlane/screenshots
             iosApp/fastlane/screenshots-extra
+            iosApp/fastlane/screenshots-check
             iosApp/fastlane/screenshot-logs
           if-no-files-found: error
 
