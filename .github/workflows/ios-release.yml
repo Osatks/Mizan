@@ -87,6 +87,13 @@ jobs:
           python3 -m pip install --quiet --disable-pip-version-check pyjwt cryptography
           python3 iosApp/fastlane/asc_preflight.py com.mizan.almuslim
 
+      # كل بناء موقَّع يُنشئ على جهاز macOS مؤقت شهادة «Apple Development» جديدة (Created via API) يذهب مفتاحها مع الجهاز،
+      # وللحساب حدّ من الشهادات تُرفض الأرشفة بعده: تُلغى هنا شهادات التطوير التي أنشأتها بنايات سابقة وحدها
+      # (لا شهادة التوزيع، ولا شهادات أجهزة صاحب الحساب) — iosApp/fastlane/asc_certs.py
+      - name: Free development certificate slots
+        if: ${{ !inputs.metadata_only }}
+        run: python3 iosApp/fastlane/asc_certs.py --revoke-ci-development
+
   framework:
     needs: preflight
     if: ${{ !inputs.metadata_only }}
@@ -382,6 +389,15 @@ jobs:
             bundle exec fastlane ios metadata
             echo "Metadata uploaded for ${{ steps.v.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      # والشهادة التي أنشأها هذا البناء لا يستعملها شيء بعد التصدير والرفع: تُلغى، فلا يتراكم شيء في الحساب
+      - name: Revoke this build's development certificate
+        if: ${{ always() && !inputs.metadata_only }}
+        continue-on-error: true
+        run: |
+          python3 -m venv "$RUNNER_TEMP/certs-venv"
+          "$RUNNER_TEMP/certs-venv/bin/pip" install --quiet --disable-pip-version-check pyjwt cryptography
+          "$RUNNER_TEMP/certs-venv/bin/python" iosApp/fastlane/asc_certs.py --revoke-ci-development
 
       - name: Remove API key
         if: always()
