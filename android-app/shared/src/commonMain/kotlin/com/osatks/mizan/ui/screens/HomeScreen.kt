@@ -195,6 +195,8 @@ fun HomeScreen(open: (String) -> Unit) {
  */
 @Composable
 fun ToolsScreen(open: (String) -> Unit) {
+    // في iOS: شبكة الأدوات بواجهة النظام (SwiftUI) بطراز الرئيسية
+    if (nativeToolsAvailable) { NativeToolsView(open, Modifier.fillMaxSize()); return }
     val s = LocalStrings.current
     com.osatks.mizan.ui.ToolPage(s.toolsTitle, s.appTagline) {
         item(key = "tools") {
