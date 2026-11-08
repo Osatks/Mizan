@@ -178,22 +178,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     // رقم الصفحة أصل الحالة: يُحفظ، ويُبنى منه موضع التقليب حين تتغير النافذة (فتح iPhone Duo وطيّه، تدوير iPad،
     // Split View)، فتبقى الصفحة نفسها ظاهرة ولا يقفز القارئ إلى غيرها
     var anchor by rememberSaveable { mutableIntStateOf(QuranMeta.pageOf(startIndex)) }
-    // في iOS: صفحات مصحف المدينة (صفحة واحدة) يقلّبها ويرسمها النظام نفسه (NativeMushaf)، وموضعها في [native];
-    // وفي أندرويد والكتاب المفتوح والخط الآخر: HorizontalPager وموضعه في [pager]
-    val nativeOn = nativeMushafAvailable && !spread && QuranPrefs.script != "amiri"
-    val pager = remember(spread, nativeOn) { PagerState(currentPage = Spreads.index(anchor, spread)) { Spreads.count(spread) } }
-    val native = remember(nativeOn) { if (nativeOn) NativeTurns(Spreads.index(anchor, false), Spreads.count(false)) else null }
-    /** موضع التقليب الظاهر، وهل يجري تقليب الآن، والانتقال إلى موضع: من القارئ الأصلي أو من HorizontalPager */
-    fun at(): Int = native?.index ?: pager.currentPage
-    fun moving(): Boolean = native?.scrolling ?: pager.isScrollInProgress
-    suspend fun scrollTo(i: Int, animate: Boolean) {
-        when {
-            native != null -> native.go(i, animate)
-            animate -> pager.animateScrollToPage(i)
-            else -> pager.scrollToPage(i)
-        }
-    }
-    val turnKey: Any = native ?: pager
+    val pager = remember(spread) { PagerState(currentPage = Spreads.index(anchor, spread)) { Spreads.count(spread) } }
     val scope = rememberCoroutineScope()
     val count = QuranMeta.COUNTS[listSurah - 1]
 
@@ -207,13 +192,13 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     fun listItemOf(ayah: Int) = ayah // العنصر 0 هو الترويسة
     fun firstListIndex() = QuranMeta.index(listSurah, list.firstVisibleItemIndex.coerceIn(1, count))
     /** صفحة القارئ في المصحف: الظاهرة (وفي الصفحتين: اليمنى، أو التي كان عليها قبل أن تتسع النافذة) */
-    fun page() = Spreads.follow(anchor, at(), spread)
+    fun page() = Spreads.follow(anchor, pager.currentPage, spread)
     fun currentIndex() = if (mode == "mushaf") QuranMeta.pageRange(page()).first else firstListIndex()
     /** يقلب إلى الصفحة [p] (أو إلى الكتاب المفتوح الذي فيه) */
     suspend fun goToPage(p: Int, animate: Boolean) {
         anchor = p
         val i = Spreads.index(p, spread)
-        if (i != at()) scrollTo(i, animate)
+        if (i != pager.currentPage) { if (animate) pager.animateScrollToPage(i) else pager.scrollToPage(i) }
         // ما مرّ به التقليب من مواضع في الطريق لا يغيّر الصفحة المقصودة (اليسرى مثلاً)
         anchor = p
     }
@@ -224,18 +209,18 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         if (text != null && !jumped) { jumped = true; if (mode == "list" && startAyah > 1) list.scrollToItem(listItemOf(startAyah)) }
     }
     // الصفحة المعروضة ثلاث ثوانٍ تُحسب مقروءة (وفي الكتاب المفتوح صفحتاه معاً)
-    LaunchedEffect(mode, turnKey) {
-        if (mode == "mushaf") snapshotFlow { at() }.collectLatest { p -> delay(3000); Spreads.pages(p, spread).forEach { QuranProgress.markRead(it) } }
+    LaunchedEffect(mode, pager) {
+        if (mode == "mushaf") snapshotFlow { pager.currentPage }.collectLatest { p -> delay(3000); Spreads.pages(p, spread).forEach { QuranProgress.markRead(it) } }
         else snapshotFlow { firstListIndex() }.collectLatest { i -> delay(3000); QuranProgress.markRead(QuranMeta.pageOf(i)) }
     }
     // التقليب يغيّر صفحة القارئ؛ أما تغيّر النافذة فيبني موضعاً جديداً فيه الصفحة نفسها فلا يغيّرها
-    LaunchedEffect(turnKey) { snapshotFlow { at() }.collect { i -> anchor = Spreads.follow(anchor, i, spread) } }
+    LaunchedEffect(pager) { snapshotFlow { pager.currentPage }.collect { i -> anchor = Spreads.follow(anchor, i, spread) } }
     val saveOnExit = rememberUpdatedState { if (sheetIdx == null) QuranPrefs.updateLast(currentIndex()) }
     DisposableEffect(Unit) { onDispose { saveOnExit.value() } }
 
     // الرأس (السورة والجزء) مشتق من الصفحة المعروضة: لا تُعاد الشاشة كلها مع كل صفحة تُقلَّب (منتصف السحب)،
     // بل حين تتغير السورة أو الجزء فقط
-    val head by remember(mode, turnKey) {
+    val head by remember(mode, pager) {
         derivedStateOf {
             val i = if (mode == "mushaf") QuranMeta.pageRange(page()).first else QuranMeta.STARTS[listSurah - 1]
             QuranMeta.locate(i).first to QuranMeta.juzOf(i)
@@ -283,7 +268,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     // تقليب الصفحة يغلق شريط خيارات الآية (يُراقب هنا لا في التركيب، فلا تُعاد الشاشة مع كل صفحة)؛
     // أما تغيّر النافذة فلا يغلقه (يبدأ المراقبة من جديد بعد أول قيمة)
-    LaunchedEffect(turnKey) { snapshotFlow { at() to listSurah }.drop(1).collect { actionIdx = null } }
+    LaunchedEffect(pager) { snapshotFlow { pager.currentPage to listSurah }.drop(1).collect { actionIdx = null } }
     LaunchedEffect(hifzHint) { if (hifzHint) { delay(4500); hifzHint = false } }
     LaunchedEffect(focus, mode) {
         if (focus && mode == "list") {
@@ -299,7 +284,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         if (!QuietReading.granted() && !QuietReading.asked()) askSilence = true
     }
     // الموضع يُحفظ مع كل صفحة فلا يضيع ولو أُغلق التطبيق، وموضع وضع التركيز وحده لزر «تابع في وضع التركيز»
-    LaunchedEffect(mode, focus, text != null, turnKey) {
+    LaunchedEffect(mode, focus, text != null, pager) {
         if (text == null) return@LaunchedEffect
         snapshotFlow { currentIndex() }.collectLatest { i ->
             delay(700)
@@ -309,7 +294,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
 
     // التلاوة: الآية المتلوة تُظلَّل، والصفحة (أو القائمة) تتبعها؛ في الكتاب المفتوح لا يُقلب إلا بعد الصفحة اليسرى
-    LaunchedEffect(mode, turnKey) {
+    LaunchedEffect(mode, pager) {
         snapshotFlow { if (Recitation.active) Recitation.current to Recitation.basmala else null }.collect { cur ->
             val (i, basmala) = cur ?: return@collect
             if (i < 0) return@collect
@@ -317,8 +302,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             if (mode == "mushaf") {
                 val pg = QuranMeta.pageOf(i)
                 // صفحة الآية المتلوة صفحة القارئ (فتبقى هي الظاهرة إن طُوي iPhone Duo أثناء التلاوة)
-                if (Spreads.index(pg, spread) == at()) anchor = pg
-                else if (!moving()) goToPage(pg, animate = true)
+                if (Spreads.index(pg, spread) == pager.currentPage) anchor = pg
+                else if (!pager.isScrollInProgress) goToPage(pg, animate = true)
             } else {
                 val (sn, an) = QuranMeta.locate(i)
                 if (sn != listSurah) { listSurah = sn; list.scrollToItem(listItemOf(an)) }
@@ -336,7 +321,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     // تبدأ التلاوة من الآية المختارة إن كانت في الصفحة، وإلا من أول الصفحة
     fun playFrom(): Int =
-        if (mode == "mushaf") Spreads.ayahs(at(), spread).let { r -> if (selIdx in r) selIdx else QuranMeta.pageRange(page()).first }
+        if (mode == "mushaf") Spreads.ayahs(pager.currentPage, spread).let { r -> if (selIdx in r) selIdx else QuranMeta.pageRange(page()).first }
         else if (selIdx >= 0 && QuranMeta.locate(selIdx).first == listSurah) selIdx else firstListIndex()
     // المقطع المختار: متواصل من الآية الحالية، أو هذه الصفحة، أو هذه السورة، أو من آية إلى آية
     // at = true: يبدأ من الآية from داخل المقطع (عند تغيير الإعداد أثناء التلاوة، أو «استمع من هذه الآية»)
@@ -351,7 +336,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         else Recitation.play(if (at && from in r) from else r.first, r.last)
     }
     fun playOrPause() { if (Recitation.active) Recitation.toggle() else startRange() }
-    fun turn(d: Int) { scope.launch { scrollTo((at() + d).coerceIn(0, Spreads.count(spread) - 1), animate = true) } }
+    fun turn(d: Int) { scope.launch { pager.animateScrollToPage((pager.currentPage + d).coerceIn(0, pager.pageCount - 1)) } }
     // اللمس لا يفتح شيئاً حتى لا يشوّش القراءة: يُغلق شريط الخيارات إن كان ظاهراً، ويكشف الآية في الحفظ؛
     // وعلى الشاشات العريضة والتفسير مفتوح بجانب الصفحة، ينتقل التفسير إلى الآية الملموسة
     fun tapAyah(i: Int) {
@@ -455,15 +440,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     BoxWithConstraints(Modifier.fillMaxSize()) {
                         val frame = mushafFrame(maxWidth, maxHeight, bottom + playerRoom, spread, book = window.wide && window.heightClass != SizeClass.Compact)
-                        if (native != null) {
-                            // القارئ من النظام: التقليب والرسم والتظليل واللمس فيه، وما يصل منه كما من MushafPage
-                            NativeMushafPager(
-                                native, t, selIdx, bottom + playerRoom, frame, focus,
-                                onTap = { tapAyah(it) }, onLongPress = { longPress(it) },
-                                onFrameTap = { if (focus) exitPing++ }, onEdge = { d -> if (focus) turn(d) },
-                                hifz = hifzOn, revealed = revealed, modifier = Modifier.fillMaxSize(),
-                            )
-                        } else HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { if (spread) "s$it" else "p$it" }) { i ->
+                        HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { if (spread) "s$it" else "p$it" }) { i ->
                             // بُعد الصفحة عن موضعها أثناء السحب؛ يُقرأ في طبقات الرسم فقط فلا يعيد تركيب الصفحة مع كل إطار
                             val away = { ((pager.currentPage - i) + pager.currentPageOffsetFraction).absoluteValue.coerceAtMost(1f) }
                             Box(
@@ -555,7 +532,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { it },
             exit = fadeOut(tween(Motion.MEDIUM)) + slideOutVertically(tween(Motion.MEDIUM)) { it },
         ) {
-            val onPage = Spreads.ayahs(at(), spread)
+            val onPage = Spreads.ayahs(pager.currentPage, spread)
             FocusBar(
                 hifzAvailable = mode == "mushaf", hifz = hifzOn,
                 canReveal = onPage.any { it !in revealed }, canHide = revealed.isNotEmpty(),
