@@ -58,8 +58,9 @@ fun MainViewController(): UIViewController {
     // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت وطلبات الإشعار لا ينتظرها أول إطار
     MainScope().launch { delay(1200); PrayerAlerts.reschedule(); IosWidgets.refresh() }
     val vc = ComposeUIViewController(configure = {
-        // ترميز أوامر الرسم لـ Metal على خيط مستقل، فيتفرغ الخيط الرئيسي للتركيب واللمس في كل إطار
-        parallelRendering = true
+        // الرسم على الخيط الرئيسي نفسه (parallelRendering معطّل): الرسم المتوازي (تجريبي في Compose 1.8) كان يُسقط
+        // التطبيق على خيط الرسم الخلفي (تقرير TestFlight، البناء 209: EXC_BREAKPOINT في MetalRedrawer.draw عند فتح المواقيت)
+        parallelRendering = false
         // سحب الحافة للرجوع (اليسرى واليمنى): يقود الرجوع في StackNavHost و SubPages، والصفحة تتبع الإصبع من أي حافة بدأ
         enableBackGesture = true
     }) {
