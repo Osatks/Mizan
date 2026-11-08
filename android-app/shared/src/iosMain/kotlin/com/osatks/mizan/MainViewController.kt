@@ -27,6 +27,7 @@ import com.osatks.mizan.ui.LanguageHost
 import com.osatks.mizan.ui.theme.MizanTheme
 import androidx.compose.ui.ExperimentalComposeUiApi
 import kotlinx.coroutines.MainScope
+import kotlinx.cinterop.useContents
 import com.osatks.mizan.widget.IosWidgets
 import com.osatks.mizan.widget.WidgetLaunch
 import kotlinx.coroutines.delay
@@ -40,6 +41,9 @@ import com.osatks.mizan.ui.ComposeTabBar
 import com.osatks.mizan.ui.LocalTabBarHost
 import com.osatks.mizan.ui.NativeTabBar
 import com.osatks.mizan.ui.NativeTabBarHost
+import com.osatks.mizan.ui.NavMotion
+import com.osatks.mizan.ui.NavTransitions
+import com.osatks.mizan.ui.RootView
 import platform.UIKit.UIStatusBarAnimation
 import platform.UIKit.UIStatusBarStyle
 import platform.UIKit.UIViewController
@@ -96,6 +100,14 @@ fun MainViewController(): UIViewController {
  */
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 private class MizanRootController(private val content: UIViewController) : UIViewController(nibName = null, bundle = null) {
+    /** انتقالات التنقل (فتح، رجوع بالزر، تبديل تبويب) بـ Core Animation فوق Compose */
+    private var motion: NavMotion? = null
+
+    // الجذر يعرف موضع كل لمس يبدأ: تنمو الصفحة التي يفتحها من مكانه
+    override fun loadView() {
+        setView(RootView { x, y -> motion?.touched(x, y) })
+    }
+
     override fun viewDidLoad() {
         super.viewDidLoad()
         // شريط التبويبات من النظام (iOS 26) يُنشأ قبل أول تركيب لـ Compose، فلا يظهر شريط Compose لحظةً
@@ -103,6 +115,12 @@ private class MizanRootController(private val content: UIViewController) : UIVie
         embed(content)
         // فوق Compose، وتحت نوافذها المنبثقة وأوراقها (تضيفها Compose إلى هذا المتحكم فوق كل شيء حين تظهر)
         bar?.let { embed(it) }
+        motion = NavMotion(view).also {
+            it.content = content.view
+            it.bar = bar?.view
+            NavTransitions.current = it
+            MotionScript.touch = { fx, fy -> view.bounds.useContents { it.touched(fx * size.width, fy * size.height) } }
+        }
     }
 
     private fun embed(child: UIViewController) {

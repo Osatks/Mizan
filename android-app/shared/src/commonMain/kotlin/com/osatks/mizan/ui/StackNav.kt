@@ -49,6 +49,29 @@ import kotlinx.coroutines.launch
 /** صفحة فوق التبويب في [StackNav] */
 class NavPage internal constructor(id: Long, val route: String) {
     val key = "p$id"
+    /** موضع اللمس الذي فُتحت منه ([NavTransitions.push])، فتصغر نحوه حين يُرجع منها بالزر */
+    internal var origin: Any? = null
+}
+
+/**
+ * انتقالات يرسمها النظام بدل [StackNav] و [SubPages] (iOS: Core Animation في المتحكم الجذر، NavMotion.kt): صورة الشاشة
+ * قبل التغيير تتحرك مع الشاشة الحية بعده، فتبقى الحركة ناعمة ولو تأخر بناء الصفحة الجديدة. التغيير نفسه فوري بلا انزلاق
+ * Compose، وينفّذه [change] متزامناً بعد التقاط الصورة. سحب الحافة يبقى في Compose (الصفحة تتبع الإصبع).
+ */
+interface NavTransitions {
+    /** فتح صفحة: [change] يظهرها. يعيد موضع اللمس الذي نمت منه، يُمرَّر إلى [pop] عند الرجوع منها */
+    fun push(change: () -> Unit): Any?
+
+    /** رجوع بالزر: [change] يزيل الصفحة العليا، وتصغر نحو [origin] الذي فُتحت منه */
+    fun pop(origin: Any?, change: () -> Unit)
+
+    /** تبديل التبويب */
+    fun tab(change: () -> Unit)
+
+    companion object {
+        /** يضعه iOS عند التشغيل (MainViewController)؛ null في أندرويد، فالحركة في Compose كما هي */
+        var current: NavTransitions? = null
+    }
 }
 
 /**
@@ -76,6 +99,11 @@ class StackNav(startTab: String) {
     internal var scope: CoroutineScope? = null
     /** تبويبات قيست مرة وهي مخفية (تُبنى قوائمها مسبقاً فيظهر التبويب أول مرة فوراً) */
     internal val warmed = HashSet<String>()
+    /**
+     * تبويب يوضع خارج الشاشة بضعة إطارات بعد الإقلاع ([prepare]): تُرسم صفحته، وتُبنى واجهة النظام المضمّنة فيها
+     * (تُبنى حين تدخل النافذة أول مرة)، فلا ينتظرها أول فتح للتبويب
+     */
+    internal var warming by mutableStateOf<String?>(null)
     internal var onRemoved: ((String) -> Unit)? = null
     private var nextId = 1L
     private var job: Job? = null
@@ -102,6 +130,12 @@ class StackNav(startTab: String) {
     fun push(route: String) {
         settle()
         if ((pages.lastOrNull()?.route ?: tab) == route) return
+        val motion = NavTransitions.current
+        if (motion != null) {
+            val page = NavPage(nextId++, route)
+            page.origin = motion.push { pages += page; p = 1f }
+            return
+        }
         pages += NavPage(nextId++, route)
         p = 0f
         run(1f, tween(PUSH_MS, easing = Push), prepare = true) { p = 1f; moving = false }
@@ -111,6 +145,17 @@ class StackNav(startTab: String) {
     fun replace(route: String) {
         settle()
         val old = pages.lastOrNull() ?: return push(route)
+        val motion = NavTransitions.current
+        if (motion != null) {
+            val page = NavPage(nextId++, route)
+            page.origin = motion.push {
+                pages += page
+                pages.remove(old)
+                p = 1f
+                onRemoved?.invoke(old.key)
+            }
+            return
+        }
         pages += NavPage(nextId++, route)
         p = 0f
         run(1f, tween(PUSH_MS, easing = Push), prepare = true) {
@@ -125,6 +170,11 @@ class StackNav(startTab: String) {
     fun pop(): Boolean {
         settle()
         val top = pages.lastOrNull() ?: return false
+        val motion = NavTransitions.current
+        if (motion != null) {
+            motion.pop(top.origin) { remove(top) }
+            return true
+        }
         leaving = top
         run(0f, tween(POP_MS, easing = Pop), prepare = true) { remove(top) }
         return true
@@ -133,9 +183,13 @@ class StackNav(startTab: String) {
     /** ينتقل إلى تبويب فوراً، وتُغلق صفحات التبويب الحالي (كاختيار تبويب من الشريط) */
     fun goTab(t: String) {
         settle()
-        clear()
-        if (t !in tabsShown) tabsShown += t
-        tab = t
+        if (t == tab && pages.isEmpty()) return
+        val change = {
+            clear()
+            if (t !in tabsShown) tabsShown += t
+            tab = t
+        }
+        NavTransitions.current?.tab(change) ?: change()
     }
 
     /** يُغلق كل ما فوق التبويب بلا حركة (رابط من أداة أو اختصار) */
@@ -144,9 +198,16 @@ class StackNav(startTab: String) {
         clear()
     }
 
-    /** يركّب تبويباً قبل أن يُفتح (بعد الإقلاع)، فيظهر أول مرة فوراً */
-    internal fun prepare(t: String) {
+    /** يركّب تبويباً قبل أن يُفتح (بعد الإقلاع) ويرسمه مرة خارج الشاشة، فيظهر أول مرة فوراً */
+    internal suspend fun prepare(t: String) {
         if (t !in tabsShown) tabsShown += t
+        if (t == tab) return
+        warming = tabKey(t)
+        try {
+            repeat(3) { withFrameNanos { } }
+        } finally {
+            warming = null
+        }
     }
 
     /** سحب الحافة: الصفحة تتبع الإصبع، ثم تُكمل الخروج أو تعود مكانها */
@@ -252,6 +313,7 @@ fun StackNavHost(nav: StackNav, modifier: Modifier = Modifier, frame: @Composabl
     val topKey = nav.topKey
     val belowKey = if (nav.moving) nav.belowKey else null
     val leavingKey = nav.leaving?.key
+    val warmKey = nav.warming
     Layout(
         modifier = modifier,
         content = {
@@ -280,17 +342,21 @@ fun StackNavHost(nav: StackNav, modifier: Modifier = Modifier, frame: @Composabl
         var under: androidx.compose.ui.layout.Placeable? = null
         var over: androidx.compose.ui.layout.Placeable? = null
         var blocker: androidx.compose.ui.layout.Placeable? = null
+        var warm: androidx.compose.ui.layout.Placeable? = null
         for (m in measurables) {
             val id = m.layoutId
             when {
                 id == topKey -> over = m.measure(fixed)
                 id == belowKey -> under = m.measure(fixed)
                 id == BLOCKER -> blocker = m.measure(fixed)
+                warmKey != null && id == warmKey -> { warm = m.measure(fixed); nav.warmed.add(warmKey) }
                 // تبويب رُكّب مسبقاً ولم يظهر بعد: يُقاس مرة دون أن يُرسم، فتُبنى قائمته الآن لا لحظة فتحه
                 id is String && id.startsWith("t:") && nav.warmed.add(id) -> m.measure(fixed)
             }
         }
         layout(w, h) {
+            // خارج الشاشة كلها، لا يُرى ولا يُلمس
+            warm?.place(-2 * w, 0)
             under?.place(0, 0)
             over?.place(0, 0)
             blocker?.place(0, 0)

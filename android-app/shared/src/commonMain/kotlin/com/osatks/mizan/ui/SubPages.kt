@@ -74,6 +74,8 @@ fun <T> SubPages(
     var gesture by remember { mutableStateOf(false) }
     // أثناء سحب الحافة: جهة حركة الإصبع، فتتبعه الصفحة أياً كانت حافته
     var swipeDir by remember { mutableStateOf<Float?>(null) }
+    // موضع اللمس الذي فُتحت منه الصفحة العليا (NavTransitions في iOS)
+    var origin by remember { mutableStateOf<Any?>(null) }
 
     // أثناء السحب يبقى مفعّلاً (إيقافه في أندرويد يلغي السحب)، وأثناء حركة أخرى لا يبدأ سحب جديد
     PredictiveBack(enabled = page != root && (gesture || !moving)) { progress ->
@@ -100,8 +102,19 @@ fun <T> SubPages(
 
     LaunchedEffect(page) {
         if (gesture) return@LaunchedEffect
+        // iOS: الانتقال يرسمه النظام (صورة الشاشة قبل التغيير)، والصفحة تتغير هنا فوراً
+        val motion = NavTransitions.current
         if (page != root) {
             val old = over
+            if (motion != null && (old == null || contentKey(old) != contentKey(page))) {
+                origin = motion.push {
+                    if (old != null) holder.removeState(contentKey(old) ?: "over")
+                    over = page
+                    p = 1f
+                    moving = false
+                }
+                return@LaunchedEffect
+            }
             over = page
             if (old == null || contentKey(old) != contentKey(page)) {
                 if (old != null) holder.removeState(contentKey(old) ?: "over")
@@ -115,6 +128,17 @@ fun <T> SubPages(
             p = 1f
             moving = false
         } else if (over != null) {
+            // بعد سحب الحافة تكون الصفحة قد خرجت بعضها (p < 1): تكمل هنا خروجها من حيث تركها الإصبع
+            if (motion != null && p >= 1f) {
+                motion.pop(origin) {
+                    over?.let { holder.removeState(contentKey(it) ?: "over") }
+                    over = null
+                    p = 1f
+                    moving = false
+                    swipeDir = null
+                }
+                return@LaunchedEffect
+            }
             moving = true
             val from = p
             val ms = (from * PageMotion.POP_MS).toInt().coerceIn(90, PageMotion.POP_MS)

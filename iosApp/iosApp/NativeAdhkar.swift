@@ -125,18 +125,16 @@ struct AdhkarView: View {
     let model: AdhkarModel
 
     var body: some View {
+        // فتح القسم والرجوع منه بلا حركة هنا: يرسم الانتقال المتحكم الجذر (NavMotion.kt) كما بين الصفحات
         ZStack {
             p.background
             if let sec = s.open {
                 SectionPage(s: s, sec: sec, p: p, model: model)
                     .id(sec.id)
-                    .transition(.move(edge: .trailing))
             } else {
                 SectionsPage(s: s, p: p, model: model)
-                    .transition(.move(edge: .leading))
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: s.open?.id)
         .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
         .environment(\.colorScheme, s.dark ? .dark : .light)
     }

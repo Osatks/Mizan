@@ -70,8 +70,9 @@ MUSHAF_CHECK=(
 )
 CHECK_OUT="${CHECK_OUT:-$OUT/../screenshots-check}"
 # فتح الأذكار والرجوع، ثم التبويبات الثلاثة، ثم المصحف والرجوع، ثم أداة (الزكاة) والرجوع
-MOTION_SCRIPT="${MOTION_SCRIPT:-wait:5000,open:adhkar,wait:2600,back,wait:2200,tab:prayer,wait:2200,tab:tools,wait:2200,tab:home,wait:2000,open:surah/18?ayah=0&from=row,wait:3800,back,wait:2400,open:zakat,wait:2600,back,wait:2400}"
-MOTION_SECONDS="${MOTION_SECONDS:-38}"
+# at:x:y = where a finger would have touched (fractions of the screen): the next page grows from there
+MOTION_SCRIPT="${MOTION_SCRIPT:-wait:5000,at:0.86:0.71,open:adhkar,wait:2600,back,wait:2200,tab:prayer,wait:2200,tab:tools,wait:2200,tab:home,wait:2000,at:0.46:0.84,open:surah/18?ayah=0&from=row,wait:3800,back,wait:2400,open:zakat,wait:2600,back,wait:2400,at:0.86:0.71,open:adhkar,wait:2400,back,wait:2400}"
+MOTION_SECONDS="${MOTION_SECONDS:-44}"
 DUO_SHOTS=(
   "01_home:home"
   "02_quran_page:surah/1?ayah=0&from=row"

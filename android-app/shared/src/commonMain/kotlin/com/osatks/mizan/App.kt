@@ -82,6 +82,9 @@ import com.osatks.mizan.ui.screens.SettingsScreen
 import com.osatks.mizan.ui.screens.TasbihScreen
 import com.osatks.mizan.ui.screens.ZakatScreen
 import com.osatks.mizan.ui.theme.MizanTheme
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Dispatchers
 
 /**
  * التطبيق كله: التنقل بين الشاشات، وشريط التبويبات، وجولة أول تشغيل.
@@ -156,13 +159,15 @@ private class IosNav(val stack: StackNav) : AppNav {
 
 /**
  * تسجيل حركة التنقل من المحاكي (fastlane/screenshots.sh، الوسيط «-mizan.motion_script»): خطوات بلا لمس تُنفَّذ بالترتيب،
- * مفصولة بفواصل: wait:<ms>، open:<route>، back، tab:<route>. لفحص سلاسة الانتقالات في فيديو؛ لا يصل إليه المستخدم
+ * مفصولة بفواصل: wait:<ms>، open:<route>، back، tab:<route>، at:<x>:<y>. لفحص سلاسة الانتقالات في فيديو؛ لا يصل إليه المستخدم
  * (وسائط التشغيل لا تُحفظ في الجهاز).
  */
 object MotionScript {
     internal var open: ((String) -> Unit)? = null
     internal var back: (() -> Unit)? = null
     internal var tab: ((String) -> Unit)? = null
+    /** at:<x>:<y> (كسور من عرض الشاشة وارتفاعها): موضع لمس وهمي تنمو منه الصفحة التالية، كأن الإصبع لمس هناك */
+    internal var touch: ((Double, Double) -> Unit)? = null
 
     suspend fun run(script: String) {
         for (step in script.split(',').map { it.trim() }.filter { it.isNotEmpty() }) {
@@ -173,6 +178,11 @@ object MotionScript {
                 "open" -> open?.invoke(arg)
                 "back" -> back?.invoke()
                 "tab" -> tab?.invoke(arg)
+                "at" -> {
+                    val x = arg.substringBefore(':').toDoubleOrNull()
+                    val y = arg.substringAfter(':', "").toDoubleOrNull()
+                    if (x != null && y != null) touch?.invoke(x, y)
+                }
             }
         }
     }
@@ -199,6 +209,8 @@ fun MizanApp(startRoute: String? = null) {
     if (stack != null) LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(1600)
         for (t in TAB_ROUTES) { stack.prepare(t); kotlinx.coroutines.delay(500) }
+        // الأذكار من أكثر ما يُفتح من الرئيسية: تُقرأ أقسامها مسبقاً، فتظهر كاملة من أول فتح
+        withContext(Dispatchers.IO) { runCatching { com.osatks.mizan.adhkar.Adhkar.sections() } }
     }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val back: () -> Unit = remember(app) { { app.back() } }

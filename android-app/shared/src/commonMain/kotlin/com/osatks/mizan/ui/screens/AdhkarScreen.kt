@@ -151,8 +151,19 @@ fun AdhkarScreen(onBack: () -> Unit, start: String = com.osatks.mizan.widget.Wid
     // في iOS: الأقسام وأذكار القسم بواجهة النظام (SwiftUI) بطراز الرئيسية؛ والرجوع من القسم بالزر أو بسحب الحافة
     if (nativeAdhkarAvailable) {
         var shareId by remember { mutableStateOf<String?>(null) }
-        com.osatks.mizan.ui.BackHandler(enabled = open.isNotEmpty()) { open = "" }
-        NativeAdhkarView(list, open, onOpen = { open = it }, onBack = onBack, onShare = { shareId = it }, modifier = Modifier.fillMaxSize())
+        // فتح القسم والرجوع منه بانتقال النظام نفسه بين الصفحات (ينمو القسم من بطاقته ويصغر إليها)
+        var origin by remember { mutableStateOf<Any?>(null) }
+        fun go(id: String) {
+            val motion = com.osatks.mizan.ui.NavTransitions.current
+            when {
+                motion == null || id == open -> open = id
+                open.isEmpty() -> origin = motion.push { open = id }
+                id.isEmpty() -> motion.pop(origin) { open = "" }
+                else -> open = id
+            }
+        }
+        com.osatks.mizan.ui.BackHandler(enabled = open.isNotEmpty()) { go("") }
+        NativeAdhkarView(list, open, onOpen = { go(it) }, onBack = onBack, onShare = { shareId = it }, modifier = Modifier.fillMaxSize())
         val lang = LocalLang.current
         val s = LocalStrings.current
         val d = shareId?.let { id -> list?.flatMap { it.items }?.firstOrNull { it.id == id } }
