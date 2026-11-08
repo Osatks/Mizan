@@ -170,12 +170,15 @@ private func ctLine(_ text: String, _ font: CTFont) -> CTLine {
 
 private func lineWidth(_ line: CTLine) -> CGFloat { CGFloat(CTLineGetTypographicBounds(line, nil, nil, nil)) }
 
-/// يرسم سطراً Core Text مكبَّراً بـ [scale] وخط أساسه عند (x, y) في سياق UIKit (المحور الرأسي إلى الأسفل)
-private func paint(_ line: CTLine, _ ctx: CGContext, x: CGFloat, y: CGFloat, scale: CGFloat = 1, color: UIColor) {
+/// يرسم سطراً Core Text خط أساسه عند (x, y) في سياق UIKit (المحور الرأسي إلى الأسفل): يُقلب السياق كله حول خط الأساس
+/// (لا مصفوفة النص وحدها)، فتبقى مواضع الحركات ووصل الحروف إلى الأعلى كما يضعها الخط
+private func paint(_ line: CTLine, _ ctx: CGContext, x: CGFloat, y: CGFloat, color: UIColor) {
     ctx.saveGState()
     ctx.setFillColor(color.cgColor)
-    ctx.textMatrix = CGAffineTransform(scaleX: scale, y: -scale)
-    ctx.textPosition = CGPoint(x: x, y: y)
+    ctx.translateBy(x: x, y: y)
+    ctx.scaleBy(x: 1, y: -1)
+    ctx.textMatrix = .identity
+    ctx.textPosition = .zero
     CTLineDraw(line, ctx)
     ctx.restoreGState()
 }
@@ -183,7 +186,9 @@ private func paint(_ line: CTLine, _ ctx: CGContext, x: CGFloat, y: CGFloat, sca
 // MARK: - حساب الصفحة (كما في prepareMadinah، MadinahPage.kt)
 
 struct PlacedGlyph {
-    let line: CTLine   // بمقاس 100، ويُرسم مكبَّراً بمقاس الصفحة
+    /// بمقاس الصفحة نفسه: Core Text لا يكبّر مواضع الحروف داخل السطر مع مصفوفة النص، فالكلمة ذات الرموز
+    /// المتعددة والبسملة (وصل الحروف ووضع الحركات) تُبنى بمقاسها لا بمقاس 100 مكبَّراً
+    let line: CTLine
     let left: CGFloat
     let right: CGFloat
     let ayah: Int
@@ -246,6 +251,7 @@ final class MadinahLayout {
         let lineW = widest * textSize / ref
         let x0 = (w - lineW) / 2
         let k = textSize / ref
+        let fs = CTFontCreateWithGraphicsFont(font, textSize, nil, nil)
         let used: [Int] = special ? lines.indices.filter { if case .empty = lines[$0] { return false }; return true } : Array(lines.indices)
         let top0 = special ? (h - CGFloat(used.count) * lineH) / 2 : 0
         var rows: [LaidRow] = []
@@ -264,7 +270,7 @@ final class MadinahLayout {
                 placed.reserveCapacity(glyphs.count)
                 for j in glyphs.indices {
                     let ww = ws[j].1 * k
-                    placed.append(PlacedGlyph(line: ws[j].0, left: right - ww, right: right, ayah: ayahs[j], end: ends.contains(j)))
+                    placed.append(PlacedGlyph(line: ctLine(glyphs[j], fs), left: right - ww, right: right, ayah: ayahs[j], end: ends.contains(j)))
                     right -= ww + gap
                 }
                 rows.append(.text(top: top, height: lineH, words: placed))
@@ -510,7 +516,6 @@ final class PageGlyphView: UIView {
         if l.capped, let first = l.rows.first, let last = l.rows.last {
             drawCappedFrame(ctx, l, first: first, last: last, p)
         }
-        let k = l.textSize / MadinahLayout.ref
         for row in l.rows {
             switch row {
             case .text(let top, let height, let words):
@@ -522,27 +527,25 @@ final class PageGlyphView: UIView {
                         roundRect(ctx, CGRect(x: g.left + inset, y: y - l.textSize * 0.52, width: max(g.right - g.left - 2 * inset, 1), height: bh),
                                   radius: bh / 2, fill: p.ink.withAlphaComponent(0.16))
                     } else {
-                        paint(g.line, ctx, x: g.left, y: y, scale: k, color: g.end ? p.accent : p.ink)
+                        paint(g.line, ctx, x: g.left, y: y, color: g.end ? p.accent : p.ink)
                     }
                 }
             case .banner(let top, let height, let surah):
                 guard let hf = MadinahStore.shared.headerFont else { continue }
                 let code = MadinahStore.shared.headerCode(surah)
                 if code.isEmpty { continue }
-                let line = ctLine(code, CTFontCreateWithGraphicsFont(hf, MadinahLayout.ref, nil, nil))
-                let gw = max(lineWidth(line), 1)
+                let gw = max(lineWidth(ctLine(code, CTFontCreateWithGraphicsFont(hf, MadinahLayout.ref, nil, nil))), 1)
                 // الإطار ممتد إلى طرفي الصفحة (وفي الفاتحة وأول البقرة بعرض أسطرهما)، ولا يتجاوز ارتفاع السطر إلا قليلاً
                 let ts = min(MadinahLayout.ref * (l.capped ? l.lineW : w) / gw, height * 1.12 / 0.39)
-                let s = ts / MadinahLayout.ref
-                paint(line, ctx, x: (w - gw * s) / 2, y: top + height / 2, scale: s, color: p.accent)
+                let line = ctLine(code, CTFontCreateWithGraphicsFont(hf, ts, nil, nil))
+                paint(line, ctx, x: (w - lineWidth(line)) / 2, y: top + height / 2, color: p.accent)
             case .basmala(let top, let height):
                 guard let bf = MadinahStore.shared.basmalaFont else { continue }
-                let line = ctLine(MadinahStore.basmala, CTFontCreateWithGraphicsFont(bf, MadinahLayout.ref, nil, nil))
-                let bw = lineWidth(line)
+                let bw = lineWidth(ctLine(MadinahStore.basmala, CTFontCreateWithGraphicsFont(bf, MadinahLayout.ref, nil, nil)))
                 var size = l.textSize * 1.02
                 if bw * size / MadinahLayout.ref > l.lineW * 0.75 { size = l.lineW * 0.75 * MadinahLayout.ref / bw }
-                let s = size / MadinahLayout.ref
-                paint(line, ctx, x: (w - bw * s) / 2, y: top + height / 2 + size * 0.32, scale: s, color: p.ink)
+                let line = ctLine(MadinahStore.basmala, CTFontCreateWithGraphicsFont(bf, size, nil, nil))
+                paint(line, ctx, x: (w - lineWidth(line)) / 2, y: top + height / 2 + size * 0.32, color: p.ink)
             }
         }
     }
