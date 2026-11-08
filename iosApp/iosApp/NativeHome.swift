@@ -115,20 +115,20 @@ struct HomePalette {
 // MARK: - أدوات صغيرة
 
 /// خط النظام بمقاس يتبع حجم النص في الإعدادات (كما تتبعه sp في Compose)
-private func sys(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+func sys(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
     .system(size: UIFontMetrics.default.scaledValue(for: size), weight: weight)
 }
 
-private func quranFont(_ size: CGFloat) -> Font { .custom("AmiriQuran-Regular", size: size, relativeTo: .body) }
+func quranFont(_ size: CGFloat) -> Font { .custom("AmiriQuran-Regular", size: size, relativeTo: .body) }
 
 /// ساعات:دقائق:ثوانٍ بأرقام لاتينية (PrayerUtil.hms)
-private func hms(_ seconds: Double) -> String {
+func hms(_ seconds: Double) -> String {
     let s = max(0, Int(seconds))
     return String(format: "%02d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60)
 }
 
 /// رموز الأوقات: الفجر نجوم، والشروق والمغرب أفق، والظهر شمس، والعصر شمس مائلة، والعشاء قمر
-private func prayerSymbol(_ key: String) -> String {
+func prayerSymbol(_ key: String) -> String {
     switch key {
     case "fajr": return "sparkles"
     case "sunrise": return "sunrise"
@@ -151,7 +151,7 @@ private func toolSymbol(_ key: String) -> String {
 }
 
 /// يصغر قليلاً تحت الإصبع ثم يرتد
-private struct PressScale: ButtonStyle {
+struct PressScale: ButtonStyle {
     var scale: CGFloat = 0.97
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -161,7 +161,7 @@ private struct PressScale: ButtonStyle {
 }
 
 /// نجمة ثمانية من مربعين متراكبين (drawStar8 في Emblem.kt)
-private struct Star8: Shape {
+struct Star8: Shape {
     func path(in rect: CGRect) -> Path {
         var p = Path()
         let c = CGPoint(x: rect.midX, y: rect.midY), r = min(rect.width, rect.height) / 2
@@ -178,7 +178,7 @@ private struct Star8: Shape {
 }
 
 /// النجمة الزخرفية الباهتة خلف الترويسة والبطاقات البارزة (بحلقتيها)
-private struct StarEmblem: View {
+struct StarEmblem: View {
     let color: Color
     let radius: CGFloat
     let stroke: CGFloat
@@ -194,7 +194,7 @@ private struct StarEmblem: View {
 }
 
 /// الأرقام تتدحرج عند تغيّرها (iOS 17)، وتثبت قبله
-private struct NumericRoll: ViewModifier {
+struct NumericRoll: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 17.0, *) { content.contentTransition(.numericText(countsDown: true)) } else { content }
     }

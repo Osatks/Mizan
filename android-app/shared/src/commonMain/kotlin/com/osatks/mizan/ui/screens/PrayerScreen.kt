@@ -5,6 +5,7 @@ import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.platform.rememberLocationRequest
 import com.osatks.mizan.core.*
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateColorAsState
@@ -106,10 +107,12 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
     var locationDenied by remember { mutableStateOf(false) }
     val place = AppSettings.place
 
+    // في iOS: الشاشة بواجهة النظام (SwiftUI) متى اختير الموقع، وعدّادها في Swift
+    val native = nativePrayerAvailable && AppSettings.placeSet
     // العدّ كل ثانية والصفحة ظاهرة فقط (تبقى حية تحت غيرها في iOS)
     val active = com.osatks.mizan.ui.LocalPageActive.current
-    LaunchedEffect(place, AppSettings.method, AppSettings.hanafi, active) {
-        while (true) { next = PrayerUtil.next(); if (!active) break; delay(1000) }
+    LaunchedEffect(place, AppSettings.method, AppSettings.hanafi, active, native) {
+        while (true) { next = PrayerUtil.next(); if (!active || native) break; delay(1000) }
     }
 
     val locate = rememberLocationRequest { r ->
@@ -122,6 +125,18 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
     }
     if (locationDenied) LocationDeniedDialog(onPickCity = { locationDenied = false; pickCity = true }, onDismiss = { locationDenied = false })
     val toggleNotify = rememberAlertsToggle()
+
+    if (native) {
+        NativePrayerView(
+            open, locating, onLocate = { locating = true; locate() }, onPickCity = { pickCity = true },
+            onNotify = { toggleNotify(it) }, modifier = Modifier.fillMaxSize(),
+        )
+        if (pickCity) CityPickerSheet(place.key.takeIf { !place.gps }, onDismiss = { pickCity = false }) { c ->
+            AppSettings.updatePlace(Place.of(c))
+            PrayerAlerts.reschedule()
+        }
+        return
+    }
 
     val city = place.city
     val subtitle = s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: "")

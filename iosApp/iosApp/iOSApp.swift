@@ -23,6 +23,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeMushafReader.install()
         // والرئيسية بواجهة SwiftUI (NativeHome.swift)
         NativeHomeScreen.install()
+        // وشاشة المواقيت بطراز الرئيسية (NativePrayer.swift)
+        NativePrayerScreen.install()
         if !AppDelegate.usesScenes {
             let w = UIWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()
