@@ -1,7 +1,7 @@
 {
  "start": "2026-11-08T23:25:33.962Z",
  "round": 2,
- "idle": 0,
+ "idle": 1,
  "errors": 0,
  "status": "fail",
  "history": [
@@ -31,6 +31,18 @@
    "round": 2,
    "reused": false,
    "stopHookActive": false
+  },
+  {
+   "at": "2026-11-08T23:45:48.962Z",
+   "mode": "hook",
+   "host": "claude",
+   "status": "fail",
+   "fails": 37,
+   "round": 2,
+   "reused": true,
+   "stopHookActive": false,
+   "decision": "block",
+   "reason": "nothing changed since round 2 of 3, and 37 FAILs remain. Finishing again without a fix is blocked 1 more time, then counted as a round:"
   }
  ],
  "max": 3,
@@ -49,7 +61,7 @@
  "roundKey": "66a5f6b91cb37a40:da39a3ee",
  "roundFree": false,
  "idleFree": false,
- "blockKey": null,
+ "blockKey": "66a5f6b91cb37a40:da39a3ee",
  "fp": "66a5f6b91cb37a40",
  "page": "index.html",
  "found": {
@@ -1470,5 +1482,6 @@
  ],
  "waived": [],
  "warnCount": 19,
- "at": "2026-11-08T23:43:51.809Z"
+ "at": "2026-11-08T23:45:49.083Z",
+ "session": "cd4d75b7-2347-5adb-bca9-8b86e4286ee4"
 }
