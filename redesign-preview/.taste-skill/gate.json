@@ -1,0 +1,1474 @@
+{
+ "start": "2026-11-08T23:25:33.962Z",
+ "round": 2,
+ "idle": 0,
+ "errors": 0,
+ "status": "fail",
+ "history": [
+  {
+   "at": "2026-11-08T23:35:13.868Z",
+   "mode": "manual",
+   "status": "fail",
+   "fails": 56,
+   "round": 1,
+   "reused": false,
+   "stopHookActive": false
+  },
+  {
+   "at": "2026-11-08T23:35:23.354Z",
+   "mode": "manual",
+   "status": "fail",
+   "fails": 56,
+   "round": 1,
+   "reused": true,
+   "stopHookActive": false
+  },
+  {
+   "at": "2026-11-08T23:43:51.809Z",
+   "mode": "manual",
+   "status": "fail",
+   "fails": 37,
+   "round": 2,
+   "reused": false,
+   "stopHookActive": false
+  }
+ ],
+ "max": 3,
+ "marker": {
+  "page": "index.html",
+  "url": null,
+  "root": null,
+  "kind": "software",
+  "category": "Free Islamic calculators and the Mizan prayer and Quran app",
+  "primary": "Calculate your zakat",
+  "rounds": 3,
+  "start": "2026-11-08T23:25:33.962Z",
+  "by": "gate.mjs --start"
+ },
+ "manual": true,
+ "roundKey": "66a5f6b91cb37a40:da39a3ee",
+ "roundFree": false,
+ "idleFree": false,
+ "blockKey": null,
+ "fp": "66a5f6b91cb37a40",
+ "page": "index.html",
+ "found": {
+  "fails": [
+   {
+    "check": "copy-headline",
+    "where": "h1#hero-h \"حاسبات شرعية مجانية وتطبيق للمسلم\"",
+    "msg": "\"حاسبات شرعية مجانية وتطبيق للمسلم\" does not name what is sold (free islamic calculators and the mizan prayer and quran app, free, islamic, calculators, from flags)",
+    "fix": "put the category noun in the h1 (and who it is for, or where), in 2 to 8 words",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "copy-headline"
+    ],
+    "wheres": [
+     "h1#hero-h \"حاسبات شرعية مجانية وتطبيق للمسلم\""
+    ]
+   },
+   {
+    "check": "section-air",
+    "where": "section#prayer > div.wrap > div.dayline \"الأحد 28 جمادى الأولى 1448 هـ · 8 نوفمبر\"",
+    "msg": "a top border across 100% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)",
+    "fix": "take the rule out: sections and their parts are parted by their ground and the air between them",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "section-air"
+    ],
+    "wheres": [
+     "section#prayer > div.wrap > div.dayline \"الأحد 28 جمادى الأولى 1448 هـ · 8 نوفمبر\""
+    ]
+   },
+   {
+    "check": "container-edges",
+    "where": "h2#close-h \"احسب زكاتك الآن\"",
+    "msg": "1 text block starts on a left line at x 1046, 966px from the container's left: text starts on the container's left, or on one split line (x 623, 732, 841) (SR-6)",
+    "fix": "start the text on the container's left, or on the one split line every split shares",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "container-edges"
+    ],
+    "wheres": [
+     "h2#close-h \"احسب زكاتك الآن\""
+    ]
+   },
+   {
+    "check": "container-edges",
+    "where": "h2#app-h \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\"",
+    "msg": "2 text blocks start on a left line at x 1021, 941px from the container's left: text starts on the container's left, or on one split line (x 623, 732, 841) (also \"10 أدوات على الويب، و15 لغة، ولا\") (and 19 more like it: \"تطبيق ميزان للهاتف. يعمل\", x 1004, \"ميزان بخمس عشرة لغة. الو\") (SR-6)",
+    "fix": "start the text on the container's left, or on the one split line every split shares",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "container-edges"
+    ],
+    "wheres": [
+     "h2#app-h \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\""
+    ]
+   },
+   {
+    "check": "container-edges",
+    "where": "footer#contact > div.wrap > div.closing__cta.close--word > p.close__word \"ميزان\"",
+    "msg": "\"ميزان\" is set to the right across 1280px, over half the 1280px container: text that wide is set left (SR-6)",
+    "fix": "set the text left (text-align: start)",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "container-edges"
+    ],
+    "wheres": [
+     "footer#contact > div.wrap > div.closing__cta.close--word > p.close__word \"ميزان\""
+    ]
+   },
+   {
+    "check": "container-edges",
+    "where": "h2#tools-h \"عشر أدوات شرعية على الويب. كلها مجانية و\"",
+    "msg": "\"عشر أدوات شرعية على الويب. كلها \" is set to the right across 760px, over half the 1280px container: text that wide is set left (SR-6)",
+    "fix": "set the text left (text-align: start)",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "container-edges"
+    ],
+    "wheres": [
+     "h2#tools-h \"عشر أدوات شرعية على الويب. كلها مجانية و\""
+    ]
+   },
+   {
+    "check": "container-edges",
+    "where": "h2#pr-h \"مواقيت الصلاة على خط اليوم. والصلاة القا\"",
+    "msg": "\"مواقيت الصلاة على خط اليوم. والص\" is set to the right across 760px, over half the 1280px container: text that wide is set left (and 2 more like it: \"ميزان بخمس عشرة لغة. الو\", \"كل نتيجة ومعها دليلها\") (SR-6)",
+    "fix": "set the text left (text-align: start)",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "container-edges"
+    ],
+    "wheres": [
+     "h2#pr-h \"مواقيت الصلاة على خط اليوم. والصلاة القا\""
+    ]
+   },
+   {
+    "check": "row-lines",
+    "where": "section#languages > div.wrap > div.mo-mq > div.mo-mq__rail \"العربيةEnglishFrançaisTürkçeاردوBahasa I\"",
+    "msg": "a clipped carousel: 1 item cut at rest (SR-7)",
+    "fix": "show every item inside the container, or stack them: no sideways scroller, no half-cut carousel",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "row-lines"
+    ],
+    "wheres": [
+     "section#languages > div.wrap > div.mo-mq > div.mo-mq__rail \"العربيةEnglishFrançaisTürkçeاردوBahasa I\""
+    ]
+   },
+   {
+    "check": "split-pair",
+    "where": "section#app > div.wrap > div.grid \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\"",
+    "msg": "the split's left column starts with a picture or a box, not text: text left, the visual right, on every split (SR-8)",
+    "fix": "put the text in the left column and the visual in the right, on every split",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "split-pair"
+    ],
+    "wheres": [
+     "section#app > div.wrap > div.grid \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\""
+    ]
+   },
+   {
+    "check": "split-pair",
+    "where": "section#languages > div.wrap > div.grid.lang-row \"الحساب على جهازكأرقامك وموقعك لا تغادر ه\"",
+    "msg": "the split's left column starts with a picture or a box, not text: text left, the visual right, on every split (SR-8)",
+    "fix": "put the text in the left column and the visual in the right, on every split",
+    "widths": [
+     1440
+    ],
+    "from": "consistency",
+    "ids": [
+     "split-pair"
+    ],
+    "wheres": [
+     "section#languages > div.wrap > div.grid.lang-row \"الحساب على جهازكأرقامك وموقعك لا تغادر ه\""
+    ]
+   },
+   {
+    "check": "cut-text",
+    "where": "div.z-win__body > div.z-fields > div.z-field:nth-of-type(5) > b \"0 ر.س\"",
+    "msg": "cut 4px at the bottom by the overflow of section.hero.hero--collage > div.wrap > div.hero-text.grid > div.hero__art.span-6 (and 3 more like it: \"ر.س\", \"0 ر.س\", \"ر.س\")",
+    "fix": "give the text room: no overflow clipping a line, no line past its box",
+    "widths": [
+     390
+    ],
+    "from": "consistency",
+    "ids": [
+     "cut-text"
+    ],
+    "wheres": [
+     "div.z-win__body > div.z-fields > div.z-field:nth-of-type(5) > b \"0 ر.س\""
+    ]
+   },
+   {
+    "check": "stagger",
+    "where": "section#evidence-line > div.wrap > div.sources \"6236 آية مُطابَقة آليًا نص المصحف من مشر\"",
+    "msg": "3 rows start at 3 different left offsets (+0, +41, +29px)",
+    "fix": "start every row of the list on one left edge",
+    "widths": [
+     390
+    ],
+    "from": "consistency",
+    "ids": [
+     "stagger"
+    ],
+    "wheres": [
+     "section#evidence-line > div.wrap > div.sources \"6236 آية مُطابَقة آليًا نص المصحف من مشر\""
+    ]
+   },
+   {
+    "check": "stagger",
+    "where": "section#prayer > div.wrap > div.day-facts \"بحسب مدينتك تختار طريقة الحساب المعتمدة \"",
+    "msg": "3 rows start at 3 different left offsets (+0, +20, +44px)",
+    "fix": "start every row of the list on one left edge",
+    "widths": [
+     390
+    ],
+    "from": "consistency",
+    "ids": [
+     "stagger"
+    ],
+    "wheres": [
+     "section#prayer > div.wrap > div.day-facts \"بحسب مدينتك تختار طريقة الحساب المعتمدة \""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "section.hero.hero--collage p.hero__lead \"الزكاة والمواريث ومواقيت الصلاة \"",
+    "msg": "starts at x 850.1; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "section.hero.hero--collage p.hero__lead \"الزكاة والمواريث ومواقيت الصلاة \""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools div.section-head \"عشر أدوات شرعية على الويب. كلها \"",
+    "msg": "starts at x 600; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools div.section-head \"عشر أدوات شرعية على الويب. كلها \""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h2 \"عشر أدوات شرعية على الويب. كلها \"",
+    "msg": "starts at x 600; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h2 \"عشر أدوات شرعية على الويب. كلها \""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"حاسبة الزكاة\"",
+    "msg": "starts at x 835.2; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"حاسبة الزكاة\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"حاسبة المواريث\"",
+    "msg": "starts at x 855.3; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"حاسبة المواريث\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"زكاة الفطر\"",
+    "msg": "starts at x 886.9; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"زكاة الفطر\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"مواقيت الصلاة\"",
+    "msg": "starts at x 851.2; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"مواقيت الصلاة\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"الفدية والكفارة\"",
+    "msg": "starts at x 821.4; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"الفدية والكفارة\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"اتجاه القبلة\"",
+    "msg": "starts at x 835.2; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"اتجاه القبلة\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"محوّل التاريخ الهجري\"",
+    "msg": "starts at x 852.8; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"محوّل التاريخ الهجري\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"حاسبة العمر\"",
+    "msg": "starts at x 837.5; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"حاسبة العمر\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"المناسبات الإسلامية\"",
+    "msg": "starts at x 825.5; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"المناسبات الإسلامية\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#tools h3 \"المسبحة الإلكترونية\"",
+    "msg": "starts at x 854.1; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#tools h3 \"المسبحة الإلكترونية\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#evidence-line h2.mo-lt__type \"كل نتيجة ومعها دليلها\"",
+    "msg": "starts at x 582.4; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#evidence-line h2.mo-lt__type \"كل نتيجة ومعها دليلها\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#evidence-line p.lead \"قواعد الحساب على المعتمد عند جمه\"",
+    "msg": "starts at x 728.7; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#evidence-line p.lead \"قواعد الحساب على المعتمد عند جمه\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#prayer div.section-head \"مواقيت الصلاة على خط اليوم. والص\"",
+    "msg": "starts at x 600; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#prayer div.section-head \"مواقيت الصلاة على خط اليوم. والص\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#prayer h2 \"مواقيت الصلاة على خط اليوم. والص\"",
+    "msg": "starts at x 600; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#prayer h2 \"مواقيت الصلاة على خط اليوم. والص\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#languages div.section-head \"ميزان بخمس عشرة لغة. الواجهة وال\"",
+    "msg": "starts at x 600; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#languages div.section-head \"ميزان بخمس عشرة لغة. الواجهة وال\""
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "#languages h2 \"ميزان بخمس عشرة لغة. الواجهة وال\"",
+    "msg": "starts at x 600; the lines are 80 and the column starts",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "#languages h2 \"ميزان بخمس عشرة لغة. الواجهة وال\""
+    ]
+   },
+   {
+    "check": "bleed-one-side",
+    "where": "#languages ul.mo-mq__track \"العربيةEnglishFrançaisTürkçeاردو\"",
+    "msg": "runs from x 80 out to the right viewport edge; the left side stays at 80",
+    "fix": "bleed the visual to both edges or keep it on the .wrap lines",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "bleed-one-side"
+    ],
+    "wheres": [
+     "#languages ul.mo-mq__track \"العربيةEnglishFrançaisTürkçeاردو\""
+    ]
+   },
+   {
+    "check": "bleed-one-side",
+    "where": "#languages ul.mo-mq__track.mo-mq__clone \"العربيةEnglishFrançaisTürkçeاردو\"",
+    "msg": "runs from x 4926.4 out to the right viewport edge; the left side stays at 80",
+    "fix": "bleed the visual to both edges or keep it on the .wrap lines",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "bleed-one-side"
+    ],
+    "wheres": [
+     "#languages ul.mo-mq__track.mo-mq__clone \"العربيةEnglishFrançaisTürkçeاردو\""
+    ]
+   },
+   {
+    "check": "lines",
+    "where": "page",
+    "msg": "headings and leads start on 4 lines (x 840.7, 850.1, 600, 582.4); the page has 80 and one split line",
+    "fix": "put the block on the .wrap lines or the grid columns",
+    "widths": [
+     1440
+    ],
+    "from": "layout",
+    "ids": [
+     "lines"
+    ],
+    "wheres": [
+     "page"
+    ]
+   },
+   {
+    "check": "edge-left",
+    "where": "nav logo",
+    "msg": "at x 1284.3, the page's left line is 80",
+    "fix": "start it on the .wrap left line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-left"
+    ],
+    "wheres": [
+     "nav logo"
+    ]
+   },
+   {
+    "check": "edge-right",
+    "where": "nav actions",
+    "msg": "end at x 235.1, the page's right line is 1360",
+    "fix": "end it on the .wrap right line",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "layout",
+    "ids": [
+     "edge-right"
+    ],
+    "wheres": [
+     "nav actions"
+    ]
+   }
+  ],
+  "warns": [
+   {
+    "check": "cut-text",
+    "where": "div.mo-mq > div.mo-mq__rail > ul.mo-mq__track:nth-of-type(1) > li:nth-of-type(1) \"العربية\"",
+    "msg": "cut 35px at the left by the overflow of section#languages > div.wrap > div.mo-mq > div.mo-mq__rail (inside a held section or scroll scene, whose motion --quick does not check)",
+    "fix": "give the text room: no overflow clipping a line, no line past its box",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "cut-text",
+    "where": "div.mo-mq > div.mo-mq__rail > ul.mo-mq__track:nth-of-type(1) > li:nth-of-type(6) \"Bahasa Indonesia\"",
+    "msg": "cut 494px at the right by the overflow of section#languages > div.wrap > div.mo-mq > div.mo-mq__rail (inside a held section or scroll scene, whose motion --quick does not check)",
+    "fix": "give the text room: no overflow clipping a line, no line past its box",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "no-visual",
+    "where": "section#tools \"عشر أدوات شرعية على الويب. كلها مجانية و\"",
+    "msg": "pictures, effects and mocks cover 23% of this section; a feature section needs a visual (about 25% or more)",
+    "fix": "give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "copy-headline",
+    "where": "h1#hero-h \"حاسبات شرعية مجانية وتطبيق للمسلم\"",
+    "msg": "the h1 has 0 words (2 to 8 read at a glance)",
+    "fix": "put the category noun in the h1 (and who it is for, or where), in 2 to 8 words",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "copy-buttons",
+    "where": "div.grid > div.span-5.stack-5 > div.btn-row > a.btn.btn--primary \"حمّل من Google Play\"",
+    "msg": "\"حمّل من Google Play\" does not start with a verb (book, buy, try, start, get, see...)",
+    "fix": "label buttons with a verb and what the visitor gets (\"Book a room\", \"Start free trial\")",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "copy-actions",
+    "where": "(the page)",
+    "msg": "the main action \"Calculate your zakat\" does not read word for word the same in the nav or hero and the closing section",
+    "fix": "few actions, one wording: at most 2 in the hero, the main action word for word in nav, hero and close",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "stagger",
+    "where": "section#languages > div.wrap > div.grid.lang-row > div.span-5.privacy \"الحساب على جهازك أرقامك وموقعك لا تغادر \"",
+    "msg": "3 rows start at 2 different left offsets (+13, +13, +0px)",
+    "fix": "start every row of the list on one left edge",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "section-gaps",
+    "where": "main#top > section.hero.hero--collage / section#tools",
+    "msg": "174px between these sections, -51% against the median 357px",
+    "fix": "use one gap between sections (all within 25% of each other)",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "section-gaps",
+    "where": "section#languages / footer#contact",
+    "msg": "217px between these sections, -38% against the median 348px of gaps at a change of ground",
+    "fix": "use one gap between sections (all within 25% of each other)",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "section-gaps",
+    "where": "section#evidence / section#prayer",
+    "msg": "uneven space at the edge of a band: 110px outside its edge, 238px inside it (the space on either side of a change of ground reads as one gap only when the two match)",
+    "fix": "use one gap between sections (all within 25% of each other)",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "photo-set",
+    "where": "div.grid > div.span-6.start-7 > div.phone:nth-of-type(2) > img \"focus.webp\"",
+    "msg": "4 photographs in more than one look: lightness from 0.21 to 0.87; the odd one out is focus.webp",
+    "fix": "grade the photographs to one look (light, colour, warmth), or replace the odd one out",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "link-styles",
+    "where": "div.wrap > div.grid > div.span-5.stack-5 > a.link \"جرّب حاسبة المواريث\"",
+    "msg": "text links in 3 looks: border 1px, regular (10, like \"حاسبة الزكاة 2.5%\"); underline, regular (1, like \"جرّب حاسبة المواريث\"); no line, regular (10, like \"الزكاة\")",
+    "fix": "give text links one look wherever they sit: one underline, one weight",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "label-centre",
+    "where": "header.nav > div.wrap.nav__bar > div.nav__actions > a.btn.btn--primary \"احسب زكاتك\"",
+    "msg": "its label sits 18px off-centre (43px of room at the left, 25px at the right) (and 2 more like it: \"احسب زكاتك\", \"حمّل من Google Play\")",
+    "fix": "centre the label in its button, or fill the empty side with an icon",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "nav-current",
+    "where": "header.nav",
+    "msg": "the nav stays on screen with 5 links to the page's sections, but never marks the one you are in (no link changes as the page scrolls)",
+    "fix": "mark the link of the section on screen (a colour, a weight or a line under it) as the visitor scrolls",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "button-contrast",
+    "where": "div.hero-text.grid > div.hero__text.span-5 > div.btn-row > a.btn.btn--secondary \"حمّل تطبيق ميزان\"",
+    "msg": "the button \"حمّل تطبيق ميزان\" (#dcdbd6) stands only 1.19:1 off the ground around it: it reads as part of the ground, or as switched off",
+    "fix": "give the button a fill that stands at least 1.5:1 off what is around it, or an outline in the ink",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "button-contrast",
+    "where": "div.grid > div.span-5.stack-5 > div.btn-row > a.btn.btn--secondary \"حمّل من App Store\"",
+    "msg": "the button \"حمّل من App Store\" (#dcdbd6) stands only 1.19:1 off the ground around it: it reads as part of the ground, or as switched off",
+    "fix": "give the button a fill that stands at least 1.5:1 off what is around it, or an outline in the ink",
+    "widths": [
+     1440,
+     390
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "skip-link",
+    "where": "header.nav > div.wrap.nav__bar > a.skip-link:nth-of-type(1) \"تخطَّ إلى المحتوى\"",
+    "msg": "the first Tab stop is \"تخطَّ إلى المحتوى\", not a skip link: a keyboard user tabs through the whole nav on every visit",
+    "fix": "add the starter's skip link as the header's first child: <a class=\"skip-link\" href=\"#top\">Skip to content</a>",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "action-repeat",
+    "where": "header.nav > div.wrap.nav__bar > div.nav__actions > a.btn.btn--primary \"احسب زكاتك\"",
+    "msg": "\"احسب زكاتك\" shows 2 times on the first screen at 1440px (nav, hero): the nav's button and the hero's; nothing else on the screen may repeat it",
+    "fix": "show the action once a screen besides the nav's button: the hero's, the close's or the phone bar's, never all at once",
+    "widths": [
+     1440
+    ],
+    "from": "consistency"
+   },
+   {
+    "check": "nav",
+    "where": "header.nav > div.wrap.nav__bar > button.nav__toggle",
+    "msg": "the nav is lopsided: its first item starts 13px inside the content's edge (24px), while its last ends on the other edge",
+    "fix": "start the nav's first item and end its last on the content's two edges",
+    "widths": [
+     390
+    ],
+    "from": "consistency"
+   }
+  ],
+  "crashed": [],
+  "seconds": {
+   "consistency": 103,
+   "layout": 4
+  }
+ },
+ "open": [
+  {
+   "check": "copy-headline",
+   "where": "h1#hero-h \"حاسبات شرعية مجانية وتطبيق للمسلم\"",
+   "msg": "\"حاسبات شرعية مجانية وتطبيق للمسلم\" does not name what is sold (free islamic calculators and the mizan prayer and quran app, free, islamic, calculators, from flags)",
+   "fix": "put the category noun in the h1 (and who it is for, or where), in 2 to 8 words",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "copy-headline"
+   ],
+   "wheres": [
+    "h1#hero-h \"حاسبات شرعية مجانية وتطبيق للمسلم\""
+   ]
+  },
+  {
+   "check": "section-air",
+   "where": "section#prayer > div.wrap > div.dayline \"الأحد 28 جمادى الأولى 1448 هـ · 8 نوفمبر\"",
+   "msg": "a top border across 100% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)",
+   "fix": "take the rule out: sections and their parts are parted by their ground and the air between them",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "section-air"
+   ],
+   "wheres": [
+    "section#prayer > div.wrap > div.dayline \"الأحد 28 جمادى الأولى 1448 هـ · 8 نوفمبر\""
+   ]
+  },
+  {
+   "check": "container-edges",
+   "where": "h2#close-h \"احسب زكاتك الآن\"",
+   "msg": "1 text block starts on a left line at x 1046, 966px from the container's left: text starts on the container's left, or on one split line (x 623, 732, 841) (SR-6)",
+   "fix": "start the text on the container's left, or on the one split line every split shares",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "container-edges"
+   ],
+   "wheres": [
+    "h2#close-h \"احسب زكاتك الآن\""
+   ]
+  },
+  {
+   "check": "container-edges",
+   "where": "h2#app-h \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\"",
+   "msg": "2 text blocks start on a left line at x 1021, 941px from the container's left: text starts on the container's left, or on one split line (x 623, 732, 841) (also \"10 أدوات على الويب، و15 لغة، ولا\") (and 19 more like it: \"تطبيق ميزان للهاتف. يعمل\", x 1004, \"ميزان بخمس عشرة لغة. الو\") (SR-6)",
+   "fix": "start the text on the container's left, or on the one split line every split shares",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "container-edges"
+   ],
+   "wheres": [
+    "h2#app-h \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\""
+   ]
+  },
+  {
+   "check": "container-edges",
+   "where": "footer#contact > div.wrap > div.closing__cta.close--word > p.close__word \"ميزان\"",
+   "msg": "\"ميزان\" is set to the right across 1280px, over half the 1280px container: text that wide is set left (SR-6)",
+   "fix": "set the text left (text-align: start)",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "container-edges"
+   ],
+   "wheres": [
+    "footer#contact > div.wrap > div.closing__cta.close--word > p.close__word \"ميزان\""
+   ]
+  },
+  {
+   "check": "container-edges",
+   "where": "h2#tools-h \"عشر أدوات شرعية على الويب. كلها مجانية و\"",
+   "msg": "\"عشر أدوات شرعية على الويب. كلها \" is set to the right across 760px, over half the 1280px container: text that wide is set left (SR-6)",
+   "fix": "set the text left (text-align: start)",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "container-edges"
+   ],
+   "wheres": [
+    "h2#tools-h \"عشر أدوات شرعية على الويب. كلها مجانية و\""
+   ]
+  },
+  {
+   "check": "container-edges",
+   "where": "h2#pr-h \"مواقيت الصلاة على خط اليوم. والصلاة القا\"",
+   "msg": "\"مواقيت الصلاة على خط اليوم. والص\" is set to the right across 760px, over half the 1280px container: text that wide is set left (and 2 more like it: \"ميزان بخمس عشرة لغة. الو\", \"كل نتيجة ومعها دليلها\") (SR-6)",
+   "fix": "set the text left (text-align: start)",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "container-edges"
+   ],
+   "wheres": [
+    "h2#pr-h \"مواقيت الصلاة على خط اليوم. والصلاة القا\""
+   ]
+  },
+  {
+   "check": "row-lines",
+   "where": "section#languages > div.wrap > div.mo-mq > div.mo-mq__rail \"العربيةEnglishFrançaisTürkçeاردوBahasa I\"",
+   "msg": "a clipped carousel: 1 item cut at rest (SR-7)",
+   "fix": "show every item inside the container, or stack them: no sideways scroller, no half-cut carousel",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "row-lines"
+   ],
+   "wheres": [
+    "section#languages > div.wrap > div.mo-mq > div.mo-mq__rail \"العربيةEnglishFrançaisTürkçeاردوBahasa I\""
+   ]
+  },
+  {
+   "check": "split-pair",
+   "where": "section#app > div.wrap > div.grid \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\"",
+   "msg": "the split's left column starts with a picture or a box, not text: text left, the visual right, on every split (SR-8)",
+   "fix": "put the text in the left column and the visual in the right, on every split",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "split-pair"
+   ],
+   "wheres": [
+    "section#app > div.wrap > div.grid \"تطبيق ميزان للهاتف. يعمل دون إنترنت وبلا\""
+   ]
+  },
+  {
+   "check": "split-pair",
+   "where": "section#languages > div.wrap > div.grid.lang-row \"الحساب على جهازكأرقامك وموقعك لا تغادر ه\"",
+   "msg": "the split's left column starts with a picture or a box, not text: text left, the visual right, on every split (SR-8)",
+   "fix": "put the text in the left column and the visual in the right, on every split",
+   "widths": [
+    1440
+   ],
+   "from": "consistency",
+   "ids": [
+    "split-pair"
+   ],
+   "wheres": [
+    "section#languages > div.wrap > div.grid.lang-row \"الحساب على جهازكأرقامك وموقعك لا تغادر ه\""
+   ]
+  },
+  {
+   "check": "cut-text",
+   "where": "div.z-win__body > div.z-fields > div.z-field:nth-of-type(5) > b \"0 ر.س\"",
+   "msg": "cut 4px at the bottom by the overflow of section.hero.hero--collage > div.wrap > div.hero-text.grid > div.hero__art.span-6 (and 3 more like it: \"ر.س\", \"0 ر.س\", \"ر.س\")",
+   "fix": "give the text room: no overflow clipping a line, no line past its box",
+   "widths": [
+    390
+   ],
+   "from": "consistency",
+   "ids": [
+    "cut-text"
+   ],
+   "wheres": [
+    "div.z-win__body > div.z-fields > div.z-field:nth-of-type(5) > b \"0 ر.س\""
+   ]
+  },
+  {
+   "check": "stagger",
+   "where": "section#evidence-line > div.wrap > div.sources \"6236 آية مُطابَقة آليًا نص المصحف من مشر\"",
+   "msg": "3 rows start at 3 different left offsets (+0, +41, +29px)",
+   "fix": "start every row of the list on one left edge",
+   "widths": [
+    390
+   ],
+   "from": "consistency",
+   "ids": [
+    "stagger"
+   ],
+   "wheres": [
+    "section#evidence-line > div.wrap > div.sources \"6236 آية مُطابَقة آليًا نص المصحف من مشر\""
+   ]
+  },
+  {
+   "check": "stagger",
+   "where": "section#prayer > div.wrap > div.day-facts \"بحسب مدينتك تختار طريقة الحساب المعتمدة \"",
+   "msg": "3 rows start at 3 different left offsets (+0, +20, +44px)",
+   "fix": "start every row of the list on one left edge",
+   "widths": [
+    390
+   ],
+   "from": "consistency",
+   "ids": [
+    "stagger"
+   ],
+   "wheres": [
+    "section#prayer > div.wrap > div.day-facts \"بحسب مدينتك تختار طريقة الحساب المعتمدة \""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "section.hero.hero--collage p.hero__lead \"الزكاة والمواريث ومواقيت الصلاة \"",
+   "msg": "starts at x 850.1; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "section.hero.hero--collage p.hero__lead \"الزكاة والمواريث ومواقيت الصلاة \""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools div.section-head \"عشر أدوات شرعية على الويب. كلها \"",
+   "msg": "starts at x 600; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools div.section-head \"عشر أدوات شرعية على الويب. كلها \""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h2 \"عشر أدوات شرعية على الويب. كلها \"",
+   "msg": "starts at x 600; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h2 \"عشر أدوات شرعية على الويب. كلها \""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"حاسبة الزكاة\"",
+   "msg": "starts at x 835.2; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"حاسبة الزكاة\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"حاسبة المواريث\"",
+   "msg": "starts at x 855.3; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"حاسبة المواريث\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"زكاة الفطر\"",
+   "msg": "starts at x 886.9; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"زكاة الفطر\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"مواقيت الصلاة\"",
+   "msg": "starts at x 851.2; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"مواقيت الصلاة\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"الفدية والكفارة\"",
+   "msg": "starts at x 821.4; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"الفدية والكفارة\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"اتجاه القبلة\"",
+   "msg": "starts at x 835.2; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"اتجاه القبلة\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"محوّل التاريخ الهجري\"",
+   "msg": "starts at x 852.8; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"محوّل التاريخ الهجري\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"حاسبة العمر\"",
+   "msg": "starts at x 837.5; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"حاسبة العمر\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"المناسبات الإسلامية\"",
+   "msg": "starts at x 825.5; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"المناسبات الإسلامية\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#tools h3 \"المسبحة الإلكترونية\"",
+   "msg": "starts at x 854.1; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#tools h3 \"المسبحة الإلكترونية\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#evidence-line h2.mo-lt__type \"كل نتيجة ومعها دليلها\"",
+   "msg": "starts at x 582.4; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#evidence-line h2.mo-lt__type \"كل نتيجة ومعها دليلها\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#evidence-line p.lead \"قواعد الحساب على المعتمد عند جمه\"",
+   "msg": "starts at x 728.7; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#evidence-line p.lead \"قواعد الحساب على المعتمد عند جمه\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#prayer div.section-head \"مواقيت الصلاة على خط اليوم. والص\"",
+   "msg": "starts at x 600; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#prayer div.section-head \"مواقيت الصلاة على خط اليوم. والص\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#prayer h2 \"مواقيت الصلاة على خط اليوم. والص\"",
+   "msg": "starts at x 600; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#prayer h2 \"مواقيت الصلاة على خط اليوم. والص\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#languages div.section-head \"ميزان بخمس عشرة لغة. الواجهة وال\"",
+   "msg": "starts at x 600; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#languages div.section-head \"ميزان بخمس عشرة لغة. الواجهة وال\""
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "#languages h2 \"ميزان بخمس عشرة لغة. الواجهة وال\"",
+   "msg": "starts at x 600; the lines are 80 and the column starts",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "#languages h2 \"ميزان بخمس عشرة لغة. الواجهة وال\""
+   ]
+  },
+  {
+   "check": "bleed-one-side",
+   "where": "#languages ul.mo-mq__track \"العربيةEnglishFrançaisTürkçeاردو\"",
+   "msg": "runs from x 80 out to the right viewport edge; the left side stays at 80",
+   "fix": "bleed the visual to both edges or keep it on the .wrap lines",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "bleed-one-side"
+   ],
+   "wheres": [
+    "#languages ul.mo-mq__track \"العربيةEnglishFrançaisTürkçeاردو\""
+   ]
+  },
+  {
+   "check": "bleed-one-side",
+   "where": "#languages ul.mo-mq__track.mo-mq__clone \"العربيةEnglishFrançaisTürkçeاردو\"",
+   "msg": "runs from x 4926.4 out to the right viewport edge; the left side stays at 80",
+   "fix": "bleed the visual to both edges or keep it on the .wrap lines",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "bleed-one-side"
+   ],
+   "wheres": [
+    "#languages ul.mo-mq__track.mo-mq__clone \"العربيةEnglishFrançaisTürkçeاردو\""
+   ]
+  },
+  {
+   "check": "lines",
+   "where": "page",
+   "msg": "headings and leads start on 4 lines (x 840.7, 850.1, 600, 582.4); the page has 80 and one split line",
+   "fix": "put the block on the .wrap lines or the grid columns",
+   "widths": [
+    1440
+   ],
+   "from": "layout",
+   "ids": [
+    "lines"
+   ],
+   "wheres": [
+    "page"
+   ]
+  },
+  {
+   "check": "edge-left",
+   "where": "nav logo",
+   "msg": "at x 1284.3, the page's left line is 80",
+   "fix": "start it on the .wrap left line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-left"
+   ],
+   "wheres": [
+    "nav logo"
+   ]
+  },
+  {
+   "check": "edge-right",
+   "where": "nav actions",
+   "msg": "end at x 235.1, the page's right line is 1360",
+   "fix": "end it on the .wrap right line",
+   "widths": [
+    1440,
+    390
+   ],
+   "from": "layout",
+   "ids": [
+    "edge-right"
+   ],
+   "wheres": [
+    "nav actions"
+   ]
+  }
+ ],
+ "waived": [],
+ "warnCount": 19,
+ "at": "2026-11-08T23:43:51.809Z"
+}

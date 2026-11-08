@@ -1,0 +1,11 @@
+{
+ "page": "index.html",
+ "url": null,
+ "root": null,
+ "kind": "software",
+ "category": "Free Islamic calculators and the Mizan prayer and Quran app",
+ "primary": "Calculate your zakat",
+ "rounds": 3,
+ "start": "2026-11-08T23:25:33.962Z",
+ "by": "gate.mjs --start"
+}

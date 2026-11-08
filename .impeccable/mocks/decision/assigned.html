@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--stone:#1c1b19;--stone2:#2a2825;--silver:#e8e6e1;--silver2:#d9d6cf;--sheet:#f4f3ef;--ink:#1c1b19;--ink2:#5b5750;--gold:#b5832a;--gold2:#e2b75a;--copper:#9c4a2b;--emerald:#0d4d3f}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:900px;overflow:hidden}
+body{font-family:"Readex Pro",sans-serif;background:var(--silver);color:var(--ink);font-size:15px;line-height:1.6;font-variant-numeric:tabular-nums}
+header{background:var(--stone);color:#efece6;height:64px;display:flex;align-items:center;gap:36px;padding:0 56px}
+.brand{display:flex;align-items:center;gap:10px;font-family:"Reem Kufi";font-size:24px;font-weight:700}
+.logo{width:34px;height:34px;border-radius:8px;background:var(--emerald);display:grid;place-items:center;color:var(--gold2);font-size:18px}
+nav{display:flex;gap:26px;font-size:14px;color:#bdb8ae;flex:1}
+nav a.on{color:#fff;box-shadow:inset 0 -2px var(--gold2);padding-bottom:4px}
+.tools-h{display:flex;gap:10px}.chip{border:1px solid #4a463f;border-radius:6px;padding:4px 10px;font-size:13px;color:#d8d3c9}
+main{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;padding:44px 56px 0}
+h1{font-family:"Reem Kufi";font-weight:700;font-size:54px;line-height:1.15;letter-spacing:-.01em;max-width:13ch}
+.lead{color:var(--ink2);font-size:17px;max-width:46ch;margin-top:14px}
+.search{margin-top:24px;display:flex;align-items:center;gap:10px;background:var(--sheet);border:1px solid var(--silver2);border-radius:10px;height:52px;padding:0 18px;color:#8a857c;max-width:520px;box-shadow:0 1px 0 #fff inset,0 6px 18px -12px rgba(0,0,0,.35)}
+.day{margin-top:34px;background:var(--sheet);border-radius:12px;padding:18px 22px 20px;border:1px solid var(--silver2)}
+.day-top{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2)}
+.day-top b{color:var(--ink);font-weight:600}
+.line{position:relative;margin:26px 8px 6px;height:4px;background:var(--silver2);border-radius:2px}
+.line .done{position:absolute;inset-inline-start:0;width:47%;height:4px;background:var(--ink);border-radius:2px}
+.stops{display:grid;grid-template-columns:repeat(6,1fr);margin-top:-15px}
+.stop{text-align:center;font-size:12.5px;color:var(--ink2)}
+.stop i{display:block;width:12px;height:12px;border-radius:50%;background:var(--sheet);border:2px solid var(--ink);margin:0 auto 8px}
+.stop.past i{background:var(--ink)}
+.stop.next i{width:18px;height:18px;margin-top:-3px;background:var(--gold2);border-color:var(--gold);box-shadow:0 0 0 5px rgba(226,183,90,.25)}
+.stop b{display:block;font-size:16px;color:var(--ink);font-weight:500}
+.stop.next b{color:var(--gold);font-weight:600}
+aside{display:flex;flex-direction:column;gap:18px}
+.stamp{background:var(--stone);color:#eeeae2;border-radius:14px;padding:22px 24px;position:relative;overflow:hidden}
+.stamp h2{font-size:13px;font-weight:400;color:#b4ae a2;color:#b4aea2;letter-spacing:.02em}
+.assay{display:flex;align-items:center;gap:22px;margin-top:14px}
+.seal{width:118px;height:118px;border-radius:50%;border:2px solid var(--gold2);display:grid;place-items:center;text-align:center;flex:none;box-shadow:inset 0 0 0 6px var(--stone),inset 0 0 0 7px rgba(226,183,90,.55)}
+.seal b{font-family:"Reem Kufi";font-size:34px;color:var(--gold2);line-height:1}.seal small{display:block;font-size:12px;color:#d9cfb8}
+.assay p{font-size:14px;color:#cfc9bd}.assay p strong{color:#fff;font-weight:500}
+.eq{margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #3d3a35;padding-top:12px;font-size:12.5px;color:#a9a397}
+.eq b{display:block;font-size:17px;color:#f2eee6;font-weight:500}
+.index{background:var(--sheet);border-radius:14px;border:1px solid var(--silver2);padding:6px 22px}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:11px 0;border-bottom:1px solid var(--silver2);font-size:15px}
+.row:last-child{border:0}.row span{font-size:12.5px;color:var(--ink2)}
+.unit{font-size:12px;border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:1px 9px;font-weight:500}
+.arw{color:#a39d92}
+@media (max-width:600px){html,body{height:844px}
+header{height:56px;padding:0 16px;gap:12px}nav,.tools-h{display:none}.brand{flex:1;font-size:21px}
+main{display:block;padding:22px 16px 0}h1{font-size:34px}.lead{font-size:15px}.search{height:48px}
+.day{margin-top:20px;padding:14px}.stop b{font-size:13.5px}.stop{font-size:11px}
+aside{margin-top:18px}.index{display:none}.seal{width:92px;height:92px}.seal b{font-size:26px}}
+</style></head><body>
+<header><div class="brand"><img src="file:///home/user/Mizan/src/assets/img/favicon.svg" width="34" height="34" alt="">ميزان</div>
+<nav><a class="on">الرئيسية</a><a>الزكاة</a><a>المواريث</a><a>مواقيت الصلاة</a><a>التاريخ الهجري</a><a>كل الأدوات</a><a>التطبيق</a></nav>
+<div class="tools-h"><span class="chip">العربية</span><span class="chip">المظهر</span></div><span class="chip" style="display:none">☰</span></header>
+<main>
+<section>
+<h1>حسابات شرعية دقيقة، ودليلها بجانبها</h1>
+<p class="lead">الزكاة والمواريث ومواقيت الصلاة والتاريخ الهجري، تُحسب على جهازك دون تسجيل، بـ 15 لغة، ومعها تطبيق ميزان للهاتف.</p>
+<div class="search">ابحث عن أداة: زكاة، مواريث، صلاة، هجري</div>
+<div class="day">
+<div class="day-top"><span><b>الأحد 28 جمادى الأولى 1448 هـ</b> · 8 نوفمبر 2026</span><span>مكة المكرمة · العصر بعد 1:42</span></div>
+<div class="line"><div class="done"></div></div>
+<div class="stops">
+<div class="stop past"><i></i>الفجر<b>05:07</b></div><div class="stop past"><i></i>الشروق<b>06:23</b></div><div class="stop past"><i></i>الظهر<b>11:58</b></div>
+<div class="stop next"><i></i>العصر<b>15:12</b></div><div class="stop"><i></i>المغرب<b>17:34</b></div><div class="stop"><i></i>العشاء<b>19:04</b></div></div>
+</div>
+</section>
+<aside>
+<div class="stamp"><h2>نصاب زكاة المال</h2>
+<div class="assay"><div class="seal"><div><b>85</b><small>غرام ذهب</small></div></div>
+<p>تجب الزكاة إذا بلغ مالك قيمة <strong>85 غرامًا من الذهب</strong> وحال عليه الحول، ومقدارها <strong>ربع العشر (2.5%)</strong>.</p></div>
+<div class="eq"><div><b>20 مثقالًا</b>بالوزن الشرعي</div><div><b>20 دينارًا</b>4.25 غ للدينار</div><div><b>595 غ</b>نصاب الفضة</div></div></div>
+<div class="index">
+<div class="row">حاسبة الزكاة<span class="unit">2.5%</span><span class="arw">←</span></div>
+<div class="row">زكاة الفطر<span class="unit">صاع · 2.04 كغ</span><span class="arw">←</span></div>
+<div class="row">حاسبة المواريث<span class="unit">الفرائض</span><span class="arw">←</span></div>
+<div class="row">الفدية والكفارة<span class="unit">مُدّ</span><span class="arw">←</span></div>
+<div class="row">اتجاه القبلة<span class="unit">°</span><span class="arw">←</span></div>
+</div>
+</aside>
+</main></body></html>

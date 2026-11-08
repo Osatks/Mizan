@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-type="software" data-radius="soft" data-ground="sand" data-buttons="pill" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ميزان: حاسبات شرعية مجانية وتطبيق للمسلم بـ 15 لغة</title>
+<meta name="description" content="احسب زكاتك وقسّم التركة وفق الفرائض واعرف مواقيت الصلاة والتاريخ الهجري، مع الدليل الشرعي بجانب كل نتيجة، مجانًا ودون تسجيل.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ميزان: حاسبات شرعية مجانية وتطبيق للمسلم">
+<meta property="og:description" content="الزكاة والمواريث ومواقيت الصلاة والتاريخ الهجري، مع الدليل بجانب كل نتيجة.">
+<meta property="og:image" content="share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#efeee9">
+<!-- <link rel="canonical" href="https://mizan-al-muslem.com/"> -->
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&family=Readex+Pro:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/system.css">
+<link rel="stylesheet" href="assets/ui/cards.css">
+<link rel="stylesheet" href="assets/motion/motion.css">
+<link rel="stylesheet" href="assets/backgrounds/backgrounds.css">
+<link rel="stylesheet" href="assets/layout/layout.css">
+<link rel="stylesheet" href="assets/icons/icon.css">
+<style>
+:root {
+  --p-bg: #efeee9; --p-surface: #e4e2dc; --p-ink: #1c1b19; --p-muted: #55534e;
+  --p-accent: #0e5a49; --p-accent-ink: #f4f3ef; --p-action: #0e5a49; --p-action-ink: #f4f3ef;
+  --p-inv-bg: #1c1b19; --p-inv-surface: #282725; --p-inv-ink: #efeee9; --p-inv-muted: #a9a6a0;
+  --p-inv-accent: #e2b75a; --p-inv-accent-ink: #1c1b19; --p-inv-action: #efeee9; --p-inv-action-ink: #1c1b19;
+  /* Arabic page: a Kufic display face and an Arabic text face; Arabic letters join, so no negative tracking */
+  --font-display: "Reem Kufi", "Readex Pro", system-ui, sans-serif;
+  --font-text: "Readex Pro", system-ui, sans-serif;
+  --display-weight: 500;
+  --display-tracking: 0em;
+  --display-tracking-xl: 0em;
+  --gold: #855c12; --gold-lit: #e2b75a;
+}
+</style>
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script src="assets/backgrounds/backgrounds.js"></script>
+<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<link rel="modulepreload" href="assets/moments/moments.js">
+<link rel="modulepreload" href="assets/moments/lib.js">
+<link rel="modulepreload" href="assets/moments/liquid-type/moment.js">
+<link rel="modulepreload" href="assets/moments/marquee-row/moment.js">
+<style>
+/* ---- right-to-left: the kit lays out left to right; mirror what it pins to a side ---- */
+html[dir="rtl"] body { text-align: right; }
+html[dir="rtl"] :is(h1, h2, h3, .close__word, .mo-lt__type) { letter-spacing: 0; }
+.num, .t-num { font-variant-numeric: tabular-nums; }
+::selection { background: color-mix(in oklab, var(--gold-lit) 55%, transparent); color: var(--p-ink); }
+
+/* ---- the hero's art: the lit ground, one soft light ---- */
+.hero__art { background:
+    radial-gradient(70% 60% at 82% 10%, color-mix(in oklab, var(--ground-surface) 80%, white), transparent 70%),
+    radial-gradient(60% 50% at 10% 100%, color-mix(in oklab, var(--ground-bg) 75%, var(--gold-lit)), transparent 70%),
+    var(--ground-bg); }
+html[dir="rtl"] .hero__art > .ly-piece--main { left: auto; right: var(--s-8); }
+html[dir="rtl"] .hero__art > .ly-piece--note { left: auto; right: var(--s-6); }
+.hero__art > .ly-piece--note { bottom: var(--s-6); width: 304px; z-index: 2; }
+.hero__proof { font-size: var(--t-small); color: var(--ink); }
+
+/* ---- the calculator window (a picture of the web tool, drawn in HTML) ---- */
+.z-win { background: #fbfaf7; color: #1c1b19; border-radius: 14px; overflow: hidden; font: 400 14px/1.45 var(--font-text); text-align: right;
+         box-shadow: 0 0 0 1px rgb(28 27 25 / .08), 0 26px 60px -28px rgb(28 27 25 / .5); }
+.z-win__bar { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; border-bottom: 1px solid rgb(28 27 25 / .08); font-size: 13px; color: #6a675f; }
+.z-win__bar i { width: 10px; height: 10px; border-radius: 50%; background: #dad7cf; }
+.z-win__body { padding: 18px 20px 22px; padding-left: var(--ly-cut-room, 48px); display: grid; gap: 14px; }
+.z-win__head { display: flex; align-items: center; justify-content: space-between; }
+.z-win__head h4 { margin: 0; font: 500 17px/1.2 var(--font-text); }
+.z-seg { display: flex; gap: 4px; font-size: 13px; } .z-seg span { padding: 3px 8px; color: #6a675f; } .z-seg .is-on { color: #1c1b19; font-weight: 500; box-shadow: inset 0 -2px 0 var(--gold); }
+.z-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.z-field label { display: block; font-size: 13px; color: #5f5d58; margin-bottom: 4px; }
+.z-field b { display: flex; justify-content: space-between; align-items: center; height: 40px; border: 1px solid #dcd9d1; border-radius: 9px; padding: 0 12px; font-weight: 500; font-variant-numeric: tabular-nums; background: #fff; }
+.z-field b small { color: #8b877e; font-weight: 400; font-size: 13px; }
+.z-nisab { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; border-top: 1px solid rgb(28 27 25 / .08); padding-top: 14px; }
+.z-seal { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; text-align: center; color: var(--gold); line-height: 1;
+          box-shadow: inset 0 0 0 1.5px var(--gold), inset 0 0 0 5px #fbfaf7, inset 0 0 0 6px color-mix(in oklab, var(--gold) 45%, transparent); }
+.z-seal b { display: block; font: 600 22px/1 var(--font-text); } .z-seal small { font-size: 13px; color: #8a6a2c; }
+.z-nisab p { margin: 0; font-size: 13px; color: #5f5d58; } .z-nisab p strong { color: #1c1b19; font-weight: 500; }
+.z-eq { display: flex; gap: 18px; font-size: 13px; color: #6a675f; margin-top: 4px; } .z-eq b { color: #1c1b19; font-weight: 500; }
+
+/* the result stamp over the window: the struck answer */
+.z-stamp { background: #1c1b19; color: #efeee9; border-radius: 14px; padding: 16px 18px; text-align: right; font: 400 14px/1.45 var(--font-text);
+           box-shadow: 0 0 0 1px rgb(255 255 255 / .06), 0 22px 50px -22px rgb(0 0 0 / .6); }
+.z-stamp h5 { margin: 0 0 6px; font: 400 13px/1.3 var(--font-text); color: #b9b5ad; }
+.z-stamp__line { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid rgb(255 255 255 / .08); font-size: 13px; color: #d7d3cb; }
+.z-stamp__line:first-of-type { border-top: 0; }
+.z-stamp__line i { width: 18px; height: 18px; border-radius: 50%; flex: none; display: grid; place-items: center; background: rgb(226 183 90 / .16); color: var(--gold-lit); }
+.z-stamp__line i svg { width: 11px; height: 11px; }
+.z-stamp__sum { display: flex; align-items: baseline; justify-content: space-between; margin-top: 6px; padding-top: 10px; border-top: 1px solid rgb(226 183 90 / .35); }
+.z-stamp__sum b { font: 500 28px/1 var(--font-text); color: var(--gold-lit); font-variant-numeric: tabular-nums; }
+.z-stamp__sum span { font-size: 13px; color: #b9b5ad; }
+
+/* ---- tools: one ruled index, each row a tool with its legal unit ---- */
+.tools-split { align-items: start; }
+.tool-index { display: grid; border-top: 1px solid var(--line); }
+.hijri { background: #1c1b19; color: #efeee9; border-radius: var(--r-lg); padding: var(--s-6); text-align: right; box-shadow: 0 30px 60px -34px rgb(28 27 25 / .7); }
+.hijri__head { display: flex; justify-content: space-between; align-items: baseline; }
+.hijri__head h3 { margin: 0; font: 500 20px/1.3 var(--font-text); } .hijri__head span { font-size: 13px; color: #b9b5ad; }
+.hijri__pair { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-4); margin-top: var(--s-6); padding: var(--s-5) 0; border-block: 1px solid rgb(255 255 255 / .1); }
+.hijri__pair small { display: block; font-size: 13px; color: #b9b5ad; }
+.hijri__pair b { display: block; font: 500 64px/1.1 var(--font-text); font-variant-numeric: tabular-nums; }
+.hijri__pair div:first-child b { color: var(--gold-lit); }
+.hijri__pair span { font-size: 15px; color: #e4e0d8; }
+.hijri__pair i { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / .07); color: var(--gold-lit); }
+.hijri__pair i svg { width: 20px; height: 20px; }
+.hijri__days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: var(--s-5); text-align: center; font-size: 15px; color: #b9b5ad; font-variant-numeric: tabular-nums; }
+.hijri__days span { padding: 8px 0; border-radius: 10px; }
+.hijri__days span:first-child { font-size: 13px; align-self: center; }
+.hijri__days .is-on { background: var(--gold-lit); color: #1c1b19; font-weight: 500; }
+.hijri__next { display: flex; justify-content: space-between; align-items: baseline; margin-top: var(--s-5); padding-top: var(--s-4); border-top: 1px solid rgb(226 183 90 / .35); font-size: 15px; color: #e4e0d8; }
+.hijri__next b { font: 500 22px/1.2 var(--font-text); color: var(--gold-lit); }
+.tool-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; align-items: center; gap: var(--s-4); min-height: 52px; padding: var(--s-3) 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.tool-row h3 { margin: 0; font: 500 18px/1.3 var(--font-text); }
+.tool-unit { font-size: 13px; font-weight: 500; color: var(--gold); border: 1px solid color-mix(in oklab, var(--gold) 55%, transparent); border-radius: 99px; padding: 2px 10px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tool-row svg { width: 16px; height: 16px; color: var(--muted); transform: scaleX(-1); transition: transform .2s cubic-bezier(.2,.8,.2,1), color .2s; }
+.tool-row:hover svg { transform: scaleX(-1) translateX(4px); color: var(--ink); }
+.tool-row:hover h3 { color: var(--p-accent); }
+
+/* ---- statement ---- */
+.statement .mo-lt__type { font: var(--display-weight) clamp(64px, 9.6vw, 156px)/1.08 var(--font-display); margin: 0; max-width: 9ch; }
+.sources { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-6); margin-top: var(--s-8); }
+.sources div { border-top: 1px solid var(--line); padding-top: var(--s-4); }
+.sources b { display: block; font: 500 var(--t-card)/1.3 var(--font-text); }
+.sources span { font-size: var(--t-small); color: var(--muted); }
+.statement .lead { max-width: 52ch; font-size: var(--t-lead); color: var(--ink); margin-top: var(--s-6); }
+
+/* ---- inheritance: the heirs with the blocked one struck, never removed ---- */
+.heirs { background: #fbfaf7; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--line), 0 24px 60px -34px rgb(28 27 25 / .45); padding: var(--s-6); text-align: right; }
+.heirs__head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s-4); }
+.heirs__head h3 { margin: 0; font: 500 20px/1.3 var(--font-text); } .heirs__head span { font-size: 13px; color: var(--muted); }
+.heir { display: grid; grid-template-columns: minmax(0, 1fr) 64px 72px 96px; gap: var(--s-4); align-items: center; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15px; }
+.heir b { font-weight: 500; } .heir small { display: block; font-size: 13px; color: var(--muted); }
+.heir .frac { font-variant-numeric: tabular-nums; color: var(--ink); text-align: center; }
+.heir .share { font-variant-numeric: tabular-nums; text-align: left; font-weight: 500; }
+.heir .bar { height: 6px; border-radius: 99px; background: var(--p-surface); overflow: hidden; } .heir .bar i { display: block; height: 100%; width: var(--v); background: var(--p-accent); border-radius: inherit; margin-inline-start: 0; }
+.heir--blocked b, .heir--blocked .frac, .heir--blocked .share { text-decoration: line-through; text-decoration-color: #a3271b; text-decoration-thickness: 1.5px; color: var(--muted); }
+.heir--blocked small { color: #a3271b; }
+.dalil { margin-top: var(--s-5); padding-top: var(--s-4); border-top: 1px dashed color-mix(in oklab, var(--gold) 60%, transparent); font-size: 15px; line-height: 1.9; color: var(--ink); }
+.dalil span { display: block; font-size: 13px; color: var(--gold); font-weight: 500; }
+
+/* ---- prayer day-line ---- */
+.dayline { border-block: 1px solid var(--line); padding: var(--s-6) 0 var(--s-7); }
+.dayline__top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s-3); font-size: 15px; color: var(--muted); }
+.dayline__top b { color: var(--ink); font-weight: 500; }
+.dayline__track { position: relative; margin: 56px 4% 0; height: 4px; border-radius: 2px; background: var(--p-surface); }
+.dayline__track > i { position: absolute; inset-block: 0; inset-inline-start: 0; width: 51%; background: var(--ink); border-radius: 2px; }
+.stations { display: grid; grid-template-columns: repeat(6, 1fr); margin-top: -12px; text-align: center; }
+.station { font-size: 15px; color: var(--muted); }
+.station i { display: block; width: 18px; height: 18px; border-radius: 50%; margin: 0 auto 14px; background: #fbfaf7; box-shadow: inset 0 0 0 2.5px var(--ink); }
+.station.is-past i { background: var(--ink); }
+.station b { display: block; font: 500 28px/1.2 var(--font-text); color: var(--ink); font-variant-numeric: tabular-nums; margin-top: 4px; }
+.station.is-next i { width: 28px; height: 28px; margin-top: -5px; margin-bottom: 9px; background: var(--gold-lit); box-shadow: inset 0 0 0 2.5px var(--gold), 0 0 0 8px rgb(226 183 90 / .22); }
+.station.is-next b { color: var(--gold); }
+.station.is-next em { display: block; font-style: normal; font-size: 13px; color: var(--gold); }
+.day-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-6); margin-top: var(--s-7); }
+.day-facts div { border-top: 1px solid var(--line); padding-top: var(--s-4); }
+.day-facts b { display: block; font: 500 var(--t-card)/1.3 var(--font-text); }
+.day-facts span { font-size: var(--t-small); color: var(--muted); }
+
+/* ---- the app: real screenshots in phone frames ---- */
+.phones { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-6); align-items: start; padding-inline: var(--s-7); }
+.phone { border-radius: 34px; padding: 8px; background: #1c1b19; box-shadow: 0 30px 60px -34px rgb(28 27 25 / .6); }
+.phone img { display: block; width: 100%; aspect-ratio: 9 / 19.5; object-fit: cover; object-position: top; border-radius: 27px; }
+.phone:nth-child(2) { margin-top: 0; }
+.app-copy .rows { margin-top: var(--s-6); }
+
+/* ---- languages ---- */
+.langs .mo-mq__track li { font: 400 clamp(32px, 4.4vw, 68px)/1.5 var(--font-text); color: var(--ink); }
+.langs [data-moment] { margin-top: var(--s-7); }
+.lang-row { margin-top: var(--s-8); align-items: start; }
+.privacy { display: grid; gap: var(--s-5); }
+.lang-shots { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-6); }
+.lang-shots img { display: block; width: 100%; height: 280px; object-fit: cover; object-position: top; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--line), 0 24px 50px -32px rgb(28 27 25 / .5); }
+.privacy div { border-top: 1px solid var(--line); padding-top: var(--s-4); }
+.privacy h3 { margin: 0 0 var(--s-2); font: 500 var(--t-card)/1.3 var(--font-text); }
+.privacy p { margin: 0; color: var(--muted); }
+
+.btn.btn--secondary { box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--ink) 70%, transparent); }
+.close__word { font-family: var(--font-display); font-size: clamp(120px, 27vw, 400px); line-height: 1.25; padding-bottom: .08em; overflow: visible; }
+.nav__logo img { width: 30px; height: 30px; }
+
+@media (max-width: 1023px) {
+  .phones { gap: var(--s-4); padding-inline: 0; }
+}
+@media (max-width: 639px) {
+  .hero__art > .ly-piece--note { display: none; }
+  html[dir="rtl"] .hero__art > .ly-piece--main { right: var(--s-4); }
+  .z-fields { grid-template-columns: 1fr 1fr; }
+  .tool-row { min-height: 48px; } .hijri__pair b { font-size: 44px; } .hijri { padding: var(--s-5); }
+  .heir { grid-template-columns: minmax(0, 1fr) 52px 72px; } .heir .bar { display: none; }
+  .dayline { padding: var(--s-5) 0; }
+  .dayline__track { margin-top: 40px; }
+  .station { font-size: 13px; } .station b { font-size: 17px; }
+  .station.is-next i { width: 22px; height: 22px; margin-top: -2px; margin-bottom: 12px; }
+  .day-facts, .sources { grid-template-columns: 1fr; gap: var(--s-4); margin-top: var(--s-6); }
+  
+  .statement .mo-lt__type { font-size: 44px; }
+  .langs .mo-mq__track li { font-size: 22px; }
+  .lang-shots img { height: 220px; }
+  .lang-row { margin-top: var(--s-6); row-gap: var(--s-6); }
+  #evidence p.measure, .heir:not(.heir--blocked) small, .heirs__head span { display: none; }
+  .heirs { padding: var(--s-5) var(--s-4); }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  #prayer .dayline { padding: var(--s-8) 0; }
+  #prayer .day-facts { grid-template-columns: 1fr; }
+  .lang-shots img { height: 300px; }
+}
+</style>
+</head>
+<body>
+<!-- plan: kind software (free web calculators + the Mizan phone app).
+     deal: hero collage; palette = the client's own (logo emerald as the one accent, touchstone ink, silver ground, gold only in result stamps) via start.mjs brand;
+     type: host dealt, set in Reem Kufi + Readex Pro for Arabic; nav-cards; footer-dark; close-word; rhythm surface-pairs; buttons pill; mark: the client's logo;
+     moments: liquid-type (statement) and marquee-row (the 15 languages). -->
+<header class="nav">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">تخطَّ إلى المحتوى</a>
+    <a class="nav__logo" href="#top"><img src="assets/img/favicon.svg" alt="" width="30" height="30">ميزان</a>
+    <nav class="nav__links" aria-label="القائمة الرئيسية">
+      <div class="nav__item">
+        <a class="nav__link" href="#tools">الأدوات <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <a class="menu-card span-4" href="#top"><div class="panel"><img class="frame__img" src="assets/img/home.webp" alt="شاشة حاسبة الزكاة في تطبيق ميزان"></div><span class="t-card">حاسبة الزكاة</span><span class="t-small muted">النصاب والحول وربع العشر</span></a>
+            <a class="menu-card span-4" href="#evidence"><div class="panel"><img class="frame__img" src="assets/img/inheritance.webp" alt="شاشة حاسبة المواريث في تطبيق ميزان"></div><span class="t-card">حاسبة المواريث</span><span class="t-small muted">الفروض والتعصيب والحجب</span></a>
+            <a class="menu-card span-4" href="#prayer"><div class="panel"><img class="frame__img" src="assets/img/focus.webp" alt="شاشة المصحف في وضع التركيز"></div><span class="t-card">مواقيت الصلاة</span><span class="t-small muted">حسب مدينتك وطريقة بلدك</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="nav__item"><a class="nav__link" href="#evidence">المواريث</a></div>
+      <div class="nav__item"><a class="nav__link" href="#prayer">الصلاة</a></div>
+      <div class="nav__item"><a class="nav__link" href="#app">التطبيق</a></div>
+      <div class="nav__item"><a class="nav__link" href="#languages">اللغات</a></div>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="#tools">احسب زكاتك</a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="القائمة"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero hero--collage" data-enter aria-labelledby="hero-h">
+    <div class="wrap"><div class="hero-text grid hero__grid">
+      <div class="hero__text span-5">
+        <h1 id="hero-h">حاسبات شرعية مجانية وتطبيق للمسلم</h1>
+        <p class="hero__lead">الزكاة والمواريث ومواقيت الصلاة والتاريخ الهجري، تُحسب على جهازك دون تسجيل، ومع كل نتيجة قاعدتها ودليلها الشرعي.</p>
+        <div class="btn-row"><a class="btn btn--primary" href="#tools">احسب زكاتك</a><a class="btn btn--secondary" href="#app">حمّل تطبيق ميزان</a></div>
+        <p class="hero__proof">10 أدوات على الويب، و15 لغة، ولا يُرسل أي رقم إلى خادم.</p>
+      </div>
+      <div class="hero__art span-6 start-7" role="img" aria-label="حاسبة الزكاة في ميزان: مال نقدي 50,000 ريال بلغ النصاب، والزكاة المستحقة 1,250 ريالًا">
+        <div class="ly-piece ly-piece--main z-win" aria-hidden="true">
+          <div class="z-win__bar"><i></i><i></i><i></i><span>ميزان · حاسبة الزكاة</span></div>
+          <div class="z-win__body">
+            <div class="z-win__head"><h4>بيانات أموالك</h4><div class="z-seg"><span class="is-on">ريال سعودي</span><span>دولار</span><span>جنيه</span></div></div>
+            <div class="z-fields">
+              <div class="z-field"><label>النقود في البنك واليد</label><b>50,000 <small>ر.س</small></b></div>
+              <div class="z-field"><label>سعر غرام الذهب عيار 24</label><b>420 <small>ر.س</small></b></div>
+              <div class="z-field"><label>ذهب للادخار</label><b>0 <small>غرام</small></b></div>
+              <div class="z-field"><label>ديون مستحقة عليك</label><b>0 <small>ر.س</small></b></div>
+              <div class="z-field"><label>أسهم وصناديق</label><b>0 <small>ر.س</small></b></div>
+              <div class="z-field"><label>عروض التجارة</label><b>0 <small>ر.س</small></b></div>
+            </div>
+            <div class="z-nisab">
+              <div class="z-seal"><div><b>85</b><small>غ ذهب</small></div></div>
+              <div><p>النصاب اليوم <strong>35,700 ر.س</strong> (85 غرامًا × 420)، ومالك بلغه.</p>
+              <div class="z-eq"><span><b>20</b> مثقالًا</span><span><b>20</b> دينارًا</span><span>نصاب الفضة <b>595</b> غ</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ly-piece ly-piece--note z-stamp" aria-hidden="true" data-ly-steps="700">
+          <h5>زكاتك هذا العام</h5>
+          <div class="z-stamp__line" data-step><i><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6l4.5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span>بلغ المال النصاب</span></div>
+          <div class="z-stamp__line" data-step><i><svg viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6l4.5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span>حال عليه الحول الهجري</span></div>
+          <div class="z-stamp__sum" data-step><span>ربع العشر 2.5%</span><b>1,250 ر.س</b></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="section" id="tools" aria-labelledby="tools-h">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="tools-h">عشر أدوات شرعية على الويب. <span class="muted">كلها مجانية وبلا حساب.</span></h2>
+      </div>
+      <div class="grid tools-split">
+        <div class="span-6 tool-index">
+          <a class="tool-row" href="https://mizan-al-muslem.com/zakat-calculator/"><h3>حاسبة الزكاة</h3><span class="tool-unit">2.5%</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/inheritance-calculator/"><h3>حاسبة المواريث</h3><span class="tool-unit">الفرائض</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/zakat-al-fitr/"><h3>زكاة الفطر</h3><span class="tool-unit">صاع · 2.04 كغ</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/prayer-times/"><h3>مواقيت الصلاة</h3><span class="tool-unit">6 أوقات</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/fidya-kaffarah/"><h3>الفدية والكفارة</h3><span class="tool-unit">مُدّ</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/qibla-direction/"><h3>اتجاه القبلة</h3><span class="tool-unit">درجة</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/hijri-converter/"><h3>محوّل التاريخ الهجري</h3><span class="tool-unit">أم القرى</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/age-calculator/"><h3>حاسبة العمر</h3><span class="tool-unit">هـ / م</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/islamic-events/"><h3>المناسبات الإسلامية</h3><span class="tool-unit">أيام</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="tool-row" href="https://mizan-al-muslem.com/tasbih/"><h3>المسبحة الإلكترونية</h3><span class="tool-unit">33 · 100</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+        <div class="span-5 start-8">
+          <div class="hijri" role="img" aria-label="محوّل التاريخ: الأحد 28 جمادى الأولى 1448 هـ يوافق 8 نوفمبر 2026 م، ورمضان 1448 بعد 92 يومًا">
+            <div class="hijri__head"><h3>محوّل التاريخ</h3><span>تقويم أم القرى</span></div>
+            <div class="hijri__pair">
+              <div><small>هجري</small><b>28</b><span>جمادى الأولى 1448</span></div>
+              <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 8h11l-3-3M17 16H6l3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
+              <div><small>ميلادي</small><b>8</b><span>نوفمبر 2026</span></div>
+            </div>
+            <div class="hijri__days">
+              <span>الأحد</span><span class="is-on">28</span><span>29</span><span>1</span><span>2</span><span>3</span><span>4</span>
+            </div>
+            <div class="hijri__next"><span>رمضان 1448</span><b>بعد 92 يومًا</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section statement ground-surface" id="evidence-line" aria-labelledby="st-h">
+    <div class="wrap">
+      <div data-moment="liquid-type">
+        <h2 id="st-h" class="mo-lt__type">كل نتيجة ومعها دليلها</h2>
+        <p class="lead">قواعد الحساب على المعتمد عند جمهور الفقهاء. تحت كل نتيجة الآية أو الحديث الذي بُنيت عليه، ومواضع الخلاف إن وُجدت، لتعرف كيف وصلت الحاسبة إلى الرقم.</p>
+      </div>
+      <div class="sources">
+        <div><b>6236 آية مُطابَقة آليًا</b><span>نص المصحف من مشروع تنزيل، حرفًا بحرف.</span></div>
+        <div><b>334 ذكرًا بمصدرها</b><span>مع الراوي ودرجة الحديث ومن حكم بها.</span></div>
+        <div><b>تقويم أم القرى</b><span>أساس محوّل التاريخ الهجري والمناسبات.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section ground-surface" id="evidence" aria-labelledby="ev-h">
+    <div class="wrap">
+      <div class="grid">
+        <div class="span-5 stack-5">
+          <h2 id="ev-h">حاسبة المواريث تُظهر من حُجب. <span class="muted">ولا تُخفيه.</span></h2>
+          <p class="measure">تقسم التركة على الفروض والتعصيب، وتعرض أصل المسألة ونصيب كل وارث بالكسر والمبلغ. الوارث المحجوب يبقى في القائمة مشطوبًا، ومعه سبب حجبه.</p>
+          <a class="link" href="https://mizan-al-muslem.com/inheritance-calculator/">جرّب حاسبة المواريث</a>
+        </div>
+        <div class="span-6 start-7">
+          <div class="heirs" role="img" aria-label="مثال لقسمة تركة 240,000: الزوجة الثمن، والبنت النصف، والأم السدس، والأخ الشقيق الباقي، والعم محجوب بالأخ">
+            <div class="heirs__head"><h3>قسمة التركة</h3><span>أصل المسألة 24 · التركة 240,000</span></div>
+            <div class="heir"><div><b>الزوجة</b><small>لوجود الفرع الوارث</small></div><span class="frac">1/8</span><span class="bar"><i style="--v:12.5%"></i></span><span class="share">30,000</span></div>
+            <div class="heir"><div><b>البنت</b><small>فرضًا لانفرادها</small></div><span class="frac">1/2</span><span class="bar"><i style="--v:50%"></i></span><span class="share">120,000</span></div>
+            <div class="heir"><div><b>الأم</b><small>لوجود الفرع الوارث</small></div><span class="frac">1/6</span><span class="bar"><i style="--v:16.7%"></i></span><span class="share">40,000</span></div>
+            <div class="heir"><div><b>الأخ الشقيق</b><small>تعصيبًا: الباقي</small></div><span class="frac">5/24</span><span class="bar"><i style="--v:20.8%"></i></span><span class="share">50,000</span></div>
+            <div class="heir heir--blocked"><div><b>العم الشقيق</b><small>محجوب بالأخ الشقيق</small></div><span class="frac">0</span><span class="bar"><i style="--v:0%"></i></span><span class="share">0</span></div>
+            <p class="dalil"><span>دليل نصيب الزوجة</span>﴿فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم﴾ سورة النساء، الآية 12</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="prayer" aria-labelledby="pr-h">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="pr-h">مواقيت الصلاة على خط اليوم. <span class="muted">والصلاة القادمة مضاءة.</span></h2>
+      </div>
+      <div class="dayline" role="img" aria-label="مواقيت الصلاة في مكة المكرمة يوم الأحد 8 نوفمبر 2026: الفجر 05:07، الشروق 06:23، الظهر 11:58، العصر 15:12 وهي القادمة، المغرب 17:34، العشاء 19:04">
+        <div class="dayline__top"><span><b>الأحد 28 جمادى الأولى 1448 هـ</b> · 8 نوفمبر 2026</span><span>مكة المكرمة · طريقة أم القرى</span></div>
+        <div class="dayline__track"><i></i></div>
+        <div class="stations">
+          <div class="station is-past"><i></i>الفجر<b>05:07</b></div>
+          <div class="station is-past"><i></i>الشروق<b>06:23</b></div>
+          <div class="station is-past"><i></i>الظهر<b>11:58</b></div>
+          <div class="station is-next"><i></i>العصر<b>15:12</b><em>بعد ساعة و42 دقيقة</em></div>
+          <div class="station"><i></i>المغرب<b>17:34</b></div>
+          <div class="station"><i></i>العشاء<b>19:04</b></div>
+        </div>
+      </div>
+      <div class="day-facts">
+        <div><b>بحسب مدينتك</b><span>تختار طريقة الحساب المعتمدة في بلدك.</span></div>
+        <div><b>تنبيه الأذان في التطبيق</b><span>يعمل دون إنترنت، لكل صلاة على حدة.</span></div>
+        <div><b>القبلة من موقعك</b><span>بوصلة تعمل بمستشعرات هاتفك.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="app" aria-labelledby="app-h">
+    <div class="wrap">
+      <div class="grid">
+        <div class="span-5 stack-5 app-copy">
+          <h2 id="app-h">تطبيق ميزان للهاتف. <span class="muted">يعمل دون إنترنت وبلا إعلانات.</span></h2>
+          <p class="measure">المصحف بالرسم العثماني مع التفسير والتلاوة، و334 ذكرًا بمصدرها ودرجتها، وتنبيهات الأذان، و5 ودجات للشاشة الرئيسية.</p>
+          <div class="btn-row"><a class="btn btn--primary" href="https://play.google.com/store/apps/details?id=com.mizan.almuslim">حمّل من Google Play</a><a class="btn btn--secondary" href="https://apps.apple.com/app/id6829457007">حمّل من App Store</a></div>
+        </div>
+        <div class="span-6 start-7 phones">
+          <div class="phone"><img src="assets/img/home.webp" alt="الشاشة الرئيسية لتطبيق ميزان مع مواقيت الصلاة" loading="lazy"></div>
+          <div class="phone"><img src="assets/img/focus.webp" alt="صفحة من المصحف في وضع التركيز" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section langs" id="languages" aria-labelledby="lg-h">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="lg-h">ميزان بخمس عشرة لغة. <span class="muted">الواجهة والأدلة والترجمات.</span></h2>
+      </div>
+      <div data-moment="marquee-row" dir="ltr" data-moment-opts='{"speed": 32}'>
+        <ul class="mo-mq__track"><li lang="ar">العربية</li><li lang="en">English</li><li lang="fr">Français</li><li lang="tr">Türkçe</li><li lang="ur">اردو</li><li lang="id">Bahasa Indonesia</li><li lang="ms">Bahasa Melayu</li><li lang="fa">فارسی</li><li lang="bn">বাংলা</li><li lang="ru">Русский</li><li lang="de">Deutsch</li><li lang="es">Español</li><li lang="uk">Українська</li><li lang="uz">Oʻzbekcha</li><li lang="kk">Қазақша</li></ul>
+      </div>
+      <div class="grid lang-row">
+        <div class="span-5 privacy">
+          <div><h3>الحساب على جهازك</h3><p>أرقامك وموقعك لا تغادر هاتفك أو حاسوبك.</p></div>
+          <div><h3>بلا حساب أو اشتراك</h3><p>كل الأدوات تفتح مباشرة، دون تسجيل دخول.</p></div>
+          <div><h3>يعمل دون اتصال</h3><p>ثبّت الموقع على هاتفك واستخدمه دون شبكة.</p></div>
+        </div>
+        <div class="span-6 start-7 lang-shots">
+          <img src="assets/img/ios-home.webp" alt="الشاشة الرئيسية لتطبيق ميزان بالعربية" loading="lazy">
+          <img src="assets/img/ios-home-en.webp" alt="الشاشة الرئيسية لتطبيق ميزان بالإنجليزية" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer closing footer--dark ground-inverse" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--word">
+      <div class="section-head--split">
+        <div><h2 id="close-h">احسب زكاتك الآن</h2><p class="t-lead">مجانًا، على جهازك، ومع الدليل الشرعي.</p></div>
+        <a class="btn btn--primary" href="#tools">احسب زكاتك<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M11 6H3"/><path class="m-arrow__head" d="M7.5 2.5 4 6l3.5 3.5"/></svg></a>
+      </div>
+      <p class="close__word" aria-hidden="true">ميزان</p>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 stack-4">
+          <a class="nav__logo" href="#top"><img src="assets/img/favicon.svg" alt="" width="30" height="30">ميزان</a>
+          <p class="footer__lede">حاسبات شرعية مجانية وتطبيق للمسلم بـ 15 لغة.</p>
+        </div>
+        <div class="span-2 footer__col"><h3>الأدوات</h3><ul><li><a href="#tools">الزكاة</a></li><li><a href="#evidence">المواريث</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>العبادة</h3><ul><li><a href="#prayer">مواقيت الصلاة</a></li><li><a href="#prayer">المناسبات</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>التطبيق</h3><ul><li><a href="#app">Google Play</a></li><li><a href="#app">App Store</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>الموقع</h3><ul><li><a href="#languages">اللغات</a></li><li><a href="https://mizan-al-muslem.com/contact/">اتصل بنا</a></li></ul></div>
+      </div>
+      <div class="footer__legal">
+        <span>&copy; 2026 ميزان &nbsp; <a href="https://mizan-al-muslem.com/privacy-policy/">الخصوصية</a> &nbsp; <a href="https://mizan-al-muslem.com/terms/">الشروط</a></span>
+        <div class="socials"></div>
+        <span>النتائج إرشادية، ويُرجع في المسائل الخاصة إلى أهل العلم.</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="assets/system.js"></script>
+<script type="module" src="assets/motion/motion.js"></script>
+<script type="module" src="assets/layout/layout.js"></script>
+</body>
+</html>

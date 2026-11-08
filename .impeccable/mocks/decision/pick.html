@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;700&family=Aref+Ruqaa:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#d9dfe2;--leaf:#e9edee;--ink:#17191c;--ink2:#4b5258;--rubric:#b8321f;--rule:#2e4a6b;--emerald:#0d4d3f}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:900px;overflow:hidden}
+body{font-family:"Noto Naskh Arabic",serif;background:var(--paper);color:var(--ink);font-size:17px;line-height:1.75;font-variant-numeric:tabular-nums}
+header{height:62px;display:flex;align-items:center;gap:34px;padding:0 56px;border-bottom:2px solid var(--rule);background:var(--leaf)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px}.logo{width:32px;height:32px;border-radius:7px;background:var(--emerald);color:#e2b75a;display:grid;place-items:center;font-size:17px}
+nav{display:flex;gap:24px;font-size:15px;color:var(--ink2);flex:1}nav a.on{color:var(--rubric);font-weight:700}
+.chip{border:1px solid #9aa6ad;border-radius:5px;padding:2px 10px;font-size:13px;color:var(--ink2)}
+.page{display:grid;grid-template-columns:1fr 330px;gap:0;margin:34px 56px 0;background:var(--leaf);border:1px solid #b9c3c8;box-shadow:0 18px 40px -28px rgba(20,30,40,.5)}
+.matn{padding:36px 44px;border-inline-end:1px solid #b9c3c8}
+h1{font-family:"Aref Ruqaa";font-size:50px;line-height:1.25;color:var(--ink)}h1 em{font-style:normal;color:var(--rubric)}
+.lead{margin-top:10px;color:var(--ink2);max-width:52ch}
+.search{margin-top:22px;height:50px;border:1px solid #9aa6ad;border-radius:8px;background:#f6f8f8;display:flex;align-items:center;padding:0 16px;color:#7b858b;max-width:520px;font-size:15px}
+.tools{margin-top:28px;columns:2;column-gap:40px}
+.t{break-inside:avoid;padding:9px 0;border-bottom:1px solid #c6cfd3;display:flex;justify-content:space-between;align-items:baseline}
+.t b{font-weight:700}.t b::before{content:"";display:inline-block;width:7px;height:7px;background:var(--rubric);transform:rotate(45deg);margin-inline-end:10px;vertical-align:2px}
+.t span{font-size:13px;color:var(--ink2)}
+.hashiya{padding:30px 26px;font-size:14.5px;line-height:1.8;color:var(--ink2)}
+.hashiya h2{font-size:15px;color:var(--rubric);font-weight:700;margin-bottom:6px}
+.today{border:1px solid var(--rule);border-radius:4px;padding:12px 14px;margin-bottom:20px;background:#f6f8f8}
+.today .d{font-weight:700;color:var(--ink);font-size:16px}
+.pt{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;text-align:center}
+.pt div{border-top:1px solid #c6cfd3;padding-top:4px;font-size:13px}.pt b{display:block;color:var(--ink);font-size:16px}.pt .nx b{color:var(--rubric)}
+.gloss p+p{margin-top:8px}.gloss q{color:var(--ink);quotes:"﴿" "﴾"}
+@media (max-width:600px){html,body{height:844px}header{padding:0 16px;height:54px}nav,.chip{display:none}.brand{flex:1}
+.page{display:block;margin:14px 12px 0}.matn{padding:20px 18px;border:0}h1{font-size:32px}.tools{columns:1}.hashiya{display:block;padding:0 18px 18px}.gloss{display:none}.lead{font-size:15px}}
+</style></head><body>
+<header><div class="brand"><img src="file:///home/user/Mizan/src/assets/img/favicon.svg" width="34" height="34" alt="">ميزان</div>
+<nav><a class="on">الرئيسية</a><a>الزكاة</a><a>المواريث</a><a>مواقيت الصلاة</a><a>التاريخ الهجري</a><a>كل الأدوات</a><a>التطبيق</a></nav><span class="chip">العربية</span><span class="chip">المظهر</span></header>
+<div class="page">
+<section class="matn">
+<h1>الحساب الشرعي <em>ودليله</em> في صفحة واحدة</h1>
+<p class="lead">احسب زكاتك، وقسّم التركة على الفرائض، واعرف مواقيت الصلاة والقبلة والتاريخ الهجري، على جهازك ودون تسجيل، بـ 15 لغة.</p>
+<div class="search">ابحث عن أداة: زكاة، مواريث، صلاة، هجري</div>
+<div class="tools">
+<div class="t"><b>حاسبة الزكاة</b><span>النصاب والحول</span></div><div class="t"><b>زكاة الفطر</b><span>بالصاع والقيمة</span></div>
+<div class="t"><b>حاسبة المواريث</b><span>الفروض والتعصيب</span></div><div class="t"><b>مواقيت الصلاة</b><span>حسب مدينتك</span></div>
+<div class="t"><b>اتجاه القبلة</b><span>بوصلة تفاعلية</span></div><div class="t"><b>التاريخ الهجري</b><span>تقويم أم القرى</span></div>
+<div class="t"><b>المسبحة</b><span>تحفظ تقدمك</span></div><div class="t"><b>المناسبات</b><span>رمضان والعيدان</span></div>
+</div>
+</section>
+<aside class="hashiya">
+<div class="today"><div class="d">الأحد 28 جمادى الأولى 1448 هـ</div>8 نوفمبر 2026 · مكة المكرمة
+<div class="pt"><div>الظهر<b>11:58</b></div><div class="nx">العصر<b>15:12</b></div><div>المغرب<b>17:34</b></div></div></div>
+<div class="gloss"><h2>حاشية: لماذا ميزان؟</h2>
+<p>قواعد الحساب على المعتمد عند جمهور الفقهاء، مع الدليل ومواضع الخلاف بجانب كل نتيجة.</p>
+<p><q>وَأَقِيمُوا الْوَزْنَ بِالْقِسْطِ وَلَا تُخْسِرُوا الْمِيزَانَ</q> [الرحمن: 9]</p>
+<p>وفي التطبيق: المصحف بالتفسير والتلاوة، و334 ذكرًا بالدليل، وتنبيهات الصلاة.</p></div>
+</aside></div></body></html>
