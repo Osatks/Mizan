@@ -25,6 +25,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeHomeScreen.install()
         // وشاشة المواقيت بطراز الرئيسية (NativePrayer.swift)
         NativePrayerScreen.install()
+        // والأذكار (NativeAdhkar.swift)
+        NativeAdhkarScreen.install()
         if !AppDelegate.usesScenes {
             let w = UIWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()

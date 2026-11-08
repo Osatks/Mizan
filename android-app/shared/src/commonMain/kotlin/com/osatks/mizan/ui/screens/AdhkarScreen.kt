@@ -129,15 +129,15 @@ private val SECTION_ICONS: Map<String, ImageVector> = mapOf(
 private fun sectionIcon(s: AdhkarSection) = SECTION_ICONS[s.icon] ?: Icons.Filled.AutoAwesome
 
 /** القسم المناسب للوقت: الصباح حتى الظهر، والمساء من العصر، والنوم بعد العشاء، وفي رمضان أذكاره */
-private fun suggested(hour: Int = kotlinx.datetime.LocalDateTime.now().hour): String = when (hour) {
+internal fun suggested(hour: Int = kotlinx.datetime.LocalDateTime.now().hour): String = when (hour) {
     in 4..11 -> "morning"
     in 15..20 -> "evening"
     in 21..23, in 0..1 -> "sleep"
     else -> if (Hijri.toHijri(LocalDate.now())?.m == 9) "ramadan" else "afterPrayer"
 }
 
-private fun doneKey(id: String) = "adhkar_done_$id"
-private fun doneToday(id: String) = AppSettings.getInt(doneKey(id), -1) == LocalDate.now().toEpochDay().toInt()
+internal fun doneKey(id: String) = "adhkar_done_$id"
+internal fun doneToday(id: String) = AppSettings.getInt(doneKey(id), -1) == LocalDate.now().toEpochDay().toInt()
 
 /**
  * الأذكار: أقسامها أولاً (والمناسب للوقت في أعلاها)، ثم أذكار القسم المختار بعدّاد لكل ذكر،
@@ -148,6 +148,27 @@ fun AdhkarScreen(onBack: () -> Unit, start: String = com.osatks.mizan.widget.Wid
     var open by rememberSaveable { mutableStateOf(start) }
     val sections by produceState(Adhkar.loaded()) { if (value == null) value = withContext(Dispatchers.IO) { Adhkar.sections() } }
     val list = sections
+    // في iOS: الأقسام وأذكار القسم بواجهة النظام (SwiftUI) بطراز الرئيسية؛ والرجوع من القسم بالزر أو بسحب الحافة
+    if (nativeAdhkarAvailable) {
+        var shareId by remember { mutableStateOf<String?>(null) }
+        com.osatks.mizan.ui.BackHandler(enabled = open.isNotEmpty()) { open = "" }
+        NativeAdhkarView(list, open, onOpen = { open = it }, onBack = onBack, onShare = { shareId = it }, modifier = Modifier.fillMaxSize())
+        val lang = LocalLang.current
+        val s = LocalStrings.current
+        val d = shareId?.let { id -> list?.flatMap { it.items }?.firstOrNull { it.id == id } }
+        if (d != null) {
+            val tr = remember(lang) { Adhkar.tr(lang) }
+            val t = translation(d, tr, lang, null)
+            com.osatks.mizan.ui.quran.StoryShareSheet(
+                com.osatks.mizan.ui.quran.StoryContent(
+                    com.osatks.mizan.i18n.HomeText.of(lang.code).dhikr, d.ar, t,
+                    "${sourceLine(d, tr, s).take(2).joinToString(" · ")} (${gradeLine(d, tr)})",
+                    shareBody(d, tr, lang, s, t),
+                ),
+            ) { shareId = null }
+        }
+        return
+    }
     // القسم صفحة فوق الأقسام (رجوع بالزر أو بسحب الحافة الذي يتبع الإصبع)؛ تحميل الأقسام لا يحرّك الصفحة
     com.osatks.mizan.ui.SubPages(open, root = "", onBack = { open = "" }) { id ->
         val ready = list != null
@@ -177,8 +198,8 @@ private fun AdhkarHome(sections: List<AdhkarSection>, ready: Boolean, onBack: ()
     }
 }
 
-private fun AdhkarTr.title(sec: AdhkarSection, lang: Lang) = if (lang == Lang.AR) sec.titleAr else sections[sec.id]?.first ?: sec.titleAr
-private fun AdhkarTr.desc(sec: AdhkarSection, lang: Lang) = if (lang == Lang.AR) sec.descAr else sections[sec.id]?.second ?: sec.descAr
+internal fun AdhkarTr.title(sec: AdhkarSection, lang: Lang) = if (lang == Lang.AR) sec.titleAr else sections[sec.id]?.first ?: sec.titleAr
+internal fun AdhkarTr.desc(sec: AdhkarSection, lang: Lang) = if (lang == Lang.AR) sec.descAr else sections[sec.id]?.second ?: sec.descAr
 
 @Composable
 private fun NowCard(sec: AdhkarSection, tr: AdhkarTr, lang: Lang, onClick: () -> Unit) {
@@ -285,7 +306,7 @@ internal fun AdhkarSectionPage(sec: AdhkarSection, onBack: () -> Unit) {
 }
 
 /** الترجمة المعروضة تحت الذكر: ترجمته، أو ترجمة معاني آياته إن كان قرآناً */
-private fun translation(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<String>?): String? {
+internal fun translation(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<String>?): String? {
     if (lang == Lang.AR) return null
     tr.items[d.id]?.t?.let { return it }
     if (d.ayah.isEmpty() || quran == null) return null
@@ -376,7 +397,7 @@ internal fun sourceLine(d: Dhikr, tr: AdhkarTr, s: Strings): List<String> = d.sr
 internal fun gradeLine(d: Dhikr, tr: AdhkarTr): String =
     listOfNotNull(tr.grades[d.grade] ?: d.grade, d.by.takeIf { it.isNotEmpty() }?.let { tr.by[it] ?: it }).joinToString(" · ")
 
-private fun shareBody(d: Dhikr, tr: AdhkarTr, lang: Lang, s: Strings, t: String?) = buildString {
+internal fun shareBody(d: Dhikr, tr: AdhkarTr, lang: Lang, s: Strings, t: String?) = buildString {
     append(d.ar)
     if (t != null) append("\n\n").append(t)
     append("\n\n").append(sourceLine(d, tr, s).joinToString(" · "))
