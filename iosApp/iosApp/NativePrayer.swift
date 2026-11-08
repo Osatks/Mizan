@@ -16,8 +16,11 @@ enum NativePrayerScreen {
 
 final class PrayerHostController: UIHostingController<PrayerRoot> {
     init(session: NativePrayerSession) {
-        super.init(rootView: PrayerRoot(model: PrayerModel(session: session)))
+        let model = PrayerModel(session: session)
+        super.init(rootView: PrayerRoot(model: model))
         view.backgroundColor = .clear
+        model.onStyle = { [weak self] dark, rtl in self?.applyAppStyle(dark: dark, rtl: rtl) }
+        if let s = model.state { applyAppStyle(dark: s.dark, rtl: s.rtl) }
         if #available(iOS 16.4, *) { safeAreaRegions = [] }
     }
 
@@ -73,7 +76,8 @@ struct PrayerState: Decodable {
 
 final class PrayerModel: ObservableObject {
     let session: NativePrayerSession
-    @Published private(set) var state: PrayerState?
+    @Published private(set) var state: PrayerState? { didSet { if let s = state { onStyle?(s.dark, s.rtl) } } }
+    var onStyle: ((Bool, Bool) -> Void)?
     private var token: NSObjectProtocol?
 
     init(session: NativePrayerSession) {

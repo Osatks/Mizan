@@ -14,8 +14,11 @@ enum NativeAdhkarScreen {
 
 final class AdhkarHostController: UIHostingController<AdhkarRoot> {
     init(session: NativeAdhkarSession) {
-        super.init(rootView: AdhkarRoot(model: AdhkarModel(session: session)))
+        let model = AdhkarModel(session: session)
+        super.init(rootView: AdhkarRoot(model: model))
         view.backgroundColor = .clear
+        model.onStyle = { [weak self] dark, rtl in self?.applyAppStyle(dark: dark, rtl: rtl) }
+        if let s = model.state { applyAppStyle(dark: s.dark, rtl: s.rtl) }
         if #available(iOS 16.4, *) { safeAreaRegions = [] }
     }
 
@@ -53,7 +56,8 @@ struct AdhkarState: Decodable {
 
 final class AdhkarModel: ObservableObject {
     let session: NativeAdhkarSession
-    @Published private(set) var state: AdhkarState?
+    @Published private(set) var state: AdhkarState? { didSet { if let s = state { onStyle?(s.dark, s.rtl) } } }
+    var onStyle: ((Bool, Bool) -> Void)?
     private var token: NSObjectProtocol?
 
     init(session: NativeAdhkarSession) {

@@ -24,13 +24,26 @@ enum NativeHomeScreen {
 
 final class HomeHostController: UIHostingController<HomeRoot> {
     init(session: NativeHomeSession) {
-        super.init(rootView: HomeRoot(model: HomeModel(session: session)))
+        let model = HomeModel(session: session)
+        super.init(rootView: HomeRoot(model: model))
         view.backgroundColor = .clear
+        model.onStyle = { [weak self] dark, rtl in self?.applyAppStyle(dark: dark, rtl: rtl) }
+        if let s = model.state { applyAppStyle(dark: s.dark, rtl: s.rtl) }
         // الهوامش من Kotlin (شريط الحالة والتبويبات) لا من المنطقة الآمنة لهذا المتحكم
         if #available(iOS 16.4, *) { safeAreaRegions = [] }
     }
 
     @MainActor required dynamic init?(coder aDecoder: NSCoder) { fatalError() }
+}
+
+
+extension UIViewController {
+    /// مظهر التطبيق واتجاه لغته على ما يرسمه UIKit داخل الواجهة (القوائم، والأوراق، والمفاتيح، والعدّادات):
+    /// قد يخالفان مظهر النظام ولغته (الإعدادات: فاتح أو داكن دائماً، ولغة التطبيق)
+    func applyAppStyle(dark: Bool, rtl: Bool) {
+        overrideUserInterfaceStyle = dark ? .dark : .light
+        view.semanticContentAttribute = rtl ? .forceRightToLeft : .forceLeftToRight
+    }
 }
 
 // MARK: - الحالة
@@ -72,7 +85,8 @@ struct HomeState: Decodable {
 
 final class HomeModel: ObservableObject {
     let session: NativeHomeSession
-    @Published private(set) var state: HomeState?
+    @Published private(set) var state: HomeState? { didSet { if let s = state { onStyle?(s.dark, s.rtl) } } }
+    var onStyle: ((Bool, Bool) -> Void)?
     private var token: NSObjectProtocol?
 
     init(session: NativeHomeSession) {

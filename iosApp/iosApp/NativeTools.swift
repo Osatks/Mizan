@@ -12,8 +12,11 @@ enum NativeToolsScreen {
 
 final class ToolsHostController: UIHostingController<ToolsRoot> {
     init(session: NativeToolsSession) {
-        super.init(rootView: ToolsRoot(model: ToolsModel(session: session)))
+        let model = ToolsModel(session: session)
+        super.init(rootView: ToolsRoot(model: model))
         view.backgroundColor = .clear
+        model.onStyle = { [weak self] dark, rtl in self?.applyAppStyle(dark: dark, rtl: rtl) }
+        if let s = model.state { applyAppStyle(dark: s.dark, rtl: s.rtl) }
         if #available(iOS 16.4, *) { safeAreaRegions = [] }
     }
 
@@ -36,7 +39,8 @@ struct ToolsState: Decodable {
 
 final class ToolsModel: ObservableObject {
     let session: NativeToolsSession
-    @Published private(set) var state: ToolsState?
+    @Published private(set) var state: ToolsState? { didSet { if let s = state { onStyle?(s.dark, s.rtl) } } }
+    var onStyle: ((Bool, Bool) -> Void)?
     private var token: NSObjectProtocol?
 
     init(session: NativeToolsSession) {
