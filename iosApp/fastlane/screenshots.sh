@@ -24,7 +24,7 @@ LOCALES="${3:-ar-SA en-US}"
 DEVICES="${4:-iphone ipad duo}"
 BUNDLE=com.mizan.almuslim
 LAUNCH_WAIT="${LAUNCH_WAIT:-10}"   # ثوانٍ بعد التشغيل حتى يستقر أول إطار
-ROUTE_WAIT="${ROUTE_WAIT:-8}"      # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص)
+ROUTE_WAIT="${ROUTE_WAIT:-14}"     # ثوانٍ بعد فتح الشاشة (انتقال + تحميل النص + تنزيل خط صفحة مصحف المدينة)
 LOGS="${LOGS:-$OUT/../screenshot-logs}"
 mkdir -p "$OUT" "$LOGS"
 
@@ -33,25 +33,25 @@ log() { echo "▸ $*"; }
 # الترتيب = ترتيب ظهورها في المتجر (أول ثلاث هي الأهم)
 IPHONE_SHOTS=(
   "01_home:home"
-  "02_quran_page:surah/1?ayah=0&from=row"
-  "03_prayer:prayer"
-  "04_adhkar:adhkar"
-  "05_quran_index:quran"
-  "06_qibla:qibla"
-  "07_zakat:zakat"
-  "08_tasbih:tasbih"
+  "02_quran_page:surah/18?ayah=0&from=row"
+  "03_hadith:hadith"
+  "04_prayer:prayer"
+  "05_adhkar:adhkar"
+  "06_tools:tools"
+  "07_tafsir:surah/2?ayah=255&from=tafsir"
+  "08_qibla:qibla"
 )
 # iPad: القائمة الجانبية والأعمدة؛ والثانية (المصحف صفحتين متقابلتين) تُلتقط بالعرض
 IPAD_SHOTS=(
   "ipad_01_home:home"
-  "ipad_03_prayer:prayer"
-  "ipad_04_quran_index:quran"
-  "ipad_05_quran_page:surah/2?ayah=255&from=row"
+  "ipad_03_hadith:hadith"
+  "ipad_04_prayer:prayer"
+  "ipad_05_tools:tools"
   "ipad_06_adhkar:adhkar"
-  "ipad_07_tasbih:tasbih"
+  "ipad_07_tafsir:surah/2?ayah=255&from=tafsir"
 )
 IPAD_LANDSCAPE=(
-  "ipad_02_quran_spread:surah/1?ayah=0&from=row"
+  "ipad_02_quran_spread:surah/18?ayah=0&from=row"
 )
 DUO_SHOTS=(
   "01_home:home"

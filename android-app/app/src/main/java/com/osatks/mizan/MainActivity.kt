@@ -103,6 +103,8 @@ class MainActivity : ComponentActivity() {
         Demo.enabled = intent?.getBooleanExtra("demo", false) == true
         // لقطات الشاشة: لون التطبيق يُختار من الأمر نفسه
         if (Demo.enabled) intent?.getStringExtra("accent")?.let { AppSettings.updateAccent(it) }
+        // لقطات المتجر: موقع ثابت (مكة المكرمة) بدل بطاقة «حدّد موقعك»
+        if (Demo.enabled && !AppSettings.placeSet) AppSettings.updatePlace(com.osatks.mizan.core.Place.of(com.osatks.mizan.core.PrayTimes.CITIES[0]))
         setContent { LanguageHost { MizanTheme { MizanApp(startRoute) } } }
     }
 

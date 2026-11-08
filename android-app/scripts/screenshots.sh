@@ -5,7 +5,7 @@ PKG=com.mizan.almuslim
 # اسم الملف يحمل رقم الإصدار (mizan-2.1.N-debug.apk)
 APK=$(ls android-app/app/build/outputs/apk/debug/*.apk | head -1)
 OUT=screenshots
-mkdir -p "$OUT"
+mkdir -p "$OUT" "$OUT/store-ar" "$OUT/store-en"
 
 adb install -r "$APK"
 adb logcat -c || true
@@ -94,6 +94,19 @@ sleep 4
 adb exec-out screencap -p > "$OUT/19g-share-card-en.png"; echo "captured 19g-share-card-en"
 adb shell input keyevent KEYCODE_BACK; sleep 1
 shot quran          16-quran-en en
+
+# صور Google Play (تُؤطَّر بعدها بـ iosApp/fastlane/frame/frame.py بمقاس 1080×1920): بالعربية والإنجليزية
+adb shell cmd uimode night no || true; sleep 2
+for lang in ar en; do
+  WAIT=10 shot home                           "store-$lang/01_home"       "$lang"
+  WAIT=16 shot "surah/18?ayah=0&from=row"     "store-$lang/02_quran_page" "$lang"
+  WAIT=10 shot hadith                         "store-$lang/03_hadith"     "$lang"
+  WAIT=10 shot prayer                         "store-$lang/04_prayer"     "$lang"
+  WAIT=10 shot adhkar                         "store-$lang/05_adhkar"     "$lang"
+  WAIT=10 shot tools                          "store-$lang/06_tools"      "$lang"
+  WAIT=16 shot "surah/2?ayah=255&from=tafsir" "store-$lang/07_tafsir"     "$lang"
+  WAIT=10 shot qibla                          "store-$lang/08_qibla"      "$lang"
+done
 
 # مصحف المدينة: الفاتحة، وأول البقرة، وأول المائدة (خط الصفحة يُنزَّل عند فتحها)
 WAIT=14 shot "surah/1"          21-madinah-fatiha
