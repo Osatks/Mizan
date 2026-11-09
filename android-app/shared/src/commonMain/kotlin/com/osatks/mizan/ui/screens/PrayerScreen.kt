@@ -152,7 +152,7 @@ internal fun PrayerScreen(open: (String) -> Unit, nativeView: NativePrayerSlot?)
     val city = place.city
     val subtitle = s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: "")
     // على الشاشة الواسعة: مواقيت اليوم وجدول الشهر متجاوران، والجدول ظاهر دائماً يتبع اليوم المختار
-    ToolPage(s.prayerTitle, subtitle, sharedKey = "prayer", icon = TOOL_ICONS["prayer"]) {
+    ToolPage(s.prayerTitle, subtitle, sharedKey = "prayer", icon = TOOL_ICONS["prayer"], plainIcon = true) {
         if (!AppSettings.placeSet) item { LocationNeededCard() }
         item { PrayerNextHero(next) }
         item {

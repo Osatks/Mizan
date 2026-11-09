@@ -48,7 +48,7 @@ import com.osatks.mizan.ui.sharedIcon
 fun ToolsScreen(open: (String) -> Unit) {
     val s = LocalStrings.current
     // ترويسة بمربع أيقونة وعنوان وشعار التطبيق كما في iPhone
-    com.osatks.mizan.ui.ToolPage(s.toolsTitle, s.appTagline, icon = Icons.Filled.GridView) {
+    com.osatks.mizan.ui.ToolPage(s.toolsTitle, s.appTagline, icon = Icons.Filled.GridView, plainIcon = true) {
         item(key = "tools") {
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 val cols = when { maxWidth >= 840.dp -> 4; maxWidth >= 560.dp -> 3; else -> 2 }

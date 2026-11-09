@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,25 +31,25 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Autorenew
-import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.Bed
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Flight
-import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.LocalFlorist
-import androidx.compose.material.icons.filled.Mosque
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.Thunderstorm
-import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.WbTwilight
@@ -93,11 +95,12 @@ import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.quran.Sources
 import com.osatks.mizan.ui.Motion
-import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.ToolPage
 import com.osatks.mizan.ui.pressScale
+import com.osatks.mizan.ui.starBackdrop
 import com.osatks.mizan.ui.quran.QuranFont
 import com.osatks.mizan.ui.theme.Gold
+import com.osatks.mizan.ui.theme.GoldDeep
 import com.osatks.mizan.ui.theme.HeroBrush
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -105,11 +108,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 
 private val SECTION_ICONS: Map<String, ImageVector> = mapOf(
-    "sunrise" to Icons.Filled.WbSunny, "sunset" to Icons.Filled.WbTwilight, "sleep" to Icons.Filled.Bedtime,
-    "wake" to Icons.Filled.Alarm, "prayer" to Icons.Filled.Spa, "mosque" to Icons.Filled.Mosque, "adhan" to Icons.Filled.Campaign,
+    "sunrise" to Icons.Filled.WbSunny, "sunset" to Icons.Filled.WbTwilight, "sleep" to Icons.Filled.Bed,
+    "wake" to Icons.Filled.Alarm, "prayer" to Icons.Filled.Eco, "mosque" to Icons.Filled.AccountBalance, "adhan" to Icons.Filled.Campaign,
     "home" to Icons.Filled.Home, "clothes" to Icons.Filled.Checkroom, "food" to Icons.Filled.Restaurant, "moon" to Icons.Filled.DarkMode,
-    "travel" to Icons.Filled.Flight, "heart" to Icons.Filled.Favorite, "health" to Icons.Filled.HealthAndSafety,
-    "funeral" to Icons.Filled.LocalFlorist, "weather" to Icons.Filled.Thunderstorm, "kaaba" to Icons.Filled.TravelExplore,
+    "travel" to Icons.Filled.Flight, "heart" to Icons.Filled.Favorite, "health" to Icons.Filled.MedicalServices,
+    "funeral" to Icons.Outlined.Eco, "weather" to Icons.Filled.Thunderstorm, "kaaba" to Icons.Filled.Public,
     "istikhara" to Icons.Filled.Lightbulb, "shield" to Icons.Filled.Shield, "people" to Icons.Filled.People,
     "quran" to Icons.AutoMirrored.Filled.MenuBook, "star" to Icons.Filled.AutoAwesome, "hands" to Icons.Filled.VolunteerActivism,
     "repeat" to Icons.Filled.Autorenew,
@@ -146,8 +149,9 @@ private fun AdhkarHome(sections: List<AdhkarSection>, ready: Boolean, onBack: ()
         sections.firstOrNull { it.id == now }?.let { sec -> item { NowCard(sec, tr, lang) { pick(sec.id) } } }
         sections.filter { it.id != now }.chunked(2).forEach { pair ->
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    pair.forEach { sec -> SectionTile(sec, tr, lang, Modifier.weight(1f)) { pick(sec.id) } }
+                // بطاقتا الصف بارتفاع واحد (كما في iPhone)
+                Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    pair.forEach { sec -> SectionTile(sec, tr, lang, Modifier.weight(1f).fillMaxHeight()) { pick(sec.id) } }
                     if (pair.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
@@ -160,14 +164,18 @@ private fun NowCard(sec: AdhkarSection, tr: AdhkarTr, lang: Lang, onClick: () ->
     val s = LocalStrings.current
     val src = remember { MutableInteractionSource() }
     Surface(onClick = onClick, shape = RoundedCornerShape(24.dp), color = Color.Transparent, interactionSource = src, modifier = Modifier.fillMaxWidth().pressScale(src, 0.98f)) {
-        Row(Modifier.background(HeroBrush).padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+        // تدرج لون التطبيق ونجمة باهتة في طرفه كبطاقة القرآن في الرئيسية
+        Row(
+            Modifier.background(HeroBrush).starBackdrop(Color.White.copy(alpha = .07f), 70.dp, Alignment.CenterEnd, (-40).dp, 0.dp, 120_000).padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White.copy(alpha = .12f)), contentAlignment = Alignment.Center) {
                 Icon(sectionIcon(sec), null, Modifier.size(30.dp), tint = Gold)
             }
-            Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
-                Text(s.adhkarNow, style = MaterialTheme.typography.labelLarge, color = Gold, fontWeight = FontWeight.Bold)
-                Text(tr.title(sec, lang), style = MaterialTheme.typography.titleLarge, color = Color.White, fontWeight = FontWeight.Bold)
-                Text(tr.desc(sec, lang) + " · " + s.dhikrItems(sec.items.size), style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = .8f))
+            Column(Modifier.weight(1f).padding(horizontal = 14.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(s.adhkarNow, style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp), color = Gold, fontWeight = FontWeight.Bold)
+                Text(tr.title(sec, lang), style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp), color = Color.White, fontWeight = FontWeight.Bold, maxLines = 2)
+                Text(tr.desc(sec, lang) + " · " + s.dhikrItems(sec.items.size), style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = .8f), maxLines = 2)
             }
             if (doneToday(sec.id)) DoneBadge()
         }
@@ -199,7 +207,7 @@ private fun SectionTile(sec: AdhkarSection, tr: AdhkarTr, lang: Lang, modifier: 
                 if (doneToday(sec.id)) DoneBadge()
             }
             Spacer(Modifier.height(10.dp))
-            Text(tr.title(sec, lang), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 2)
+            Text(tr.title(sec, lang), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 2)
             Text(s.dhikrItems(sec.items.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
@@ -283,15 +291,15 @@ private fun DhikrCard(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<String>?,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 if (t != null) Text(t, style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (note != null) Text(note, style = MaterialTheme.typography.labelMedium, color = Gold, fontWeight = FontWeight.Bold)
+                if (note != null) Text(note, style = MaterialTheme.typography.labelMedium, color = GoldDeep, fontWeight = FontWeight.Bold)
             }
             Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 CountPill(d.count, done)
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onEvidence) {
+                TextButton(onClick = onEvidence, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 6.dp)) {
                     Icon(Icons.Outlined.Verified, null, Modifier.size(18.dp), tint = gradeColor(d.grade))
-                    Spacer(Modifier.width(6.dp))
-                    Text(s.dhikrEvidence, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(5.dp))
+                    Text(s.dhikrEvidence, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = { story = true }) {
                     Icon(Icons.Filled.Share, s.share, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -355,7 +363,7 @@ internal fun DhikrEvidence(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<Stri
                 Icon(Icons.AutoMirrored.Filled.MenuBook, null, tint = MaterialTheme.colorScheme.primary)
             }
             Spacer(Modifier.width(12.dp))
-            Text(s.dhikrEvidence, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(s.dhikrEvidence, style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         }
         Text(
             d.ar, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
@@ -392,7 +400,10 @@ internal fun DhikrEvidence(d: Dhikr, tr: AdhkarTr, lang: Lang, quran: Array<Stri
             Text(d.ayah.joinToString(" · ") { (su, a, b) -> s.surahAyah(s.surahNames[su - 1], a) + if (b > a) "–$b" else "" }, style = MaterialTheme.typography.bodyMedium)
         }
         val note = if (lang == Lang.AR) d.note else itr?.note ?: d.note
-        if (note != null) Note(note)
+        if (note != null) Text(
+            note, Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = .6f)).padding(12.dp),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp), color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

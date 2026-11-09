@@ -1,6 +1,32 @@
 package com.osatks.mizan.ui.screens
 
 import com.osatks.mizan.core.*
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.UnfoldMore
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDirection
+import com.osatks.mizan.ui.GlassMenu
+import com.osatks.mizan.ui.MenuItem
+import com.osatks.mizan.ui.pressScale
+import com.osatks.mizan.ui.quran.QuranFont
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.animation.AnimatedContent
@@ -21,8 +47,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +60,6 @@ import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,15 +86,10 @@ import androidx.compose.ui.unit.sp
 import com.osatks.mizan.core.Tasbih
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.i18n.LocalStrings
-import com.osatks.mizan.ui.ChipButton
 import com.osatks.mizan.ui.Motion
-import com.osatks.mizan.ui.Picker
 import com.osatks.mizan.ui.RollingText
-import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
-import com.osatks.mizan.ui.Tile
 import com.osatks.mizan.ui.ToolPage
-import com.osatks.mizan.ui.theme.DhikrStyle
 import com.osatks.mizan.ui.theme.Gold
 import com.osatks.mizan.ui.theme.themed
 import kotlinx.coroutines.launch
@@ -79,7 +97,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TasbihScreen(onBack: (() -> Unit)? = null) {
     val s = LocalStrings.current
@@ -128,9 +145,9 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
         spring(dampingRatio = 0.8f, stiffness = 200f), label = "p"
     )
 
-    ToolPage(s.tasbihTitle, s.tasbihSubtitle, onBack, sharedKey = "tasbih", icon = TOOL_ICONS["tasbih"]) {
+    ToolPage(s.tasbihTitle, s.tasbihSubtitle, onBack, sharedKey = "tasbih", icon = TOOL_ICONS["tasbih"], plainIcon = true) {
         item {
-            SectionCard {
+            TasbihCard {
                 Segmented(listOf("free" to s.modeFree, "salah" to s.modeAfterPrayer), st.mode) { Tasbih.setMode(it) }
                 AnimatedContent(
                     text to meaning,
@@ -142,7 +159,11 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
                     Column(Modifier.fillMaxWidth().heightIn(min = 72.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             t, Modifier.fillMaxWidth().padding(vertical = 6.dp), textAlign = TextAlign.Center,
-                            style = if (t.length > 40) DhikrStyle.copy(fontSize = 20.sp, lineHeight = 34.sp) else DhikrStyle,
+                            // بخط المصحف كما في iPhone
+                            style = TextStyle(
+                                fontFamily = QuranFont, fontSize = if (t.length > 40) 21.sp else 30.sp,
+                                lineHeight = if (t.length > 40) 36.sp else 48.sp, textDirection = TextDirection.Rtl,
+                            ),
                             color = MaterialTheme.colorScheme.primary
                         )
                         if (m.isNotEmpty()) Text(m, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -169,8 +190,9 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
                             }
                         }
                         Canvas(Modifier.size(250.dp)) {
-                            drawArc(track, 0f, 360f, false, style = Stroke(14f))
-                            drawArc(Gold, -90f, 360f * progress, false, style = Stroke(14f, cap = StrokeCap.Round))
+                            val w = 5.dp.toPx()
+                            drawArc(track, 0f, 360f, false, style = Stroke(w))
+                            drawArc(Gold, -90f, 360f * progress, false, style = Stroke(w, cap = StrokeCap.Round))
                         }
                         Box(
                             Modifier.size(210.dp)
@@ -183,7 +205,7 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 RollingText("$count", MaterialTheme.typography.displayLarge.copy(fontSize = 64.sp, fontWeight = FontWeight.ExtraBold), Color.White)
-                                Text(if (goal > 0) s.ofGoal(goal) else s.noLimit, color = Color.White.copy(alpha = .8f))
+                                Text(if (goal > 0) s.ofGoal(goal) else s.noLimit, color = Color.White.copy(alpha = .8f), fontSize = 15.sp, maxLines = 1)
                             }
                         }
                     }
@@ -197,12 +219,12 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
                         transitionSpec = { (fadeIn() + scaleIn(spring(dampingRatio = 0.55f), initialScale = 0.8f)) togetherWith fadeOut(tween(120)) },
                         label = "msg"
                     ) { m ->
-                        Text(m, Modifier.fillMaxWidth(), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
+                        Text(m, Modifier.fillMaxWidth(), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)) {
-                    OutlinedButton(onClick = { Tasbih.reset() }) { Icon(Icons.Filled.RestartAlt, null); Text(" " + s.reset) }
-                    OutlinedButton(onClick = { Tasbih.undo() }) { Icon(Icons.AutoMirrored.Filled.Undo, null); Text(" " + s.undo) }
+                    TasbihOutline(s.reset, Icons.Filled.RestartAlt) { Tasbih.reset() }
+                    TasbihOutline(s.undo, Icons.AutoMirrored.Filled.Undo) { Tasbih.undo() }
                 }
                 // iOS: العدّاد على شاشة القفل وفي الجزيرة الديناميكية (يعدّ منها زر الإجراء ومركز التحكم أيضاً)
                 if (com.osatks.mizan.platform.LiveTasbih.supported) {
@@ -214,8 +236,8 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
                             onClick = { live.show?.invoke() },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Icon(Icons.Filled.Smartphone, null)
-                            Text(" " + lt.showLive)
+                            Icon(Icons.Filled.Smartphone, null, Modifier.size(20.dp))
+                            Text(" " + lt.showLive, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                         }
                     }
                     // من لا يريد البطاقة على شاشة القفل يطفئها هنا (بدل «عدم السماح» في سؤال iOS، فتتعطل الجزيرة)
@@ -224,10 +246,11 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
                         Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(title, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp), fontWeight = FontWeight.SemiBold)
                             Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                        Spacer(Modifier.width(12.dp))
                         com.osatks.mizan.ui.AppSwitch(checked = live.onLockScreen, onCheckedChange = { live.update(it) })
                     }
                 }
@@ -235,23 +258,126 @@ fun TasbihScreen(onBack: (() -> Unit)? = null) {
         }
         side {
             com.osatks.mizan.ui.Reveal(st.mode == "free") {
-                SectionCard(s.chooseDhikr) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        s.dhikrLabels.forEachIndexed { i, label -> ChipButton(label, i == st.idx) { Tasbih.setDhikr(i) } }
-                    }
-                    Picker(s.targetCount, Tasbih.TARGETS, st.target, text = { if (it == 0) s.noLimit else "$it" }, onSelect = { Tasbih.setTarget(it) })
+                TasbihCard(s.chooseDhikr) {
+                    TasbihChipGrid(s.dhikrLabels, st.idx) { Tasbih.setDhikr(it) }
+                    TasbihTargetRow(s.targetCount, Tasbih.TARGETS, st.target, text = { if (it == 0) s.noLimit else "$it" }) { Tasbih.setTarget(it) }
                 }
             }
         }
         side {
-            SectionCard(s.yourStats) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Tile(Fmt.int(st.rounds.toLong()), s.roundsDone)
-                    Tile(Fmt.int(st.today.toLong()), s.todayCount)
-                    Tile(Fmt.int(st.total.toLong()), s.totalCount)
+            TasbihCard(s.yourStats) {
+                Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TasbihStat(Fmt.int(st.rounds.toLong()), s.roundsDone)
+                    TasbihStat(Fmt.int(st.today.toLong()), s.todayCount)
+                    TasbihStat(Fmt.int(st.total.toLong()), s.totalCount)
                 }
             }
         }
         item { EvidenceCard(com.osatks.mizan.i18n.Evidence.tasbih) }
+    }
+}
+
+/** بطاقة بيضاء بطراز iPhone: زوايا 22 وحدّ رفيع، وعنوان عريض بلون التطبيق */
+@Composable
+private fun TasbihCard(title: String? = null, content: @Composable ColumnScope.() -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Surface(
+        shape = RoundedCornerShape(22.dp), color = cs.surface, border = BorderStroke(1.dp, cs.outlineVariant.copy(alpha = .6f)),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (title != null) Text(
+                title, Modifier.semantics { heading() },
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp), fontWeight = FontWeight.ExtraBold, color = cs.primary,
+            )
+            content()
+        }
+    }
+}
+
+/** زر بحدّ رفيع (التصفير والتراجع) */
+@Composable
+private fun TasbihOutline(title: String, icon: ImageVector, onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    val src = remember { MutableInteractionSource() }
+    Surface(
+        onClick = onClick, shape = CircleShape, color = Color.Transparent, contentColor = cs.primary,
+        border = BorderStroke(1.dp, cs.outlineVariant), interactionSource = src, modifier = Modifier.pressScale(src, 0.95f),
+    ) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(icon, null, Modifier.size(20.dp))
+            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+        }
+    }
+}
+
+/** الأذكار شبكةً من خانات متساوية (عرض الخانة 120 على الأقل) */
+@Composable
+private fun TasbihChipGrid(labels: List<String>, selected: Int, onSelect: (Int) -> Unit) {
+    BoxWithConstraints(Modifier.fillMaxWidth().selectableGroup()) {
+        val cols = ((maxWidth + 8.dp) / (120.dp + 8.dp)).toInt().coerceAtLeast(1)
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            labels.indices.chunked(cols).forEach { row ->
+                Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    row.forEach { i -> TasbihChip(labels[i], i == selected, Modifier.weight(1f).fillMaxHeight()) { onSelect(i) } }
+                    repeat(cols - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TasbihChip(text: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    val src = remember { MutableInteractionSource() }
+    val bg by animateColorAsState(if (selected) cs.primary else cs.surface, tween(Motion.SHORT), label = "chipBg")
+    val fg by animateColorAsState(if (selected) cs.onPrimary else cs.onSurfaceVariant, tween(Motion.SHORT), label = "chipFg")
+    Box(
+        modifier.heightIn(min = 42.dp).pressScale(src, 0.95f).clip(RoundedCornerShape(14.dp)).background(bg)
+            .border(1.dp, if (selected) cs.primary else cs.outlineVariant, RoundedCornerShape(14.dp))
+            .selectable(selected, interactionSource = src, indication = androidx.compose.material3.ripple(), role = Role.RadioButton, onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 9.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text, color = fg, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, textAlign = TextAlign.Center, maxLines = 2)
+    }
+}
+
+/** الهدف: اسمه، وكبسولة بالقيمة تفتح قائمة الأهداف */
+@Composable
+private fun <T> TasbihTargetRow(label: String, options: List<T>, selected: T, text: (T) -> String, onSelect: (T) -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    var open by remember { mutableStateOf(false) }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.weight(1f), fontWeight = FontWeight.Medium, fontSize = 15.sp, color = cs.onSurface)
+        Spacer(Modifier.width(8.dp))
+        Box {
+            val src = remember { MutableInteractionSource() }
+            Surface(
+                onClick = { open = true }, shape = CircleShape, color = cs.primaryContainer, interactionSource = src,
+                modifier = Modifier.pressScale(src, 0.95f).semantics { role = Role.DropdownList; contentDescription = label },
+            ) {
+                Row(Modifier.padding(horizontal = 14.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(text(selected), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = cs.primary)
+                    Icon(Icons.Filled.UnfoldMore, null, Modifier.size(16.dp), tint = cs.onSurfaceVariant)
+                }
+            }
+            GlassMenu(open, { open = false }, options.map { o -> MenuItem(text(o), checked = o == selected) { onSelect(o) } }, title = label, width = 200.dp)
+        }
+    }
+}
+
+/** خانة إحصاء: الرقم عريضاً بلون التطبيق، وتحته اسمه */
+@Composable
+private fun RowScope.TasbihStat(value: String, label: String) {
+    val cs = MaterialTheme.colorScheme
+    Column(
+        Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(16.dp)).background(cs.primaryContainer.copy(alpha = .6f))
+            .semantics(mergeDescendants = true) {}.padding(vertical = 12.dp, horizontal = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        RollingText(value, MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp, fontWeight = FontWeight.Black), cs.primary)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 2)
     }
 }

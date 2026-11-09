@@ -215,6 +215,8 @@ fun ToolPage(
     title: String, subtitle: String? = null, onBack: (() -> Unit)? = null,
     sharedKey: String? = null, icon: ImageVector? = null, spacing: Dp = 14.dp,
     columns: Boolean = false,
+    // مربع أيقونة الرأس أبيض بظل خفيف (التبويبات والقبلة والتراخيص في iPhone) بدل الذهبي الفاتح
+    plainIcon: Boolean = false,
     content: PageScope.() -> Unit
 ) {
     val reveal = rememberRevealState()
@@ -242,7 +244,7 @@ fun ToolPage(
                 val g = if (wide) split else narrow
                 item(key = "page-header", contentType = "page-header") {
                     Column {
-                        LargeHeader(title, subtitle, sharedKey, icon, hasBack = onBack != null, g)
+                        LargeHeader(title, subtitle, sharedKey, icon, hasBack = onBack != null, g, plainIcon)
                         Spacer(Modifier.height((16.dp - spacing).coerceAtLeast(0.dp)))
                     }
                 }
@@ -342,7 +344,7 @@ private fun SplitColumns(
  * وأيقونة في مربع ذهبي فاتح، وعنوان كبير بلون التطبيق وسطر وصف؛ يترك أعلاه مكان الشريط الثابت إن كان فيه زر رجوع
  */
 @Composable
-private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, icon: ImageVector?, hasBack: Boolean, g: Gutters) {
+private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, icon: ImageVector?, hasBack: Boolean, g: Gutters, plainIcon: Boolean = false) {
     val cs = MaterialTheme.colorScheme
     Box(
         Modifier
@@ -357,7 +359,7 @@ private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, ic
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
-                HeaderIconTile(icon, sharedKey)
+                HeaderIconTile(icon, sharedKey, plainIcon)
                 Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
@@ -385,11 +387,15 @@ fun lightHeaderBrush(): Brush {
 
 /** مربع أيقونة الرأس: خلفية ذهبية فاتحة وأيقونة بلون التطبيق (كما في iPhone) */
 @Composable
-private fun HeaderIconTile(icon: ImageVector, sharedKey: String?) {
+private fun HeaderIconTile(icon: ImageVector, sharedKey: String?, plain: Boolean = false) {
+    val shape = RoundedCornerShape(14.dp)
     Box(
         Modifier
             .then(if (sharedKey != null) Modifier.sharedIcon("icon-$sharedKey") else Modifier)
-            .size(46.dp).clip(RoundedCornerShape(14.dp)).background(Gold.copy(alpha = .18f)),
+            .size(46.dp)
+            .then(if (plain) Modifier.shadow(3.dp, shape) else Modifier)
+            .clip(shape)
+            .background(if (plain) MaterialTheme.colorScheme.surface.copy(alpha = .85f) else Gold.copy(alpha = .18f)),
         contentAlignment = Alignment.Center
     ) { Icon(icon, null, tint = MaterialTheme.colorScheme.primary) }
 }

@@ -89,7 +89,7 @@ fun QuranScreen(open: (String) -> Unit) {
     val ref = remember(q) { QuranSearch.parseRef(q) }
 
     // على الشاشة الواسعة: متابعة القراءة والختمة متجاورتان، والسور والأجزاء ونتائج البحث في شبكة بعمودين
-    ToolPage(s.quranTitle, s.quranSubtitle, sharedKey = "quran", icon = Icons.AutoMirrored.Filled.MenuBook, spacing = 10.dp, columns = true) {
+    ToolPage(s.quranTitle, s.quranSubtitle, sharedKey = "quran", icon = Icons.AutoMirrored.Filled.MenuBook, spacing = 10.dp, columns = true, plainIcon = true) {
         if (QuranPrefs.last >= 0 && q.isBlank()) item(key = "continue") { ContinueCard(QuranPrefs.last, open) }
         if (q.isBlank()) side(key = "khatma") { KhatmaCard(open) }
         if (q.isBlank()) item(key = "evidence") { com.osatks.mizan.ui.screens.EvidenceCard(com.osatks.mizan.i18n.Evidence.quran) }
