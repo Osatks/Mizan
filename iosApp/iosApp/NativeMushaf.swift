@@ -10,6 +10,8 @@ import Shared
 /// والورقة والإطار المذهّب ورأس الصفحة ورقمها وشريط العلامة، والتظليل وأشرطة الحفظ. البيانات من الملفات نفسها
 /// (assets/madinah، وخطوط الصفحات التي ينزّلها Kotlin)، والحالة من Kotlin (NativeMushaf.ios.kt) مع الإشعار MizanMushafState،
 /// واللمس يعود إليه كما من صفحة Compose. ما فوق الصفحات (الرأس، شريط خيارات الآية، الأوراق) يبقى من Compose فوق القارئ.
+/// وفي الكتاب المفتوح (iPad بالعرض، iPhone Duo مفتوحاً: «spread» في الحالة) كل موضع تقليب صفحتان متقابلتان،
+/// الفردية على اليمين، ومواضع التقليب بمعنى Spreads.index و Spreads.count.
 enum NativeMushafReader {
     /// يُستدعى مرة عند التشغيل، قبل إنشاء MainViewController
     static func install() {
@@ -48,6 +50,23 @@ struct MushafState: Decodable {
     var backdrop: String
     var downloading: String
     var retry: String
+    /// الكتاب المفتوح: كل موضع صفحتان متقابلتان (اليمنى 2i+1 واليسرى 2i+2)، و count عدد المواضع (Spreads.count)
+    var spread: Bool?
+    var count: Int?
+    var pages: Int?
+
+    /// عدد صفحات المصحف
+    var totalPages: Int { max(pages ?? 604, 1) }
+    var isSpread: Bool { spread ?? false }
+    /// عدد مواضع التقليب
+    var items: Int { max(count ?? (isSpread ? (totalPages + 1) / 2 : totalPages), 1) }
+
+    /// صفحتا الموضع [item]: اليمنى (أو الصفحة الوحيدة) واليسرى إن كانت (كما في Spreads.pages)
+    func pagesOf(_ item: Int) -> (right: Int, left: Int?) {
+        guard isSpread else { return (item + 1, nil) }
+        let r = 2 * item + 1
+        return (r, r + 1 <= totalPages ? r + 1 : nil)
+    }
 
     static func decode(_ json: String) -> MushafState? {
         guard let data = json.data(using: .utf8) else { return nil }
@@ -307,8 +326,12 @@ final class MadinahLayout {
             var x0 = CGFloat.greatestFiniteMagnitude, x1: CGFloat = -1
             for w in words where w.ayah == ayah { x0 = min(x0, w.left); x1 = max(x1, w.right) }
             if x1 < 0 { continue }
-            path.addRoundedRect(in: CGRect(x: x0 - 4, y: top + height * 0.06, width: x1 - x0 + 8, height: height * 0.88),
-                                cornerWidth: 10, cornerHeight: 10)
+            let rect = CGRect(x: x0 - 4, y: top + height * 0.06, width: x1 - x0 + 8, height: height * 0.88)
+            guard rect.width > 0, rect.height > 0, rect.width.isFinite, rect.height.isFinite else { continue }
+            // نصف القطر لا يتجاوز نصف ضلع الشريط: Core Graphics يتوقف (assert) إن زاد ضعف الزاوية على الضلع
+            // (أسطر قصيرة في iPhone SE مع مشغّل التلاوة، أو شريط علامة آية وحدها)
+            let r = max(0, min(10, rect.width / 2, rect.height / 2) - 0.01)
+            path.addRoundedRect(in: rect, cornerWidth: r, cornerHeight: r)
         }
         return path.isEmpty ? nil : path
     }
@@ -346,9 +369,36 @@ final class LayoutCache {
         guard peek(page, size) == nil else { return }
         queue.async { _ = self.obtain(page, size, fontPath: fontPath) }
     }
+
+    /// يحسب الصفحة في الخلفية ثم يستدعي [done] في الخيط الرئيس (بعد أن يستقر تغيّر المقاس)
+    func build(_ page: Int, _ size: CGSize, fontPath: String, done: @escaping () -> Void) {
+        queue.async {
+            _ = self.obtain(page, size, fontPath: fontPath)
+            DispatchQueue.main.async(execute: done)
+        }
+    }
 }
 
 // MARK: - الرسم
+
+/// موضع الصفحة في الكتاب المفتوح (PageSide في Spreads.kt)
+enum MushafSide { case single, right, left }
+
+/// شكل الورقة: في الكتاب المفتوح الزاويتان عند الكعب أصغر (كما في MushafPage)؛ أنصاف الأقطار لا تتجاوز نصف الضلع
+private func mushafPageShape(_ r: CGRect, side: MushafSide) -> CGPath {
+    let big = Geo.corner, small = Geo.spineCorner
+    let m = max(0, min(r.width, r.height) / 2)
+    let tl = min(side == .right ? small : big, m), bl = tl
+    let tr = min(side == .left ? small : big, m), br = tr
+    let p = CGMutablePath()
+    p.move(to: CGPoint(x: r.minX + tl, y: r.minY))
+    p.addArc(tangent1End: CGPoint(x: r.maxX, y: r.minY), tangent2End: CGPoint(x: r.maxX, y: r.maxY), radius: tr)
+    p.addArc(tangent1End: CGPoint(x: r.maxX, y: r.maxY), tangent2End: CGPoint(x: r.minX, y: r.maxY), radius: br)
+    p.addArc(tangent1End: CGPoint(x: r.minX, y: r.maxY), tangent2End: CGPoint(x: r.minX, y: r.minY), radius: bl)
+    p.addArc(tangent1End: CGPoint(x: r.minX, y: r.minY), tangent2End: CGPoint(x: r.maxX, y: r.minY), radius: tl)
+    p.closeSubpath()
+    return p
+}
 
 /// نجمة ثمانية من مربعين متراكبين (drawStar8 في Emblem.kt)
 private func star8(_ ctx: CGContext, center c: CGPoint, radius r: CGFloat, color: UIColor, stroke: CGFloat, rings: Bool) {
@@ -399,6 +449,8 @@ private enum Geo {
     static let headH: CGFloat = 22, ruleH: CGFloat = 10
     static let canvasTop: CGFloat = 8, canvasBottom: CGFloat = 2
     static let corner: CGFloat = 18
+    /// في الكتاب المفتوح: زاويتا الكعب (بين الصفحتين) والهامش عنده
+    static let spineCorner: CGFloat = 6, spineGap: CGFloat = 3
     /// عرض طرف الصفحة الذي يقلبها لمسُه في وضع التركيز
     static let edge: CGFloat = 0.14
 }
@@ -410,6 +462,7 @@ final class PageChromeView: UIView {
     var title = "", subtitle = "", digits = ""
     var read = false
     var marked = false
+    var side = MushafSide.single
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -427,6 +480,18 @@ final class PageChromeView: UIView {
         if let g = CGGradient(colorsSpace: space, colors: [p.paper.cgColor, p.paper.cgColor, p.paperEdge.cgColor] as CFArray, locations: [0, 0.5, 1]) {
             ctx.drawRadialGradient(g, startCenter: CGPoint(x: w / 2, y: h / 2), startRadius: 0,
                                    endCenter: CGPoint(x: w / 2, y: h / 2), endRadius: max(w, h) * 0.75, options: [.drawsAfterEndLocation])
+        }
+        // في الكتاب المفتوح: ظل خفيف عند الكعب (drawSpine في MushafStyle.kt)
+        if side != .single {
+            let sw = min(26, w / 4), innerLeft = side == .right
+            let shade = UIColor(red: 0, green: 0, blue: 0, alpha: 0.09).cgColor, clear = UIColor(red: 0, green: 0, blue: 0, alpha: 0).cgColor
+            let x0 = innerLeft ? 0 : w - sw
+            if let g = CGGradient(colorsSpace: space, colors: (innerLeft ? [shade, clear] : [clear, shade]) as CFArray, locations: [0, 1]) {
+                ctx.saveGState()
+                ctx.clip(to: CGRect(x: x0, y: 0, width: sw, height: h))
+                ctx.drawLinearGradient(g, start: CGPoint(x: x0, y: 0), end: CGPoint(x: x0 + sw, y: 0), options: [])
+                ctx.restoreGState()
+            }
         }
         // الإطار: خط ذهبي عريض وآخر رفيع بداخله، وفي زوايا الداخلي نجوم ثمانية
         let o: CGFloat = 7, i: CGFloat = 11, foot = Geo.frameFoot
@@ -585,8 +650,11 @@ protocol MushafPageHost: AnyObject {
 final class MushafPageView: UIView {
     weak var host: MushafPageHost?
     private(set) var page = 0
+    /// موضعها في الكتاب المفتوح: الهامش والزوايا عند الكعب وظله وطرف التقليب
+    var side = MushafSide.single { didSet { if side != oldValue { setNeedsLayout() } } }
 
     private let card = UIView()
+    private let cardMask = CAShapeLayer()
     private let chrome = PageChromeView()
     private let textArea = UIView()
     private let selectLayer = CAShapeLayer()
@@ -598,9 +666,15 @@ final class MushafPageView: UIView {
     let veil = UIView()
 
     private var layoutSize: CGSize = .zero
+    private var cardSide: MushafSide?
     private var shownSelection = -2
     private var pressTimer: Timer?
     private var pressStart: CGPoint?
+    /// تغيّر المقاس يُطبَّق فوراً (إعداد الخلية، أو تغيّر الحالة كظهور مشغّل التلاوة) لا بعد أن يستقر
+    var resizeNow = false
+    /// المقاس يتغير مع كل إطار (طيّ الرأس في وضع التركيز): تبقى الأسطر المحسوبة كما هي حتى يستقر، ثم تُحسب في الخلفية
+    private var resizing = false
+    private var resizeWork: DispatchWorkItem?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -620,6 +694,8 @@ final class MushafPageView: UIView {
         textArea.layer.addSublayer(selectLayer)
         textArea.layer.addSublayer(pressLayer)
         pressLayer.opacity = 0
+        // الأسطر لا تتجاوز منطقتها أثناء تغيّر المقاس (الرسم نفسه داخلها دائماً)
+        glyphs.clipsToBounds = true
         textArea.addSubview(glyphs)
         spinner.hidesWhenStopped = true
         card.addSubview(spinner)
@@ -659,24 +735,82 @@ final class MushafPageView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        let cardFrame = CGRect(x: Geo.padSide, y: Geo.padTop, width: bounds.width - 2 * Geo.padSide,
-                               height: bounds.height - Geo.padTop - Geo.padBottom - bottomInset)
-        if card.frame != cardFrame {
+        // في الكتاب المفتوح الهامش عند الكعب ضيق (كما في MushafPage)
+        let padLeft = side == .right ? Geo.spineGap : Geo.padSide
+        let padRight = side == .left ? Geo.spineGap : Geo.padSide
+        let cardFrame = CGRect(x: padLeft, y: Geo.padTop, width: max(bounds.width - padLeft - padRight, 0),
+                               height: max(bounds.height - Geo.padTop - Geo.padBottom - bottomInset, 0))
+        if card.frame != cardFrame || cardSide != side {
             card.frame = cardFrame
-            layer.shadowPath = UIBezierPath(roundedRect: cardFrame, cornerRadius: Geo.corner).cgPath
+            cardSide = side
+            if side == .single {
+                card.layer.mask = nil
+                card.layer.cornerRadius = Geo.corner
+                layer.shadowPath = UIBezierPath(roundedRect: cardFrame, cornerRadius: Geo.corner).cgPath
+            } else {
+                // زاويتان كبيرتان في الطرف الخارجي وصغيرتان عند الكعب: قناع بالشكل لا cornerRadius واحد
+                card.layer.cornerRadius = 0
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
+                cardMask.frame = card.bounds
+                cardMask.path = mushafPageShape(card.bounds, side: side)
+                CATransaction.commit()
+                card.layer.mask = cardMask
+                layer.shadowPath = mushafPageShape(cardFrame, side: side)
+            }
         }
+        if chrome.side != side { chrome.side = side; chrome.setNeedsDisplay() }
         chrome.frame = card.bounds
         veil.frame = card.bounds
         let top = Geo.colTop + Geo.headH + Geo.ruleH + Geo.canvasTop
-        let area = CGRect(x: Geo.colSide, y: top, width: card.bounds.width - 2 * Geo.colSide,
-                          height: card.bounds.height - top - Geo.colBottom - Geo.canvasBottom)
+        let area = CGRect(x: Geo.colSide, y: top, width: max(card.bounds.width - 2 * Geo.colSide, 0),
+                          height: max(card.bounds.height - top - Geo.colBottom - Geo.canvasBottom, 0))
         textArea.frame = area
         glyphs.frame = textArea.bounds
         spinner.center = CGPoint(x: area.midX, y: area.midY - 12)
         note.frame = CGRect(x: area.minX, y: area.midY + 4, width: area.width, height: 40)
         retry.sizeToFit()
         retry.center = CGPoint(x: area.midX, y: area.midY + 60)
-        if area.size != layoutSize { layoutSize = area.size; refreshText(animated: false) }
+        if area.size != layoutSize {
+            layoutSize = area.size
+            if canDeferResize() { deferRelayout() } else { endResize(); refreshText(animated: false) }
+        }
+    }
+
+    /// تغيّر المقاس يُرجأ إن كانت أسطر الصفحة معروضة ولم تُحسب للمقاس الجديد بعد (لا حساب مع كل إطار من التحريك)
+    private func canDeferResize() -> Bool {
+        guard !resizeNow, window != nil, let l = glyphs.layout, l.page == page, layoutSize.width > 0, layoutSize.height > 0 else { return false }
+        return LayoutCache.shared.peek(page, layoutSize) == nil
+    }
+
+    private func deferRelayout() {
+        if !resizing {
+            resizing = true
+            // الأسطر المرسومة تبقى في مكانها بلا إعادة رسم مع كل إطار
+            glyphs.contentMode = .topLeft
+        }
+        resizeWork?.cancel()
+        let p = page
+        let work = DispatchWorkItem { [weak self] in
+            guard let self = self, self.page == p, self.resizing, let host = self.host else { return }
+            let size = self.layoutSize
+            LayoutCache.shared.build(p, size, fontPath: host.session.fontPath(page: Int32(p))) { [weak self] in
+                guard let self = self, self.page == p, self.resizing, self.layoutSize == size else { return }
+                self.endResize()
+                self.refreshText(animated: true)
+            }
+        }
+        resizeWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: work)
+    }
+
+    private func endResize() {
+        resizeWork?.cancel()
+        resizeWork = nil
+        guard resizing else { return }
+        resizing = false
+        glyphs.contentMode = .redraw
+        glyphs.setNeedsDisplay()
     }
 
     /// يعرض الصفحة [p] (عند إعادة استعمال الخلية) أو يحدّثها بالحالة الجديدة
@@ -684,8 +818,11 @@ final class MushafPageView: UIView {
         let changed = p != page
         page = p
         if changed {
+            endResize()
             shownSelection = -2
             glyphs.layout = nil
+            // تُمحى أسطر الصفحة السابقة في الخلية المعاد استعمالها (وإن لم يكن خط هذه الصفحة في الجهاز بعد)
+            glyphs.setNeedsDisplay()
             cancelPress()
         }
         refreshChrome()
@@ -695,14 +832,23 @@ final class MushafPageView: UIView {
 
     func refreshChrome() {
         guard let host = host, let s = host.state, page > 0 else { return }
-        chrome.page = page
-        chrome.colors = host.colors
-        chrome.title = host.session.title(page: Int32(page))
-        chrome.subtitle = host.session.subtitle(page: Int32(page))
-        chrome.digits = host.session.digits(page: Int32(page))
-        chrome.read = s.isRead(page)
-        chrome.marked = s.marked.contains(page)
-        chrome.setNeedsDisplay()
+        let title = host.session.title(page: Int32(page))
+        let subtitle = host.session.subtitle(page: Int32(page))
+        let digits = host.session.digits(page: Int32(page))
+        let read = s.isRead(page), marked = s.marked.contains(page)
+        // يُعاد الرسم حين يتغير شيء فقط (تُستدعى مع كل ظهور للخلية)
+        if chrome.page != page || chrome.colors != host.colors || chrome.title != title || chrome.subtitle != subtitle
+            || chrome.digits != digits || chrome.read != read || chrome.marked != marked || chrome.side != side {
+            chrome.page = page
+            chrome.colors = host.colors
+            chrome.title = title
+            chrome.subtitle = subtitle
+            chrome.digits = digits
+            chrome.read = read
+            chrome.marked = marked
+            chrome.side = side
+            chrome.setNeedsDisplay()
+        }
         veil.backgroundColor = host.colors?.backdrop
         note.textColor = host.colors?.muted
         retry.tintColor = host.colors?.accent
@@ -711,9 +857,12 @@ final class MushafPageView: UIView {
 
     /// الأسطر: من الذاكرة إن حُسبت، وإلا تُحسب الآن (والخط إن لم يكن في الجهاز يُطلب، ويظهر مؤشر التنزيل)
     func refreshText(animated: Bool) {
-        guard let host = host, let s = host.state, page > 0, layoutSize.width > 0, layoutSize.height > 0 else { return }
+        guard let host = host, let s = host.state, page > 0 else { return }
+        // أثناء تغيّر المقاس تبقى الأسطر بمقاسها السابق حتى يستقر
+        let size = resizing ? (glyphs.layout?.size ?? layoutSize) : layoutSize
+        guard size.width > 0, size.height > 0 else { return }
         let path = host.session.fontPath(page: Int32(page))
-        let l = LayoutCache.shared.obtain(page, layoutSize, fontPath: path)
+        let l = LayoutCache.shared.obtain(page, size, fontPath: path)
         // الخط ليس في الجهاز: يُطلب (وبعد تعذّره بلا اتصال لا يُعاد إلا بزر إعادة المحاولة)
         if l == nil && !s.failed.contains(page) { host.session.requestFont(page: Int32(page)) }
         let hifzChanged = glyphs.hifz != s.hifz || glyphs.revealed != Set(s.revealed)
@@ -749,25 +898,33 @@ final class MushafPageView: UIView {
         host?.session.requestFont(page: Int32(page))
         retry.isHidden = true
         spinner.startAnimating()
+        // إن تعذّر التنزيل قبل أن تُرسل الحالة لم تتغير فلا يصل إشعار: تُراجع بعد لحظة فيعود زر إعادة المحاولة
+        let p = page
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let self = self, self.page == p, let s = self.host?.state else { return }
+            self.updateWaiting(self.glyphs.layout == nil, s)
+        }
     }
 
     /// تظليل الآية المختارة: الشريط الجديد يظهر والسابق يتلاشى
     func updateSelection(animated: Bool) {
         guard let host = host, let s = host.state else { return }
         let sel = s.selected
-        if sel == shownSelection { return }
-        shownSelection = sel
-        selectLayer.fillColor = host.colors?.select.cgColor
-        let path = glyphs.layout?.band(sel)
-        if animated && !UIAccessibility.isReduceMotionEnabled {
-            let fade = CATransition()
-            fade.type = .fade
-            fade.duration = 0.28
-            selectLayer.add(fade, forKey: "fade")
-        }
         CATransaction.begin()
-        if !animated { CATransaction.setDisableActions(true) }
-        selectLayer.path = path
+        // لا تحريك ضمني للون ولا للمسار: شريط آية لا يتحوّل إلى شريط أخرى، بل يظهر الجديد ويتلاشى السابق فقط
+        CATransaction.setDisableActions(true)
+        // اللون يتبع الورقة ولو بقيت الآية نفسها (تغيّر لون الورقة أو الوضع الليلي)
+        selectLayer.fillColor = host.colors?.select.cgColor
+        if sel != shownSelection {
+            shownSelection = sel
+            if animated && !UIAccessibility.isReduceMotionEnabled {
+                let fade = CATransition()
+                fade.type = .fade
+                fade.duration = 0.28
+                selectLayer.add(fade, forKey: "fade")
+            }
+            selectLayer.path = glyphs.layout?.band(sel)
+        }
         CATransaction.commit()
     }
 
@@ -783,10 +940,11 @@ final class MushafPageView: UIView {
     @objc private func tapped(_ g: UITapGestureRecognizer) {
         guard let host = host, let s = host.state else { return }
         let pt = g.location(in: card)
-        // في وضع التركيز: لمس طرف الصفحة يقلبها، الأيسر إلى التالية والأيمن إلى السابقة كالكتاب العربي
+        // في وضع التركيز: لمس طرف الصفحة يقلبها، الأيسر إلى التالية والأيمن إلى السابقة كالكتاب العربي؛
+        // وفي الكتاب المفتوح الطرفان الخارجيان فقط (طرف الكعب بين الصفحتين لا يقلب)
         if s.focus && card.bounds.width > 0 {
-            if pt.x < card.bounds.width * Geo.edge { host.session.edge(dir: 1); return }
-            if pt.x > card.bounds.width * (1 - Geo.edge) { host.session.edge(dir: -1); return }
+            if side != .right && pt.x < card.bounds.width * Geo.edge { host.session.edge(dir: 1); return }
+            if side != .left && pt.x > card.bounds.width * (1 - Geo.edge) { host.session.edge(dir: -1); return }
         }
         let i = ayah(at: g.location(in: self))
         if i >= 0 { host.session.tap(ayah: Int32(i)) } else { host.session.frameTap() }
@@ -852,27 +1010,77 @@ final class MushafPageView: UIView {
     }
 }
 
+/// موضع تقليب واحد: صفحة واحدة، أو كتاب مفتوح بصفحتين متقابلتين (الفردية على اليمين كمصحف المدينة المطبوع)
 final class MushafPageCell: UICollectionViewCell {
     static let id = "page"
-    let pageView = MushafPageView()
+    /// ما يُرسم من الموضع (الصفحة أو الصفحتان معاً): ينحسر كله أثناء التقليب كما في Compose
+    let book = UIView()
+    /// الصفحة الوحيدة، أو اليمنى في الكتاب المفتوح
+    let right = MushafPageView()
+    /// اليسرى في الكتاب المفتوح
+    let left = MushafPageView()
+    private(set) var spread = false
+    private(set) var hasLeft = false
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.addSubview(pageView)
+        contentView.addSubview(book)
+        book.addSubview(right)
+        book.addSubview(left)
+        left.side = .left
+        left.isHidden = true
+        book.accessibilityElements = [right]
     }
     required init?(coder: NSCoder) { fatalError() }
 
-    /// عرض الصفحة: الشاشة كلها في الهاتف، وفي الشاشات العريضة صفحة بنسبة المصحف المطبوع في الوسط
+    /// عرض الموضع: الشاشة كلها في الهاتف، وفي الشاشات العريضة صفحة (أو صفحتان) بنسبة المصحف المطبوع في الوسط
     var frameWidth: CGFloat = 0 { didSet { if frameWidth != oldValue { setNeedsLayout() } } }
+
+    /// الصفحات الظاهرة في الموضع (اليمنى أولاً، وهو ترتيب قارئ الشاشة)
+    var pageViews: [MushafPageView] { hasLeft ? [right, left] : [right] }
+
+    func setSpread(_ on: Bool, left withLeft: Bool) {
+        let l = on && withLeft
+        let changed = on != spread || l != hasLeft
+        spread = on
+        hasLeft = l
+        right.side = on ? .right : .single
+        left.isHidden = !l
+        if changed {
+            book.accessibilityElements = l ? [right, left] : [right]
+            setNeedsLayout()
+        }
+    }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        let w = frameWidth > 0 ? min(frameWidth, contentView.bounds.width) : contentView.bounds.width
-        let size = CGSize(width: w, height: contentView.bounds.height)
-        // bounds و center لا frame: الصفحة قد تكون مصغَّرة أثناء التقليب (transform)
-        if pageView.bounds.size != size { pageView.bounds = CGRect(origin: .zero, size: size) }
-        let c = CGPoint(x: contentView.bounds.midX, y: contentView.bounds.midY)
-        if pageView.center != c { pageView.center = c }
+        let full = contentView.bounds
+        let w = frameWidth > 0 ? min(frameWidth, full.width) : full.width
+        let size = CGSize(width: w, height: full.height)
+        // bounds و center لا frame: الموضع قد يكون مصغَّراً أثناء التقليب (transform)
+        if book.bounds.size != size { book.bounds = CGRect(origin: .zero, size: size) }
+        let c = CGPoint(x: full.midX, y: full.midY)
+        if book.center != c { book.center = c }
+        // اليمنى في النصف الأيمن واليسرى في الأيسر؛ والصفحة الوحيدة بالعرض كله
+        let half = spread ? w / 2 : w
+        let r = CGRect(x: w - half, y: 0, width: half, height: size.height)
+        if right.frame != r { right.frame = r }
+        // اليسرى المخفية (صفحة واحدة) لا تُخطَّط فلا تُحسب أسطر صفحة لا تظهر
+        let l = CGRect(x: 0, y: 0, width: half, height: size.height)
+        if hasLeft && left.frame != l { left.frame = l }
+    }
+
+    /// تخطيط فوري: تغيّر المقاس هنا (إعادة استعمال الخلية، أو تغيّر الحالة) لا ينتظر أن يستقر
+    func layoutNow() {
+        right.resizeNow = true
+        left.resizeNow = true
+        setNeedsLayout()
+        layoutIfNeeded()
+        right.setNeedsLayout()
+        right.layoutIfNeeded()
+        if hasLeft { left.setNeedsLayout(); left.layoutIfNeeded() }
+        right.resizeNow = false
+        left.resizeNow = false
     }
 }
 
@@ -890,10 +1098,11 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
     private(set) var colors: MushafColors?
     private let flow = RightToLeftFlowLayout()
     private lazy var pages = UICollectionView(frame: .zero, collectionViewLayout: flow)
-    private let count = 604
+    /// عدد مواضع التقليب المعروضة الآن (604 صفحة، أو 302 كتاباً مفتوحاً)؛ يتغير مع reloadData فقط
+    private var itemCount = 0
     /// آخر انتقال طلبه التطبيق وطُبِّق
     private var appliedSeq = -1
-    /// موضع الصفحة الظاهرة (رقمها ناقص واحد)
+    /// موضع التقليب الظاهر (Spreads.index: رقم الصفحة ناقص واحد، أو رقم الكتاب المفتوح)
     private var current = 0
     private var laidOutSize: CGSize = .zero
     /// الصفحات أُنشئت: عُرف المقاس ووصلت الحالة
@@ -961,10 +1170,10 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
         flow.itemSize = size
         linkBackGesture()
         if loaded {
-            // تغيّر المقاس (تدوير iPad، Split View): الصفحة نفسها تبقى ظاهرة
+            // تغيّر المقاس (تدوير iPad، Split View، طيّ الرأس في وضع التركيز): الموضع نفسه يبقى ظاهراً
             flow.invalidateLayout()
             pages.layoutIfNeeded()
-            scroll(to: current, animated: false)
+            scroll(to: current, animated: false, quiet: true)
         } else {
             loadIfReady()
         }
@@ -972,8 +1181,9 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
 
     /// الصفحات تُنشأ بعد أن يُعرف مقاسها وتصل الحالة (لا خلايا صغيرة تُحسب ثم تُرمى، ولا الصفحة الأولى قبل صفحة القارئ)
     private func loadIfReady() {
-        guard !loaded, laidOutSize != .zero, state != nil else { return }
+        guard !loaded, laidOutSize != .zero, let s = state else { return }
         loaded = true
+        itemCount = s.items
         pages.reloadData()
         pages.layoutIfNeeded()
         scroll(to: current, animated: false)
@@ -991,22 +1201,36 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
         let colorsChanged = c != colors
         colors = c
         if colorsChanged { pages.backgroundColor = c.backdrop }
-        if old == nil {
+        guard let o = old else {
             current = s.jump
             appliedSeq = s.seq
             loadIfReady()
             return
         }
-        let geometry = old.map { $0.bottom != s.bottom || $0.frame != s.frame } ?? false
+        // صفحة واحدة ↔ صفحتان متقابلتان (تدوير iPad، فتح iPhone Duo وطيّه): المواضع كلها جديدة، والقارئ على الموضع
+        // الذي فيه صفحته (Kotlin يبني NativeTurns جديداً موضعه Spreads.index(anchor, spread))
+        if o.isSpread != s.isSpread || o.items != s.items {
+            current = s.jump
+            appliedSeq = s.seq
+            if loaded {
+                itemCount = s.items
+                pages.reloadData()
+                pages.layoutIfNeeded()
+                scroll(to: current, animated: false)
+            }
+            return
+        }
+        let geometry = o.bottom != s.bottom || o.frame != s.frame
         for cell in pages.visibleCells.compactMap({ $0 as? MushafPageCell }) {
             cell.frameWidth = CGFloat(s.frame)
-            let v = cell.pageView
-            if geometry { v.setNeedsLayout(); v.layoutIfNeeded() }
-            if old == nil || colorsChanged || old?.marked != s.marked || old?.read != s.read { v.refreshChrome() }
-            if old == nil || colorsChanged || old?.hifz != s.hifz || old?.revealed != s.revealed || old?.fonts != s.fonts || old?.failed != s.failed {
-                v.refreshText(animated: old != nil)
+            if geometry { cell.layoutNow() }
+            for v in cell.pageViews {
+                if colorsChanged || o.marked != s.marked || o.read != s.read { v.refreshChrome() }
+                if colorsChanged || o.hifz != s.hifz || o.revealed != s.revealed || o.fonts != s.fonts || o.failed != s.failed {
+                    v.refreshText(animated: true)
+                }
+                if o.selected != s.selected || colorsChanged { v.updateSelection(animated: !colorsChanged) }
             }
-            if old?.selected != s.selected || colorsChanged { v.updateSelection(animated: !colorsChanged) }
         }
         // انتقال طلبه التطبيق (التلاوة، القفز إلى صفحة، طرف الصفحة في وضع التركيز)
         if s.seq != appliedSeq, loaded {
@@ -1018,45 +1242,65 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
         }
     }
 
-    private func scroll(to index: Int, animated: Bool) {
-        let i = max(0, min(count - 1, index))
+    /// [quiet]: إعادة المحاذاة بعد تغيّر المقاس (مع كل إطار أحياناً)، بلا طلب خطوط
+    private func scroll(to index: Int, animated: Bool, quiet: Bool = false) {
+        let i = max(0, min(itemCount - 1, index))
         current = i
         guard pages.numberOfItems(inSection: 0) > i else { return }
         pages.scrollToItem(at: IndexPath(item: i, section: 0), at: .centeredHorizontally, animated: animated)
         if !animated {
             pages.layoutIfNeeded()
             updateDepth()
-            session.prefetch(page: Int32(i + 1))
+            if !quiet { prefetchFonts(around: i) }
         }
+    }
+
+    /// خطوط الصفحات حول الموضع (في الكتاب المفتوح حول صفحته اليمنى: يشمل اليسرى والكتابين قبله وبعده)
+    private func prefetchFonts(around item: Int) {
+        guard let s = state else { return }
+        session.prefetch(page: Int32(s.pagesOf(item).right))
     }
 
     // MARK: الصفحات
 
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { loaded ? count : 0 }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { loaded ? itemCount : 0 }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MushafPageCell.id, for: indexPath) as! MushafPageCell
-        cell.frameWidth = CGFloat(state?.frame ?? 0)
-        cell.pageView.host = self
-        cell.pageView.show(page: indexPath.item + 1)
-        cell.setNeedsLayout()
-        cell.layoutIfNeeded()
+        configure(cell, item: indexPath.item)
         return cell
+    }
+
+    /// يعدّ الخلية للموضع [item] بالحالة الحالية؛ رخيص إن لم يتغير شيء
+    private func configure(_ cell: MushafPageCell, item: Int) {
+        guard let s = state else { return }
+        let pg = s.pagesOf(item)
+        cell.right.host = self
+        cell.left.host = self
+        cell.frameWidth = CGFloat(s.frame)
+        cell.setSpread(s.isSpread, left: pg.left != nil)
+        cell.right.show(page: pg.right)
+        if let l = pg.left { cell.left.show(page: l) }
+        cell.layoutNow()
     }
 
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         // أسطر الصفحات القادمة تُحسب في الخلفية بمقاس الصفحة الظاهرة، فلا يُحسب شيء لحظة وصولها
-        guard let visible = (pages.visibleCells.first as? MushafPageCell)?.pageView else { return }
+        guard let s = state, let visible = (pages.visibleCells.first as? MushafPageCell)?.right else { return }
         let size = visible.textAreaSize
-        guard size.width > 0 else { return }
+        guard size.width > 0, size.height > 0 else { return }
         for ip in indexPaths {
-            let p = ip.item + 1
-            if session.hasFont(page: Int32(p)) { LayoutCache.shared.prefetch(p, size, fontPath: session.fontPath(page: Int32(p))) }
-            else { session.requestFont(page: Int32(p)) }
+            let pg = s.pagesOf(ip.item)
+            for p in [pg.right] + (pg.left.map { [$0] } ?? []) where p >= 1 && p <= s.totalPages {
+                if session.hasFont(page: Int32(p)) { LayoutCache.shared.prefetch(p, size, fontPath: session.fontPath(page: Int32(p))) }
+                else { session.requestFont(page: Int32(p)) }
+            }
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        // الخلية المحضَّرة مسبقاً أو العائدة بعد أن غادرت لم تصلها الحالة الأخيرة (الورقة، المقاس، التظليل، الخط): تُحدَّث الآن
+        if let c = cell as? MushafPageCell { configure(c, item: indexPath.item) }
         updateDepth()
     }
 
@@ -1081,10 +1325,10 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
         guard let ip = pages.indexPathForItem(at: mid) else { return }
         current = ip.item
         session.settled(index: Int32(ip.item))
-        session.prefetch(page: Int32(ip.item + 1))
+        prefetchFonts(around: ip.item)
     }
 
-    /// الصفحة المغادرة تنحسر قليلاً وتخبو نحو لون ما حولها، كما في المصحف بـ Compose
+    /// الموضع المغادر ينحسر قليلاً وتخبو صفحاته نحو لون ما حولها، كما في المصحف بـ Compose
     private func updateDepth() {
         let w = pages.bounds.width
         guard w > 0 else { return }
@@ -1092,8 +1336,8 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
         for cell in pages.visibleCells.compactMap({ $0 as? MushafPageCell }) {
             let away = min(abs(cell.center.x - mid) / w, 1)
             let sc = 1 - 0.06 * away
-            cell.pageView.transform = CGAffineTransform(scaleX: sc, y: sc)
-            cell.pageView.veil.alpha = 0.4 * away
+            cell.book.transform = CGAffineTransform(scaleX: sc, y: sc)
+            for v in cell.pageViews { v.veil.alpha = 0.4 * away }
         }
     }
 }

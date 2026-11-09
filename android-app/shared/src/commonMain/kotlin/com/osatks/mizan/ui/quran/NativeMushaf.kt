@@ -10,10 +10,12 @@ import androidx.compose.ui.unit.Dp
 
 /**
  * موضع التقليب حين يعرض صفحاتِ المصحف قارئُ النظام نفسه (iOS: iosApp/iosApp/NativeMushaf.swift) بدل HorizontalPager:
- * [index] موضع الصفحة الظاهرة (رقمها ناقص واحد) بعد أن يستقر التقليب، و[scrolling] ما دام الإصبع يقلّب أو الصفحات تنساب،
+ * [index] موضع التقليب الظاهر بعد أن يستقر التقليب (بمعنى [Spreads.index]: رقم الصفحة ناقص واحد، أو رقم الكتاب المفتوح
+ * حين [spread])، و[scrolling] ما دام الإصبع يقلّب أو الصفحات تنساب،
  * و[jump] آخر انتقال طلبه التطبيق (التلاوة، القفز إلى صفحة، لمس طرف الصفحة) يطبّقه القارئ حين يتغير [JumpRequest.seq].
+ * [spread]: كل موضع صفحتان متقابلتان (iPad بالعرض، iPhone Duo مفتوحاً)، و[count] = [Spreads.count].
  */
-internal class NativeTurns(initial: Int, val count: Int) {
+internal class NativeTurns(initial: Int, val count: Int, val spread: Boolean = false) {
     var index by mutableIntStateOf(initial)
         private set
     var scrolling by mutableStateOf(false)
@@ -41,7 +43,7 @@ internal class JumpRequest(val index: Int, val animate: Boolean, val seq: Int)
 internal expect val nativeMushafAvailable: Boolean
 
 /**
- * صفحات مصحف المدينة (صفحة واحدة في العرض) يقلّبها ويرسمها النظام نفسه: UICollectionView و Core Text في iOS،
+ * صفحات مصحف المدينة (صفحة واحدة، أو صفحتان متقابلتان حين [NativeTurns.spread]) يقلّبها ويرسمها النظام نفسه: UICollectionView و Core Text في iOS،
  * بالورقة والإطار والترويسة والتظليل نفسها التي يرسمها [MushafPage]. اللمس والضغط المطوّل ولمس الإطار وطرفي الصفحة
  * تصل إلى الشاشة كما من [MushafPage]؛ وما فوق الصفحات (الرأس، شريط خيارات الآية، الأوراق) يبقى من Compose فوقه.
  */

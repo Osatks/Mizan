@@ -85,7 +85,7 @@ class NativeMushafSession internal constructor() {
 
     // ---------- من Swift ----------
 
-    /** استقر التقليب على الموضع [index] (رقم الصفحة ناقص واحد) */
+    /** استقر التقليب على الموضع [index] (رقم الصفحة ناقص واحد، أو رقم الكتاب المفتوح في عرض الصفحتين) */
     fun settled(index: Int) { turns?.settled(index) }
 
     /** بدأ الإصبع يقلّب */
@@ -165,9 +165,14 @@ internal actual fun NativeMushafPager(
     val read = remember(readCount) { buildString(Madinah.PAGES) { for (pg in 1..Madinah.PAGES) append(if (QuranProgress.isRead(pg)) '1' else '0') } }
     val marked = QuranPrefs.bookmarks.map { QuranMeta.pageOf(it) }.distinct().sorted()
     val jump = turns.jump
+    // أول حالة لقارئ جديد (عند الرجوع من عرض آية آية مثلاً) تفتحه على الموضع الذي استقر عليه التقليب [NativeTurns.index]،
+    // لا على آخر انتقال طلبه التطبيق؛ وبعدها الانتقال المطلوب كما هو ([JumpRequest.seq] نفسه فلا يقلّب القارئ)
+    val jumpTo = if (session.state.isEmpty()) turns.index else jump.index
     val json = Json.write(
         linkedMapOf<String, Any?>(
-            "jump" to jump.index, "animate" to jump.animate, "seq" to jump.seq,
+            "jump" to jumpTo, "animate" to jump.animate, "seq" to jump.seq,
+            // الكتاب المفتوح: كل موضع صفحتان متقابلتان (اليمنى 2i+1 واليسرى 2i+2)، وعدد المواضع Spreads.count
+            "spread" to turns.spread, "count" to turns.count, "pages" to Madinah.PAGES,
             "selected" to selected,
             "bottom" to bottomInset.value.toDouble(), "frame" to frame.value.toDouble(),
             "focus" to focus, "dark" to LocalDark.current,
