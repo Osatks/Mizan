@@ -8,6 +8,8 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.NightsStay
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.ui.graphics.luminance
@@ -44,7 +46,7 @@ import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Schedule
@@ -115,7 +117,7 @@ val TOOL_ICONS: Map<String, ImageVector> = mapOf(
     "events" to Icons.Filled.Event,
     "tasbih" to Icons.Filled.TouchApp,
     "adhkar" to Icons.Filled.AutoAwesome,
-    "fitr" to Icons.Filled.Grain,
+    "fitr" to Icons.Filled.Eco,
     "age" to Icons.Filled.Cake,
     "fidya" to Icons.Filled.VolunteerActivism,
 )
@@ -303,7 +305,7 @@ private fun NextChip(next: NextPrayer) {
     val cs = MaterialTheme.colorScheme
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 4.dp)) {
         Box(Modifier.size(30.dp).clip(CircleShape).background(cs.surface), contentAlignment = Alignment.Center) {
-            Icon(PRAYER_ICONS[next.key] ?: Icons.Outlined.Schedule, null, tint = cs.primary, modifier = Modifier.size(17.dp))
+            Icon(PRAYER_ICONS[next.key] ?: Icons.Outlined.Schedule, null, tint = cs.primary, modifier = Modifier.size(16.dp))
         }
         Spacer(Modifier.width(8.dp))
         Text(s.prayer(next.key), style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
@@ -315,7 +317,7 @@ private fun NextChip(next: NextPrayer) {
 }
 
 /** رموز الأوقات: الفجر نجوم، والشروق والمغرب أفق، والظهر شمس، والعصر شمس مائلة، والعشاء قمر */
-private val PRAYER_ICONS: Map<String, ImageVector> = mapOf(
+internal val PRAYER_ICONS: Map<String, ImageVector> = mapOf(
     "fajr" to Icons.Outlined.AutoAwesome,
     "sunrise" to Icons.Outlined.WbTwilight,
     "dhuhr" to Icons.Outlined.WbSunny,
@@ -336,7 +338,7 @@ private fun SectionHeader(title: String, modifier: Modifier, trailing: String? =
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(trailing, style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (trailingIcon != null) { Spacer(Modifier.width(4.dp)); Icon(trailingIcon, null, tint = cs.onSurfaceVariant, modifier = Modifier.size(18.dp)) }
+                if (trailingIcon != null) { Spacer(Modifier.width(4.dp)); Icon(trailingIcon, null, tint = cs.onSurfaceVariant, modifier = Modifier.size(16.dp)) }
             }
         }
     }
@@ -409,6 +411,8 @@ private fun PrayerCell(
 private fun DailyRow(modifier: Modifier, open: (String) -> Unit) {
     val s = LocalStrings.current
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    // أيقونات محددة (لا مصمتة) كما في iPhone
+    val icons = mapOf("adhkar" to Icons.Outlined.AutoAwesome, "tasbih" to Icons.Outlined.TouchApp, "qibla" to Icons.Outlined.Explore, "prayer" to Icons.Outlined.Schedule)
     val items = listOf(
         Triple("adhkar", Color(0xFFDDEFE3), Color(0xFF26443A)),
         Triple("tasbih", Color(0xFFF1EBDD), Color(0xFF4A4232)),
@@ -423,10 +427,10 @@ private fun DailyRow(modifier: Modifier, open: (String) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Box(Modifier.size(66.dp).clip(CircleShape).background(if (dark) deep else light), contentAlignment = Alignment.Center) {
-                    Icon(TOOL_ICONS.getValue(key), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
+                    Icon(icons[key] ?: TOOL_ICONS.getValue(key), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(26.dp))
                 }
                 Spacer(Modifier.height(6.dp))
-                Text(s.tools.getValue(key).name, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(s.tools.getValue(key).name, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -460,7 +464,7 @@ private fun AyahOfDayCard(today: LocalDate, modifier: Modifier, open: (String) -
                 com.osatks.mizan.quran.QuranData.withoutBismillah(text, idx), style = quranStyle(22, androidx.compose.ui.text.style.TextAlign.Center),
                 color = cs.onSurface, modifier = Modifier.fillMaxWidth(), maxLines = 6, overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(10.dp))
             Text(s.surahAyah(s.surahName(sn), an), style = MaterialTheme.typography.labelMedium, color = cs.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterHorizontally))
         }
     }
@@ -537,7 +541,7 @@ private fun QuranStartCard(onClick: () -> Unit) {
             ) { Icon(Icons.AutoMirrored.Filled.MenuBook, null, tint = Gold) }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text(s.quranTitle, color = Color.White, style = MaterialTheme.typography.titleMedium)
+                Text(s.quranTitle, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                 Text(s.startReading, color = Gold, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             }
             Text("ٱلْقُرْءَانُ", color = Color.White, style = quranStyle(26))
