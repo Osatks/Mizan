@@ -17,7 +17,7 @@ let package = Package(
         .target(name: "MizanContent", dependencies: ["MizanBase"]),
         .target(name: "MizanCore", dependencies: ["MizanBase", "MizanPrayer", "MizanCalc", "MizanQuran", "MizanContent"]),
         .executableTarget(name: "CheckPrayer", dependencies: ["MizanPrayer"]),
-        .executableTarget(name: "CheckCalc", dependencies: ["MizanCalc"]),
+        .executableTarget(name: "CheckCalc", dependencies: ["MizanCalc", "MizanBase"]),
         .executableTarget(name: "CheckQuran", dependencies: ["MizanQuran"]),
         .executableTarget(name: "CheckContent", dependencies: ["MizanContent"]),
     ]
