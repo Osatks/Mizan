@@ -408,7 +408,7 @@ private struct TasbihScreenBead: View {
                         Circle().fill(RadialGradient(colors: [HomePalette.color(s.bead1), HomePalette.color(s.bead2)],
                                                      center: .center, startRadius: 0, endRadius: 105))
                         VStack(spacing: 2) {
-                            Text("\(counter.shown)")
+                            Text(verbatim: String(counter.shown))
                                 .font(sys(64, .heavy)).monospacedDigit().foregroundColor(.white)
                                 .lineLimit(1).minimumScaleFactor(0.4)
                                 .modifier(NumericRoll(value: "\(counter.shown)"))

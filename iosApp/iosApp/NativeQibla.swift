@@ -507,7 +507,7 @@ private struct QiblaCalibSheet: View {
                     }
                     ForEach(Array(c.steps.enumerated()), id: \.offset) { i, step in
                         HStack(alignment: .top, spacing: 12) {
-                            Text("\(i + 1)").font(sys(14, .heavy)).foregroundColor(p.primary)
+                            Text(verbatim: String(i + 1)).font(sys(14, .heavy)).foregroundColor(p.primary)
                                 .frame(width: 28, height: 28).background(Circle().fill(p.primaryContainer))
                             Text(step).font(sys(15)).foregroundColor(p.onSurface)
                                 .frame(maxWidth: .infinity, alignment: .leading)

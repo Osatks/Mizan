@@ -446,7 +446,7 @@ private struct CountPill: View {
             if finished {
                 Image(systemName: "checkmark").font(.system(size: 13, weight: .heavy))
             } else if count > 1 {
-                Text("\(done) / \(count)").font(sys(14, .bold)).monospacedDigit().modifier(NumericRoll())
+                Text(verbatim: "\(done) / \(count)").font(sys(14, .bold)).monospacedDigit().modifier(NumericRoll())
                     .environment(\.layoutDirection, .leftToRight)
             }
             if !finished || count > 1 { Text(times).font(sys(12, .medium)) }
