@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -77,7 +78,40 @@ fun TafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get") {
     var tab by rememberSaveable { mutableStateOf(startTab) }
     var confirm by remember { mutableStateOf<RemoteTafsir?>(null) }
 
-    ToolPage(s.tafsirLibrary, s.tafsirLibrarySub, onBack = onBack, icon = Icons.AutoMirrored.Filled.LibraryBooks, spacing = 10.dp) {
+    // في iOS: بواجهة النظام (SwiftUI) بطراز الرئيسية؛ التنزيل والحذف والإظهار هنا كما في Compose، وSwift يرسم ويعيد اللمس
+    if (nativeTafsirsAvailable) {
+        NativeTafsirsView(
+            content = linkedMapOf(
+                "title" to s.tafsirLibrary, "subtitle" to s.tafsirLibrarySub,
+                "tab" to tab, "tabs" to listOf("get" to s.download, "device" to s.onDevice).map { (k, n) -> linkedMapOf("key" to k, "name" to n) },
+                "availableTitle" to s.availableDownloads, "deviceTitle" to s.onDevice, "note" to s.tafsirLibraryNote,
+                "download" to s.download, "retry" to s.retry, "cancel" to s.cancel, "delete" to s.delete,
+                "failed" to s.downloadFailed, "onDevice" to s.onDevice,
+                "downloads" to catalog.map { r -> nativeDownloadRow(r, lang, s) },
+                "installed" to installed.map { src ->
+                    linkedMapOf<String, Any?>(
+                        "id" to src.id, "slug" to src.remote?.slug, "badge" to badge(src.lang),
+                        "name" to Sources.label(src, s, lang),
+                        "sub" to listOf(Sources.kindLabel(src, s), isolate(src.remote?.author(lang) ?: src.author)).joinToString(" · ") +
+                            if (src.remote == null) " · ${s.builtIn}" else "",
+                        "shown" to !QuranPrefs.isHidden(src.id),
+                    )
+                },
+            ),
+            onAction = { k, x ->
+                when {
+                    k == "tab" -> { if (x == "get" || x == "device") tab = x }
+                    k == "download" -> TafsirLibrary.bySlug(x)?.let { r -> TafsirLibrary.download(r.slug) { QuranPrefs.updateSource(r.id) } }
+                    k == "cancel" -> TafsirLibrary.cancel(x)
+                    k == "delete" -> { confirm = TafsirLibrary.bySlug(x) }
+                    k.startsWith("visible:") -> QuranPrefs.setVisible(k.removePrefix("visible:"), x == "true")
+                    else -> {}
+                }
+            },
+            onBack = onBack,
+            modifier = Modifier.fillMaxSize(),
+        )
+    } else ToolPage(s.tafsirLibrary, s.tafsirLibrarySub, onBack = onBack, icon = Icons.AutoMirrored.Filled.LibraryBooks, spacing = 10.dp) {
         item(key = "tabs") { Segmented(listOf("get" to s.download, "device" to s.onDevice), tab) { tab = it } }
         if (tab == "get") {
             item(key = "h-get") { SectionTitle(s.availableDownloads) }
@@ -191,6 +225,27 @@ private fun DownloadRow(r: RemoteTafsir, lang: Lang) {
             )
         }
     }
+}
+
+/** «ع» للعربية، ورمز اللغة لغيرها (كما في [LangBadge]) */
+private fun badge(l: Lang) = if (l == Lang.AR) "ع" else l.code.uppercase()
+
+/** صف تفسير قابل للتنزيل لواجهة النظام: حالته (done، running، failed، idle) ونسبة تقدمه منسّقة كما في [DownloadRow] */
+private fun nativeDownloadRow(r: RemoteTafsir, lang: Lang, s: com.osatks.mizan.i18n.Strings): Map<String, Any?> {
+    val state = TafsirLibrary.states[r.slug]
+    val done = (state as? DownloadState.Running)?.done ?: 0
+    val progress = done / TafsirLibrary.SURAHS.toDouble()
+    return linkedMapOf(
+        "slug" to r.slug, "badge" to badge(r.lang), "name" to r.name(lang),
+        "sub" to "${isolate(r.author(lang))} · ${isolate(s.sizeMb(Fmt.num(r.sizeMb.toDouble(), 1)))}",
+        "state" to when {
+            TafsirLibrary.isDownloaded(r.slug) -> "done"
+            state is DownloadState.Running -> "running"
+            state == DownloadState.Failed -> "failed"
+            else -> "idle"
+        },
+        "progress" to progress, "pct" to s.downloadingPct((progress * 100).toInt()),
+    )
 }
 
 /** يعزل النص باتجاهه (FSI…PDI) حتى لا يختلط ترتيبه مع ما حوله إذا اختلفت اللغتان */
