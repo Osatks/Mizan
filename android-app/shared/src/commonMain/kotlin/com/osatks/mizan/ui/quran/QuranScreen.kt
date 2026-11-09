@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -86,6 +87,7 @@ fun Strings.ayahRef(index: Int): String {
 /** فهرس المصحف: متابعة القراءة، والبحث في السور والآيات، والسور والأجزاء والمحفوظات */
 @Composable
 fun QuranScreen(open: (String) -> Unit) {
+    if (nativeQuranAvailable) { NativeQuranView(open, Modifier.fillMaxSize()); return }
     QuranPrefs.ensure()
     val s = LocalStrings.current
     val lang = LocalLang.current
@@ -214,7 +216,7 @@ private fun FocusPill(index: Int, open: (String) -> Unit) {
 }
 
 /** نسبة ما قُرئ من صفحات السورة في الختمة الحالية */
-private fun surahProgress(n: Int): Float {
+internal fun surahProgress(n: Int): Float {
     val first = QuranMeta.pageOf(QuranMeta.STARTS[n - 1])
     val last = QuranMeta.pageOf(QuranMeta.STARTS[n - 1] + QuranMeta.COUNTS[n - 1] - 1)
     return (first..last).count { QuranProgress.isRead(it) } / (last - first + 1).toFloat()
