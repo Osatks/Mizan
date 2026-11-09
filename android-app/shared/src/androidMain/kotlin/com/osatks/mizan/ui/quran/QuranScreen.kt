@@ -2,6 +2,10 @@ package com.osatks.mizan.ui.quran
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -91,14 +94,7 @@ fun QuranScreen(open: (String) -> Unit) {
         if (q.isBlank()) side(key = "khatma") { KhatmaCard(open) }
         if (q.isBlank()) item(key = "evidence") { com.osatks.mizan.ui.screens.EvidenceCard(com.osatks.mizan.i18n.Evidence.quran) }
         full(key = "search") {
-            OutlinedTextField(
-                value = q, onValueChange = { q = it }, singleLine = true,
-                placeholder = { Text(s.searchQuranHint, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                leadingIcon = { Icon(Icons.Filled.Search, null, tint = MaterialTheme.colorScheme.primary) },
-                trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, s.clear) } },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            )
+            QuranSearchField(q) { q = it }
         }
         if (q.isNotBlank()) {
             if (ref != null) full(key = "ref") { AyahHit(ref, text, open) }
@@ -125,6 +121,40 @@ fun QuranScreen(open: (String) -> Unit) {
             }
         }
     }
+}
+
+/** حقل البحث بطراز iPhone: بطاقة بيضاء بحافة رفيعة، وعدسة بلون التطبيق، وزر مسح دائري */
+@Composable
+private fun QuranSearchField(q: String, onChange: (String) -> Unit) {
+    val s = LocalStrings.current
+    val cs = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(16.dp)
+    BasicTextField(
+        value = q, onValueChange = onChange, singleLine = true,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(color = cs.onSurface),
+        cursorBrush = SolidColor(cs.primary),
+        modifier = Modifier.fillMaxWidth(),
+        decorationBox = { inner ->
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 54.dp).background(cs.surface, shape).border(1.dp, cs.outlineVariant, shape)
+                    .padding(start = 14.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Filled.Search, null, Modifier.size(22.dp), tint = cs.primary)
+                HSpace(10.dp)
+                Box(Modifier.weight(1f).padding(vertical = 12.dp), contentAlignment = Alignment.CenterStart) {
+                    if (q.isEmpty()) Text(
+                        s.searchQuranHint, style = MaterialTheme.typography.bodyLarge, color = cs.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                    inner()
+                }
+                if (q.isNotEmpty()) IconButton(onClick = { onChange("") }, Modifier.size(40.dp)) {
+                    Icon(Icons.Filled.Cancel, s.clear, Modifier.size(20.dp), tint = cs.onSurfaceVariant)
+                }
+            }
+        }
+    )
 }
 
 @Composable

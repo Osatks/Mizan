@@ -18,10 +18,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -93,7 +96,7 @@ fun KhatmaCard(open: (String) -> Unit) {
                     }
                     Text(s.pagesRead(p.readCount, total), style = MaterialTheme.typography.bodyMedium, color = muted)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.LocalFireDepartment, null, tint = if (p.streak > 0) Gold else track, modifier = Modifier.size(17.dp))
+                        Icon(Icons.Filled.LocalFireDepartment, null, tint = if (p.streak > 0) Gold else track, modifier = Modifier.size(15.dp))
                         Text(" " + s.streakDays(p.streak), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                         if (p.planDays > 0 && !p.finished) {
                             Text("  ·  " + s.daysLeftLabel(p.daysLeft()), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
@@ -105,7 +108,7 @@ fun KhatmaCard(open: (String) -> Unit) {
             if (p.finished) {
                 Text(s.khatmaDone, color = primary, fontWeight = FontWeight.Bold)
                 if (p.completed > 0) Text(s.khatmasCompleted(p.completed), style = MaterialTheme.typography.bodySmall, color = muted)
-                Button(onClick = { p.restart() }, modifier = Modifier.fillMaxWidth()) { Text(s.newKhatma) }
+                KhatmaButton(s.newKhatma, null) { p.restart() }
             } else {
                 if (goal > 0) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -128,16 +131,9 @@ fun KhatmaCard(open: (String) -> Unit) {
                         }
                     }
                 }
-                Button(
-                    onClick = {
-                        val (sn, an) = QuranMeta.locate(QuranMeta.PAGES[p.nextUnread() - 1])
-                        open(surahRoute(sn, an, "khatma"))
-                    },
-                    modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.MenuBook, null, Modifier.size(20.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(s.continuePortion, maxLines = 1, fontWeight = FontWeight.Bold)
+                KhatmaButton(s.continuePortion, Icons.AutoMirrored.Filled.MenuBook) {
+                    val (sn, an) = QuranMeta.locate(QuranMeta.PAGES[p.nextUnread() - 1])
+                    open(surahRoute(sn, an, "khatma"))
                 }
             }
         }
@@ -155,9 +151,10 @@ private fun PlanMenu() {
             onClick = { expanded = true }, shape = CircleShape,
             color = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ) {
-            Row(Modifier.padding(start = 10.dp, end = 4.dp, top = 3.dp, bottom = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(start = 10.dp, end = 8.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(s.planDays(p.planDays), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, maxLines = 1)
-                Icon(Icons.Filled.ArrowDropDown, s.khatmaPlanLabel, Modifier.size(18.dp))
+                Spacer(Modifier.width(2.dp))
+                Icon(Icons.Filled.KeyboardArrowDown, s.khatmaPlanLabel, Modifier.size(14.dp))
             }
         }
         // المدد في مجموعة، و«ختمة جديدة» في مجموعة بعدها
@@ -167,5 +164,20 @@ private fun PlanMenu() {
                 if (p.readCount > 0) listOf(com.osatks.mizan.ui.MenuGroupGap, com.osatks.mizan.ui.MenuItem(s.newKhatma, Icons.Filled.Refresh) { p.restart() }) else emptyList(),
             title = s.khatmaPlanLabel, width = 240.dp,
         )
+    }
+}
+
+/** زر الختمة الأساسي (كما في iPhone): بعرض البطاقة وارتفاع 48 وزوايا 16، وأيقونة اختيارية */
+@Composable
+private fun KhatmaButton(text: String, icon: ImageVector?, onClick: () -> Unit) {
+    Button(
+        onClick = onClick, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary)
+    ) {
+        if (icon != null) {
+            Icon(icon, null, Modifier.size(20.dp))
+            Spacer(Modifier.width(8.dp))
+        }
+        Text(text, maxLines = 1, fontWeight = FontWeight.Bold, fontSize = 15.sp)
     }
 }
