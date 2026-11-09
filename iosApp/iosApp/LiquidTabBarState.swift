@@ -1,7 +1,7 @@
 import Foundation
 
-/// حالة شريط التبويبات كما يرسلها Kotlin (tabBarStateJson في TabBar.kt) مع الإشعار MizanTabBarChanged.
-/// Foundation وحدها، فتُختبر خارج Xcode أيضاً.
+/// حالة شريط التبويبات كما يرسلها Kotlin (tabBarStateJson في TabBar.kt، من الصفحة الظاهرة في IosNav.kt) مع الإشعار
+/// MizanTabBarChanged، ويطبّقها TabsController (MizanNavigation.swift). Foundation وحدها، فتُختبر خارج Xcode أيضاً.
 struct LiquidTabBarState: Decodable, Equatable {
     struct Tab: Decodable, Equatable {
         let route: String
@@ -11,8 +11,9 @@ struct LiquidTabBarState: Decodable, Equatable {
     }
 
     let tabs: [Tab]
-    /// التبويب المختار؛ nil في صفحة ليست تبويباً (يبقى اختيار الشريط كما هو وهو يختفي)
+    /// التبويب المختار؛ nil دائماً الآن (الاختيار في UITabBarController نفسه)
     let selected: String?
+    /// false أثناء ستار تبديل اللغة: يختفي الشريط معه
     let visible: Bool
     /// اتجاه لغة التطبيق لا لغة النظام: العربية من اليمين وإن كان النظام بالإنجليزية
     let rtl: Bool

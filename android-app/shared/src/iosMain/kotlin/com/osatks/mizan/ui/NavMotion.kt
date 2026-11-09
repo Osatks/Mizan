@@ -8,8 +8,7 @@ import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGAffineTransform
 import platform.CoreGraphics.CGAffineTransformMake
 import platform.CoreGraphics.CGAffineTransformMakeScale
-import platform.CoreGraphics.CGPoint
-import platform.CoreGraphics.CGRectMake
+import platform.CoreGraphics.CGPointMake
 import platform.Foundation.NSRunLoop
 import platform.Foundation.NSRunLoopCommonModes
 import platform.Foundation.NSSelectorFromString
@@ -18,7 +17,6 @@ import platform.QuartzCore.CADisplayLink
 import platform.QuartzCore.kCACornerCurveContinuous
 import platform.UIKit.UIAccessibilityIsReduceMotionEnabled
 import platform.UIKit.UIColor
-import platform.UIKit.UIEvent
 import platform.UIKit.UIView
 import platform.UIKit.UIViewAnimationOptionBeginFromCurrentState
 import platform.UIKit.UIViewAnimationOptionCurveEaseIn
@@ -30,30 +28,17 @@ import platform.darwin.dispatch_time
 import platform.darwin.DISPATCH_TIME_NOW
 
 /**
- * انتقالات التنقل في iOS بـ Core Animation ([NavTransitions]): قبل التغيير تُلتقط صورة الشاشة كما هي، ثم تتغير الصفحات
- * في Compose فوراً تحتها، وتتحرك الصورة والشاشة الحية معاً. الحركة يرسمها خادم العرض في النظام، فتبقى ناعمة ولو انشغل
- * الخيط الرئيسي ببناء الصفحة الجديدة (أول فتح لشاشة من واجهة النظام كان يقفز بالانزلاق إلى آخره).
+ * انتقالات الصفحات الفرعية داخل صفحة واحدة في iOS بـ Core Animation ([NavTransitions]: أقسام الأذكار وأنواع الزكاة):
+ * قبل التغيير تُلتقط صورة الصفحة كما هي، ثم تتغير في Compose فوراً تحتها، وتتحرك الصورة والصفحة الحية معاً. التنقل بين
+ * الشاشات نفسها في UIKit (MizanNavigation.swift) بالحركة نفسها، فتبدو الصفحات الفرعية صفحاتٍ كغيرها.
  *
- * فتح صفحة: تتراجع الصفحة السابقة فوراً (تصغر وتعتم بزوايا مستديرة فوق خلفية سوداء، كما تحت الأوراق في النظام)، ثم تنمو
- * الجديدة من موضع اللمس (البطاقة أو السطر الذي لُمس) وتظهر، حين يُرسم أول إطار منها. الرجوع عكسه: تصغر الصفحة نحو
- * الموضع الذي فُتحت منه وتختفي، وتعود التي تحتها إلى مكانها. تبديل التبويب: تلاشٍ سريع. مع «تقليل الحركة»: تلاشٍ فقط.
+ * فتح صفحة: تتراجع السابقة فوراً (تصغر وتعتم بزوايا مستديرة فوق خلفية سوداء)، ثم تنمو الجديدة من موضع اللمس حين يُرسم
+ * أول إطار منها. الرجوع عكسه: تصغر نحو الموضع الذي فُتحت منه وتختفي. مع «تقليل الحركة»: تلاشٍ فقط.
+ * [root]: واجهة متحكم الصفحة، و [content] واجهة Compose فيها.
  */
 @OptIn(ExperimentalForeignApi::class)
 internal class NavMotion(private val root: UIView) : NavTransitions {
-    /** واجهة Compose (تحتها واجهات النظام المضمّنة) وشريط التبويبات فوقها */
     var content: UIView? = null
-    var bar: UIView? = null
-
-    private var touchX = 0.0
-    private var touchY = 0.0
-    private var touchAt = -10.0
-
-    /** آخر لمس بدأ في الشاشة (من [RootView]) */
-    fun touched(x: Double, y: Double) {
-        touchX = x
-        touchY = y
-        touchAt = CACurrentMediaTime()
-    }
 
     /** ينهي الانتقال الجاري فوراً (قبل انتقال جديد) */
     private var finish: (() -> Unit)? = null
@@ -62,10 +47,12 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
 
     private fun size(): Pair<Double, Double> = root.bounds.useContents { size.width to size.height }
 
-    /** موضع النمو: حيث لمس الإصبع قبل قليل (بطاقة، سطر)، وإلا منتصف الشاشة (رابط أو اختصار) */
+    /** موضع النمو: حيث لمس الإصبع قبل قليل (بطاقة، سطر)، وإلا منتصف الصفحة */
     private fun origin(): Origin {
         val (w, h) = size()
-        return if (CACurrentMediaTime() - touchAt < 1.5) Origin(touchX.coerceIn(0.0, w), touchY.coerceIn(0.0, h)) else Origin(w / 2, h / 2)
+        val t = com.osatks.mizan.IosNav.recentTouch() ?: return Origin(w / 2, h / 2)
+        // اللمس بنقاط النافذة، والصفحة تملؤها عادة
+        return root.convertPoint(CGPointMake(t.x, t.y), fromView = null).useContents { Origin(x.coerceIn(0.0, w), y.coerceIn(0.0, h)) }
     }
 
     override fun push(change: () -> Unit): Any? {
@@ -78,10 +65,9 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
         }
         val o = origin()
         if (reduce) {
-            fade(old, overBar = true, change)
+            fade(old, change)
             return o
         }
-        val b = bar
         val bg = root.backgroundColor
         val clips = c.clipsToBounds
         old.setFrame(root.bounds)
@@ -91,7 +77,6 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
         // الصورة تحت الشاشة الحية، والحية مخفية حتى تُرسم الصفحة الجديدة
         root.insertSubview(old, atIndex = 0)
         root.backgroundColor = UIColor.blackColor
-        b?.alpha = 0.0
         c.alpha = 0.0
         root.userInteractionEnabled = false
         change()
@@ -113,7 +98,6 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
                 c.layer.cornerRadius = 0.0
                 c.clipsToBounds = clips
                 old.removeFromSuperview()
-                b?.alpha = 1.0
                 root.backgroundColor = bg
                 root.userInteractionEnabled = true
                 finish = null
@@ -148,12 +132,11 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
             return
         }
         if (reduce) {
-            fade(top, overBar = true, change)
+            fade(top, change)
             return
         }
         val (w0, h0) = size()
         val o = origin as? Origin ?: Origin(w0 / 2, h0 / 2)
-        val b = bar
         val bg = root.backgroundColor
         val clips = c.clipsToBounds
         top.setFrame(root.bounds)
@@ -172,13 +155,10 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
                 done = true
                 waiter?.stop()
                 c.layer.removeAllAnimations()
-                b?.layer?.removeAllAnimations()
                 c.transform = identity()
                 c.alpha = 1.0
                 c.layer.cornerRadius = 0.0
                 c.clipsToBounds = clips
-                b?.transform = identity()
-                b?.alpha = 1.0
                 top.removeFromSuperview()
                 root.backgroundColor = bg
                 root.userInteractionEnabled = true
@@ -197,15 +177,12 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
                 c.layer.cornerCurve = kCACornerCurveContinuous
                 c.layer.cornerRadius = RADIUS
                 c.clipsToBounds = true
-                // الشريط يكبر مع الصفحة فقط: شفافية جزئية على زجاج Liquid Glass لا تُرسم صحيحة
-                b?.transform = back
                 UIView.animateWithDuration(
                     0.44, 0.0, 1.0, 0.0, UIViewAnimationOptionBeginFromCurrentState,
                     {
                         c.transform = identity()
                         c.alpha = 1.0
                         c.layer.cornerRadius = 0.0
-                        b?.transform = identity()
                         top.transform = zoom(EXIT_SCALE, o, w, h)
                         top.layer.cornerRadius = RADIUS
                     },
@@ -217,26 +194,13 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
         guard(end)
     }
 
-    override fun tab(change: () -> Unit) {
-        finish?.invoke()
-        val c = content
-        val old = if (c != null && root.window != null) c.snapshotViewAfterScreenUpdates(false) else null
-        if (c == null || old == null) {
-            change()
-            return
-        }
-        // تحت شريط التبويبات: عدسة الاختيار فيه تنتقل وحدها، ولمسة تبويب آخر أثناء التلاشي تعمل
-        fade(old, overBar = false, change)
-    }
-
-    /** تلاشي صورة الشاشة السابقة فوق الحية بعد أن تُرسم الجديدة (التبويبات، ومع «تقليل الحركة») */
-    private fun fade(old: UIView, overBar: Boolean, change: () -> Unit) {
-        val c = content ?: return change()
-        old.setFrame(if (overBar) root.bounds else c.frame)
+    /** تلاشي صورة الصفحة السابقة فوق الحية بعد أن تُرسم الجديدة (مع «تقليل الحركة») */
+    private fun fade(old: UIView, change: () -> Unit) {
+        if (content == null) return change()
+        old.setFrame(root.bounds)
         old.userInteractionEnabled = false
-        val b = bar
-        if (overBar || b == null || b.superview != root) root.addSubview(old) else root.insertSubview(old, belowSubview = b)
-        if (overBar) root.userInteractionEnabled = false
+        root.addSubview(old)
+        root.userInteractionEnabled = false
         change()
         var waiter: FrameWaiter? = null
         var done = false
@@ -245,13 +209,13 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
                 done = true
                 waiter?.stop()
                 old.removeFromSuperview()
-                if (overBar) root.userInteractionEnabled = true
+                root.userInteractionEnabled = true
                 finish = null
             }
         }
         finish = end
-        waiter = FrameWaiter(TAB_WAIT) {
-            if (!done) UIView.animateWithDuration(if (overBar) 0.3 else 0.2, 0.0, UIViewAnimationOptionCurveEaseOut, { old.alpha = 0.0 }, { _ -> end() })
+        waiter = FrameWaiter(FADE_WAIT) {
+            if (!done) UIView.animateWithDuration(0.3, 0.0, UIViewAnimationOptionCurveEaseOut, { old.alpha = 0.0 }, { _ -> end() })
         }.also { it.start() }
         guard(end)
     }
@@ -272,7 +236,7 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
         /** أطول انتظار لأول إطار من الصفحة الجديدة قبل أن تبدأ الحركة على أي حال */
         const val PUSH_WAIT = 0.5
         const val POP_WAIT = 0.3
-        const val TAB_WAIT = 0.35
+        const val FADE_WAIT = 0.35
     }
 }
 
@@ -319,14 +283,5 @@ private class FrameWaiter(private val maxWait: Double, private val then: () -> U
     fun stop() {
         link?.invalidate()
         link = null
-    }
-}
-
-/** جذر النافذة: يخبر [onTouch] بموضع كل لمس يبدأ، فتنمو الصفحة التي يفتحها من مكانه */
-@OptIn(ExperimentalForeignApi::class)
-internal class RootView(private val onTouch: (Double, Double) -> Unit) : UIView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0)) {
-    override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
-        point.useContents { onTouch(x, y) }
-        return super.hitTest(point, withEvent)
     }
 }

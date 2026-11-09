@@ -1,7 +1,5 @@
 package com.osatks.mizan
 
-import com.osatks.mizan.ui.StackNavHost
-import com.osatks.mizan.ui.StackNav
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.input.pointer.pointerInput
 import com.osatks.mizan.ui.PageMotion
@@ -54,7 +52,6 @@ import com.osatks.mizan.ui.LocalTabBarHost
 import com.osatks.mizan.ui.LocalLeadingInset
 import com.osatks.mizan.ui.LocalWindowLayout
 import com.osatks.mizan.ui.WindowLayout
-import com.osatks.mizan.ui.IsIos
 import com.osatks.mizan.ui.LocalAppHaze
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -82,28 +79,42 @@ import com.osatks.mizan.ui.screens.SettingsScreen
 import com.osatks.mizan.ui.screens.TasbihScreen
 import com.osatks.mizan.ui.screens.ZakatScreen
 import com.osatks.mizan.ui.theme.MizanTheme
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.Dispatchers
 
 /**
- * التطبيق كله: التنقل بين الشاشات، وشريط التبويبات، وجولة أول تشغيل.
- * يستضيفه MainActivity في أندرويد و MainViewController في iOS.
+ * التطبيق كله في أندرويد: التنقل بين الشاشات، وشريط التبويبات، وجولة أول تشغيل. يستضيفه MainActivity.
+ * في iOS التنقل من UIKit نفسه (UITabBarController و UINavigationController، MizanNavigation.swift و IosNav.kt):
+ * كل صفحة متحكم خاص بها يعرض [PageContent] لمسارها.
  */
 /** نسخة دليل التطبيق: تُرفع حين تضاف صفحات جديدة فيراها من حدّث التطبيق مرة واحدة */
-private const val GUIDE_VERSION = 2
+internal const val GUIDE_VERSION = 2
 /** صفحات الجولة الأساسية (Strings.onboarding) قبل صفحات الدليل الجديدة */
-private const val BASE_GUIDE_PAGES = 5
+internal const val BASE_GUIDE_PAGES = 5
+
+/** جولة أول تشغيل (من أولها)، أو صفحات الدليل الجديدة بعد التحديث (من [BASE_GUIDE_PAGES])؛ null إن رآها المستخدم */
+internal fun pendingGuide(): Int? = when {
+    !AppSettings.getBool("onboarded", false) -> 0
+    AppSettings.getInt("guideSeen", 0) < GUIDE_VERSION -> BASE_GUIDE_PAGES
+    else -> null
+}
+
+/** انتهت الجولة: لا تظهر مرة أخرى حتى تُرفع [GUIDE_VERSION] */
+internal fun guideDone() {
+    AppSettings.putBool("onboarded", true)
+    AppSettings.putInt("guideSeen", GUIDE_VERSION)
+}
+
+/** مسار يُفتح من رابط (أداة، اختصار، إشعار، وسيط تشغيل) */
+internal fun isRoute(route: String): Boolean = route in ROUTES || route.startsWith("surah/")
 
 internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses", "hadith", "tools")
-private val TAB_ROUTES = TABS.map { it.route }.toSet()
+internal val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 /**
  * التنقل كما تراه الشاشات: في أندرويد NavHost (رجوع النظام التنبؤي والعناصر المشتركة بين الصفحات)،
- * وفي iOS StackNav (صفحات حية كما في UINavigationController، وسحب الحافة بلغة التطبيق).
+ * وفي iOS جسر إلى منسّق UIKit (IosAppNav في IosNav.kt).
  */
 @Stable
-private interface AppNav {
+internal interface AppNav {
     fun open(route: String)
     fun back()
     fun goTab(route: String)
@@ -143,20 +154,6 @@ private class AndroidNav(val nav: NavHostController) : AppNav {
     }
 }
 
-private class IosNav(val stack: StackNav) : AppNav {
-    override fun open(route: String) { if (route in TAB_ROUTES) stack.goTab(route) else stack.push(route) }
-    override fun back() { stack.pop() }
-    override fun goTab(route: String) = stack.goTab(route)
-    override fun deepLink(route: String) {
-        stack.reset()
-        if (route in TAB_ROUTES) stack.goTab(route) else stack.push(route)
-    }
-    override fun searchResult(route: String) {
-        if (stack.current != "search") return
-        if (route in TAB_ROUTES) stack.goTab(route) else stack.replace(route)
-    }
-}
-
 /**
  * تسجيل حركة التنقل من المحاكي (fastlane/screenshots.sh، الوسيط «-mizan.motion_script»): خطوات بلا لمس تُنفَّذ بالترتيب،
  * مفصولة بفواصل: wait:<ms>، open:<route>، back، tab:<route>، at:<x>:<y>. لفحص سلاسة الانتقالات في فيديو؛ لا يصل إليه المستخدم
@@ -191,26 +188,17 @@ object MotionScript {
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MizanApp(startRoute: String? = null) {
-    val navController = if (IsIos) null else rememberNavController()
-    val stack = if (IsIos) remember { StackNav("home") } else null
-    val app: AppNav = remember { if (stack != null) IosNav(stack) else AndroidNav(navController!!) }
+    val navController = rememberNavController()
+    val app: AppNav = remember { AndroidNav(navController) }
     SideEffect {
         MotionScript.open = { app.open(it) }
         MotionScript.back = { app.back() }
         MotionScript.tab = { app.goTab(it) }
     }
-    // المسار الظاهر: أثناء رجوع في iOS هو الصفحة التي يُرجع إليها (فيعود شريط التبويبات مع الحركة)
-    val current: String? = if (stack != null) stack.current else navController!!.currentBackStackEntryAsState().value?.destination?.route
+    val current: String? = navController.currentBackStackEntryAsState().value?.destination?.route
     val onTab = current == null || current in TAB_ROUTES
     LaunchedEffect(startRoute) {
-        if (startRoute != null && startRoute != "home" && (startRoute in ROUTES || startRoute.startsWith("surah/"))) app.deepLink(startRoute)
-    }
-    // iOS: التبويبات الأخرى تُركَّب بعد أن تستقر الواجهة، فيظهر كل منها فوراً أول مرة
-    if (stack != null) LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(1600)
-        for (t in TAB_ROUTES) { stack.prepare(t); kotlinx.coroutines.delay(500) }
-        // الأذكار من أكثر ما يُفتح من الرئيسية: تُقرأ أقسامها مسبقاً، فتظهر كاملة من أول فتح
-        withContext(Dispatchers.IO) { runCatching { com.osatks.mizan.adhkar.Adhkar.sections() } }
+        if (startRoute != null && startRoute != "home" && isRoute(startRoute)) app.deepLink(startRoute)
     }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val back: () -> Unit = remember(app) { { app.back() } }
@@ -245,15 +233,9 @@ fun MizanApp(startRoute: String? = null) {
             // لون النص الافتراضي يتبع الخلفية، وإلا ظهر نص بلا لون محدد أسود في الوضع الداكن
             CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
                 val source = Modifier.fillMaxSize().then(if (glassSource) Modifier.hazeSource(appHaze) else Modifier)
-                if (stack != null) {
-                    StackNavHost(stack, source, frame = { route, tab, content -> PageFrame(route, tab, content) }) { route ->
-                        Route(route, app, open, back)
-                    }
-                } else {
-                    SharedTransitionLayout(source) {
-                        CompositionLocalProvider(LocalSharedScope provides this) {
-                            AndroidNavHost(navController!!, app, open, back, rtl)
-                        }
+                SharedTransitionLayout(source) {
+                    CompositionLocalProvider(LocalSharedScope provides this) {
+                        AndroidNavHost(navController, app, open, back, rtl)
                     }
                 }
             }
@@ -273,8 +255,7 @@ fun MizanApp(startRoute: String? = null) {
                 )
             }
         }
-        // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية.
-        // يُستدعى دائماً: شريط النظام في iOS 26 يُخبَر بالإخفاء ويتولى حركته بنفسه
+        // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية
         bars.Bottom(onTab && !firstRun && !rail, current, Modifier.align(Alignment.BottomCenter)) { app.goTab(it) }
         // القائمة الجانبية تدخل من جهة البداية (اليمين في العربية) وتخرج إليها
         AnimatedVisibility(
@@ -298,6 +279,14 @@ private fun PageFrame(route: String, tab: Boolean, content: @Composable () -> Un
         LocalBottomInset provides if (tab && !side) host.bottomInset else 0.dp,
         LocalLeadingInset provides if (tab && side) host.leadingInset else 0.dp,
     ) { content() }
+}
+
+/** الشاشة لمسار واحد بلا إطار التنقل حولها (iOS: محتوى متحكم الصفحة) */
+@Composable
+internal fun PageContent(route: String, app: AppNav) {
+    val back: () -> Unit = remember(app) { { app.back() } }
+    val open: (String) -> Unit = remember(app) { { r -> app.open(r) } }
+    Route(route, app, open, back)
 }
 
 /** الشاشة لكل مسار (المسارات في [ROUTES]، و surah/… بمعاملاتها) */

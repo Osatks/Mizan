@@ -68,9 +68,9 @@ actual class Prefs actual constructor(name: String) {
     actual fun isEmpty(): Boolean = d.dictionaryRepresentation().keys.none { (it as? String)?.startsWith(p) == true }
 }
 
-/** رسالة قصيرة تُعرض فوق الواجهة (لا يوجد Toast في iOS)؛ يرسمها MainViewController */
+/** رسالة قصيرة تُعرض فوق الواجهة (لا يوجد Toast في iOS)؛ يرسمها IosToastView فوق المتحكم الجذر */
 object IosToast {
-    var message by mutableStateOf<String?>(null)
+    fun show(msg: String) = com.osatks.mizan.IosToastView.show(msg)
 }
 
 actual object Platform {
@@ -103,7 +103,7 @@ actual object Platform {
     actual fun currencyName(iso: String, lang: String): String? =
         NSLocale(localeIdentifier = lang).displayNameForKey(NSLocaleCurrencyCode, iso)
     actual fun decompose(s: String): String = (s as NSString).decomposedStringWithCanonicalMapping
-    actual fun toast(msg: String) { IosToast.message = msg }
+    actual fun toast(msg: String) { IosToast.show(msg) }
     actual fun share(text: String, title: String) = present(UIActivityViewController(listOf(text), null))
 
     /** الصورة نفسها (UIImage) فيظهر «حفظ الصورة» في قائمة المشاركة، ومعها النص للتطبيقات التي تقبله */

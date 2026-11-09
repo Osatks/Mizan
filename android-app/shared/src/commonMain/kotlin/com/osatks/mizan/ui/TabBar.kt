@@ -255,10 +255,9 @@ private fun DrawScope.drawLens(c: LensColors, alpha: Float, radius: Float) {
 // ---------- واجهة شريط التنقل ----------
 
 /**
- * شريط التنقل بين التبويبات خلف واجهة صغيرة: التبويب الحالي، والاختيار، والمساحة التي يشغلها.
- * يُرسم بـ Compose ([ComposeTabBar])، وفي iOS 26 فما بعده يحل محل الشريط السفلي شريط النظام نفسه
- * (UITabBarController بزجاج Liquid Glass، NativeTabBar في iosMain) يوفّره MainViewController عبر [LocalTabBarHost]،
- * دون أي تغيير في الصفحات: فهي تعرف مكانه من [LocalBottomInset] و[LocalLeadingInset] وحدهما.
+ * شريط التنقل بين التبويبات خلف واجهة صغيرة (أندرويد): التبويب الحالي، والاختيار، والمساحة التي يشغلها.
+ * يُرسم بـ Compose ([ComposeTabBar]). في iOS شريط النظام نفسه (UITabBarController، MizanNavigation.swift)،
+ * والصفحات تعرف مكانه من [LocalBottomInset] و[LocalLeadingInset] وحدهما.
  */
 interface TabBarHost {
     /**
@@ -302,7 +301,7 @@ object ComposeTabBar : TabBarHost {
 val LocalTabBarHost = staticCompositionLocalOf<TabBarHost> { ComposeTabBar }
 
 /**
- * حالة شريط النظام في iOS 26 (NativeTabBar في iosMain، ويقرؤها LiquidTabBarState.swift) نصاً JSON:
+ * حالة شريط النظام في iOS (IosNav.kt في iosMain، ويقرؤها LiquidTabBarState.swift) نصاً JSON:
  * التبويبات بأسمائها ورموزها، والمختار (null في صفحة ليست تبويباً فيبقى اختيار الشريط كما هو)، والظهور،
  * واتجاه الكتابة، والوضع الداكن، ولون التطبيق (#RRGGBB).
  */

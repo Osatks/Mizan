@@ -77,6 +77,6 @@ object IosWidgets {
     /** رابط من الأداة (mizan://open?route=…&section=…): يفتح الشاشة نفسها في التطبيق */
     fun open(route: String, section: String?) {
         if (!section.isNullOrEmpty()) WidgetLaunch.adhkarSection = section
-        WidgetLaunch.route = route
+        com.osatks.mizan.IosNav.openLink(route)
     }
 }

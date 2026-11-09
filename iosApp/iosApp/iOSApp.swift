@@ -2,9 +2,9 @@ import UIKit
 import WidgetKit
 import Shared
 
-/// ميزان في iOS: الواجهة كلها من Compose Multiplatform (الوحدة المشتركة مع أندرويد).
-/// متحكم Kotlin (MainViewController) هو جذر النافذة مباشرة، لا داخل SwiftUI: فيسأله النظام عن شريط الحالة
-/// (نص فاتح فوق الرؤوس الخضراء، وإخفاؤه في وضع التركيز في المصحف)، وهو ما يتجاهله UIHostingController.
+/// ميزان في iOS: المنطق من الوحدة المشتركة مع أندرويد (Kotlin)، والتنقل من UIKit نفسه (MizanNavigation.swift):
+/// UITabBarController فيه UINavigationController لكل تبويب، وكل صفحة متحكم خاص بها يعرض شاشتها (Compose، وفيها واجهة النظام).
+/// جذر النافذة متحكم UIKit لا SwiftUI: فيسأله النظام عن شريط الحالة (يحيله إلى الصفحة الظاهرة)، وهو ما يتجاهله UIHostingController.
 ///
 /// يعمل بدورة المشاهد (UIScene) إن وُجد UIApplicationSceneManifest في Info.plist، وإلا بنافذة التطبيق القديمة.
 @main
@@ -17,8 +17,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         WatchSync.shared.start()
         // الأنشطة الحية و«يُشغَّل الآن» والاختصارات و Spotlight (LiveActivities.swift)
         LiveActivities.shared.start()
-        // iOS 26: شريط التبويبات من النظام بزجاج Liquid Glass بدل شريط Compose (LiquidTabBar.swift)
-        LiquidTabBar.install()
+        // التنقل من النظام: التبويبات وصفحاتها (MizanNavigation.swift)، قبل إنشاء MainViewController
+        MizanNavigation.install()
         // صفحات مصحف المدينة يقلّبها ويرسمها النظام (UICollectionView و Core Text) بدل Compose (NativeMushaf.swift)
         NativeMushafReader.install()
         // وعرض آية آية في صفحة السورة (NativeAyahList.swift)
@@ -49,7 +49,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeLicensesScreen.install()
         NativeSheetsUI.install()
         if !AppDelegate.usesScenes {
-            let w = UIWindow(frame: UIScreen.main.bounds)
+            // النافذة تعرف موضع كل لمس: منه تنمو الصفحة التي يفتحها
+            let w = TouchWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()
             w.makeKeyAndVisible()
             LaunchCurtain.cover(w)
@@ -99,7 +100,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             Task { @MainActor in await LiveCheck.run(check) }
             return
         }
-        let w = UIWindow(windowScene: windowScene)
+        let w = TouchWindow(windowScene: windowScene)
         w.rootViewController = MainViewControllerKt.MainViewController()
         w.makeKeyAndVisible()
         LaunchCurtain.cover(w)
