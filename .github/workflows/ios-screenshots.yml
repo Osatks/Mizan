@@ -17,7 +17,7 @@ on:
         type: string
         default: "ar-SA en-US"
       devices:
-        description: "Simulators (space separated: iphone ipad duo watch; mushaf = Madinah pages to check the drawing, not store shots)"
+        description: "Simulators (space separated: iphone ipad duo watch; mushaf = Madinah pages to check the drawing, native = the native iPhone screens, motion = navigation video; none are store shots)"
         type: string
         default: "iphone ipad duo watch"
       commit:

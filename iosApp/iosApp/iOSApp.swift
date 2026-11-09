@@ -29,6 +29,15 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeAdhkarScreen.install()
         // وتبويب الأدوات (NativeTools.swift)
         NativeToolsScreen.install()
+        // وتبويب القرآن والإعدادات، وكل أداة: القبلة والمسبحة والزكاة والمواريث والتاريخ والعمر والمناسبات والفطر والفدية
+        NativeQuranScreen.install()
+        NativeSettingsScreen.install()
+        NativeQiblaScreen.install()
+        NativeTasbihScreen.install()
+        NativeZakatScreen.install()
+        NativeInheritanceScreen.install()
+        NativeDatesScreen.install()
+        NativeFitrFidyaScreen.install()
         if !AppDelegate.usesScenes {
             let w = UIWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()

@@ -79,8 +79,8 @@ class NativeInheritanceSession internal constructor() {
 
     internal var onBack: () -> Unit = {}
     internal var onGender: (Char) -> Unit = {}
-    internal var onCount: (String, Int) -> Unit = {}
-    internal var onField: (String, String) -> Unit = {}
+    internal var onCount: (String, Int) -> Unit = { _, _ -> }
+    internal var onField: (String, String) -> Unit = { _, _ -> }
     internal var onReset: () -> Unit = {}
     internal var onShare: () -> Unit = {}
 

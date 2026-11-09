@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -66,6 +67,11 @@ import com.osatks.mizan.platform.ArQibla
 
 @Composable
 fun QiblaScreen(onBack: (() -> Unit)? = null) {
+    // في iOS: الشاشة بواجهة النظام (SwiftUI) بطراز الرئيسية، والبوصلة من اتجاه الهاتف هناك
+    if (nativeQiblaAvailable) {
+        NativeQiblaView(onBack, Modifier.fillMaxSize())
+        return
+    }
     val s = LocalStrings.current
     val place = AppSettings.place
     val qibla = PrayTimes.qibla(place.lat, place.lng)

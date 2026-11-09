@@ -87,6 +87,11 @@ val DHIKR get() = Tasbih.DHIKR
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TasbihScreen(onBack: (() -> Unit)? = null) {
+    // في iOS: المسبحة بواجهة النظام (SwiftUI) بطراز الرئيسية، والعدّ يظهر فور اللمس هناك ويصل إلى Tasbih
+    if (nativeTasbihAvailable) {
+        NativeTasbihView(onBack, Modifier.fillMaxSize())
+        return
+    }
     val s = LocalStrings.current
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()

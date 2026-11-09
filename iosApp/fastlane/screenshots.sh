@@ -68,6 +68,20 @@ MUSHAF_CHECK=(
   "p562_mulk:surah/67?ayah=0&from=row"
   "p604_ikhlas:surah/112?ayah=0&from=row"
 )
+# الشاشات التي صارت بواجهة النظام في iPhone (تبويب القرآن والإعدادات وكل أداة)، للفحص لا للمتجر
+NATIVE_CHECK=(
+  "n01_quran:quran"
+  "n02_settings:settings"
+  "n03_qibla:qibla"
+  "n04_tasbih:tasbih"
+  "n05_zakat:zakat"
+  "n06_inheritance:inheritance"
+  "n07_hijri:hijri"
+  "n08_age:age"
+  "n09_events:events"
+  "n10_fitr:fitr"
+  "n11_fidya:fidya"
+)
 CHECK_OUT="${CHECK_OUT:-$OUT/../screenshots-check}"
 # فتح الأذكار والرجوع، ثم التبويبات الثلاثة، ثم المصحف والرجوع، ثم أداة (الزكاة) والرجوع
 # at:x:y = where a finger would have touched (fractions of the screen): the next page grows from there
@@ -384,6 +398,17 @@ run_mushaf() {
   done
 }
 
+run_native() {
+  new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
+  prepare
+  for loc in $LOCALES; do
+    log "Native screens check · $loc"
+    set_locale "$loc"
+    mkdir -p "$CHECK_OUT/$loc"
+    TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${NATIVE_CHECK[@]}"
+  done
+}
+
 run_motion() {
   local lang rec
   new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
@@ -458,6 +483,7 @@ for device in $DEVICES; do
     iphone) run_iphone ;;
     ipad) run_ipad ;;
     mushaf) run_mushaf ;;
+    native) run_native ;;
     motion) run_motion || echo "::warning title=Motion::motion recording failed (see log)" ;;
     duo) run_duo || echo "::warning title=iPhone Duo::Duo screenshots failed (see log); iPhone and iPad screenshots are unaffected" ;;
     watch) run_watch || echo "::warning title=Apple Watch::watch screenshots failed (see log); the other screenshots are unaffected" ;;
