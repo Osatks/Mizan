@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -69,6 +70,13 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
     val lang = LocalLang.current
     var showLang by remember { mutableStateOf(false) }
     val toggleNotify = rememberAlertsToggle()
+
+    // في iOS: التبويب بواجهة النظام (SwiftUI)، وورقة اللغة وحوار الإذن يبقيان في Compose
+    if (nativeSettingsAvailable) {
+        NativeSettingsView(open, onLanguage = { showLang = true }, onNotify = { toggleNotify(it) }, modifier = Modifier.fillMaxSize())
+        if (showLang) LanguageSheet { showLang = false }
+        return
+    }
     val system = Lang.fromTag(systemLanguageTag())
 
     // مجموعات بأسلوب iOS (inset grouped): عنوان صغير فوق كل بطاقة زجاجية، وصفوفها مفصولة بخطوط رفيعة
