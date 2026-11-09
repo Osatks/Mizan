@@ -9,6 +9,7 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import com.osatks.mizan.quran.Recitation
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -178,11 +179,11 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     // رقم الصفحة أصل الحالة: يُحفظ، ويُبنى منه موضع التقليب حين تتغير النافذة (فتح iPhone Duo وطيّه، تدوير iPad،
     // Split View)، فتبقى الصفحة نفسها ظاهرة ولا يقفز القارئ إلى غيرها
     var anchor by rememberSaveable { mutableIntStateOf(QuranMeta.pageOf(startIndex)) }
-    // في iOS: صفحات مصحف المدينة (صفحة واحدة) يقلّبها ويرسمها النظام نفسه (NativeMushaf)، وموضعها في [native];
-    // وفي أندرويد والكتاب المفتوح والخط الآخر: HorizontalPager وموضعه في [pager]
-    val nativeOn = nativeMushafAvailable && !spread && QuranPrefs.script != "amiri"
+    // في iOS: صفحات مصحف المدينة (صفحة واحدة، أو صفحتان متقابلتان في الكتاب المفتوح) يقلّبها ويرسمها النظام نفسه
+    // (NativeMushaf)، وموضعها في [native]؛ وفي أندرويد والخط الآخر: HorizontalPager وموضعه في [pager]
+    val nativeOn = nativeMushafAvailable && QuranPrefs.script != "amiri"
     val pager = remember(spread, nativeOn) { PagerState(currentPage = Spreads.index(anchor, spread)) { Spreads.count(spread) } }
-    val native = remember(nativeOn) { if (nativeOn) NativeTurns(Spreads.index(anchor, false), Spreads.count(false)) else null }
+    val native = remember(nativeOn, spread) { if (nativeOn) NativeTurns(Spreads.index(anchor, spread), Spreads.count(spread), spread) else null }
     /** موضع التقليب الظاهر، وهل يجري تقليب الآن، والانتقال إلى موضع: من القارئ الأصلي أو من HorizontalPager */
     fun at(): Int = native?.index ?: pager.currentPage
     fun moving(): Boolean = native?.scrolling ?: pager.isScrollInProgress
@@ -196,6 +197,20 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val turnKey: Any = native ?: pager
     val scope = rememberCoroutineScope()
     val count = QuranMeta.COUNTS[listSurah - 1]
+    // في iOS: عرض آية آية يرسمه النظام نفسه (NativeAyahList)، وموضعه في [ayahs]؛ وفي أندرويد: LazyColumn وموضعها في [list].
+    // [listTop] أول عنصر ظاهر محفوظاً، فتعود القائمة إليه إن أُنشئت من جديد (الرجوع إلى الشاشة)
+    var listTop by rememberSaveable { mutableIntStateOf(if (mode == "list" && startAyah > 1) startAyah else 0) }
+    val ayahs = remember { if (nativeAyahListAvailable) NativeAyahScroll(listTop) else null }
+    LaunchedEffect(ayahs) { if (ayahs != null) snapshotFlow { ayahs.first }.collect { listTop = it } }
+    /** أول عنصر ظاهر في عرض آية آية (0 الترويسة)، والانتقال إلى عنصر: من القائمة الأصلية أو من LazyColumn */
+    fun listFirst(): Int = ayahs?.first ?: list.firstVisibleItemIndex
+    suspend fun listTo(item: Int, animate: Boolean) {
+        when {
+            ayahs != null -> ayahs.go(item, animate)
+            animate -> list.animateScrollToItem(item)
+            else -> list.scrollToItem(item)
+        }
+    }
 
     // شريط خيارات الآية (بالضغط المطوّل)
     var actionIdx by remember { mutableStateOf<Int?>(null) }
@@ -205,7 +220,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     fun open(i: Int) { actionIdx = null; selIdx = i; sheetIdx = i; QuranPrefs.updateLast(i) }
     fun longPress(i: Int) { selIdx = i; actionIdx = i; haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
     fun listItemOf(ayah: Int) = ayah // العنصر 0 هو الترويسة
-    fun firstListIndex() = QuranMeta.index(listSurah, list.firstVisibleItemIndex.coerceIn(1, count))
+    fun firstListIndex() = QuranMeta.index(listSurah, listFirst().coerceIn(1, count))
     /** صفحة القارئ في المصحف: الظاهرة (وفي الصفحتين: اليمنى، أو التي كان عليها قبل أن تتسع النافذة) */
     fun page() = Spreads.follow(anchor, at(), spread)
     fun currentIndex() = if (mode == "mushaf") QuranMeta.pageRange(page()).first else firstListIndex()
@@ -221,7 +236,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     // الانتقال إلى الآية المطلوبة في عرض آية آية
     var jumped by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(text != null) {
-        if (text != null && !jumped) { jumped = true; if (mode == "list" && startAyah > 1) list.scrollToItem(listItemOf(startAyah)) }
+        // القائمة الأصلية تبدأ من الآية المطلوبة بنفسها ([listTop])
+        if (text != null && !jumped) { jumped = true; if (ayahs == null && mode == "list" && startAyah > 1) list.scrollToItem(listItemOf(startAyah)) }
     }
     // الصفحة المعروضة ثلاث ثوانٍ تُحسب مقروءة (وفي الكتاب المفتوح صفحتاه معاً)
     LaunchedEffect(mode, turnKey) {
@@ -286,7 +302,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     LaunchedEffect(turnKey) { snapshotFlow { at() to listSurah }.drop(1).collect { actionIdx = null } }
     LaunchedEffect(hifzHint) { if (hifzHint) { delay(4500); hifzHint = false } }
     LaunchedEffect(focus, mode) {
-        if (focus && mode == "list") {
+        // القائمة الأصلية تُبلغ بالتمرير إلى الأعلى بنفسها (onScrollUp)
+        if (ayahs == null && focus && mode == "list") {
             var last = list.firstVisibleItemIndex * 100_000 + list.firstVisibleItemScrollOffset
             snapshotFlow { list.firstVisibleItemIndex * 100_000 + list.firstVisibleItemScrollOffset }.collect { v ->
                 if (v < last - 60) exitPing++
@@ -321,7 +338,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                 else if (!moving()) goToPage(pg, animate = true)
             } else {
                 val (sn, an) = QuranMeta.locate(i)
-                if (sn != listSurah) { listSurah = sn; list.scrollToItem(listItemOf(an)) }
+                if (sn != listSurah) { listSurah = sn; listTo(listItemOf(an), animate = false) }
+                else if (ayahs != null) ayahs.follow(listItemOf(an))
                 else {
                     val info = list.layoutInfo
                     val item = info.visibleItemsInfo.firstOrNull { it.index == listItemOf(an) }
@@ -375,13 +393,29 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val overlays = actionIdx != null || sheetIdx != null || audioSheet || displaySheet
     var lingering by remember { mutableStateOf(false) }
     LaunchedEffect(overlays) { if (overlays) lingering = true else { delay(450); lingering = false } }
-    val glassOn = overlays || lingering
+    // التبديل بين المصحف وعرض آية آية حين يرسم أحدهما النظام نفسه (iOS): شفافية Compose وتكبيره لا يصلان إلى ما يرسمه
+    // النظام (كان يختفي فوراً ثم يظهر بعد التلاشي)، فلا تلاشي على ما يرسمه؛ بل غشاء من Compose بلون الخلفية فوقه
+    // يشتد، ثم يُبدَّل العرض تحته، ثم يخفت — تلاشٍ متقاطع عبر الخلفية للعرضين معاً
+    val veiled = native != null || ayahs != null
+    var shownMode by remember { mutableStateOf(mode) }
+    val veil = remember { Animatable(0f) }
+    LaunchedEffect(mode, veiled) {
+        if (!veiled || Motion.reduced) { veil.snapTo(0f); shownMode = mode; return@LaunchedEffect }
+        if (mode == shownMode) { veil.animateTo(0f, tween(Motion.SHORT)); return@LaunchedEffect }
+        veil.animateTo(1f, tween(Motion.SHORT))
+        shownMode = mode
+        veil.animateTo(0f, tween(Motion.MEDIUM, 60))
+    }
+    // المعروض يرسمه النظام: Compose لا يرى ما تحته فلا يموّهه (يظهر الزجاج شفافاً فوق الصفحة)،
+    // فلا مصدر للتمويه ويرسم الزجاج لونه الاحتياطي شبه المعتم
+    val nativeShown = if ((if (veiled) shownMode else mode) == "mushaf") native != null else ayahs != null
+    val glassOn = (overlays || lingering) && !nativeShown
     CompositionLocalProvider(LocalReadingPalette provides readingPalette(QuranPrefs.tone)) {
     val pal = mushafPalette()
     val backdrop = pal.backdrop.takeOrElse { MaterialTheme.colorScheme.surfaceContainerLow }
     // الزجاج داكن فوق الورق الداكن (الليلي والوضع الداكن) وفاتح فوق الفاتح
     CompositionLocalProvider(
-        LocalAppHaze provides readerHaze,
+        LocalAppHaze provides if (nativeShown) null else readerHaze,
         LocalGlassTone provides if (pal.paper.luminance() < .4f) GlassTone.Dark else GlassTone.Light,
     ) {
     Box(Modifier.fillMaxSize().background(backdrop)) {
@@ -413,7 +447,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                     val (sn, an) = QuranMeta.locate(i)
                     listSurah = sn
                     QuranPrefs.updateMode("list")
-                    scope.launch { list.scrollToItem(listItemOf(an)) }
+                    scope.launch { listTo(listItemOf(an), animate = false) }
                 } else {
                     QuranPrefs.updateMode("mushaf")
                     scope.launch { goToPage(QuranMeta.pageOf(i), animate = false) }
@@ -439,16 +473,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             }
             return@Column
         }
-        // التبديل بين المصحف وعرض آية آية بتلاشٍ وتكبير خفيف
-        AnimatedContent(
-            mode,
-            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
-            transitionSpec = {
-                (fadeIn(tween(Motion.MEDIUM, 60)) + scaleIn(tween(Motion.MEDIUM, easing = Motion.Decelerate), 0.96f)) togetherWith
-                    fadeOut(tween(Motion.SHORT))
-            },
-            label = "mode"
-        ) { m ->
+        // العرض: صفحات المصحف أو آية آية
+        val content: @Composable (String) -> Unit = { m ->
             if (m == "mushaf") {
                 // صفحات المصحف تُقلَّب كالكتاب العربي: التالية على اليسار، والصفحة المغادرة تنحسر قليلاً.
                 // في الكتاب المفتوح تُقلَّب الصفحتان معاً، والفردية على اليمين (أول ما في الصف بالاتجاه العربي)
@@ -489,6 +515,15 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                         }
                     }
                 }
+            } else if (ayahs != null) {
+                // القائمة من النظام: التمرير والرسم والتظليل واللمس فيها، وما يصل منها كما من LazyColumn
+                NativeAyahListView(
+                    ayahs, listSurah, t, trText, translation?.lang?.rtl ?: false, selIdx, size, bottom + playerRoom,
+                    onTap = { tapAyah(it) }, onLongPress = { longPress(it) }, onTafsir = { open(it) },
+                    onScrollUp = { if (focus) exitPing++ },
+                    onSurah = { n -> listSurah = n; ayahs.go(0, animate = false) },
+                    modifier = Modifier.fillMaxSize(),
+                )
             } else {
                 val paper = mushafPalette()
                 // على الشاشات العريضة عمود الآيات في الوسط بعرض مريح، لا أسطر بعرض الشاشة
@@ -517,6 +552,24 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                     item(key = "nav") { SurahNav(listSurah) { n -> listSurah = n; scope.launch { list.scrollToItem(0) } } }
                 }
             }
+        }
+        val sides = Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+        if (veiled) {
+            // iOS: بلا شفافية على أي أصل لما يرسمه النظام؛ الغشاء فوقه يُرسم في طور الرسم وحده فلا يُعاد تركيب الشاشة
+            Box(sides.fillMaxSize()) {
+                content(shownMode)
+                Spacer(Modifier.matchParentSize().drawBehind { val a = veil.value; if (a > 0f) drawRect(backdrop.copy(alpha = a)) })
+            }
+        } else {
+            // التبديل بين المصحف وعرض آية آية بتلاشٍ وتكبير خفيف
+            AnimatedContent(
+                mode, sides,
+                transitionSpec = {
+                    (fadeIn(tween(Motion.MEDIUM, 60)) + scaleIn(tween(Motion.MEDIUM, easing = Motion.Decelerate), 0.96f)) togetherWith
+                        fadeOut(tween(Motion.SHORT))
+                },
+                label = "mode"
+            ) { m -> content(m) }
         }
     }
     // وضع التركيز: خط رفيع أعلى الشاشة بقدر ورد اليوم
@@ -634,7 +687,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                     QuranPrefs.updateLast(i)
                     scope.launch {
                         if (mode == "mushaf") goToPage(QuranMeta.pageOf(i), animate = true)
-                        else if (sn == listSurah) list.animateScrollToItem(listItemOf(a))
+                        else if (sn == listSurah) listTo(listItemOf(a), animate = true)
                     }
                 },
                 onLibrary = { sheetIdx = null; openLibrary() },
