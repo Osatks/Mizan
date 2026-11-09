@@ -1,9 +1,11 @@
 package com.osatks.mizan.ui.screens
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import com.osatks.mizan.core.Muezzins
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
@@ -19,6 +21,11 @@ import com.osatks.mizan.ui.ToolPage
  */
 @Composable
 fun LicensesScreen(onBack: () -> Unit) {
+    // في iOS: الصفحة بواجهة النظام (SwiftUI)
+    if (nativeLicensesAvailable) {
+        NativeLicensesView(onBack, Modifier.fillMaxSize())
+        return
+    }
     val s = LocalStrings.current
     val lang = LocalLang.current
     val font = remember { Platform.asset("licenses/AmiriQuran-OFL.txt")?.decodeToString()?.trim() }
