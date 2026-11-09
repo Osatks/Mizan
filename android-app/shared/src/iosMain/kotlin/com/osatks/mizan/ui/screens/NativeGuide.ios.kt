@@ -51,8 +51,6 @@ object NativeGuide {
     internal fun make(session: NativeGuideSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeGuideAvailable: Boolean get() = NativeGuide.available
-
 class NativeGuideSession internal constructor() {
     var state: String = ""
         private set
@@ -91,9 +89,14 @@ class NativeGuideSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * جولة التطبيق بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeGuide.swift): صفحات تُقلَّب بالسحب، ونقاطها،
+ * وزر «التالي» و«تخطي»، وصفحة الموقع الأخيرة بزرّيها — كما في [Onboarding]. الصفحة الحالية ومنطق التخطي في Kotlin
+ * ([page]، [onPage]، [onNext]، [onSkip])؛ [location]: الصفحة الأخيرة صفحة الموقع، و[placeName] الموقع المختار إن وُجد.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeGuideView(
+internal fun NativeGuideView(
     pages: List<GuidePage>, page: Int, location: Boolean, placeName: String?, locating: Boolean,
     onPage: (Int) -> Unit, onNext: () -> Unit, onSkip: () -> Unit, onLocate: () -> Unit, onPickCity: () -> Unit,
     modifier: Modifier,

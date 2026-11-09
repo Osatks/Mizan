@@ -68,8 +68,6 @@ object NativeSettings {
     internal fun make(session: NativeSettingsSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeSettingsAvailable: Boolean get() = NativeSettings.available
-
 class NativeSettingsSession internal constructor() {
     var state: String = ""
         private set
@@ -126,9 +124,14 @@ private fun sourcesMarkdown(text: String): String {
     return out.toString()
 }
 
+/**
+ * تبويب الإعدادات بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeSettings.swift) بطراز الرئيسية: مجموعات بطاقات
+ * من الصفوف كما في [SettingsScreen]. [open] يفتح الصفحة، و[onLanguage] يفتح ورقة اللغة (تبقى في Compose)،
+ * و[onNotify] يبدّل تنبيه الأذان مع طلب الإذن.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeSettingsView(open: (String) -> Unit, onLanguage: () -> Unit, onNotify: (Boolean) -> Unit, modifier: Modifier) {
+internal fun NativeSettingsView(open: (String) -> Unit, onLanguage: () -> Unit, onNotify: (Boolean) -> Unit, modifier: Modifier) {
     val session = remember { NativeSettingsSession() }
     val openS by rememberUpdatedState(open)
     val languageS by rememberUpdatedState(onLanguage)

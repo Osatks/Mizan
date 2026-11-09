@@ -58,8 +58,6 @@ object NativeTafsirs {
     internal fun make(session: NativeTafsirsSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeTafsirsAvailable: Boolean get() = NativeTafsirs.available
-
 class NativeTafsirsSession internal constructor() {
     var state: String = ""
         private set
@@ -96,9 +94,16 @@ class NativeTafsirsSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * مكتبة التفاسير بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeTafsirs.swift) بطراز الرئيسية: اختيار مقسّم بين
+ * «تنزيل» و«على الجهاز»، وبطاقات التفاسير بشارة لغتها وحجمها وشريط تقدم تنزيلها، ومفتاح إظهار كل مصدر في ورقة التفسير
+ * وحذف المنزَّل — كما في [TafsirLibraryScreen]. [content] يبنيه Kotlin كله (النصوص والحالات والنِّسب منسّقة بأرقام التطبيق).
+ * Swift يردّ باللمس: [onAction] بمفتاح الأمر وقيمته (tab، download، cancel، delete، visible:<id>)، و[onBack] للرجوع.
+ * التنزيل والحذف والحفظ تبقى في Kotlin، ونافذة تأكيد الحذف من Compose (تنبيه النظام).
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeTafsirsView(
+internal fun NativeTafsirsView(
     content: Map<String, Any?>, onAction: (String, String) -> Unit, onBack: () -> Unit, modifier: Modifier,
 ) {
     val session = remember { NativeTafsirsSession() }

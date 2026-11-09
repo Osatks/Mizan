@@ -77,8 +77,6 @@ object NativeQuran {
     internal fun make(session: NativeQuranSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeQuranAvailable: Boolean get() = NativeQuran.available
-
 class NativeQuranSession internal constructor() {
     var state: String = ""
         private set
@@ -113,9 +111,14 @@ class NativeQuranSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * تبويب القرآن بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeQuran.swift) بطراز الرئيسية: متابعة القراءة (ووضع التركيز)،
+ * والختمة وورد اليوم ومدتها، والدليل، والبحث في السور والآيات، والسور والأجزاء والمحفوظات — كما في [QuranScreen].
+ * [open] يفتح المسار نفسه الذي يفتحه تبويب Compose.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
+internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
     QuranPrefs.ensure()
     QuranProgress.ensure()
     val session = remember { NativeQuranSession() }

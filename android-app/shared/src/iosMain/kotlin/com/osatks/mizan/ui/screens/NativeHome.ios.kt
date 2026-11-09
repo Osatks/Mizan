@@ -92,8 +92,6 @@ object NativeHome {
     internal fun make(session: NativeHomeSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeHomeAvailable: Boolean get() = NativeHome.available
-
 /** رئيسية واحدة معروضة: حالتها، وما يصل منها إلى التطبيق */
 class NativeHomeSession internal constructor() {
     /** آخر حالة أُرسلت (JSON)، تقرؤها الواجهة حين تُنشأ ومع كل إشعار */
@@ -129,9 +127,15 @@ class NativeHomeSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * الرئيسية بواجهة النظام نفسها (SwiftUI في iOS: iosApp/iosApp/NativeHome.swift): الترويسة وبطاقة اليوم وأذكار الوقت
+ * والصلاة القادمة، ومواقيت اليوم، وأدوات كل يوم، والقرآن الكريم، وآية اليوم وحديثه — كما في [HomeScreen].
+ * العدّادات تتقدم كل ثانية في Swift دون Compose؛ وKotlin يرسل الحالة كل دقيقة وعند كل تغيّر.
+ * [open] يفتح المسار كما من الرئيسية، و[onLanguage] يفتح ورقة اللغة.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeHomeView(open: (String) -> Unit, onLanguage: () -> Unit, modifier: Modifier) {
+internal fun NativeHomeView(open: (String) -> Unit, onLanguage: () -> Unit, modifier: Modifier) {
     val session = remember { NativeHomeSession() }
     val openState by rememberUpdatedState(open)
     val langState by rememberUpdatedState(onLanguage)

@@ -60,8 +60,6 @@ object NativeHadith {
     internal fun make(session: NativeHadithSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeHadithAvailable: Boolean get() = NativeHadith.available
-
 class NativeHadithSession internal constructor() {
     var state: String = ""
         private set
@@ -98,9 +96,15 @@ class NativeHadithSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * حديث اليوم بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeHadith.swift) بطراز الرئيسية: نصه العربي ودرجته وتخريجه،
+ * وترجمته بلغة الواجهة، والشرح والفوائد، والمصدر ورابطه، والمشاركة صورةَ قصة، وأحاديث الأيام الماضية — كما في [HadithScreen].
+ * [hadith] null ما دام يُحمَّل؛ و[title] و[subtitle] (اليوم وتاريخه) منسّقان في Kotlin؛ و[canNext] ما لم يكن اليوم.
+ * [onDay] يتقدم يوماً (+1) أو يتأخر (-1)، و[onShare] يفتح ورقة القصة (من Compose)، و[onSource] يفتح الحديث في الموسوعة.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeHadithView(
+internal fun NativeHadithView(
     hadith: Hadith?, title: String, subtitle: String, canNext: Boolean,
     onDay: (Int) -> Unit, onShare: () -> Unit, onSource: () -> Unit, onBack: () -> Unit,
     modifier: Modifier,

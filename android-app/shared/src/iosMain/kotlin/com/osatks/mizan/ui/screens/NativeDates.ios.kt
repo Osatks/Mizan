@@ -70,8 +70,6 @@ object NativeDates {
     internal fun make(session: NativeDatesSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeDatesAvailable: Boolean get() = NativeDates.available
-
 class NativeDatesSession internal constructor() {
     var state: String = ""
         private set
@@ -125,9 +123,15 @@ private fun latinDigits(text: String): String = buildString {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * أدوات التاريخ الثلاث بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeDates.swift) بطراز الرئيسية:
+ * [kind] "hijri" (المحوّل والتقويم الهجري)، و"age" (العمر بالتقويمين)، و"events" (المناسبات والعدّ إليها) — كما في
+ * [HijriScreen] و[AgeScreen] و[EventsScreen]. [content] ما تعرضه الشاشة منسّقاً كله في Kotlin (النصوص والأرقام والتواريخ)،
+ * و[evidence] أدلتها، و[onAction] يتلقى لمس المستخدم باسمه وقيمته (day، month، year، dir، today، calendar، pick، mode، select).
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeDatesView(
+internal fun NativeDatesView(
     kind: String, content: Map<String, Any?>, evidence: List<Proof>,
     onAction: (String, String) -> Unit, onBack: () -> Unit, modifier: Modifier,
 ) {

@@ -36,27 +36,20 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.SideEffect
-import com.osatks.mizan.ui.LocalWindowLayout
-import com.osatks.mizan.ui.screens.nativeSheetsAvailable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.AnnotatedString
-import com.osatks.mizan.quran.arabicDigits
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -78,37 +71,15 @@ import com.osatks.mizan.ui.shareText
 import com.osatks.mizan.ui.theme.Gold
 
 /**
- * تفسير الآية المختارة: نص الآية، واختيار المصدر (التفسير الميسر، الجلالين، ترجمات المعاني)،
- * والانتقال إلى الآية السابقة والتالية بحركة انزلاق، مع الحفظ والنسخ والمشاركة.
+ * محتوى ورقة التفسير في لوحة القراءة (منفصل ليُعرض أيضاً في لقطات الاختبار): [TafsirBody] في أندرويد وفي اللوحة الجانبية
+ * على iPad، وورقة النظام في iPhone (NativeQuranSheets.kt)
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TafsirSheet(
-    surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onDismiss: () -> Unit, onLibrary: () -> Unit = {},
-    onListen: ((Int) -> Unit)? = null,
-) {
-    // في iOS: ورقة النظام بواجهة SwiftUI (NativeQuranSheets.kt)، والمنطق كله هنا
-    if (nativeSheetsAvailable) { NativeTafsirSheet(surah, ayah, text, onAyah, onLibrary, onListen, onDismiss); return }
-    val sheet = rememberModalBottomSheetState()
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = mushafPalette().paper) {
-        TafsirContent(surah, ayah, text, onAyah, onLibrary, onListen)
-    }
-}
+expect fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onLibrary: () -> Unit = {}, onListen: ((Int) -> Unit)? = null)
 
-/** محتوى ورقة التفسير (منفصل ليُعرض أيضاً في لقطات الاختبار) */
+/** التفسير بـ Compose: نص الآية، واختيار المصدر، والانتقال إلى الآية السابقة والتالية، مع الحفظ والنسخ والمشاركة */
 @Composable
-fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onLibrary: () -> Unit = {}, onListen: ((Int) -> Unit)? = null) {
-    // في iOS داخل لوحة القراءة: ورقة النظام بدل اللوحة (تخفي اللوحة زجاجها)، وسحبها لإغلاقها يغلق اللوحة.
-    // وعلى الشاشات العريضة تبقى اللوحة الجانبية من Compose: لا تحجب الصفحة، ويتبع التفسير الآية الملموسة
-    val slot = LocalReadingPanel.current
-    if (nativeSheetsAvailable && slot != null) {
-        val native = !LocalWindowLayout.current.wide
-        SideEffect { slot.native = native }
-        if (native) {
-            NativeTafsirSheet(surah, ayah, text, onAyah, onLibrary, onListen, onDismiss = { slot.dismiss() })
-            return
-        }
-    }
+internal fun TafsirBody(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onLibrary: () -> Unit, onListen: ((Int) -> Unit)?) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     val clipboard = LocalClipboardManager.current

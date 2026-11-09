@@ -5,7 +5,6 @@ import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.platform.rememberLocationRequest
 import com.osatks.mizan.core.*
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateColorAsState
@@ -92,8 +91,19 @@ import com.osatks.mizan.ui.ToolPage
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
+/** مواقيت الصلاة بشاشة Compose (أندرويد، و iOS قبل اختيار الموقع) */
 @Composable
-fun PrayerScreen(open: (String) -> Unit = {}) {
+fun PrayerScreen(open: (String) -> Unit = {}) = PrayerScreen(open, nativeView = null)
+
+/** واجهة النظام لشاشة المواقيت (iOS): حالة الموقع وأفعاله من [PrayerScreen] */
+internal typealias NativePrayerSlot = @Composable (locating: Boolean, onLocate: () -> Unit, onPickCity: () -> Unit, onNotify: (Boolean) -> Unit) -> Unit
+
+/**
+ * مواقيت الصلاة؛ [nativeView] في iOS: الشاشة بواجهة النظام متى اختير الموقع (PlatformRoute.ios.kt)، والحالة هنا لها
+ * وللشاشة قبلها (طلب الموقع واختيار المدينة)، فلا تضيع حين تتبدل إحداهما بالأخرى
+ */
+@Composable
+internal fun PrayerScreen(open: (String) -> Unit, nativeView: NativePrayerSlot?) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     var next by remember { mutableStateOf(PrayerUtil.next()) }
@@ -108,7 +118,7 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
     val place = AppSettings.place
 
     // في iOS: الشاشة بواجهة النظام (SwiftUI) متى اختير الموقع، وعدّادها في Swift
-    val native = nativePrayerAvailable && AppSettings.placeSet
+    val native = nativeView != null && AppSettings.placeSet
     // العدّ كل ثانية والصفحة ظاهرة فقط (تبقى حية تحت غيرها في iOS)
     val active = com.osatks.mizan.ui.LocalPageActive.current
     LaunchedEffect(place, AppSettings.method, AppSettings.hanafi, active, native) {
@@ -127,10 +137,7 @@ fun PrayerScreen(open: (String) -> Unit = {}) {
     val toggleNotify = rememberAlertsToggle()
 
     if (native) {
-        NativePrayerView(
-            open, locating, onLocate = { locating = true; locate() }, onPickCity = { pickCity = true },
-            onNotify = { toggleNotify(it) }, modifier = Modifier.fillMaxSize(),
-        )
+        nativeView?.invoke(locating, { locating = true; locate() }, { pickCity = true }, { toggleNotify(it) })
         if (pickCity) CityPickerSheet(place.key.takeIf { !place.gps }, onDismiss = { pickCity = false }) { c ->
             AppSettings.updatePlace(Place.of(c))
             PrayerAlerts.reschedule()

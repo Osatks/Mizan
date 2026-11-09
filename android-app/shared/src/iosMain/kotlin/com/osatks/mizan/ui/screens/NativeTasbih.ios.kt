@@ -71,8 +71,6 @@ object NativeTasbih {
     internal fun make(session: NativeTasbihSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeTasbihAvailable: Boolean get() = NativeTasbih.available
-
 class NativeTasbihSession internal constructor() {
     var state: String = ""
         private set
@@ -117,9 +115,14 @@ class NativeTasbihSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * المسبحة بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeTasbih.swift) بطراز الرئيسية: الذكر ومعناه، والحبة الكبيرة
+ * تعدّ فوراً (العدّ يظهر في Swift ويصل كل لمس إلى [com.osatks.mizan.core.Tasbih] فتتبعه الأداة والنشاط الحي)، والتصفير
+ * والتراجع، ومفتاح شاشة القفل، واختيار الذكر والهدف، والإحصاء، والأدلة — كما في [TasbihScreen].
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeTasbihView(onBack: (() -> Unit)?, modifier: Modifier) {
+internal fun NativeTasbihView(onBack: (() -> Unit)?, modifier: Modifier) {
     val session = remember { NativeTasbihSession() }
     val backS by rememberUpdatedState(onBack)
     DisposableEffect(session) {

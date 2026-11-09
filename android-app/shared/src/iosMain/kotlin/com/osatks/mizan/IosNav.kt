@@ -41,7 +41,7 @@ import com.osatks.mizan.ui.NavMotion
 import com.osatks.mizan.ui.NavTransitions
 import com.osatks.mizan.ui.TABS
 import com.osatks.mizan.ui.WindowLayout
-import com.osatks.mizan.ui.screens.Onboarding
+import com.osatks.mizan.ui.screens.IosOnboarding
 import com.osatks.mizan.ui.tabBarStateJson
 import com.osatks.mizan.ui.theme.Accent
 import com.osatks.mizan.ui.theme.LocalDark
@@ -168,7 +168,7 @@ object IosNav {
         val from = pendingGuide() ?: return null
         guideShown = true
         return PageController("guide", false, overlay = true) {
-            Onboarding(onDone = {
+            IosOnboarding(onDone = {
                 guideDone()
                 guideShown = false
                 navigator?.closeGuide()

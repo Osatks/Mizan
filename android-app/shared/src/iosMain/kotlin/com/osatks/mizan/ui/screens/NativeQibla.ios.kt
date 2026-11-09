@@ -74,8 +74,6 @@ object NativeQibla {
     internal fun make(session: NativeQiblaSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeQiblaAvailable: Boolean get() = NativeQibla.available
-
 class NativeQiblaSession internal constructor() {
     var state: String = ""
         private set
@@ -119,9 +117,14 @@ internal fun nativeProofs(points: List<Proof>, lang: Lang, quran: Array<String>?
         )
     }
 
+/**
+ * القبلة بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeQibla.swift) بطراز الرئيسية: بوصلة حية من اتجاه الهاتف
+ * (الشمال الحقيقي)، وكم يستدير المستخدم، والقبلة بالكاميرا، وزاوية القبلة والمسافة إلى الكعبة، ومعايرة البوصلة، والأدلة —
+ * كما في [QiblaScreen]. [onBack] يغلق الصفحة (null: بلا زر رجوع).
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeQiblaView(onBack: (() -> Unit)?, modifier: Modifier) {
+internal fun NativeQiblaView(onBack: (() -> Unit)?, modifier: Modifier) {
     val session = remember { NativeQiblaSession() }
     val backS by rememberUpdatedState(onBack)
     DisposableEffect(session) {

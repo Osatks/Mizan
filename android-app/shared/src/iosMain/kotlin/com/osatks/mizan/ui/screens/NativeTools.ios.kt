@@ -53,8 +53,6 @@ object NativeTools {
     internal fun make(session: NativeToolsSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeToolsAvailable: Boolean get() = NativeTools.available
-
 class NativeToolsSession internal constructor() {
     var state: String = ""
         private set
@@ -76,9 +74,13 @@ class NativeToolsSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * تبويب الأدوات بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeTools.swift) بطراز الرئيسية: ترويستها، وشبكة الأدوات
+ * (عمودان على الهاتف، وثلاثة وأربعة على الأوسع) — كما في [ToolsScreen]. [open] يفتح الأداة.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeToolsView(open: (String) -> Unit, modifier: Modifier) {
+internal fun NativeToolsView(open: (String) -> Unit, modifier: Modifier) {
     val session = remember { NativeToolsSession() }
     val openS by rememberUpdatedState(open)
     DisposableEffect(session) {

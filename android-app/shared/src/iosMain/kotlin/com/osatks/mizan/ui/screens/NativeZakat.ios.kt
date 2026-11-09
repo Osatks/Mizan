@@ -74,8 +74,6 @@ object NativeZakat {
     internal fun make(session: NativeZakatSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeZakatAvailable: Boolean get() = NativeZakat.available
-
 /** حقول الأنعام والزروع والمعادن المحفوظة بمفاتيحها (حقول النقدين في [ZAKAT_FIELDS] بالبادئة zk_) */
 private val KIND_FIELDS = listOf("zk_camels", "zk_cattle", "zk_sheep", "zk_crop_kg", "zk_crop_price", "zk_rikaz", "zk_mineral")
 private val OPTIONS = listOf("zk_irr", "zk_basis", "zk_cur")
@@ -360,9 +358,14 @@ private fun mineralsPage(z: NativeZakatSession, s: Strings, ev: (String, List<Pr
     return ZakatPage(s.zkMineralsName, s.zkMineralsDesc, blocks)
 }
 
+/**
+ * الزكاة بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeZakat.swift) بطراز الرئيسية: أنواعها الخمسة، ثم حاسبة النوع [open]
+ * (النقدان، عروض التجارة، الأنعام، الزروع، المعادن والركاز) بمدخلاتها ونتيجتها وأدلتها — كما في [ZakatScreen].
+ * الحساب والحفظ والنصوص كلها في Kotlin. [onOpen] يفتح نوعاً ("" يعود إلى الأنواع)، و[onBack] يغلق الزكاة.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeZakatView(open: String, onOpen: (String) -> Unit, onBack: () -> Unit, modifier: Modifier) {
+internal fun NativeZakatView(open: String, onOpen: (String) -> Unit, onBack: () -> Unit, modifier: Modifier) {
     val s = LocalStrings.current
     val lang = LocalLang.current
     val session = remember { NativeZakatSession().apply { load(lang) } }

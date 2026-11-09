@@ -58,8 +58,6 @@ object NativeSearch {
     internal fun make(session: NativeSearchSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeSearchAvailable: Boolean get() = NativeSearch.available
-
 class NativeSearchSession internal constructor() {
     var state: String = ""
         private set
@@ -112,9 +110,14 @@ private fun hitParts(text: String, q: String): List<String>? {
     return listOf(text.substring(0, i), text.substring(i, i + needle.length), text.substring(i + needle.length))
 }
 
+/**
+ * البحث الشامل بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeSearch.swift) بطراز الرئيسية: حقل بحث من النظام
+ * يُركَّز عليه عند الظهور، والنتائج مجمّعة كما في [SearchScreen]. النتائج كلها تُحسب في Kotlin ([hits] مرتبة، و[blank] حين لا كلمات).
+ * Swift يخبر بالنص الجديد ([onQuery])، وبالنتيجة الملموسة بمعرّفها ([onPick]: يُنفّذ فعلها كما في Compose)، وبالرجوع.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeSearchView(
+internal fun NativeSearchView(
     query: String, blank: Boolean, hits: List<NativeSearchHit>,
     onQuery: (String) -> Unit, onPick: (String) -> Unit, onBack: () -> Unit,
     modifier: Modifier,

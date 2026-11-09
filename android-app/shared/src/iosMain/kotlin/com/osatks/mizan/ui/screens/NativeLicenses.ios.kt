@@ -61,8 +61,6 @@ object NativeLicenses {
     internal fun make(session: NativeLicensesSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeLicensesAvailable: Boolean get() = NativeLicenses.available
-
 class NativeLicensesSession internal constructor() {
     var state: String = ""
         private set
@@ -103,9 +101,13 @@ private fun licensesMarkdown(text: String): String {
 private fun licenseSection(title: String, body: String, md: Boolean = false, mono: Boolean = false) =
     linkedMapOf<String, Any?>("title" to title, "body" to body, "md" to md, "mono" to mono)
 
+/**
+ * المصادر والتراخيص بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeLicenses.swift) بطراز الرئيسية: ترويستها،
+ * وبطاقة لكل مصدر، ونصّا الرخصتين كما هما — كما في [LicensesScreen]. [onBack] يغلق الصفحة.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeLicensesView(onBack: () -> Unit, modifier: Modifier) {
+internal fun NativeLicensesView(onBack: () -> Unit, modifier: Modifier) {
     val session = remember { NativeLicensesSession() }
     val backS by rememberUpdatedState(onBack)
     DisposableEffect(session) {

@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -31,7 +30,6 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -78,7 +76,6 @@ import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Hijri
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
-import com.osatks.mizan.i18n.greg
 import com.osatks.mizan.i18n.hijri
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
@@ -86,9 +83,7 @@ import com.osatks.mizan.i18n.weekday
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.ui.LocalBottomInset
 import com.osatks.mizan.ui.LocalLeadingInset
-import com.osatks.mizan.ui.SizeClass
 import com.osatks.mizan.ui.gutters
-import com.osatks.mizan.ui.widthClassOf
 import androidx.compose.foundation.layout.BoxWithConstraints
 import com.osatks.mizan.ui.GlassTopBar
 import androidx.compose.foundation.layout.fillMaxSize
@@ -128,13 +123,7 @@ val TOOL_ICONS: Map<String, ImageVector> = mapOf(
 @Composable
 fun HomeScreen(open: (String) -> Unit) {
     QuranPrefs.ensure()
-    // في iOS: الرئيسية بواجهة النظام (SwiftUI) متى اختير الموقع؛ وقبل ذلك هذه، ففيها طلب الموقع
-    if (nativeHomeAvailable && AppSettings.placeSet) {
-        var showLanguage by remember { mutableStateOf(false) }
-        NativeHomeView(open, onLanguage = { showLanguage = true }, Modifier.fillMaxSize())
-        if (showLanguage) LanguageSheet { showLanguage = false }
-        return
-    }
+    // في iOS تُعرض هذه قبل اختيار الموقع فقط (ففيها طلبه)، وبعده الرئيسية بواجهة النظام (PlatformRoute.ios.kt)
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
@@ -187,32 +176,6 @@ fun HomeScreen(open: (String) -> Unit) {
     GlassTopBar(list, haze, s.appName, onBack = null)
 } }
     if (showLang) LanguageSheet { showLang = false }
-}
-
-/**
- * تبويب الأدوات: الحاسبات والتواريخ والمسبحة والأذكار والقبلة في شبكة، عمودان على الهاتف وثلاثة في العرض المتوسط
- * وأربعة في الواسع
- */
-@Composable
-fun ToolsScreen(open: (String) -> Unit) {
-    // في iOS: شبكة الأدوات بواجهة النظام (SwiftUI) بطراز الرئيسية
-    if (nativeToolsAvailable) { NativeToolsView(open, Modifier.fillMaxSize()); return }
-    val s = LocalStrings.current
-    com.osatks.mizan.ui.ToolPage(s.toolsTitle, s.appTagline) {
-        item(key = "tools") {
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val cols = when { maxWidth >= 840.dp -> 4; maxWidth >= 560.dp -> 3; else -> 2 }
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    TOOL_ORDER.chunked(cols).forEach { chunk ->
-                        Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            chunk.forEach { key -> ToolTile(key, Modifier.weight(1f)) { open(key) } }
-                            repeat(cols - chunk.size) { Spacer(Modifier.weight(1f)) }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 /** أقصى عرض لمحتوى الرئيسية على الشاشات العريضة */
@@ -551,32 +514,6 @@ private fun HadithOfDayCard(today: LocalDate, modifier: Modifier, open: (String)
                 style = MaterialTheme.typography.labelMedium, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             )
-        }
-    }
-}
-
-@Composable
-private fun ToolTile(key: String, modifier: Modifier, onClick: () -> Unit) {
-    val s = LocalStrings.current
-    val t = s.tools.getValue(key)
-    val src = remember { MutableInteractionSource() }
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        shadowElevation = 1.dp,
-        interactionSource = src,
-        modifier = modifier.sharedCard("card-$key", RoundedCornerShape(20.dp)).fillMaxHeight().heightIn(min = 150.dp).pressScale(src)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Box(
-                Modifier.sharedIcon("icon-$key").size(46.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) { Icon(TOOL_ICONS.getValue(key), null, tint = MaterialTheme.colorScheme.primary) }
-            Spacer(Modifier.height(10.dp))
-            Text(t.name, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(t.desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
         }
     }
 }

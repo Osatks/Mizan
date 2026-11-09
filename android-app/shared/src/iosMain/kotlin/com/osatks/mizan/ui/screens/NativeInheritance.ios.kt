@@ -71,8 +71,6 @@ object NativeInheritance {
     internal fun make(session: NativeInheritanceSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeInheritanceAvailable: Boolean get() = NativeInheritance.available
-
 class NativeInheritanceSession internal constructor() {
     var state: String = ""
         private set
@@ -114,9 +112,15 @@ class NativeInheritanceSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * حاسبة المواريث بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeInheritance.swift) بطراز الرئيسية: أصل المسألة وعَولها أو ردّها،
+ * وأنصبة الورثة وكسورها ومبالغها والمحجوبين وأدلتهم، وملاحظات المسألة، والميت والتركة، والورثة بعدّاد أو مفتاح لكل وارث،
+ * والأدلة والتنبيه — كما في [InheritanceScreen]. المدخلات تبقى في InheritanceScreen، والقسمة ([result]) تُحسب هناك وتُنسّق هنا.
+ * [onField] مفتاحه: estate أو funeral أو debts أو will.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeInheritanceView(
+internal fun NativeInheritanceView(
     gender: Char, counts: Map<String, Int>, active: Map<String, Int>,
     estate: String, funeral: String, debts: String, will: String,
     result: InheritanceResult?, net: Double, willCapped: Boolean,

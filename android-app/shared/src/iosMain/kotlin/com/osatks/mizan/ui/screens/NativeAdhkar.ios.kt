@@ -69,8 +69,6 @@ object NativeAdhkar {
     internal fun make(session: NativeAdhkarSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeAdhkarAvailable: Boolean get() = NativeAdhkar.available
-
 class NativeAdhkarSession internal constructor() {
     var state: String = ""
         private set
@@ -104,9 +102,14 @@ class NativeAdhkarSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * الأذكار بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeAdhkar.swift) بطراز الرئيسية: أقسامها (وأذكار الوقت في أعلاها)،
+ * ثم أذكار القسم [open] بعدّاد لكل ذكر وترجمته ودليله (الدرجة والمصدر والراوي والفضل) — كما في [AdhkarScreen].
+ * [onOpen] يفتح قسماً ("" يعود إلى الأقسام)، و[onBack] يغلق الأذكار، و[onShare] يشارك ذكراً صورةَ قصة (من Compose).
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeAdhkarView(
+internal fun NativeAdhkarView(
     sections: List<AdhkarSection>?, open: String, onOpen: (String) -> Unit, onBack: () -> Unit, onShare: (String) -> Unit,
     modifier: Modifier,
 ) {

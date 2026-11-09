@@ -88,8 +88,6 @@ object NativePrayer {
     internal fun make(session: NativePrayerSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativePrayerAvailable: Boolean get() = NativePrayer.available
-
 class NativePrayerSession internal constructor() {
     var state: String = ""
         private set
@@ -140,9 +138,14 @@ private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).
 
 private val FIVE = listOf("fajr", "dhuhr", "asr", "maghrib", "isha")
 
+/**
+ * شاشة المواقيت بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativePrayer.swift) بطراز الرئيسية: الصلاة القادمة والعدّ إليها،
+ * ومواقيت اليوم المختار ونهاياتها وإقامتها، وجدول الشهر، والقبلة ببوصلة حية، والموقع وطريقة الحساب، والإقامة، والتنبيهات،
+ * والأدلة — كما في [PrayerScreen]. ما يحتاج Compose (تحديد الموقع وإذنه، واختيار المدينة، وإذن الإشعارات) يبقى في PrayerScreen.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativePrayerView(
+internal fun NativePrayerView(
     open: (String) -> Unit, locating: Boolean, onLocate: () -> Unit, onPickCity: () -> Unit, onNotify: (Boolean) -> Unit,
     modifier: Modifier,
 ) {

@@ -58,8 +58,6 @@ object NativeAdhan {
     internal fun make(session: NativeAdhanSession): UIViewController = factory!!.invoke(session)
 }
 
-internal actual val nativeAdhanAvailable: Boolean get() = NativeAdhan.available
-
 class NativeAdhanSession internal constructor() {
     var state: String = ""
         private set
@@ -114,9 +112,16 @@ class NativeAdhanSession internal constructor() {
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
 
+/**
+ * الأذان والتنبيهات بواجهة النظام (SwiftUI في iOS: iosApp/iosApp/NativeAdhan.swift) بطراز الرئيسية: مفاتيح التنبيه
+ * والعدّ الحي والتقويم، وطريقة التنبيه لكل صلاة (قائمة النظام)، والمؤذن وأذان الفجر مع الاستماع والتنزيل بتقدمه والحذف،
+ * وأنماط الاهتزاز برسمها وتجربتها، ومصادر التسجيلات — كما في [AdhanScreen]. [content] يبنيه Kotlin كله.
+ * Swift يردّ باللمس: [onAction] بمفتاح الأمر وقيمته (notify، live، calendar، exactAlarm، mode:<prayer>، pick، pickFajr،
+ * download، delete، play، vibe، tryVibe)، و[onBack] للرجوع. التنزيل والتشغيل والحفظ تبقى في Kotlin.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal actual fun NativeAdhanView(
+internal fun NativeAdhanView(
     content: Map<String, Any?>, onAction: (String, String) -> Unit, onBack: () -> Unit, modifier: Modifier,
 ) {
     val session = remember { NativeAdhanSession() }
