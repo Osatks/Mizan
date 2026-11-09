@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,7 +41,9 @@ import androidx.compose.ui.unit.dp
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Inheritance
+import com.osatks.mizan.core.InheritanceResult
 import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.MiniStepper
 import com.osatks.mizan.ui.Note
@@ -52,7 +55,8 @@ import com.osatks.mizan.ui.StatRow
 import com.osatks.mizan.ui.ToolPage
 import com.osatks.mizan.ui.shareText
 
-private val BAR_COLORS = listOf(
+/** ألوان أشرطة الأنصبة (وتستعملها حاسبة النظام في iOS) */
+internal val INH_BAR_COLORS = listOf(
     Color(0xFF0D5C4B), Color(0xFFB88A1E), Color(0xFF2F7FB5), Color(0xFFB4412F), Color(0xFF7A52B3),
     Color(0xFF2E9E74), Color(0xFFD07A2B), Color(0xFF4B6B8A), Color(0xFFA0527A), Color(0xFF5C8F2E),
 )
@@ -74,6 +78,28 @@ fun InheritanceScreen(onBack: () -> Unit) {
     val active = Inheritance.HEIRS.filter { (it.only == null || it.only == gender) && (counts[it.key] ?: 0) > 0 }
         .associate { it.key to (counts[it.key] ?: 0) }
     val result = Inheritance.solve(active, gender)
+
+    // في iOS: الحاسبة بواجهة النظام (SwiftUI) بطراز الرئيسية؛ المدخلات هنا، وكل لمسة تعود إليها فتُحسب القسمة وتُنسّق في Kotlin
+    if (nativeInheritanceAvailable) {
+        NativeInheritanceView(
+            gender, counts, active, estate, funeral, debts, will, result, net, willCapped,
+            onGender = { gender = it },
+            onCount = { k, v -> counts[k] = v },
+            onField = { k, v ->
+                when (k) {
+                    "estate" -> { estate = v }
+                    "funeral" -> { funeral = v }
+                    "debts" -> { debts = v }
+                    "will" -> { will = v }
+                }
+            },
+            onReset = { counts.clear(); estate = ""; funeral = ""; debts = ""; will = "" },
+            onShare = { if (result != null) shareText(s, inheritanceShareText(s, active, result)) },
+            onBack = onBack,
+            modifier = Modifier.fillMaxSize(),
+        )
+        return
+    }
 
     val arrow = if (LocalLayoutDirection.current == LayoutDirection.Rtl) "←" else "→"
     // على الشاشة الواسعة: الورثة والتركة في عمود، والقسمة بجانبها ثابتة أثناء الإدخال
@@ -107,7 +133,7 @@ fun InheritanceScreen(onBack: () -> Unit) {
                         } else {
                             val pct = share.value * 100
                             val amount = net * share.value
-                            val color = BAR_COLORS[ci++ % BAR_COLORS.size]
+                            val color = INH_BAR_COLORS[ci++ % INH_BAR_COLORS.size]
                             // الشريط يمتد من الصفر إلى النصيب عند الظهور ويتحرك عند كل تغيير
                             var shown by remember { mutableStateOf(if (Motion.reduced) share.value.toFloat().coerceIn(0f, 1f) else 0f) }
                             androidx.compose.runtime.LaunchedEffect(share.value) { shown = share.value.toFloat().coerceIn(0f, 1f) }
@@ -140,9 +166,7 @@ fun InheritanceScreen(onBack: () -> Unit) {
                         }
                     }
                     Button(onClick = {
-                        val text = Inheritance.HEIRS.filter { active.containsKey(it.key) && result.res[it.key]?.share != null }
-                            .joinToString(s.listSeparator) { "${s.heirs[it.key]}: ${result.res[it.key]!!.share} (${Fmt.num(result.res[it.key]!!.share!!.value * 100, 1)}%)" }
-                        shareText(s, s.divisionShareText(text))
+                        shareText(s, inheritanceShareText(s, active, result))
                     }, modifier = Modifier.fillMaxWidth()) { Text(s.shareDivision) }
                 }
             }
@@ -188,4 +212,11 @@ fun InheritanceScreen(onBack: () -> Unit) {
         item { EvidenceCard(com.osatks.mizan.i18n.Evidence.inheritance, startOpen = result != null) }
         item { Note(s.inhDisclaimer, warn = true) }
     }
+}
+
+/** نص مشاركة القسمة: كل وارث له نصيب بكسره ونسبته */
+internal fun inheritanceShareText(s: Strings, active: Map<String, Int>, result: InheritanceResult): String {
+    val text = Inheritance.HEIRS.filter { active.containsKey(it.key) && result.res[it.key]?.share != null }
+        .joinToString(s.listSeparator) { "${s.heirs[it.key]}: ${result.res[it.key]!!.share} (${Fmt.num(result.res[it.key]!!.share!!.value * 100, 1)}%)" }
+    return s.divisionShareText(text)
 }
