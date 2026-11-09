@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -63,6 +64,23 @@ import com.osatks.mizan.ui.theme.Gold
 @Composable
 fun ZakatScreen(onBack: () -> Unit) {
     var type by rememberSaveable { mutableStateOf("") }
+    // في iOS: الأنواع وحاسبة كل نوع بواجهة النظام (SwiftUI) بطراز الرئيسية، والحساب كله هنا في Kotlin
+    if (nativeZakatAvailable) {
+        // فتح النوع والرجوع منه بانتقال النظام نفسه بين الصفحات (ينمو من بطاقته ويصغر إليها)
+        var origin by remember { mutableStateOf<Any?>(null) }
+        fun go(kind: String) {
+            val motion = com.osatks.mizan.ui.NavTransitions.current
+            when {
+                motion == null || kind == type -> type = kind
+                type.isEmpty() -> origin = motion.push { type = kind }
+                kind.isEmpty() -> motion.pop(origin) { type = "" }
+                else -> type = kind
+            }
+        }
+        BackHandler(enabled = type.isNotEmpty()) { go("") }
+        NativeZakatView(type, onOpen = { go(it) }, onBack = onBack, modifier = Modifier.fillMaxSize())
+        return
+    }
     val back = { type = "" }
     // نوع الزكاة صفحة فوق الأنواع: يُرجع منها بزر الرجوع أو بسحب الحافة الذي يتبع الإصبع
     com.osatks.mizan.ui.SubPages(type, root = "", onBack = back) { t ->

@@ -43,7 +43,7 @@ import com.osatks.mizan.ui.theme.Gold
 import com.osatks.mizan.platform.Platform
 
 /** عملة: رمز ISO، ورمزها المختصر واسمها بالعربية (بقية اللغات تأخذ الاسم من النظام) */
-private data class Cur(val iso: String, val arSymbol: String, val arName: String)
+internal data class Cur(val iso: String, val arSymbol: String, val arName: String)
 
 private val CURRENCIES = listOf(
     Cur("SAR", "ر.س", "ريال سعودي"), Cur("AED", "د.إ", "درهم إماراتي"), Cur("KWD", "د.ك", "دينار كويتي"),
@@ -62,7 +62,7 @@ private val CURRENCIES = listOf(
 )
 
 /** عملات التطبيق، ومعها عملة حزمة اللغة الحالية إن لم تكن في القائمة */
-private fun currencies(lang: Lang): List<Cur> {
+internal fun currencies(lang: Lang): List<Cur> {
     val extra = lang.pack?.currency?.takeIf { iso -> CURRENCIES.none { it.iso == iso } && Platform.currencyName(iso, "en") != null }
         ?: return CURRENCIES
     return CURRENCIES + Cur(extra, extra, Platform.currencyName(extra, "ar") ?: extra)
@@ -76,28 +76,28 @@ private fun defaultCurrency(lang: Lang) = lang.pack?.currency ?: when (lang) {
 }
 
 /** الإصدارات السابقة حفظت الرمز العربي ("ر.س")؛ يُحوَّل إلى رمز ISO */
-private fun savedCurrency(lang: Lang): String {
+internal fun savedCurrency(lang: Lang): String {
     val raw = AppSettings.getString("zk_cur")
     return currencies(lang).firstOrNull { it.iso == raw || it.arSymbol == raw }?.iso ?: defaultCurrency(lang)
 }
 
-private fun Cur.symbol(lang: Lang) = when {
+internal fun Cur.symbol(lang: Lang) = when {
     lang == Lang.AR -> arSymbol
     iso == "USD" || iso == "EUR" || iso == "GBP" -> arSymbol
     else -> iso
 }
 
-private fun Cur.name(lang: Lang) = if (lang == Lang.AR) arName else
+internal fun Cur.name(lang: Lang) = if (lang == Lang.AR) arName else
     Platform.currencyName(iso, lang.code)?.replaceFirstChar { it.titlecase() } ?: iso
 
-private val FIELDS = listOf("gold_price", "silver_price", "cash", "bank", "receivable", "other", "g24", "g22", "g21", "g18", "silver", "jewel", "stocks_trade", "stocks_long", "goods", "debts")
+internal val ZAKAT_FIELDS = listOf("gold_price", "silver_price", "cash", "bank", "receivable", "other", "g24", "g22", "g21", "g18", "silver", "jewel", "stocks_trade", "stocks_long", "goods", "debts")
 
 /** زكاة النقدين وعروض التجارة: تُضم في نصاب واحد فتُحسب معاً؛ tradeFirst يقدّم قسم التجارة والأسهم */
 @Composable
 internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
     val s = LocalStrings.current
     val lang = LocalLang.current
-    val v = remember { mutableStateMapOf<String, String>().apply { FIELDS.forEach { put(it, if (Demo.enabled) Demo.zakat[it] ?: "" else AppSettings.getString("zk_$it")) } } }
+    val v = remember { mutableStateMapOf<String, String>().apply { ZAKAT_FIELDS.forEach { put(it, if (Demo.enabled) Demo.zakat[it] ?: "" else AppSettings.getString("zk_$it")) } } }
     var curIso by remember { mutableStateOf(savedCurrency(lang)) }
     var basis by remember { mutableStateOf(AppSettings.getString("zk_basis", "gold")) }
     var includeJewelry by remember { mutableStateOf(AppSettings.getBool("zk_jewelry", true)) }
