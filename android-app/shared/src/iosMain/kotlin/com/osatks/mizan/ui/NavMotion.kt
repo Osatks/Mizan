@@ -266,7 +266,7 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
         const val RADIUS = 38.0
         /** الصفحة السابقة وهي متراجعة */
         const val BACK_SCALE = 0.94
-        const val BACK_ALPHA = 0.6
+        const val BACK_ALPHA = 0.72
         /** حجم الصفحة الجديدة حين تبدأ النمو، وحجم الخارجة حين تختفي */
         const val START_SCALE = 0.88
         const val EXIT_SCALE = 0.86
