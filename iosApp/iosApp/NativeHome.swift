@@ -130,12 +130,15 @@ struct HomePalette {
 
 // MARK: - أدوات صغيرة
 
-/// خط النظام بمقاس يتبع حجم النص في الإعدادات (كما تتبعه sp في Compose)
+/// خط النظام بمقاس يتبع حجم النص في الإعدادات (كما تتبعه sp في Compose)، وأقصاه 1.8 ضعفاً كما في Compose
 func sys(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
-    .system(size: UIFontMetrics.default.scaledValue(for: size), weight: weight)
+    .system(size: min(UIFontMetrics.default.scaledValue(for: size), size * 1.8), weight: weight)
 }
 
 func quranFont(_ size: CGFloat) -> Font { .custom("AmiriQuran-Regular", size: size, relativeTo: .body) }
+
+/// بداية الثانية الحالية: العدّادات كلها تتقدم معاً على حدود الثواني (كأوقات الصلاة بالثواني)
+func wholeSecond() -> Date { Date(timeIntervalSince1970: Date().timeIntervalSince1970.rounded(.down)) }
 
 /// ساعات:دقائق:ثوانٍ بأرقام لاتينية (PrayerUtil.hms)
 func hms(_ seconds: Double) -> String {
@@ -209,10 +212,14 @@ struct StarEmblem: View {
     }
 }
 
-/// الأرقام تتدحرج عند تغيّرها (iOS 17)، وتثبت قبله
+/// الأرقام تتدحرج عند تغيّرها (iOS 17)، وتثبت قبله؛ value هو النص المعروض (بدونه لا حركة)
 struct NumericRoll: ViewModifier {
+    var value: String? = nil
     func body(content: Content) -> some View {
-        if #available(iOS 17.0, *) { content.contentTransition(.numericText(countsDown: true)) } else { content }
+        if #available(iOS 17.0, *) {
+            content.contentTransition(.numericText(countsDown: true))
+                .animation(value == nil || UIAccessibility.isReduceMotionEnabled ? nil : .easeOut(duration: 0.3), value: value)
+        } else { content }
     }
 }
 
@@ -238,13 +245,15 @@ struct HomeView: View {
     let s: HomeState
     let p: HomePalette
     let model: HomeModel
-    @State private var headerBottom: CGFloat = .greatestFiniteMagnitude
+    /// شفافية الشريط الزجاجي: 0 والصفحة في أعلاها، و1 حين يمر طرف الترويسة السفلي تحته (GlassTopBar)
+    @State private var glass: Double = 0
     @State private var appeared = false
 
-    /// شفافية الشريط الزجاجي: 0 والصفحة في أعلاها، و1 حين يمر طرف الترويسة السفلي تحته (GlassTopBar)
-    private var glass: Double {
+    /// تُكتب الشفافية حين تتغير فقط، فلا يُعاد بناء الصفحة مع كل إطار تمرير
+    private func track(_ headerBottom: CGFloat) {
         let bar = CGFloat(s.top) + 52, ramp: CGFloat = 36
-        return Double(min(max((bar + ramp - headerBottom) / ramp, 0), 1))
+        let g = Double(min(max((bar + ramp - headerBottom) / ramp, 0), 1))
+        if g != glass { glass = g }
     }
 
     var body: some View {
@@ -279,7 +288,7 @@ struct HomeView: View {
                 .padding(.bottom, CGFloat(s.bottom))
             }
             .coordinateSpace(name: "home")
-            .onPreferenceChange(HeaderBottomKey.self) { headerBottom = $0 }
+            .onPreferenceChange(HeaderBottomKey.self) { track($0) }
             GlassBar(title: s.appName, top: CGFloat(s.top), p: p, amount: glass)
         }
         .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
@@ -347,7 +356,7 @@ private struct HomeHeader: View {
                     if let a = s.adhkar {
                         Button { model.adhkar(a.section) } label: {
                             HStack(spacing: 8) {
-                                Image(systemName: "sparkles").font(.system(size: 16, weight: .semibold)).foregroundColor(p.gold)
+                                Image(systemName: "sparkles").font(.system(size: 16, weight: .semibold)).foregroundColor(p.gold).accessibilityHidden(true)
                                 Text(a.title).font(sys(14, .bold)).foregroundColor(p.onSurface).lineLimit(1)
                                 Spacer(minLength: 0)
                             }
@@ -438,8 +447,8 @@ private struct DateColumn: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(month).font(sys(11, .medium)).foregroundColor(p.onSurfaceVariant).lineLimit(1).minimumScaleFactor(0.8)
-            Text(day).font(sys(24, .heavy)).foregroundColor(p.onSurface)
-            Text(year).font(sys(12, .medium)).foregroundColor(p.onSurfaceVariant)
+            Text(day).font(sys(24, .heavy)).foregroundColor(p.onSurface).lineLimit(1).minimumScaleFactor(0.5)
+            Text(year).font(sys(12, .medium)).foregroundColor(p.onSurfaceVariant).lineLimit(1).minimumScaleFactor(0.5)
         }
         .padding(.horizontal, 4)
         .frame(maxWidth: .infinity)
@@ -451,18 +460,21 @@ private struct NextChip: View {
     let next: HomeState.Next
     let p: HomePalette
     var body: some View {
-        TimelineView(.periodic(from: Date(), by: 1)) { ctx in
+        TimelineView(.periodic(from: wholeSecond(), by: 1)) { ctx in
             HStack(spacing: 8) {
+                let left = hms(next.at - ctx.date.timeIntervalSince1970)
                 Image(systemName: prayerSymbol(next.key))
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(p.primary)
                     .frame(width: 30, height: 30)
                     .background(Circle().fill(p.surface))
+                    .accessibilityHidden(true)
                 Text(next.name).font(sys(14)).foregroundColor(p.onSurfaceVariant).lineLimit(1)
-                Text(hms(next.at - ctx.date.timeIntervalSince1970))
+                Text(left)
                     .font(sys(14, .heavy)).monospacedDigit()
                     .foregroundColor(p.onSurface)
-                    .modifier(NumericRoll())
+                    .lineLimit(1).minimumScaleFactor(0.5)
+                    .modifier(NumericRoll(value: left))
                     .padding(.horizontal, 9).padding(.vertical, 4)
                     .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(p.gold.opacity(0.22)))
                     .environment(\.layoutDirection, .leftToRight)
@@ -489,7 +501,7 @@ private struct SectionTitle: View {
                 Button { action?() } label: {
                     HStack(spacing: 4) {
                         Text(t).font(sys(14)).foregroundColor(p.onSurfaceVariant).lineLimit(1)
-                        if let sym = symbol { Image(systemName: sym).font(.system(size: 14)).foregroundColor(p.onSurfaceVariant) }
+                        if let sym = symbol { Image(systemName: sym).font(.system(size: 14)).foregroundColor(p.onSurfaceVariant).accessibilityHidden(true) }
                     }
                     .padding(6)
                 }
@@ -508,7 +520,7 @@ private struct PrayerGrid: View {
     let action: () -> Void
 
     var body: some View {
-        TimelineView(.periodic(from: Date(), by: 1)) { ctx in
+        TimelineView(.periodic(from: wholeSecond(), by: 1)) { ctx in
             let now = ctx.date.timeIntervalSince1970
             let list = s.prayers
             let current: String? = {
@@ -555,13 +567,15 @@ private struct PrayerCell: View {
                     .font(.system(size: 17, weight: .regular))
                     .foregroundColor(current || next ? p.gold : p.onSurfaceVariant)
                     .frame(height: 20)
+                    .accessibilityHidden(true)
                 Text(pr.name).font(sys(14)).foregroundColor(fg.opacity(0.8)).lineLimit(1).padding(.top, 6)
                 Text(pr.time).font(sys(16, .heavy)).foregroundColor(fg).lineLimit(1).minimumScaleFactor(0.8)
                 if let v = value {
                     if let l = label { Text(l).font(sys(11, .medium)).foregroundColor(fg.opacity(0.7)).lineLimit(1).padding(.top, 4) }
                     Text(v).font(sys(14, .bold)).monospacedDigit()
                         .foregroundColor(current ? p.primary : p.goldDeep)
-                        .modifier(NumericRoll())
+                        .lineLimit(1).minimumScaleFactor(0.5)
+                        .modifier(NumericRoll(value: v))
                         .padding(.top, label == nil ? 4 : 0)
                         .environment(\.layoutDirection, .leftToRight)
                 }
@@ -611,6 +625,7 @@ private struct DailyRow: View {
                             .foregroundColor(p.primary)
                             .frame(width: 66, height: 66)
                             .background(Circle().fill(tint(t.key)))
+                            .accessibilityHidden(true)
                         Text(t.name).font(sys(14, .medium)).foregroundColor(p.onSurface).lineLimit(1).minimumScaleFactor(0.8)
                     }
                     .frame(maxWidth: .infinity)
@@ -636,6 +651,7 @@ private struct QuranCard: View {
                             .font(.system(size: 19)).foregroundColor(p.gold)
                             .frame(width: 46, height: 46)
                             .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.14)))
+                            .accessibilityHidden(true)
                     }
                     VStack(alignment: .leading, spacing: 1) {
                         if q.kind == "start" {
@@ -650,13 +666,13 @@ private struct QuranCard: View {
                     Spacer(minLength: 4)
                     Text(q.arabic).font(quranFont(26)).foregroundColor(.white).lineLimit(1)
                     if q.kind != "start" {
-                        Image(systemName: "chevron.forward").font(.system(size: 15, weight: .semibold)).foregroundColor(.white.opacity(0.8))
+                        Image(systemName: "chevron.forward").font(.system(size: 15, weight: .semibold)).foregroundColor(.white.opacity(0.8)).accessibilityHidden(true)
                     }
                 }
                 if let label = q.focusLabel, let route = q.focusRoute {
                     Button { open(route) } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: "arrow.up.left.and.arrow.down.right").font(.system(size: 14, weight: .semibold)).foregroundColor(p.gold)
+                            Image(systemName: "arrow.up.left.and.arrow.down.right").font(.system(size: 14, weight: .semibold)).foregroundColor(p.gold).accessibilityHidden(true)
                             Text(label).font(sys(14, .medium)).foregroundColor(.white).lineLimit(1)
                         }
                         .padding(.leading, 12).padding(.trailing, 14).padding(.vertical, 7)
@@ -743,7 +759,7 @@ private struct CardHead: View {
     let p: HomePalette
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundColor(p.gold)
+            Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundColor(p.gold).accessibilityHidden(true)
             Text(title).font(sys(14, .bold)).foregroundColor(p.primary)
             Spacer(minLength: 8)
             Text(more).font(sys(14, .bold)).foregroundColor(p.goldDeep)

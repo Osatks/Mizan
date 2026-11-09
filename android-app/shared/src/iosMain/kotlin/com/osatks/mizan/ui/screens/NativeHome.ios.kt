@@ -65,6 +65,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIViewController
 
@@ -150,16 +152,24 @@ internal actual fun NativeHomeView(open: (String) -> Unit, onLanguage: () -> Uni
     // الحالة تُبنى كل دقيقة (والصفحة ظاهرة)؛ العدّ بالثواني في Swift
     var minute by remember { mutableIntStateOf(0) }
     val active = LocalPageActive.current
+    // تُعاد مع العودة إلى الصفحة في الإطار نفسه، فلا تُرسل صلاة قادمة قديمة
+    val now = remember(minute, active, AppSettings.place) { PrayerUtil.now() }
+    val today = now.date
+    val next = remember(minute, active, AppSettings.place, AppSettings.method, AppSettings.hanafi) { PrayerUtil.next() }
+    // الأوقات لحظات مطلقة (epoch) في منطقة الموقع، لا تتعلق بوقت إعادة البناء
+    val zone = remember(AppSettings.place) { runCatching { TimeZone.of(AppSettings.place.tz) }.getOrElse { TimeZone.currentSystemDefault() } }
+    val nextEpoch = next.at.toInstant(zone).epochSeconds
+    val nextAt by rememberUpdatedState(nextEpoch * 1000)
     LaunchedEffect(active) {
         while (active) {
             minute++
             val ms = Clock.System.now().toEpochMilliseconds()
-            delay(60_000 - ms % 60_000 + 50)
+            val toMinute = 60_000 - ms % 60_000 + 50
+            // القادمة تتبدّل عند أذانها لا عند الدقيقة التالية (وتُهمل إن مضت ولم تُحدَّث بعد)
+            val toAdhan = nextAt - ms + 50
+            delay(if (toAdhan in 1 until toMinute) toAdhan else toMinute)
         }
     }
-    val now = remember(minute, AppSettings.place) { PrayerUtil.now() }
-    val today = now.date
-    val next = remember(minute, AppSettings.place, AppSettings.method, AppSettings.hanafi) { PrayerUtil.next() }
     val times = remember(today, AppSettings.place, AppSettings.method, AppSettings.hanafi) { PrayerUtil.times(today) }
     val quran by produceState<Array<String>?>(null) { value = runCatching { QuranData.uthmani() }.getOrNull() }
     val hadith by produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang) {
@@ -173,12 +183,10 @@ internal actual fun NativeHomeView(open: (String) -> Unit, onLanguage: () -> Uni
         val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + LocalBottomInset.current + 20.dp
 
-        val nowEpoch = Clock.System.now().epochSeconds
-        val secNow = now.time.toSecondOfDay().toLong()
         val prayers = PrayTimes.PRAYERS.filter { !times[it].isNaN() }.map { k ->
             linkedMapOf<String, Any?>(
                 "key" to k, "name" to s.prayer(k), "time" to s.time(times[k]),
-                "start" to nowEpoch - secNow + (times[k] * 3600).toLong(),
+                "start" to PrayerUtil.at(today, times[k]).toInstant(zone).epochSeconds,
             )
         }
         val window = remember(today, now.hour, now.minute / 10, AppSettings.place, AppSettings.method) {
@@ -241,7 +249,7 @@ internal actual fun NativeHomeView(open: (String) -> Unit, onLanguage: () -> Uni
                 "adhkar" to adhkar,
                 "next" to linkedMapOf(
                     "key" to next.key, "name" to s.prayer(next.key),
-                    "at" to nowEpoch + next.remaining.inWholeSeconds, "today" to (next.at.date == today),
+                    "at" to nextEpoch, "today" to (next.at.date == today),
                 ),
                 "prayers" to prayers,
                 "tools" to listOf("adhkar", "tasbih", "qibla", "prayer").map { k -> linkedMapOf("key" to k, "name" to s.tools.getValue(k).name) },
