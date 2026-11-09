@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -77,6 +78,19 @@ fun HadithScreen(onBack: () -> Unit) {
         value = withContext(Dispatchers.IO) { runCatching { Hadiths.forDay(day, lang.code) }.getOrNull() }
     }
     var story by remember { mutableStateOf<StoryContent?>(null) }
+    // في iOS: الحديث بواجهة النظام (SwiftUI) بطراز الرئيسية؛ وورقة القصة من Compose كما هي
+    if (nativeHadithAvailable) {
+        val uri = LocalUriHandler.current
+        NativeHadithView(
+            hadith, ht.hadithOfDay, "${s.weekday(day)} · ${s.greg(day)}", canNext = offset < 0,
+            onDay = { d -> offset = (offset + d).coerceAtMost(0) },
+            onShare = { hadith?.let { story = hadithStory(it, ht.hadithOfDay) } },
+            onSource = { hadith?.let { h -> runCatching { uri.openUri(h.link) } } },
+            onBack = onBack, modifier = Modifier.fillMaxSize(),
+        )
+        story?.let { StoryShareSheet(it) { story = null } }
+        return
+    }
     ToolPage(ht.hadithOfDay, "${s.weekday(day)} · ${s.greg(day)}", onBack) {
         val h = hadith ?: return@ToolPage
         item(key = "text-${h.id}") { HadithHero(h) }

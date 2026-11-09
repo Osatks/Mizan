@@ -200,6 +200,18 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
             .flatMap { g -> groups.getValue(g).sortedByDescending { it.score }.take(if (terms.isEmpty()) 20 else if (g == s.searchCitiesGroup) 8 else 6) }
     }
 
+    // في iOS: الحقل والنتائج بواجهة النظام (SwiftUI) بطراز الرئيسية؛ النتائج نفسها من هنا، وورقة اللغة من Compose
+    if (nativeSearchAvailable) {
+        NativeSearchView(
+            q, terms.isEmpty(), hits.map { NativeSearchHit(it.group, it.id, it.title, it.subtitle) },
+            onQuery = { q = it },
+            onPick = { id -> hits.firstOrNull { it.id == id }?.action?.invoke() },
+            onBack = onBack, modifier = Modifier.fillMaxSize(),
+        )
+        if (showLang) LanguageSheet { showLang = false }
+        return
+    }
+
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     // على الشاشات العريضة: حقل البحث والنتائج في عمود بعرض مريح في الوسط
     val g = gutters(LocalWindowLayout.current.width, TextColumnMax)
