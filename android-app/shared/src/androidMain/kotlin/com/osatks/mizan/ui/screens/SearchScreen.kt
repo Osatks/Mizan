@@ -33,7 +33,21 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ripple
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import com.osatks.mizan.ui.lightHeaderBrush
+import com.osatks.mizan.ui.starBackdrop
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -103,29 +117,49 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
     // على الشاشات العريضة: حقل البحث والنتائج في عمود بعرض مريح في الوسط
     val g = gutters(LocalWindowLayout.current.width, TextColumnMax)
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Row(Modifier.statusBarsPadding().padding(start = g.start - 12.dp, end = g.end - 4.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, s.back) }
-            Surface(
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 2.dp,
-                modifier = Modifier.weight(1f).sharedCard("search-bar", RoundedCornerShape(18.dp))
+        // الشريط بطراز الرئيسية (كما في iPhone): زر رجوع دائري وحقل البحث في بطاقة بيضاء، على تدرج الترويسة ونجمتها
+        val cs = MaterialTheme.colorScheme
+        // شريط الحالة يتبع مظهر التطبيق فوق الترويسة الفاتحة
+        com.osatks.mizan.ui.StatusBarStyle(lightContent = com.osatks.mizan.ui.theme.LocalDark.current)
+        Box(
+            Modifier.fillMaxWidth().clipToBounds().background(lightHeaderBrush())
+                .starBackdrop(cs.primary.copy(alpha = .07f), 120.dp, Alignment.TopStart, (-50).dp, (-30).dp, 90_000, stroke = 4.5f)
+        ) {
+            Row(
+                Modifier.statusBarsPadding().padding(start = (g.start - 4.dp).coerceAtLeast(12.dp), end = g.end, top = 8.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(Modifier.padding(horizontal = 14.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Search, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.sharedIcon("search-icon"))
-                    Spacer(Modifier.width(10.dp))
-                    Box(Modifier.weight(1f).padding(vertical = 10.dp)) {
-                        if (q.isEmpty()) Text(s.searchHint, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        BasicTextField(
-                            value = q, onValueChange = { q = it }, singleLine = true,
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-                            modifier = Modifier.fillMaxWidth().focusRequester(focus)
-                        )
+                val backSrc = remember { MutableInteractionSource() }
+                Box(
+                    Modifier.size(42.dp).pressScale(backSrc, 0.9f).shadow(3.dp, CircleShape).clip(CircleShape).background(cs.surface.copy(alpha = .85f))
+                        .clickable(interactionSource = backSrc, indication = ripple(), role = Role.Button, onClick = onBack),
+                    contentAlignment = Alignment.Center
+                ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, s.back, tint = cs.primary, modifier = Modifier.size(22.dp)) }
+                Spacer(Modifier.width(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = cs.surface,
+                    shadowElevation = 2.dp,
+                    modifier = Modifier.weight(1f).sharedCard("search-bar", RoundedCornerShape(18.dp))
+                ) {
+                    Row(Modifier.heightIn(min = 50.dp).padding(start = 14.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Search, null, tint = cs.primary, modifier = Modifier.sharedIcon("search-icon"))
+                        Spacer(Modifier.width(10.dp))
+                        Box(Modifier.weight(1f).padding(vertical = 12.dp)) {
+                            if (q.isEmpty()) Text(s.searchHint, color = cs.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            BasicTextField(
+                                value = q, onValueChange = { q = it }, singleLine = true,
+                                textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp, color = cs.onSurface),
+                                cursorBrush = SolidColor(cs.primary),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                                keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
+                                modifier = Modifier.fillMaxWidth().focusRequester(focus)
+                            )
+                        }
+                        if (q.isNotEmpty()) IconButton(onClick = { q = ""; runCatching { focus.requestFocus() } }, modifier = Modifier.size(36.dp)) {
+                            Icon(Icons.Filled.Cancel, s.clear, tint = cs.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                        }
                     }
-                    if (q.isNotEmpty()) IconButton(onClick = { q = "" }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.Close, s.clear) }
                 }
             }
         }
@@ -138,9 +172,12 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
         ) { (empty, blank) ->
             if (empty) {
                 Column(Modifier.fillMaxSize().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.Search, null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(56.dp))
+                    Icon(Icons.Filled.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .55f), modifier = Modifier.size(50.dp))
                     Spacer(Modifier.size(12.dp))
-                    Text(if (blank) s.searchEmpty else s.searchNoResults(q), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        if (blank) s.searchEmpty else s.searchNoResults(q), color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp), textAlign = TextAlign.Center
+                    )
                 }
             } else {
                 androidx.compose.runtime.key(com.osatks.mizan.ui.theme.LocalThemeKey.current) { LazyColumn(
@@ -148,7 +185,7 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
                     contentPadding = PaddingValues(start = g.start, end = g.end, top = 4.dp, bottom = 24.dp + bottom)
                 ) {
                     if (blank) item(key = "hint") {
-                        Text(s.searchEmpty, Modifier.animateItem().padding(4.dp, 4.dp, 4.dp, 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+                        Text(s.searchEmpty, Modifier.animateItem().padding(4.dp, 4.dp, 4.dp, 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp))
                     }
                     var lastGroup: String? = null
                     hits.forEach { h ->
@@ -156,8 +193,8 @@ fun SearchScreen(onBack: () -> Unit, open: (String) -> Unit) {
                             lastGroup = h.group
                             item(key = "g-${h.group}") {
                                 Text(
-                                    h.group, Modifier.animateItem().padding(start = 6.dp, top = 14.dp, bottom = 6.dp),
-                                    style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold
+                                    h.group, Modifier.animateItem().padding(start = 6.dp, top = 14.dp, bottom = 6.dp).semantics { heading() },
+                                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -186,11 +223,14 @@ private fun HitRow(h: SearchHit, q: String, modifier: Modifier, onClick: () -> U
                 contentAlignment = Alignment.Center
             ) { Icon(h.icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp)) }
             Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(highlight(h.title, q), fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    highlight(h.title, q), style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis
+                )
                 if (h.subtitle.isNotEmpty()) {
-                    if (h.id.startsWith("v-")) Text(h.subtitle, Modifier.fillMaxWidth(), style = quranStyle(18), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    else Text(h.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    if (h.id.startsWith("v-")) Text(h.subtitle, Modifier.fillMaxWidth(), style = quranStyle(18), color = MaterialTheme.colorScheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    else Text(h.subtitle, style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             }
         }

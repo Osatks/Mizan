@@ -62,6 +62,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import com.osatks.mizan.ui.pressScale
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Place
 import com.osatks.mizan.i18n.LocalStrings
@@ -105,12 +114,14 @@ fun Onboarding(onDone: () -> Unit, from: Int = 0) {
     com.osatks.mizan.ui.StatusBarStyle(lightContent = true)
     Box(Modifier.fillMaxSize().background(HeroBrush)) {
         // نجمة كبيرة تدور ببطء خلف الصفحات
-        SlowStar(Modifier.size(420.dp).align(Alignment.TopEnd).graphicsLayer { translationX = 140f; translationY = -80f }, Color.White.copy(alpha = .06f), 90_000, 4f)
+        // في زاوية النهاية وتخرج نحو الحافة (تنعكس في العربية كما في iPhone)
+        val starStroke = with(LocalDensity.current) { 1.5.dp.toPx() }
+        SlowStar(Modifier.size(420.dp).align(Alignment.TopEnd).offset(x = 110.dp, y = (-70).dp), Color.White.copy(alpha = .06f), 90_000, starStroke)
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.End) {
+            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.End) {
                 // «تخطي» ينقل إلى صفحة الموقع أولاً، ومنها يُنهي الجولة
                 if (!last || !AppSettings.placeSet) TextButton(onClick = { if (last) onDone() else scope.launch { pager.animateScrollToPage(count - 1) } }) {
-                    Text(s.obSkip, color = Color.White.copy(alpha = .85f))
+                    Text(s.obSkip, color = Color.White.copy(alpha = .85f), style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Medium))
                 } else Spacer(Modifier.height(48.dp))
             }
             HorizontalPager(pager, Modifier.weight(1f)) { i ->
@@ -134,12 +145,15 @@ fun Onboarding(onDone: () -> Unit, from: Int = 0) {
                             drawStar8(Offset(size.width / 2, size.height / 2), size.minDimension * 0.42f, Gold.copy(alpha = .9f), 2.5.dp.toPx(), rings = false)
                             drawCircle(Color.White.copy(alpha = .10f), size.minDimension * 0.27f)
                         }
-                        Icon(if (i == pages.size) Icons.Filled.Place else icons.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(if (short) 40.dp else 56.dp), tint = Gold)
+                        Icon(if (i == pages.size) Icons.Filled.Place else icons.getOrElse(i) { Icons.Filled.Star }, null, Modifier.size(if (short) 36.dp else 50.dp), tint = Gold)
                     }
                     Spacer(Modifier.height(if (short) 20.dp else 36.dp))
-                    Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
+                    Text(
+                        title, Modifier.semantics { heading() }, style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp),
+                        fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center
+                    )
                     Spacer(Modifier.height(14.dp))
-                    Text(body, style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = .85f), textAlign = TextAlign.Center)
+                    Text(body, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp), color = Color.White.copy(alpha = .85f), textAlign = TextAlign.Center)
                     if (i == pages.size) {
                         Spacer(Modifier.height(28.dp))
                         // الموقع المختار يظهر فوق الزرين بعد تحديده
@@ -147,7 +161,7 @@ fun Onboarding(onDone: () -> Unit, from: Int = 0) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Filled.CheckCircle, null, Modifier.size(20.dp), tint = Gold)
                                 Spacer(Modifier.width(8.dp))
-                                Text(s.placeName(AppSettings.place), color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                Text(s.placeName(AppSettings.place), color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp))
                             }
                             Spacer(Modifier.height(16.dp))
                         }
@@ -158,7 +172,7 @@ fun Onboarding(onDone: () -> Unit, from: Int = 0) {
             }
             // النقاط وزر المتابعة (بعرض أقصاه 640 في الوسط على الشاشات العريضة)
             Row(Modifier.fillMaxWidth().wrapContentWidth().widthIn(max = 640.dp).padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
-                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(Modifier.weight(1f).clearAndSetSemantics {}, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     (0 until count).forEach { i ->
                         val on = i == pager.currentPage
                         val w by animateDpAsState(if (on) 18.dp else 6.dp, tween(250), label = "dot")
@@ -166,10 +180,15 @@ fun Onboarding(onDone: () -> Unit, from: Int = 0) {
                         Box(Modifier.height(6.dp).width(w).clip(CircleShape).background(c))
                     }
                 }
+                // زر كبسولي ذهبي يرتد عند اللمس (كما في iPhone)
+                Spacer(Modifier.width(12.dp))
+                val nextSrc = remember { MutableInteractionSource() }
                 Button(
                     onClick = { if (last) onDone() else scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } },
-                    colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Color(0xFF1E1A14))
-                ) { Text(if (last) s.obStart else s.obNext, fontWeight = FontWeight.Bold) }
+                    colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Color(0xFF1E1A14)),
+                    contentPadding = PaddingValues(horizontal = 24.dp), interactionSource = nextSrc,
+                    modifier = Modifier.heightIn(min = 44.dp).pressScale(nextSrc)
+                ) { Text(if (last) s.obStart else s.obNext, style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold), maxLines = 1) }
             }
         }
     }
