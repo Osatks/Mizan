@@ -38,6 +38,14 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeInheritanceScreen.install()
         NativeDatesScreen.install()
         NativeFitrFidyaScreen.install()
+        // والحديث والبحث ومكتبة التفاسير والأذان والدليل والتراخيص، وأوراق اللغة والمدينة
+        NativeHadithScreen.install()
+        NativeSearchScreen.install()
+        NativeTafsirsScreen.install()
+        NativeAdhanScreen.install()
+        NativeGuideScreen.install()
+        NativeLicensesScreen.install()
+        NativeSheetsUI.install()
         if !AppDelegate.usesScenes {
             let w = UIWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()

@@ -14,6 +14,9 @@ import platform.UIKit.UIPresentationController
 import platform.UIKit.UISheetPresentationControllerDetent
 import platform.UIKit.UISheetPresentationControllerDetentIdentifierLarge
 import platform.UIKit.UIViewController
+import platform.UIKit.presentationController
+import platform.UIKit.sheetPresentationController
+import platform.UIKit.UISheetPresentationController
 import platform.darwin.DISPATCH_TIME_NOW
 import platform.darwin.NSObject
 import platform.darwin.dispatch_after
@@ -83,7 +86,7 @@ private class PresentedSheet(
     fun show() {
         val c = NativeSheets.make(session) ?: return gone()
         // بارتفاعين (نصف الشاشة وكلها) ومقبض؛ وعلى iPad نافذة في الوسط كما يعرض النظام أوراقه
-        c.sheetPresentationController?.let { sp ->
+        c.sheetPresentationController?.let { sp: UISheetPresentationController ->
             sp.detents = listOf(UISheetPresentationControllerDetent.mediumDetent(), UISheetPresentationControllerDetent.largeDetent())
             sp.prefersGrabberVisible = true
             if (startLarge) sp.selectedDetentIdentifier = UISheetPresentationControllerDetentIdentifierLarge
