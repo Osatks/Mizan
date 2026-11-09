@@ -11,6 +11,16 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,11 +36,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,13 +65,13 @@ import com.osatks.mizan.i18n.weekday
 import com.osatks.mizan.ui.Motion
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
-import com.osatks.mizan.ui.Picker
+import com.osatks.mizan.ui.FormPicker
 import com.osatks.mizan.ui.ResultCard
 import com.osatks.mizan.ui.RollingText
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
-import com.osatks.mizan.ui.StatRow
-import com.osatks.mizan.ui.Tile
+import com.osatks.mizan.ui.theme.Gold
+import com.osatks.mizan.ui.theme.HeroBrush
 import com.osatks.mizan.ui.ToolPage
 import com.osatks.mizan.ui.pressScale
 import kotlinx.coroutines.delay
@@ -80,9 +88,10 @@ private fun DateFields(hijri: Boolean, y: String, m: Int, d: Int, onY: (String) 
     else (if (yi != null && yi in 1..9999) monthLength(yi, m) else 31)
     LaunchedEffect(maxDay) { if (d > maxDay) onD(maxDay) }
     val months = if (hijri) s.hijriMonths else s.gregMonths
+    // اليوم بعرض ثابت والشهر يملأ الباقي (كما في iPhone)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Picker(s.dayLabel, (1..maxDay).toList(), d.coerceAtMost(maxDay), text = { "$it" }, onSelect = onD, modifier = Modifier.weight(0.8f))
-        Picker(s.monthLabel, (1..12).toList(), m, text = { months[it - 1] }, onSelect = onM, modifier = Modifier.weight(1.4f))
+        FormPicker(s.dayLabel, (1..maxDay).toList(), d.coerceAtMost(maxDay), text = { "$it" }, onSelect = onD, modifier = Modifier.width(108.dp))
+        FormPicker(s.monthLabel, (1..12).toList(), m, text = { months[it - 1] }, onSelect = onM, modifier = Modifier.weight(1f))
     }
     NumField(s.yearLabel, y, onY, if (hijri) s.hijriYearSuffix else s.gregYearSuffix)
 }
@@ -110,19 +119,31 @@ fun HijriScreen(onBack: () -> Unit) {
                 Segmented(listOf("g2h" to s.gregToHijri, "h2g" to s.hijriToGreg), dir) { dir = it }
                 if (dir == "g2h") DateFields(false, gy, gm, gd, { gy = it }, { gm = it }, { gd = it })
                 else DateFields(true, hy, hm, hd, { hy = it }, { hm = it }, { hd = it })
-                TextButton(onClick = {
-                    gy = today.year.toString(); gm = today.monthValue; gd = today.dayOfMonth
-                    hy = th.y.toString(); hm = th.m; hd = th.d
-                }) { Text(s.todayDate) }
+                // «تاريخ اليوم» كبسولة بلون التطبيق الفاتح
+                val src = remember { MutableInteractionSource() }
+                Surface(
+                    onClick = {
+                        gy = today.year.toString(); gm = today.monthValue; gd = today.dayOfMonth
+                        hy = th.y.toString(); hm = th.m; hd = th.d
+                    },
+                    shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, interactionSource = src,
+                    modifier = Modifier.pressScale(src, 0.95f)
+                ) {
+                    Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.CalendarMonth, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(6.dp))
+                        Text(s.todayDate, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                    }
+                }
             }
         }
         item {
             SectionCard {
                 val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { cal-- }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, s.prevMonth) }
-                    RollingText(s.hijriMonthTitle(cal % 12 + 1, cal / 12), MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                    IconButton(onClick = { cal++ }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, s.nextMonth) }
+                    MonthArrow(Icons.AutoMirrored.Filled.KeyboardArrowLeft, s.prevMonth) { cal-- }
+                    RollingText(s.hijriMonthTitle(cal % 12 + 1, cal / 12), MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp), MaterialTheme.colorScheme.onSurface, Modifier.weight(1f), TextAlign.Center)
+                    MonthArrow(Icons.AutoMirrored.Filled.KeyboardArrowRight, s.nextMonth) { cal++ }
                 }
                 AnimatedContent(
                     targetState = cal,
@@ -155,7 +176,7 @@ private fun HijriMonthGrid(y: Int, m: Int, today: LocalDate, onPick: (Int) -> Un
     val lead = first.dayOfWeek.iso % 7 // الأحد = 0
     Row(Modifier.fillMaxWidth()) {
         listOf(6, 0, 1, 2, 3, 4, 5).forEach {
-            Text(s.weekdaysShort[it], Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            Text(s.weekdaysShort[it], Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
         }
     }
     val cells = List(lead) { 0 } + (1..len).toList()
@@ -168,17 +189,22 @@ private fun HijriMonthGrid(y: Int, m: Int, today: LocalDate, onPick: (Int) -> Un
                         val g = first.plusDays((day - 1).toLong())
                         val isToday = g == today
                         val src = remember { MutableInteractionSource() }
+                        // اليوم الحالي بتدرج لون التطبيق وحافة ذهبية، وسائر الأيام بلونه الفاتح (كما في iPhone)
                         Surface(
                             onClick = { onPick(day) }, shape = RoundedCornerShape(10.dp),
-                            color = if (isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .6f),
+                            color = if (isToday) Color.Transparent else MaterialTheme.colorScheme.primaryContainer.copy(alpha = .4f),
+                            border = if (isToday) BorderStroke(1.5.dp, Gold) else null,
                             interactionSource = src,
                             modifier = Modifier.fillMaxWidth().aspectRatio(0.85f).pressScale(src, 0.85f)
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                Text("$day", fontWeight = FontWeight.Bold, fontSize = 15.sp,
-                                    color = if (isToday) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface)
-                                Text("${g.dayOfMonth}/${g.monthValue}", fontSize = 9.sp,
-                                    color = if (isToday) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            Column(
+                                if (isToday) Modifier.background(HeroBrush) else Modifier,
+                                horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
+                            ) {
+                                Text("$day", fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1,
+                                    color = if (isToday) Color.White else MaterialTheme.colorScheme.onSurface)
+                                Text("${g.dayOfMonth}/${g.monthValue}", fontSize = 9.sp, maxLines = 1,
+                                    color = if (isToday) Color.White.copy(alpha = .85f) else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -210,15 +236,15 @@ fun AgeScreen(onBack: () -> Unit) {
             item { ResultCard(s.ageGregorian, s.ymd(g.years, g.months, g.days), s.inHijri(hAge)) }
             item {
                 SectionCard {
-                    StatRow(s.birthGreg, s.greg(birth))
-                    StatRow(s.birthHijri, s.hijri(hb))
-                    StatRow(s.birthWeekday, s.weekday(birth))
+                    AgeStat(s.birthGreg, s.greg(birth))
+                    AgeStat(s.birthHijri, s.hijri(hb))
+                    AgeStat(s.birthWeekday, s.weekday(birth))
                     val left = daysBetween(today, nextB)
-                    StatRow(s.nextBirthday, if (left == 0L) s.birthdayToday else s.inDays(left))
+                    AgeStat(s.nextBirthday, if (left == 0L) s.birthdayToday else s.inDays(left))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Tile(Fmt.int(days), s.tileDays)
-                        Tile(Fmt.int(days / 7), s.tileWeeks)
-                        Tile(Fmt.int(days * 24), s.tileHours)
+                        AgeTile(Fmt.int(days), s.tileDays)
+                        AgeTile(Fmt.int(days / 7), s.tileWeeks)
+                        AgeTile(Fmt.int(days * 24), s.tileHours)
                     }
                 }
             }
@@ -275,21 +301,26 @@ fun EventsScreen(onBack: () -> Unit) {
                     val days = daysBetween(today, date2)
                     val on = i == sel
                     val bg by animateColorAsState(if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, tween(Motion.MEDIUM), label = "ev")
-                    val border by animateColorAsState(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, tween(Motion.MEDIUM), label = "evB")
+                    val border by animateColorAsState(if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f), tween(Motion.MEDIUM), label = "evB")
                     val src = remember { MutableInteractionSource() }
+                    val edge by animateDpAsState(if (on) 1.5.dp else 1.dp, tween(Motion.MEDIUM), label = "evW")
                     Surface(
                         onClick = { sel = i }, shape = RoundedCornerShape(16.dp), color = bg,
-                        border = BorderStroke(1.dp, border), interactionSource = src, modifier = Modifier.pressScale(src, 0.97f)
+                        border = BorderStroke(edge, border), interactionSource = src,
+                        modifier = Modifier.pressScale(src, 0.97f).semantics { selected = on }
                     ) {
                         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text(ev.emoji, fontSize = 22.sp)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(s.events[ev.key]?.name ?: ev.key, fontWeight = FontWeight.Bold)
+                                Text(s.events[ev.key]?.name ?: ev.key, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                                 Text("${s.weekday(date2)} ${s.greg(date2)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Spacer(Modifier.width(8.dp))
-                            Text(when (days) { 0L -> s.today; 1L -> s.tomorrow; else -> s.inDays(days) }, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.ExtraBold)
+                            Text(
+                                when (days) { 0L -> s.today; 1L -> s.tomorrow; else -> s.inDays(days) },
+                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.End
+                            )
                         }
                     }
                 }
@@ -297,6 +328,45 @@ fun EventsScreen(onBack: () -> Unit) {
         }
         item { Note(s.eventsNote) }
         item { EvidenceCard(com.osatks.mizan.i18n.Evidence.events) }
+    }
+}
+
+/** سهم الشهر السابق أو التالي: دائرة بلون التطبيق الفاتح (كما في iPhone) */
+@Composable
+private fun MonthArrow(icon: ImageVector, desc: String, onClick: () -> Unit) {
+    val src = remember { MutableInteractionSource() }
+    Surface(
+        onClick = onClick, shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, interactionSource = src,
+        modifier = Modifier.size(38.dp).pressScale(src, 0.9f)
+    ) {
+        Box(contentAlignment = Alignment.Center) { Icon(icon, desc, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary) }
+    }
+}
+
+/** سطر من تفاصيل العمر على خلفية فاتحة */
+@Composable
+private fun AgeStat(label: String, value: String) {
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.background.copy(alpha = .7f))
+            .padding(horizontal = 14.dp, vertical = 11.dp).semantics(mergeDescendants = true) {},
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.width(8.dp))
+        RollingText(value, MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold), MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.End)
+    }
+}
+
+/** خانة عدد (الأيام والأسابيع والساعات) على خلفية ذهبية فاتحة */
+@Composable
+private fun androidx.compose.foundation.layout.RowScope.AgeTile(value: String, label: String) {
+    Column(
+        Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Gold.copy(alpha = .12f))
+            .padding(vertical = 12.dp, horizontal = 6.dp).semantics(mergeDescendants = true) {},
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        RollingText(value, MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp), MaterialTheme.colorScheme.primary)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

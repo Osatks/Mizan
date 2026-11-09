@@ -14,13 +14,13 @@ import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
-import com.osatks.mizan.ui.Picker
+import com.osatks.mizan.ui.FormPicker
 import com.osatks.mizan.ui.Reveal
 import com.osatks.mizan.ui.ResultCard
 import com.osatks.mizan.ui.SectionCard
 import com.osatks.mizan.ui.Segmented
 import com.osatks.mizan.ui.StatRow
-import com.osatks.mizan.ui.Stepper
+import com.osatks.mizan.ui.FormStepper
 import com.osatks.mizan.ui.ToolPage
 
 @Composable
@@ -44,11 +44,11 @@ fun FitrScreen(onBack: () -> Unit) {
         }
         item {
             SectionCard {
-                Stepper(s.peopleCount, people, { people = it }, 1, 99)
+                FormStepper(s.peopleCount, people, { people = it }, 1, 99)
                 Segmented(listOf("food" to s.modeFood, "money" to s.modeMoney), mode) { mode = it }
                 Reveal(mode == "food") {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Picker(s.foodType, FOODS, food, text = { s.foodLabel(it) }, onSelect = { food = it })
+                        FormPicker(s.foodType, FOODS, food, text = { s.foodLabel(it) }, onSelect = { food = it })
                         Reveal(food.kg < 0) { NumField(s.saWeight, custom, { custom = it }, s.unitKg) }
                         NumField(s.kgPrice, kgPrice, { kgPrice = it }, null, s.kgPriceHint)
                         StatRow(s.saPerPerson, "${Fmt.num(sa)} ${s.unitKg}")
@@ -87,9 +87,9 @@ fun FidyaScreen(onBack: () -> Unit) {
         item {
             SectionCard {
                 Segmented(listOf("fidya" to s.tabFidya, "yamin" to s.tabOath, "jima" to s.tabIntercourse), tab) { tab = it }
-                Reveal(tab == "fidya") { Stepper(s.daysField, days, { days = it }, 1, 360) }
-                Reveal(tab == "yamin") { Stepper(s.oathsField, oaths, { oaths = it }, 1, 100) }
-                Picker(s.feedMeasure, listOf(0.75, 1.5), measure,
+                Reveal(tab == "fidya") { FormStepper(s.daysField, days, { days = it }, 1, 360) }
+                Reveal(tab == "yamin") { FormStepper(s.oathsField, oaths, { oaths = it }, 1, 100) }
+                FormPicker(s.feedMeasure, listOf(0.75, 1.5), measure,
                     text = { if (it == 0.75) s.muddOption else s.halfSaOption },
                     onSelect = { measure = it })
                 NumField(s.kgPrice, price, { price = it })

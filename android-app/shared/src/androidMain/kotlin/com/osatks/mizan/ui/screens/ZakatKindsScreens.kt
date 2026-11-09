@@ -3,6 +3,7 @@ package com.osatks.mizan.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,12 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Agriculture
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Landscape
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.filled.Workspaces
-import androidx.compose.material3.Checkbox
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,11 +34,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.ZakatKinds
 import com.osatks.mizan.i18n.Evidence
 import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.ui.FormLabel
+import com.osatks.mizan.ui.FormSwitchRow
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
 import com.osatks.mizan.ui.ResultCard
@@ -73,9 +76,9 @@ private fun ZakatTypes(onBack: () -> Unit, pick: (String) -> Unit) {
     val s = LocalStrings.current
     val types = listOf(
         Triple("money", Icons.Filled.Diamond, s.zkMoneyName to s.zkMoneyDesc),
-        Triple("trade", Icons.Filled.Storefront, s.zkTradeName to s.zkTradeDesc),
-        Triple("livestock", Icons.Filled.Workspaces, s.zkLivestockName to s.zkLivestockDesc),
-        Triple("crops", Icons.Filled.Agriculture, s.zkCropsName to s.zkCropsDesc),
+        Triple("trade", Icons.Filled.ShoppingCart, s.zkTradeName to s.zkTradeDesc),
+        Triple("livestock", Icons.Filled.Pets, s.zkLivestockName to s.zkLivestockDesc),
+        Triple("crops", Icons.Filled.Eco, s.zkCropsName to s.zkCropsDesc),
         Triple("minerals", Icons.Filled.Landscape, s.zkMineralsName to s.zkMineralsDesc),
     )
     ToolPage(s.zakatTitle, s.zakatTypesSub, onBack, sharedKey = "zakat", icon = TOOL_ICONS["zakat"], spacing = 12.dp) {
@@ -90,19 +93,19 @@ private fun TypeCard(n: Int, icon: ImageVector, name: String, desc: String, onCl
     val src = remember { MutableInteractionSource() }
     Surface(
         onClick = onClick, shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f)), interactionSource = src,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f)), shadowElevation = 1.dp, interactionSource = src,
         modifier = Modifier.fillMaxWidth().pressScale(src, 0.98f)
     ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             NumberStar(n, 40.dp)
             Box(Modifier.padding(start = 12.dp).size(44.dp).clip(RoundedCornerShape(14.dp)).background(Gold.copy(alpha = .15f)), contentAlignment = Alignment.Center) {
-                Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+                Icon(icon, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.primary)
             }
-            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                Text(name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(Modifier.weight(1f).padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(name, style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                Text(desc, style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -131,7 +134,7 @@ internal fun LivestockZakat(onBack: () -> Unit) {
     val ok = grazing && year
     val dues = if (ok) rows.flatMap { it.first.third } else emptyList()
     val total = dues.sumOf { it.count }
-    ToolPage(s.zkLivestockName, s.zkLivestockDesc, onBack, icon = Icons.Filled.Workspaces) {
+    ToolPage(s.zkLivestockName, s.zkLivestockDesc, onBack, icon = Icons.Filled.Pets) {
         side {
             ResultCard(
                 s.livestockDue, if (total > 0) "$total" else "—",
@@ -165,13 +168,9 @@ internal fun LivestockZakat(onBack: () -> Unit) {
     }
 }
 
+/** شرط بمفتاح تشغيل كما في iPhone */
 @Composable
-private fun CheckRow(text: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = checked, onCheckedChange = onChange)
-        Text(text, style = MaterialTheme.typography.bodyMedium)
-    }
-}
+private fun CheckRow(text: String, checked: Boolean, onChange: (Boolean) -> Unit) = FormSwitchRow(text, checked, onChange)
 
 @Composable
 internal fun CropsZakat(onBack: () -> Unit) {
@@ -183,7 +182,7 @@ internal fun CropsZakat(onBack: () -> Unit) {
     val due = ZakatKinds.crops(kg, irr)
     val price = Fmt.parse(priceT)
     val nisab = ZakatKinds.CROPS_NISAB_KG
-    ToolPage(s.zkCropsName, s.zkCropsDesc, onBack, icon = Icons.Filled.Agriculture) {
+    ToolPage(s.zkCropsName, s.zkCropsDesc, onBack, icon = Icons.Filled.Eco) {
         side {
             ResultCard(
                 s.cropsDue, if (due > 0) Fmt.num(due) else "—",
@@ -194,7 +193,7 @@ internal fun CropsZakat(onBack: () -> Unit) {
         item {
             SectionCard {
                 NumField(s.cropsWeight, kgT, setKg, s.unitKg, s.cropsNisab(Fmt.num(nisab, 0)))
-                Text(s.irrigation, style = MaterialTheme.typography.labelLarge)
+                FormLabel(s.irrigation)
                 Segmented(listOf("rain" to s.irrRain, "irrigated" to s.irrIrrigated, "mixed" to s.irrMixed), irr) { irr = it; AppSettings.putString("zk_irr", it) }
                 StatRow(s.zkRate, "${Fmt.num(ZakatKinds.cropsRate(irr) * 100, 1)}%")
                 NumField(s.kgPrice, priceT, setPrice, null, s.kgPriceHint)

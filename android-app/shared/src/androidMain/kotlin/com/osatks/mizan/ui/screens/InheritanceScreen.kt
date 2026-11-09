@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,12 +37,29 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Inheritance
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.ui.Motion
-import com.osatks.mizan.ui.MiniStepper
+import com.osatks.mizan.ui.FormShareButton
+import com.osatks.mizan.ui.FormStepperControl
+import com.osatks.mizan.ui.RollingText
+import com.osatks.mizan.ui.pressScale
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
 import com.osatks.mizan.ui.ResultCard
@@ -66,6 +83,7 @@ fun InheritanceScreen(onBack: () -> Unit) {
     val active = activeHeirs(counts, gender)
     val result = Inheritance.solve(active, gender)
 
+    val haptic = LocalHapticFeedback.current
     val arrow = if (LocalLayoutDirection.current == LayoutDirection.Rtl) "←" else "→"
     // على الشاشة الواسعة: الورثة والتركة في عمود، والقسمة بجانبها ثابتة أثناء الإدخال
     ToolPage(s.inhTitle, s.inhSubtitle, onBack, sharedKey = "inheritance", icon = TOOL_ICONS["inheritance"]) {
@@ -130,9 +148,9 @@ fun InheritanceScreen(onBack: () -> Unit) {
                             }
                         }
                     }
-                    Button(onClick = {
+                    FormShareButton(s.shareDivision) {
                         shareText(s, inheritanceShareText(s, active, result))
-                    }, modifier = Modifier.fillMaxWidth()) { Text(s.shareDivision) }
+                    }
                 }
             }
             result.notes.forEach { n -> side { Note(s.inhNote(n)) } }
@@ -155,14 +173,36 @@ fun InheritanceScreen(onBack: () -> Unit) {
                         val v = counts[h.key] ?: 0
                         val bg by animateColorAsState(if (v > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface, tween(Motion.MEDIUM), label = "heir")
                         val border by animateColorAsState(if (v > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, tween(Motion.MEDIUM), label = "heirB")
+                        val nameColor by animateColorAsState(if (v > 0) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface, tween(Motion.MEDIUM), label = "heirT")
+                        val name = s.heirs[h.key] ?: h.key
+                        // من لا يكون إلا واحداً بمفتاح، ومن يتعدد بعدّاد (كما في iPhone)
+                        val single = h.max <= 1
                         Surface(
                             shape = RoundedCornerShape(14.dp),
                             color = bg,
                             border = BorderStroke(1.dp, border)
                         ) {
-                            Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(s.heirs[h.key] ?: h.key, Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
-                                MiniStepper(v, { counts[h.key] = it }, 0, h.max)
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 52.dp)
+                                    .then(if (single) Modifier.toggleable(v > 0, role = Role.Switch) { on ->
+                                        haptic.performHapticFeedback(if (on) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff)
+                                        counts[h.key] = if (on) 1 else 0
+                                    } else Modifier)
+                                    .padding(start = 14.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(name, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp), fontWeight = FontWeight.SemiBold, color = nameColor)
+                                if (single) {
+                                    Switch(checked = v > 0, onCheckedChange = null)
+                                } else {
+                                    RollingText(
+                                        "$v", MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp, fontWeight = FontWeight.ExtraBold),
+                                        if (v > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        Modifier.widthIn(min = 28.dp), TextAlign.Center
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                    FormStepperControl(v, { counts[h.key] = it }, 0, h.max)
+                                }
                             }
                         }
                     }
@@ -170,8 +210,18 @@ fun InheritanceScreen(onBack: () -> Unit) {
             }
         }
         item {
-            OutlinedButton(onClick = { counts.clear(); estate = ""; funeral = ""; debts = ""; will = "" }, modifier = Modifier.fillMaxWidth()) {
-                Text(s.newCase)
+            // «مسألة جديدة»: كبسولة بحافة رفيعة كما في iPhone
+            val src = remember { MutableInteractionSource() }
+            Surface(
+                onClick = { counts.clear(); estate = ""; funeral = ""; debts = ""; will = "" },
+                shape = CircleShape, color = Color.Transparent, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                interactionSource = src, modifier = Modifier.fillMaxWidth().pressScale(src, 0.97f)
+            ) {
+                Row(Modifier.padding(vertical = 13.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Refresh, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(8.dp))
+                    Text(s.newCase, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
         item { EvidenceCard(com.osatks.mizan.i18n.Evidence.inheritance, startOpen = result != null) }

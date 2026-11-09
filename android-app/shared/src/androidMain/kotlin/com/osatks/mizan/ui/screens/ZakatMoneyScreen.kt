@@ -2,26 +2,23 @@ package com.osatks.mizan.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.ShoppingCart
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.core.Fmt
@@ -30,7 +27,10 @@ import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.ui.Note
 import com.osatks.mizan.ui.NumField
-import com.osatks.mizan.ui.Picker
+import com.osatks.mizan.ui.FormLabel
+import com.osatks.mizan.ui.FormPicker
+import com.osatks.mizan.ui.FormShareButton
+import com.osatks.mizan.ui.FormSwitchRow
 import com.osatks.mizan.ui.Reveal
 import com.osatks.mizan.ui.ResultCard
 import com.osatks.mizan.ui.SectionCard
@@ -89,7 +89,7 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
         }
     }
     // على الشاشة الواسعة: المدخلات في عمود، والنتيجة وتفصيلها بجانبها ثابتة أثناء الإدخال
-    ToolPage(if (tradeFirst) s.zkTradeName else s.zkMoneyName, s.zakatSubtitle, onBack, icon = TOOL_ICONS["zakat"]) {
+    ToolPage(if (tradeFirst) s.zkTradeName else s.zkMoneyName, s.zakatSubtitle, onBack, icon = if (tradeFirst) Icons.Filled.ShoppingCart else Icons.Filled.Diamond) {
         side {
             ResultCard(s.zakatDue, Fmt.num(zakat), badge, if (nisab <= 0 || net <= 0) null else due, unit = cur) {
                 if (nisab > 0) {
@@ -111,18 +111,18 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
                 StatRow(s.nisabValue, if (nisab > 0) "${Fmt.num(nisab)} $cur" else "—")
                 Reveal(zakat > 0 && gp > 0) { StatRow(s.approxEquals, s.goldGrams24(Fmt.num(if (gp > 0) zakat / gp else 0.0))) }
                 Reveal(zakat > 0) {
-                    Button(onClick = {
+                    FormShareButton(s.shareResult) {
                         shareText(s, s.zakatShareText("${Fmt.num(zakat)} $cur", "${Fmt.num(net)} $cur"))
-                    }, modifier = Modifier.fillMaxWidth()) { Text(s.shareResult) }
+                    }
                 }
             }
         }
         if (tradeFirst) item { invest() }
         item {
             SectionCard(s.settingsAndPrices) {
-                Picker(s.currency, currencies(lang), curObj, text = { c -> "${c.name(lang)} (${c.symbol(lang)})" },
+                FormPicker(s.currency, currencies(lang), curObj, text = { c -> "${c.name(lang)} (${c.symbol(lang)})" },
                     onSelect = { curIso = it.iso; AppSettings.putString("zk_cur", it.iso) })
-                Text(s.nisabBasis, style = MaterialTheme.typography.labelLarge)
+                FormLabel(s.nisabBasis)
                 Segmented(listOf("gold" to s.nisabGold, "silver" to s.nisabSilver), basis) { basis = it; AppSettings.putString("zk_basis", it) }
                 NumField(s.goldPrice24, v["gold_price"] ?: "", { set("gold_price", it) }, cur, s.goldPriceHint)
                 NumField(s.silverPrice, v["silver_price"] ?: "", { set("silver_price", it) }, cur)
@@ -143,10 +143,7 @@ internal fun ZakatMoneyScreen(onBack: () -> Unit, tradeFirst: Boolean = false) {
                 NumField(s.goldKarat(21), v["g21"] ?: "", { set("g21", it) }, s.unitGram)
                 NumField(s.goldKarat(18), v["g18"] ?: "", { set("g18", it) }, s.unitGram)
                 NumField(s.pureSilver, v["silver"] ?: "", { set("silver", it) }, s.unitGram)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = includeJewelry, onCheckedChange = { includeJewelry = it; AppSettings.putBool("zk_jewelry", it) })
-                    Text(s.includeJewelry, style = MaterialTheme.typography.bodyMedium)
-                }
+                FormSwitchRow(s.includeJewelry, includeJewelry) { includeJewelry = it; AppSettings.putBool("zk_jewelry", it) }
                 Reveal(!includeJewelry) {
                     NumField(s.jewelryField, v["jewel"] ?: "", { set("jewel", it) }, s.unitGram, s.jewelryHint)
                 }

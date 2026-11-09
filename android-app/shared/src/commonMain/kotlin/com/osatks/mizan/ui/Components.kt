@@ -96,6 +96,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -483,13 +486,15 @@ private fun BackChip(onBack: () -> Unit, @Suppress("UNUSED_PARAMETER") progress:
 fun SectionCard(title: String? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (title != null) Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            // عنوان البطاقة بوزن ثقيل بلون التطبيق (كما في iPhone)
+            if (title != null) Text(title, style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.ExtraBold), color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics { heading() })
             content()
         }
     }
@@ -691,7 +696,7 @@ fun ResultCard(
             ) {
                 Text(label, color = Color.White.copy(alpha = .85f), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    RollingText(value, MaterialTheme.typography.headlineLarge, Color.White, textAlign = TextAlign.Center)
+                    RollingText(value, MaterialTheme.typography.headlineLarge.copy(fontSize = 36.sp, fontWeight = FontWeight.Black), Color.White, textAlign = TextAlign.Center)
                     if (unit != null) Text(unit, color = Color.White.copy(alpha = .9f), style = MaterialTheme.typography.titleLarge)
                 }
                 if (badge != null) {
