@@ -69,7 +69,8 @@ private func toolIcon(_ key: String) -> String {
     case "events": return "calendar.badge.clock"
     case "tasbih": return "hand.tap.fill"
     case "fitr": return "leaf.fill"
-    case "age": return "birthday.cake.fill"
+    // رمز الكعكة من iOS 16، وقبله هدية (الرمز غير الموجود لا يُرسم شيئاً)
+    case "age": if #available(iOS 16.0, *) { return "birthday.cake.fill" } else { return "gift.fill" }
     case "fidya": return "hands.sparkles.fill"
     default: return "square.grid.2x2.fill"
     }
@@ -85,19 +86,55 @@ struct ToolsRoot: View {
     }
 }
 
+private struct ToolsHeaderBottomKey: PreferenceKey {
+    static var defaultValue: CGFloat = .greatestFiniteMagnitude
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+/// الشريط الزجاجي العلوي باسم التبويب حين تمر الترويسة تحته (GlassTopBar)
+private struct ToolsGlassBar: View {
+    let title: String
+    let top: CGFloat
+    let p: HomePalette
+    let amount: Double
+    var body: some View {
+        Text(title)
+            .font(sys(16, .medium)).foregroundColor(p.onSurface).lineLimit(1)
+            .frame(maxWidth: .infinity).frame(height: 52)
+            .padding(.top, top)
+            .background(.ultraThinMaterial)
+            .overlay(Rectangle().fill(p.outlineVariant.opacity(0.8)).frame(height: 1), alignment: .bottom)
+            .opacity(amount)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+}
+
 struct ToolsView: View {
     let s: ToolsState
     let p: HomePalette
     let model: ToolsModel
+    /// شفافية الشريط الزجاجي: 0 والصفحة في أعلاها، و1 حين يمر طرف الترويسة السفلي تحته
+    @State private var glass: Double = 0
 
     private var columns: Int { s.width >= 840 ? 4 : (s.width >= 560 ? 3 : 2) }
 
+    /// تُكتب الشفافية حين تتغير فقط، فلا يُعاد بناء الصفحة مع كل إطار تمرير (كما في الرئيسية)
+    private func track(_ headerBottom: CGFloat) {
+        let bar = CGFloat(s.top) + 52, ramp: CGFloat = 36
+        let g = Double(min(max((bar + ramp - headerBottom) / ramp, 0), 1))
+        if g != glass { glass = g }
+    }
+
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             p.background
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 0) {
                     header
+                        .background(GeometryReader { g in
+                            Color.clear.preference(key: ToolsHeaderBottomKey.self, value: g.frame(in: .named("tools")).maxY)
+                        })
                     VStack(spacing: 12) {
                         ForEach(Array(stride(from: 0, to: s.tools.count, by: columns)), id: \.self) { i in
                             HStack(spacing: 12) {
@@ -116,6 +153,9 @@ struct ToolsView: View {
                 }
                 .padding(.bottom, CGFloat(s.bottom))
             }
+            .coordinateSpace(name: "tools")
+            .onPreferenceChange(ToolsHeaderBottomKey.self) { track($0) }
+            ToolsGlassBar(title: s.title, top: CGFloat(s.top), p: p, amount: glass)
         }
         .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
         .environment(\.colorScheme, s.dark ? .dark : .light)

@@ -56,6 +56,8 @@ struct PrayerState: Decodable {
     let lang: String
     let dark: Bool
     let top, bottom, start, end: Double
+    /// 2 على الشاشة الواسعة (iPad): جدول الشهر والإقامة والتنبيهات بجانب المواقيت (ToolPage)
+    let columns: Int
     let title, subtitle: String
     let next: Next
     let day: Day
@@ -79,6 +81,7 @@ final class PrayerModel: ObservableObject {
     @Published private(set) var state: PrayerState? { didSet { if let s = state { onStyle?(s.dark, s.rtl) } } }
     var onStyle: ((Bool, Bool) -> Void)?
     private var token: NSObjectProtocol?
+    private var activeToken: NSObjectProtocol?
 
     init(session: NativePrayerSession) {
         self.session = session
@@ -87,9 +90,16 @@ final class PrayerModel: ObservableObject {
             guard let self = self, let s = PrayerState.decode(self.session.state) else { return }
             self.state = s
         }
+        // بعد نوم الجهاز: مؤقّت الدقيقة في Kotlin متأخر، فتُطلب الحالة الآن (الصلاة القادمة واليوم)
+        activeToken = NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.session.refresh()
+        }
     }
 
-    deinit { if let t = token { NotificationCenter.default.removeObserver(t) } }
+    deinit {
+        if let t = token { NotificationCenter.default.removeObserver(t) }
+        if let t = activeToken { NotificationCenter.default.removeObserver(t) }
+    }
 
     func open(_ route: String) { session.open(route: route) }
     func day(_ delta: Int) { session.day(delta: Int32(delta)) }
@@ -101,24 +111,69 @@ final class PrayerModel: ObservableObject {
     func iqama(_ key: String, _ minutes: Int) { session.iqama(key: key, minutes: Int32(minutes)) }
 }
 
-/// اتجاه الهاتف من البوصلة (الشمال الحقيقي إن توفر)، ما دامت البطاقة ظاهرة
+/// اتجاه الهاتف من البوصلة ما دامت البطاقة ظاهرة: الشمال الحقيقي (لا يصح trueHeading إلا مع تحديث الموقع، فيُطلب إن كان مأذوناً
+/// كما في QiblaHeading)، وإلا المغناطيسي. dial زاوية متصلة لا تقفز من 359 إلى 0، فتدور البوصلة في أقصر طريق عبر الشمال
 final class Compass: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var heading: Double = 0
-    @Published var available = CLLocationManager.headingAvailable()
+    /// 0..<360
+    @Published private(set) var heading: Double = 0
+    @Published private(set) var dial: Double = 0
+    let available = CLLocationManager.headingAvailable()
     private let manager = CLLocationManager()
+    private var running = false
+    private var locating = false
+    private var hasReading = false
 
     override init() {
         super.init()
         manager.delegate = self
         manager.headingFilter = 1
+        manager.desiredAccuracy = kCLLocationAccuracyKilometer
     }
 
-    func start() { if available { manager.startUpdatingHeading() } }
-    func stop() { manager.stopUpdatingHeading() }
+    func start() {
+        guard available, !running else { return }
+        running = true
+        startLocationIfAllowed()
+        manager.startUpdatingHeading()
+    }
+
+    func stop() {
+        guard running else { return }
+        running = false
+        manager.stopUpdatingHeading()
+        if locating { manager.stopUpdatingLocation(); locating = false }
+    }
+
+    /// الموقع يجعل trueHeading معروفاً؛ لا يُسأل الإذن هنا
+    private func startLocationIfAllowed() {
+        guard running, !locating else { return }
+        switch manager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            locating = true
+            manager.startUpdatingLocation()
+        default: break
+        }
+    }
 
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        heading = newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading
+        let raw = newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading
+        var v = raw.truncatingRemainder(dividingBy: 360)
+        if v < 0 { v += 360 }
+        if hasReading {
+            dial += ((v - heading).truncatingRemainder(dividingBy: 360) + 540).truncatingRemainder(dividingBy: 360) - 180
+        } else {
+            // أول قراءة: بأقصر طريق من 0 (لا دورة شبه كاملة عند الظهور)
+            dial = v > 180 ? v - 360 : v
+            hasReading = true
+        }
+        heading = v
     }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) { startLocationIfAllowed() }
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {}
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
+    /// دقة البوصلة منخفضة: يعرض iOS شاشة معايرته
+    func locationManagerShouldDisplayHeadingCalibration(_ manager: CLLocationManager) -> Bool { true }
 }
 
 // MARK: - الشاشة
@@ -142,13 +197,18 @@ struct PrayerView: View {
     let s: PrayerState
     let p: HomePalette
     let model: PrayerModel
-    @State private var headerBottom: CGFloat = .greatestFiniteMagnitude
+    /// شفافية الشريط الزجاجي: 0 والصفحة في أعلاها، و1 حين يمر طرف الترويسة السفلي تحته
+    @State private var glass: Double = 0
     @State private var showMonth = false
     @State private var forward = true
 
-    private var glass: Double {
+    private var wide: Bool { s.columns >= 2 }
+
+    /// تُكتب الشفافية حين تتغير فقط، فلا يُعاد بناء الصفحة مع كل إطار تمرير (كما في الرئيسية)
+    private func track(_ headerBottom: CGFloat) {
         let bar = CGFloat(s.top) + 52, ramp: CGFloat = 36
-        return Double(min(max((bar + ramp - headerBottom) / ramp, 0), 1))
+        let g = Double(min(max((bar + ramp - headerBottom) / ramp, 0), 1))
+        if g != glass { glass = g }
     }
 
     var body: some View {
@@ -160,15 +220,38 @@ struct PrayerView: View {
                         .background(GeometryReader { g in
                             Color.clear.preference(key: PrayerHeaderBottomKey.self, value: g.frame(in: .named("prayer")).maxY)
                         })
-                    VStack(spacing: 14) {
-                        NextHero(next: s.next, p: p)
-                        dayCard
-                        QiblaCard(q: s.qibla, p: p) { model.open("qibla") }
-                        if showMonth { MonthCard(m: s.month, p: p).transition(.opacity.combined(with: .move(edge: .top))) }
-                        LocationCard(l: s.location, p: p, model: model)
-                        IqamaCard(q: s.iqama, p: p, model: model)
-                        AlertsCard(a: s.alerts, p: p, model: model)
-                        EvidenceView(e: s.evidence, p: p)
+                    Group {
+                        if wide {
+                            // عمودان كما في ToolPage: المواقيت والقبلة والموقع والأدلة، وبجانبها جدول الشهر ظاهراً دائماً والإقامة والتنبيهات
+                            HStack(alignment: .top, spacing: 20) {
+                                VStack(spacing: 14) {
+                                    NextHero(next: s.next, p: p)
+                                    dayCard
+                                    QiblaCard(q: s.qibla, p: p) { model.open("qibla") }
+                                    LocationCard(l: s.location, p: p, model: model)
+                                    EvidenceView(e: s.evidence, p: p)
+                                }
+                                .frame(maxWidth: .infinity)
+                                VStack(spacing: 14) {
+                                    MonthCard(m: s.month, p: p)
+                                    IqamaCard(q: s.iqama, p: p, model: model)
+                                    AlertsCard(a: s.alerts, p: p, model: model)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                        } else {
+                            VStack(spacing: 14) {
+                                NextHero(next: s.next, p: p)
+                                dayCard
+                                QiblaCard(q: s.qibla, p: p) { model.open("qibla") }
+                                // يظهر في مكانه (لا ينزلق فوق البطاقات التي قبله)
+                                if showMonth { MonthCard(m: s.month, p: p).transition(.opacity.combined(with: .scale(scale: 0.97, anchor: .top))) }
+                                LocationCard(l: s.location, p: p, model: model)
+                                IqamaCard(q: s.iqama, p: p, model: model)
+                                AlertsCard(a: s.alerts, p: p, model: model)
+                                EvidenceView(e: s.evidence, p: p)
+                            }
+                        }
                     }
                     .padding(.top, 6)
                     .padding(.leading, CGFloat(s.start))
@@ -177,7 +260,7 @@ struct PrayerView: View {
                 .padding(.bottom, CGFloat(s.bottom))
             }
             .coordinateSpace(name: "prayer")
-            .onPreferenceChange(PrayerHeaderBottomKey.self) { headerBottom = $0 }
+            .onPreferenceChange(PrayerHeaderBottomKey.self) { track($0) }
             PrayerGlassBar(title: s.title, top: CGFloat(s.top), p: p, amount: glass)
         }
         .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
@@ -212,7 +295,10 @@ struct PrayerView: View {
                 if !s.day.isToday {
                     Pill(text: s.todayLabel, p: p) { forward = s.day.offset < 0; model.day(0) }
                 }
-                Pill(text: showMonth ? s.hideMonthLabel : s.monthLabel, p: p) { withAnimation(.easeOut(duration: 0.3)) { showMonth.toggle() } }
+                // على الشاشة الواسعة الجدول ظاهر دائماً بجانب المواقيت
+                if !wide {
+                    Pill(text: showMonth ? s.hideMonthLabel : s.monthLabel, p: p) { withAnimation(.easeOut(duration: 0.3)) { showMonth.toggle() } }
+                }
                 Spacer(minLength: 0)
             }
         }
@@ -335,7 +421,8 @@ private struct NextHero: View {
     let next: PrayerState.Next
     let p: HomePalette
     var body: some View {
-        TimelineView(.periodic(from: Date(), by: 1)) { ctx in
+        TimelineView(.periodic(from: wholeSecond(), by: 1)) { ctx in
+            let left = hms(next.at - ctx.date.timeIntervalSince1970)
             HStack(spacing: 14) {
                 Image(systemName: prayerSymbol(next.key))
                     .font(.system(size: 22, weight: .semibold)).foregroundColor(p.gold)
@@ -343,9 +430,9 @@ private struct NextHero: View {
                     .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.white.opacity(0.14)))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(next.label).font(sys(14, .bold)).foregroundColor(p.gold).lineLimit(1)
-                    Text(hms(next.at - ctx.date.timeIntervalSince1970))
+                    Text(left)
                         .font(sys(34, .heavy)).monospacedDigit().foregroundColor(.white)
-                        .modifier(NumericRoll())
+                        .modifier(NumericRoll(value: left))
                         .environment(\.layoutDirection, .leftToRight)
                     Text(next.atText).font(sys(13)).foregroundColor(.white.opacity(0.8))
                 }
@@ -370,7 +457,7 @@ private struct DayRows: View {
     let s: PrayerState
     let p: HomePalette
     var body: some View {
-        TimelineView(.periodic(from: Date(), by: 1)) { ctx in
+        TimelineView(.periodic(from: wholeSecond(), by: 1)) { ctx in
             let now = ctx.date.timeIntervalSince1970
             let rows = s.day.rows
             let current: String? = {
@@ -380,7 +467,8 @@ private struct DayRows: View {
             VStack(spacing: 8) {
                 ForEach(rows) { r in
                     let isCur = r.key == current
-                    let isNext = s.day.isToday && r.key == s.next.key && s.next.today
+                    // القادمة ما لم يحن أذانها (حتى تصل الحالة الجديدة من Kotlin)، فلا تكون حاضرة وقادمة معاً
+                    let isNext = s.day.isToday && r.key == s.next.key && s.next.today && s.next.at > now && !isCur
                     DayRow(r: r, p: p, current: isCur, next: isNext,
                            extraLabel: isCur ? s.sinceAdhan : nil,
                            extra: isCur ? hms(now - r.start) : (isNext ? hms(s.next.at - now) : nil))
@@ -473,27 +561,39 @@ private struct QiblaCard: View {
     @StateObject private var compass = Compass()
 
     var body: some View {
-        let heading = compass.available ? compass.heading : 0
+        let has = compass.available
+        let heading = has ? compass.heading : 0
         let diff = ((q.bearing - heading).truncatingRemainder(dividingBy: 360) + 540).truncatingRemainder(dividingBy: 360) - 180
-        let aligned = compass.available && abs(diff) < 4
+        let aligned = has && abs(diff) < 4
         Button(action: action) {
             HStack(spacing: 12) {
                 ZStack {
                     Circle().stroke(aligned ? p.gold : p.outlineVariant, lineWidth: 2).padding(2)
-                    ForEach(0..<4, id: \.self) { i in
-                        Circle().fill(i == 0 ? Color(red: 0.9, green: 0.33, blue: 0.29) : (aligned ? p.gold : p.outlineVariant))
-                            .frame(width: i == 0 ? 5 : 3.2, height: i == 0 ? 5 : 3.2)
-                            .offset(y: -19)
-                            .rotationEffect(.degrees(Double(i) * 90 - heading))
+                    // القرص كله (الجهات والإبرة إلى القبلة) يدور بعكس الهاتف بزاوية متصلة، فلا يلفّ دورة كاملة عند عبور الشمال
+                    ZStack {
+                        ForEach(0..<4, id: \.self) { i in
+                            Circle().fill(i == 0 ? Color(red: 0.9, green: 0.33, blue: 0.29) : (aligned ? p.gold : p.outlineVariant))
+                                .frame(width: i == 0 ? 5 : 3.2, height: i == 0 ? 5 : 3.2)
+                                .offset(y: -19)
+                                .rotationEffect(.degrees(Double(i) * 90))
+                        }
+                        ZStack {
+                            Capsule().fill(p.gold).frame(width: 3, height: 13).offset(y: -6.5)
+                            Rectangle().fill(Color(white: 0.07)).frame(width: 9, height: 9)
+                                .overlay(Rectangle().fill(p.gold).frame(height: 2).offset(y: -1.5))
+                                .offset(y: -14)
+                        }
+                        .rotationEffect(.degrees(q.bearing))
                     }
-                    Capsule().fill(p.gold).frame(width: 3, height: 13).offset(y: -6.5).rotationEffect(.degrees(diff))
-                    Rectangle().fill(Color(white: 0.07)).frame(width: 9, height: 9)
-                        .overlay(Rectangle().fill(p.gold).frame(height: 2).offset(y: -1.5))
-                        .offset(y: -14).rotationEffect(.degrees(diff))
+                    .frame(width: 52, height: 52)
+                    .rotationEffect(.degrees(has ? -compass.dial : 0))
+                    .animation(UIAccessibility.isReduceMotionEnabled ? nil : .easeOut(duration: 0.22), value: compass.dial)
                     Circle().fill(p.gold).frame(width: 6, height: 6)
                 }
                 .frame(width: 52, height: 52)
-                .animation(.easeOut(duration: 0.22), value: diff)
+                // SwiftUI يعكس زوايا الدوران في الاتجاه من اليمين، والبوصلة لا تنعكس (كما في QiblaDial)
+                .environment(\.layoutDirection, .leftToRight)
+                .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(aligned ? q.facing : q.title).font(sys(16, .bold)).foregroundColor(aligned ? p.primary : p.onSurface)
                     Text(q.info).font(sys(12)).foregroundColor(p.onSurfaceVariant).lineLimit(2)
@@ -685,9 +785,10 @@ private struct EvidenceView: View {
                                 .background(Capsule().fill(color(pt.kind).opacity(0.12)))
                             Text(pt.title).font(sys(14, .bold)).foregroundColor(p.onSurface)
                             if let a = pt.ayah {
+                                // داخل الاتجاه من اليمين: البداية (leading) هي اليمين
                                 Text(a).font(quranFont(19)).foregroundColor(p.onSurface).lineSpacing(8)
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
-                                    .multilineTextAlignment(.trailing)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .multilineTextAlignment(.leading)
                                     .padding(10)
                                     .background(RoundedRectangle(cornerRadius: 12).fill(p.gold.opacity(0.08)))
                                     .environment(\.layoutDirection, .rightToLeft)

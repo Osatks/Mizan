@@ -125,14 +125,17 @@ struct AdhkarView: View {
     let model: AdhkarModel
 
     var body: some View {
-        // فتح القسم والرجوع منه بلا حركة هنا: يرسم الانتقال المتحكم الجذر (NavMotion.kt) كما بين الصفحات
+        // فتح القسم والرجوع منه بلا حركة هنا: يرسم الانتقال المتحكم الجذر (NavMotion.kt) كما بين الصفحات.
+        // الأقسام تبقى تحت القسم المفتوح (مخفية)، فيعود الرجوع إلى موضع التمرير نفسه وإلى البطاقة التي فُتح منها
         ZStack {
             p.background
+            SectionsPage(s: s, p: p, model: model)
+                .opacity(s.open == nil ? 1 : 0)
+                .allowsHitTesting(s.open == nil)
+                .accessibilityHidden(s.open != nil)
             if let sec = s.open {
                 SectionPage(s: s, sec: sec, p: p, model: model)
                     .id(sec.id)
-            } else {
-                SectionsPage(s: s, p: p, model: model)
             }
         }
         .environment(\.layoutDirection, s.rtl ? .rightToLeft : .leftToRight)
@@ -140,25 +143,102 @@ struct AdhkarView: View {
     }
 }
 
-/// ترويسة بطراز الرئيسية مع زر رجوع
+private struct AdhkarHeaderBottomKey: PreferenceKey {
+    static var defaultValue: CGFloat = .greatestFiniteMagnitude
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+/// هيكل الصفحة: ترويسة كبيرة تمر تحت شريط علوي ثابت (زر الرجوع دائماً، والعنوان على زجاج حين تختفي الترويسة) كما في GlassTopBar
+private struct AdhkarScaffold<Content: View>: View {
+    let s: AdhkarState
+    let p: HomePalette
+    let title: String
+    let subtitle: String
+    let symbol: String
+    let space: String
+    let onBack: () -> Void
+    @ViewBuilder let content: () -> Content
+    @State private var glass: Double = 0
+
+    /// تُكتب الشفافية حين تتغير فقط، فلا يُعاد بناء الصفحة مع كل إطار تمرير
+    private func track(_ headerBottom: CGFloat) {
+        let bar = CGFloat(s.top) + 52, ramp: CGFloat = 36
+        let g = Double(min(max((bar + ramp - headerBottom) / ramp, 0), 1))
+        if g != glass { glass = g }
+    }
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    AdhkarHeader(title: title, subtitle: subtitle, symbol: symbol, s: s, p: p)
+                        .background(GeometryReader { g in
+                            Color.clear.preference(key: AdhkarHeaderBottomKey.self, value: g.frame(in: .named(space)).maxY)
+                        })
+                    content()
+                        .padding(.leading, CGFloat(s.start))
+                        .padding(.trailing, CGFloat(s.end))
+                }
+                .padding(.bottom, CGFloat(s.bottom))
+            }
+            .coordinateSpace(name: space)
+            .onPreferenceChange(AdhkarHeaderBottomKey.self) { track($0) }
+            AdhkarTopBar(title: title, s: s, p: p, amount: glass, onBack: onBack)
+        }
+    }
+}
+
+/// الشريط العلوي الثابت: زر الرجوع، والعنوان على زجاج حين تمر الترويسة تحته
+private struct AdhkarTopBar: View {
+    let title: String
+    let s: AdhkarState
+    let p: HomePalette
+    let amount: Double
+    let onBack: () -> Void
+
+    var body: some View {
+        ZStack {
+            Text(title)
+                .font(sys(16, .medium)).foregroundColor(p.onSurface).lineLimit(1)
+                .padding(.horizontal, 64)
+                .opacity(amount)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            HStack {
+                Button(action: onBack) {
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 17, weight: .semibold)).foregroundColor(p.primary)
+                        .frame(width: 42, height: 42)
+                        .background(Circle().fill(p.surface.opacity(0.85)).shadow(color: .black.opacity(0.08), radius: 3, y: 1))
+                }
+                .buttonStyle(PressScale(scale: 0.9))
+                .accessibilityLabel(s.back)
+                Spacer(minLength: 0)
+            }
+            .padding(.leading, CGFloat(s.start))
+            .padding(.trailing, CGFloat(s.end))
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 52)
+        .padding(.top, CGFloat(s.top))
+        .background(
+            Rectangle().fill(.ultraThinMaterial)
+                .overlay(Rectangle().fill(p.outlineVariant.opacity(0.8)).frame(height: 1), alignment: .bottom)
+                .opacity(amount)
+                .allowsHitTesting(false)
+        )
+    }
+}
+
+/// ترويسة بطراز الرئيسية، تحت مكان زر الرجوع الثابت (AdhkarTopBar)
 private struct AdhkarHeader: View {
     let title: String
     let subtitle: String
     let symbol: String
-    let back: String
     let s: AdhkarState
     let p: HomePalette
-    let onBack: () -> Void
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Button(action: onBack) {
-                Image(systemName: "chevron.backward")
-                    .font(.system(size: 17, weight: .semibold)).foregroundColor(p.primary)
-                    .frame(width: 42, height: 42)
-                    .background(Circle().fill(p.surface.opacity(0.85)).shadow(color: .black.opacity(0.08), radius: 3, y: 1))
-            }
-            .buttonStyle(PressScale(scale: 0.9))
-            .accessibilityLabel(back)
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 Image(systemName: symbol)
                     .font(.system(size: 20, weight: .semibold)).foregroundColor(p.primary)
@@ -175,7 +255,7 @@ private struct AdhkarHeader: View {
         }
         .padding(.leading, CGFloat(s.start) + 4)
         .padding(.trailing, CGFloat(s.end) + 4)
-        .padding(.top, CGFloat(s.top) + 8)
+        .padding(.top, CGFloat(s.top) + 58)
         .padding(.bottom, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
@@ -205,31 +285,25 @@ private struct SectionsPage: View {
     let model: AdhkarModel
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                AdhkarHeader(title: s.title, subtitle: s.desc, symbol: "sparkles", back: s.back, s: s, p: p) { model.back() }
-                VStack(spacing: 12) {
-                    if !s.ready { ProgressView().padding(40) }
-                    if let now = s.sections.first(where: { $0.id == s.nowId }) {
-                        NowCard(sec: now, label: s.nowLabel, p: p) { model.open(now.id) }
-                    }
-                    let rest = s.sections.filter { $0.id != s.nowId }
-                    ForEach(Array(stride(from: 0, to: rest.count, by: 2)), id: \.self) { i in
-                        HStack(spacing: 12) {
-                            SectionTile(sec: rest[i], p: p) { model.open(rest[i].id) }
-                            if i + 1 < rest.count {
-                                SectionTile(sec: rest[i + 1], p: p) { model.open(rest[i + 1].id) }
-                            } else {
-                                Color.clear.frame(maxWidth: .infinity)
-                            }
-                        }
-                        .fixedSize(horizontal: false, vertical: true)
-                    }
+        AdhkarScaffold(s: s, p: p, title: s.title, subtitle: s.desc, symbol: "sparkles", space: "adhkarSections", onBack: { model.back() }) {
+            VStack(spacing: 12) {
+                if !s.ready { ProgressView().padding(40) }
+                if let now = s.sections.first(where: { $0.id == s.nowId }) {
+                    NowCard(sec: now, label: s.nowLabel, p: p) { model.open(now.id) }
                 }
-                .padding(.leading, CGFloat(s.start))
-                .padding(.trailing, CGFloat(s.end))
+                let rest = s.sections.filter { $0.id != s.nowId }
+                ForEach(Array(stride(from: 0, to: rest.count, by: 2)), id: \.self) { i in
+                    HStack(spacing: 12) {
+                        SectionTile(sec: rest[i], p: p) { model.open(rest[i].id) }
+                        if i + 1 < rest.count {
+                            SectionTile(sec: rest[i + 1], p: p) { model.open(rest[i + 1].id) }
+                        } else {
+                            Color.clear.frame(maxWidth: .infinity)
+                        }
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
+                }
             }
-            .padding(.bottom, CGFloat(s.bottom))
         }
     }
 }
@@ -323,36 +397,30 @@ private struct SectionPage: View {
     private var progress: Int { items.reduce(0) { $0 + min(done[$1.id] ?? 0, $1.count) } }
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                AdhkarHeader(title: sec.title, subtitle: sec.desc, symbol: sectionSymbol(sec.icon), back: s.back, s: s, p: p) { model.open("") }
-                VStack(alignment: .leading, spacing: 12) {
-                    let complete = total > 0 && progress >= total
-                    VStack(alignment: .leading, spacing: 6) {
-                        GeometryReader { g in
-                            ZStack(alignment: .leading) {
-                                Capsule().fill(p.gold.opacity(0.18))
-                                Capsule().fill(p.gold).frame(width: total == 0 ? 0 : g.size.width * CGFloat(progress) / CGFloat(total))
-                            }
+        AdhkarScaffold(s: s, p: p, title: sec.title, subtitle: sec.desc, symbol: sectionSymbol(sec.icon), space: "adhkarSection", onBack: { model.open("") }) {
+            VStack(alignment: .leading, spacing: 12) {
+                let complete = total > 0 && progress >= total
+                VStack(alignment: .leading, spacing: 6) {
+                    GeometryReader { g in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(p.gold.opacity(0.18))
+                            Capsule().fill(p.gold).frame(width: total == 0 ? 0 : g.size.width * CGFloat(progress) / CGFloat(total))
                         }
-                        .frame(height: 6)
-                        .animation(.easeOut(duration: 0.3), value: progress)
-                        Text(complete ? s.doneLabel : s.tapHint).font(sys(12)).foregroundColor(complete ? p.primary : p.onSurfaceVariant)
                     }
-                    ForEach(sec.groups) { g in
-                        if let t = g.title {
-                            Text(t).font(sys(14, .bold)).foregroundColor(p.primary).padding(.top, 6).padding(.leading, 6)
-                        }
-                        ForEach(g.items) { d in
-                            DhikrCard(d: d, done: done[d.id] ?? 0, s: s, p: p,
-                                      onTap: { count(d) }, onEvidence: { evidence = d }, onShare: { model.share(d.id) })
-                        }
+                    .frame(height: 6)
+                    .animation(.easeOut(duration: 0.3), value: progress)
+                    Text(complete ? s.doneLabel : s.tapHint).font(sys(12)).foregroundColor(complete ? p.primary : p.onSurfaceVariant)
+                }
+                ForEach(sec.groups) { g in
+                    if let t = g.title {
+                        Text(t).font(sys(14, .bold)).foregroundColor(p.primary).padding(.top, 6).padding(.leading, 6)
+                    }
+                    ForEach(g.items) { d in
+                        DhikrCard(d: d, done: done[d.id] ?? 0, s: s, p: p,
+                                  onTap: { count(d) }, onEvidence: { evidence = d }, onShare: { model.share(d.id) })
                     }
                 }
-                .padding(.leading, CGFloat(s.start))
-                .padding(.trailing, CGFloat(s.end))
             }
-            .padding(.bottom, CGFloat(s.bottom))
         }
         .sheet(item: $evidence) { d in
             EvidenceSheet(d: d, s: s, p: p)
@@ -367,10 +435,23 @@ private struct SectionPage: View {
         if n < d.count {
             withAnimation(.easeOut(duration: 0.2)) { done[d.id] = n + 1 }
             if n + 1 == d.count { finish.notificationOccurred(.success) } else { tap.impactOccurred() }
+            // مع VoiceOver يُقرأ العدّ الجديد (العدّاد خارج الزر الملموس)، بأرقام لاتينية كالعدّاد
+            if UIAccessibility.isVoiceOverRunning, d.count > 1 {
+                UIAccessibility.post(notification: .announcement, argument: "\(n + 1) / \(d.count)")
+            }
             if items.allSatisfy({ (done[$0.id] ?? 0) >= $0.count }) { model.complete(sec.id) }
         } else {
             withAnimation(.easeOut(duration: 0.2)) { done[d.id] = 0 }
         }
+    }
+}
+
+/// لون الدرجة: الضعيف أحمر، والحسن ذهبي، والصحيح والقرآن بلون التطبيق (gradeColor في AdhkarScreen.kt)
+private func adhkarGradeColor(_ grade: String, _ p: HomePalette) -> Color {
+    switch grade {
+    case "daif": return Color(red: 0.71, green: 0.25, blue: 0.18)
+    case "hasan": return p.gold
+    default: return p.primary
     }
 }
 
@@ -383,16 +464,12 @@ private struct DhikrCard: View {
     let onEvidence: () -> Void
     let onShare: () -> Void
 
-    private var gradeColor: Color {
-        switch d.grade {
-        case "daif": return Color(red: 0.71, green: 0.25, blue: 0.18)
-        case "hasan": return p.gold
-        default: return p.primary
-        }
-    }
+    private var gradeColor: Color { adhkarGradeColor(d.grade, p) }
 
     var body: some View {
         let finished = done >= d.count
+        // العدّ لـ VoiceOver على الزر الملموس نفسه
+        let countValue: String = d.count > 1 ? "\(min(done, d.count)) / \(d.count)" : ""
         VStack(alignment: .leading, spacing: 0) {
             Button(action: onTap) {
                 VStack(alignment: .leading, spacing: 10) {
@@ -408,6 +485,7 @@ private struct DhikrCard: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(PressScale(scale: 0.985))
+            .accessibilityValue(countValue)
             HStack(spacing: 6) {
                 CountPill(count: d.count, done: done, times: d.times, p: p)
                 Spacer()
@@ -446,7 +524,8 @@ private struct CountPill: View {
             if finished {
                 Image(systemName: "checkmark").font(.system(size: 13, weight: .heavy))
             } else if count > 1 {
-                Text(verbatim: "\(done) / \(count)").font(sys(14, .bold)).monospacedDigit().modifier(NumericRoll())
+                let label = "\(done) / \(count)"
+                Text(verbatim: label).font(sys(14, .bold)).monospacedDigit().modifier(AdhkarCountRoll(value: label))
                     .environment(\.layoutDirection, .leftToRight)
             }
             if !finished || count > 1 { Text(times).font(sys(12, .medium)) }
@@ -455,6 +534,17 @@ private struct CountPill: View {
         .padding(.horizontal, 12).padding(.vertical, 6)
         .background(Capsule().fill(finished ? p.gold : p.primaryContainer))
         .animation(.easeOut(duration: 0.2), value: done)
+    }
+}
+
+/// الأرقام تتدحرج صعوداً عند العدّ (iOS 17)، وتثبت قبله ومع «تقليل الحركة»
+private struct AdhkarCountRoll: ViewModifier {
+    let value: String
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content.contentTransition(.numericText(countsDown: false))
+                .animation(UIAccessibility.isReduceMotionEnabled ? nil : .easeOut(duration: 0.2), value: value)
+        } else { content }
     }
 }
 
@@ -476,11 +566,12 @@ private struct EvidenceSheet: View {
                 Text(d.ar).font(quranFont(17)).foregroundColor(p.onSurfaceVariant).lineLimit(3).lineSpacing(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .environment(\.layoutDirection, .rightToLeft)
+                // بلون الدرجة كما في Compose (الضعيف أحمر لا أخضر)
                 field(s.gradeLabel) {
-                    Label(d.gradeLine, systemImage: "checkmark.seal.fill")
-                        .font(sys(14, .bold)).foregroundColor(p.primary)
+                    Label(d.gradeLine, systemImage: "checkmark.seal")
+                        .font(sys(14, .bold)).foregroundColor(adhkarGradeColor(d.grade, p))
                         .padding(.horizontal, 12).padding(.vertical, 6)
-                        .background(Capsule().fill(p.primary.opacity(0.12)))
+                        .background(Capsule().fill(adhkarGradeColor(d.grade, p).opacity(0.14)))
                 }
                 field(d.grade == "quran" ? s.quranRefLabel : s.sourceLabel) {
                     ForEach(d.sources, id: \.self) { line in

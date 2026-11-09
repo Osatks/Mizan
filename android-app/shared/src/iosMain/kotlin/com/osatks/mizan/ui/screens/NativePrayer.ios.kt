@@ -49,6 +49,7 @@ import com.osatks.mizan.quran.arabicDigits
 import com.osatks.mizan.ui.LocalBottomInset
 import com.osatks.mizan.ui.LocalLeadingInset
 import com.osatks.mizan.ui.LocalPageActive
+import com.osatks.mizan.ui.SplitMax
 import com.osatks.mizan.ui.StatusBarStyle
 import com.osatks.mizan.ui.TextColumnMax
 import com.osatks.mizan.ui.gutters
@@ -62,7 +63,9 @@ import com.osatks.mizan.ui.theme.recolor
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIViewController
 
@@ -96,6 +99,7 @@ class NativePrayerSession internal constructor() {
     internal var onPickCity: () -> Unit = {}
     internal var onNotify: (Boolean) -> Unit = {}
     internal var onDay: (Int) -> Unit = {}
+    internal var onRefresh: () -> Unit = {}
 
     internal fun prime(json: String) {
         if (state.isEmpty()) state = json
@@ -111,6 +115,9 @@ class NativePrayerSession internal constructor() {
 
     /** اليوم المعروض: [delta] أيام عن الحالي، و0 يعيده إلى اليوم */
     fun day(delta: Int) = onDay(delta)
+
+    /** عاد التطبيق إلى الواجهة: تُعاد الحالة الآن (مؤقّت الدقيقة يتوقف والجهاز نائم) */
+    fun refresh() = onRefresh()
 
     fun locate() = onLocate()
     fun pickCity() = onPickCity()
@@ -146,13 +153,17 @@ internal actual fun NativePrayerView(
     val notifyS by rememberUpdatedState(onNotify)
     // اليوم المعروض أياماً عن اليوم (يبقى بعد تبديل التبويب)
     var offset by androidx.compose.runtime.saveable.rememberSaveable { mutableIntStateOf(0) }
+    var wake by remember { mutableIntStateOf(0) }
     DisposableEffect(session) {
         session.onOpen = { openS(it) }
         session.onLocate = { locateS() }
         session.onPickCity = { cityS() }
         session.onNotify = { notifyS(it) }
         session.onDay = { d -> offset = if (d == 0) 0 else offset + d }
-        onDispose { session.onOpen = {}; session.onLocate = {}; session.onPickCity = {}; session.onNotify = {}; session.onDay = {} }
+        session.onRefresh = { wake++ }
+        onDispose {
+            session.onOpen = {}; session.onLocate = {}; session.onPickCity = {}; session.onNotify = {}; session.onDay = {}; session.onRefresh = {}
+        }
     }
     val s = LocalStrings.current
     val lang = LocalLang.current
@@ -160,57 +171,50 @@ internal actual fun NativePrayerView(
     val dark = LocalDark.current
     StatusBarStyle(lightContent = dark)
 
+    // الحالة تُبنى كل دقيقة وعند أذان القادمة (والصفحة ظاهرة)؛ العدّ بالثواني في Swift
     var minute by remember { mutableIntStateOf(0) }
     val active = LocalPageActive.current
-    LaunchedEffect(active) {
+    val place = AppSettings.place
+    val method = AppSettings.method
+    val hanafi = AppSettings.hanafi
+    // تُعاد مع العودة إلى الصفحة في الإطار نفسه، فلا تُرسل صلاة قادمة قديمة
+    val now = remember(minute, active, place) { PrayerUtil.now() }
+    val today = now.date
+    val next = remember(minute, active, place, method, hanafi) { PrayerUtil.next() }
+    // الأوقات لحظات مطلقة (epoch) في منطقة الموقع، لا تتعلق بوقت إعادة البناء (كما في الرئيسية)
+    val zone = remember(place) { runCatching { TimeZone.of(place.tz) }.getOrElse { TimeZone.currentSystemDefault() } }
+    val nextEpoch = next.at.toInstant(zone).epochSeconds
+    val nextAt by rememberUpdatedState(nextEpoch * 1000)
+    LaunchedEffect(active, wake) {
         while (active) {
             minute++
-            delay(60_000 - Clock.System.now().toEpochMilliseconds() % 60_000 + 50)
+            val ms = Clock.System.now().toEpochMilliseconds()
+            val toMinute = 60_000 - ms % 60_000 + 50
+            // القادمة تتبدّل عند أذانها لا عند الدقيقة التالية (وتُهمل إن مضت ولم تُحدَّث بعد)
+            val toAdhan = nextAt - ms + 50
+            delay(if (toAdhan in 1 until toMinute) toAdhan else toMinute)
         }
     }
-    val place = AppSettings.place
-    val now = remember(minute, place) { PrayerUtil.now() }
-    val today = now.date
-    val next = remember(minute, place, AppSettings.method, AppSettings.hanafi) { PrayerUtil.next() }
     val day = today.plus(DatePeriod(days = offset))
+    // مواقيت اليوم المختار وجدول شهره والأدلة تُحسب حين يتغير ما تتعلق به فقط، لا مع كل إعادة بناء
+    val t = remember(day, place, method, hanafi) { PrayerUtil.times(day) }
+    val month = remember(day.year, day.monthNumber, today, place, method, hanafi) {
+        val first = kotlinx.datetime.LocalDate(day.year, day.monthNumber, 1)
+        val length = (1..31).count { runCatching { kotlinx.datetime.LocalDate(day.year, day.monthNumber, it) }.isSuccess }
+        (0 until length).map { i ->
+            val d = first.plusDays(i)
+            val mt = PrayerUtil.times(d)
+            linkedMapOf<String, Any?>("day" to d.dayOfMonth.toString(), "times" to FIVE.map { PrayTimes.format(mt[it], true) }, "today" to (d == today))
+        }
+    }
     val quran by produceState(QuranData.cached(QuranData.UTHMANI)) { value = runCatching { QuranData.uthmani() }.getOrNull() }
     val trSource = remember(lang) { if (lang == com.osatks.mizan.i18n.Lang.AR) null else Sources.translationFor(lang) }
     val trText by produceState(trSource?.let { QuranData.cached("tafsir/${it.id}.txt") }, trSource) {
         value = trSource?.let { runCatching { QuranData.source(it.id) }.getOrNull() }
     }
 
-    BoxWithConstraints(modifier) {
-        val g = gutters(maxWidth, TextColumnMax, LocalLeadingInset.current)
-        val cs = MaterialTheme.colorScheme
-        val accent = LocalAccent.current
-        val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-        val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + LocalBottomInset.current + 20.dp
-
-        val nowEpoch = Clock.System.now().epochSeconds
-        val secNow = now.time.toSecondOfDay().toLong()
-        val t = PrayerUtil.times(day)
-        val isToday = offset == 0
-        val rows = PrayTimes.PRAYERS.filter { !t[it].isNaN() }.map { k ->
-            val end = t.end(k)
-            val iq = AppSettings.iqama[k] ?: 0
-            linkedMapOf<String, Any?>(
-                "key" to k, "name" to s.prayer(k), "time" to s.time(t[k]),
-                "end" to if (!end.isNaN()) s.endsAt(s.time(end)) else null,
-                "iqama" to if (iq > 0) s.iqamaAt(s.time(t[k] + iq / 60.0)) else null,
-                "start" to nowEpoch - secNow + (t[k] * 3600).toLong(),
-            )
-        }
-        val first = kotlinx.datetime.LocalDate(day.year, day.monthNumber, 1)
-        val length = (1..31).count { runCatching { kotlinx.datetime.LocalDate(day.year, day.monthNumber, it) }.isSuccess }
-        val month = (0 until length).map { i ->
-            val d = first.plusDays(i)
-            val mt = PrayerUtil.times(d)
-            linkedMapOf<String, Any?>("day" to d.dayOfMonth.toString(), "times" to FIVE.map { PrayTimes.format(mt[it], true) }, "today" to (d == today))
-        }
-        val qibla = PrayTimes.qibla(place.lat, place.lng)
-        val dirs = s.directions[(kotlin.math.round(qibla / 45.0).toInt()) % 8]
-        val city = place.city
-        val proofs = com.osatks.mizan.i18n.Evidence.prayer.map { p ->
+    val proofs = remember(lang, quran, trText) {
+        com.osatks.mizan.i18n.Evidence.prayer.map { p ->
             linkedMapOf<String, Any?>(
                 "kind" to p.kind.name.lowercase(),
                 "title" to p.title[lang], "body" to p.body[lang], "source" to p.source[lang],
@@ -221,16 +225,43 @@ internal actual fun NativePrayerView(
                 "hadith" to p.hadith,
             )
         }
+    }
+
+    BoxWithConstraints(modifier) {
+        // على الشاشة الواسعة (840 فأكثر بعد القائمة الجانبية) عمودان كما في ToolPage: الجدول والإقامة والتنبيهات بجانب المواقيت
+        val lead = LocalLeadingInset.current
+        val twoColumns = maxWidth - lead >= 840.dp
+        val g = gutters(maxWidth, if (twoColumns) SplitMax else TextColumnMax, lead)
+        val cs = MaterialTheme.colorScheme
+        val accent = LocalAccent.current
+        val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + LocalBottomInset.current + 20.dp
+
+        val isToday = offset == 0
+        val rows = PrayTimes.PRAYERS.filter { !t[it].isNaN() }.map { k ->
+            val end = t.end(k)
+            val iq = AppSettings.iqama[k] ?: 0
+            linkedMapOf<String, Any?>(
+                "key" to k, "name" to s.prayer(k), "time" to s.time(t[k]),
+                "end" to if (!end.isNaN()) s.endsAt(s.time(end)) else null,
+                "iqama" to if (iq > 0) s.iqamaAt(s.time(t[k] + iq / 60.0)) else null,
+                "start" to PrayerUtil.at(day, t[k]).toInstant(zone).epochSeconds,
+            )
+        }
+        val qibla = PrayTimes.qibla(place.lat, place.lng)
+        val dirs = s.directions[(kotlin.math.round(qibla / 45.0).toInt()) % 8]
+        val city = place.city
         val json = Json.write(
             linkedMapOf<String, Any?>(
                 "rtl" to lang.rtl, "lang" to lang.code, "dark" to dark,
                 "top" to top.value.toDouble(), "bottom" to bottom.value.toDouble(),
                 "start" to g.start.value.toDouble(), "end" to g.end.value.toDouble(),
+                "columns" to if (twoColumns) 2 else 1,
                 "title" to s.prayerTitle,
                 "subtitle" to s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: ""),
                 "next" to linkedMapOf(
                     "key" to next.key, "label" to s.nextPrayerLabel(s.prayer(next.key)),
-                    "at" to nowEpoch + next.remaining.inWholeSeconds,
+                    "at" to nextEpoch,
                     "atText" to s.atTime(s.time(next.at.hour + next.at.minute / 60.0)),
                     "today" to (next.at.date == today),
                 ),
