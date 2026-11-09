@@ -38,6 +38,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import com.osatks.mizan.ui.screens.nativeSheetsAvailable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -111,6 +113,13 @@ private fun arabicDigits(n: Int): String = n.toString().map { '٠' + (it - '0') 
 /** لوحة المشاركة في شاشة القراءة: المعاينة وخياراتها وزرّا الصورة والنص */
 @Composable
 internal fun AyahShareContent(index: Int, text: Array<String>, onDone: () -> Unit) {
+    // في iOS داخل لوحة القراءة: ورقة النظام بمعاينة البطاقة نفسها (ترسمها Compose خارج الشاشة) وقائمة المشاركة
+    val slot = LocalReadingPanel.current
+    if (nativeSheetsAvailable && slot != null) {
+        SideEffect { slot.native = true }
+        NativeAyahShare(index, text, onDone, onDismiss = { slot.dismiss() })
+        return
+    }
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ft = remember(lang) { FeatureText.of(lang.code) }

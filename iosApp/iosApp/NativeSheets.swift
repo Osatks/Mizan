@@ -16,7 +16,8 @@ enum NativeSheetsUI {
                 let model = SheetModel<CitySheetState>(session: session)
                 return SheetHostController(model: model, root: AnyView(CitySheetView(model: model)))
             default:
-                return nil
+                // أوراق القرآن: التفسير، وخيارات الآية، والمشاركة صورةً (NativeQuranSheets.swift)
+                return QuranSheets.make(session)
             }
         }
     }

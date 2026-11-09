@@ -72,6 +72,7 @@ import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.encodePng
 import com.osatks.mizan.ui.screens.GlassSheet
+import com.osatks.mizan.ui.screens.nativeSheetsAvailable
 import com.osatks.mizan.ui.shareText
 import kotlinx.coroutines.launch
 
@@ -90,6 +91,8 @@ class StoryContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoryShareSheet(content: StoryContent, onDismiss: () -> Unit) {
+    // في iOS: ورقة النظام بمعاينة الصورة نفسها (ترسمها Compose خارج الشاشة) وقائمة المشاركة (NativeQuranSheets.kt)
+    if (nativeSheetsAvailable) { NativeStoryShare(content, onDismiss); return }
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     GlassSheet(onDismissRequest = onDismiss, sheetState = sheet) {
         StoryShareContent(content, onDone = onDismiss)

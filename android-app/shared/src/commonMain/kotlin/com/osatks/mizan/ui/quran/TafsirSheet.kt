@@ -48,6 +48,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.SideEffect
+import com.osatks.mizan.ui.LocalWindowLayout
+import com.osatks.mizan.ui.screens.nativeSheetsAvailable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -84,6 +87,8 @@ fun TafsirSheet(
     surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onDismiss: () -> Unit, onLibrary: () -> Unit = {},
     onListen: ((Int) -> Unit)? = null,
 ) {
+    // في iOS: ورقة النظام بواجهة SwiftUI (NativeQuranSheets.kt)، والمنطق كله هنا
+    if (nativeSheetsAvailable) { NativeTafsirSheet(surah, ayah, text, onAyah, onLibrary, onListen, onDismiss); return }
     val sheet = rememberModalBottomSheetState()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet, containerColor = mushafPalette().paper) {
         TafsirContent(surah, ayah, text, onAyah, onLibrary, onListen)
@@ -93,6 +98,17 @@ fun TafsirSheet(
 /** محتوى ورقة التفسير (منفصل ليُعرض أيضاً في لقطات الاختبار) */
 @Composable
 fun TafsirContent(surah: Int, ayah: Int, text: Array<String>, onAyah: (Int) -> Unit, onLibrary: () -> Unit = {}, onListen: ((Int) -> Unit)? = null) {
+    // في iOS داخل لوحة القراءة: ورقة النظام بدل اللوحة (تخفي اللوحة زجاجها)، وسحبها لإغلاقها يغلق اللوحة.
+    // وعلى الشاشات العريضة تبقى اللوحة الجانبية من Compose: لا تحجب الصفحة، ويتبع التفسير الآية الملموسة
+    val slot = LocalReadingPanel.current
+    if (nativeSheetsAvailable && slot != null) {
+        val native = !LocalWindowLayout.current.wide
+        SideEffect { slot.native = native }
+        if (native) {
+            NativeTafsirSheet(surah, ayah, text, onAyah, onLibrary, onListen, onDismiss = { slot.dismiss() })
+            return
+        }
+    }
     val s = LocalStrings.current
     val lang = LocalLang.current
     val clipboard = LocalClipboardManager.current

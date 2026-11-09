@@ -81,6 +81,13 @@ NATIVE_CHECK=(
   "n09_events:events"
   "n10_fitr:fitr"
   "n11_fidya:fidya"
+  "n12_hadith:hadith"
+  "n13_search:search"
+  "n14_tafsirs:tafsirs"
+  "n15_adhan:adhan"
+  "n16_guide:guide"
+  "n17_licenses:licenses"
+  "n18_spread_check:surah/18?ayah=0&from=row"
 )
 CHECK_OUT="${CHECK_OUT:-$OUT/../screenshots-check}"
 # فتح الأذكار والرجوع، ثم التبويبات الثلاثة، ثم المصحف والرجوع، ثم أداة (الزكاة) والرجوع

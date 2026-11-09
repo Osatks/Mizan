@@ -70,6 +70,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.CompositionLocalProvider
+import com.osatks.mizan.ui.screens.nativeSheetsAvailable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -101,6 +103,8 @@ import kotlin.math.roundToInt
  */
 @Composable
 internal fun AyahActionBar(index: Int, text: Array<String>, onTafsir: () -> Unit, onListen: () -> Unit, onShare: () -> Unit, onClose: () -> Unit) {
+    // في iOS: ورقة النظام القصيرة بالخيارات نفسها (NativeQuranSheets.kt)، فلا يُرسم هنا شيء
+    if (nativeSheetsAvailable) { NativeAyahActions(index, text, onTafsir, onListen, onShare, onClose); return }
     val s = LocalStrings.current
     val clipboard = LocalClipboardManager.current
     val (surah, ayah) = QuranMeta.locate(index)
@@ -178,12 +182,18 @@ private fun androidx.compose.foundation.layout.RowScope.Action(
 @Composable
 internal fun BoxScope.ReadingPanel(visible: Boolean, onDismiss: () -> Unit, paper: Boolean = true, content: @Composable () -> Unit) {
     BackHandler(enabled = visible) { onDismiss() }
+    // في iOS قد يعرض المحتوى ورقة النظام بدل اللوحة (التفسير والمشاركة): فتخفي اللوحة زجاجها وستارها ولمسها،
+    // ويبقى المحتوى في مكانه من التركيب نفسه حتى لا تُغلق الورقة وتُفتح من جديد
+    val slot = remember { ReadingPanelSlot() }
+    slot.dismiss = onDismiss
+    val native = nativeSheetsAvailable && slot.native
+    val inner: @Composable () -> Unit = { CompositionLocalProvider(LocalReadingPanel provides slot) { content() } }
     // على iPad والشاشات العريضة لوحة جانبية بجانب الصفحة (أو الصفحتين)، فيبقى النص ظاهراً أثناء قراءة التفسير
     if (LocalWindowLayout.current.wide) {
-        SidePanel(visible, onDismiss, paper, content)
+        SidePanel(visible, onDismiss, paper, native, inner)
         return
     }
-    AnimatedVisibility(visible, Modifier.matchParentSize(), enter = fadeIn(tween(Motion.MEDIUM)), exit = fadeOut(tween(Motion.MEDIUM))) {
+    AnimatedVisibility(visible && !native, Modifier.matchParentSize(), enter = fadeIn(tween(Motion.MEDIUM)), exit = fadeOut(tween(Motion.MEDIUM))) {
         Box(
             Modifier.fillMaxSize().background(Color.Black.copy(alpha = .32f))
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onDismiss)
@@ -201,13 +211,16 @@ internal fun BoxScope.ReadingPanel(visible: Boolean, onDismiss: () -> Unit, pape
         val shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
         Box(
             Modifier.fillMaxWidth().heightIn(max = 640.dp).offset { IntOffset(0, drag.value.roundToInt()) }
-                .floatingGlass(LocalAppHaze.current, shape, panelMaterial(paper), elevation = 16.dp)
-                // تمنع لمسات اللوحة من الوصول إلى الخلفية
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
+                .then(
+                    if (native) Modifier
+                    else Modifier.floatingGlass(LocalAppHaze.current, shape, panelMaterial(paper), elevation = 16.dp)
+                        // تمنع لمسات اللوحة من الوصول إلى الخلفية
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
+                ),
         ) {
             Column(Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
                 // مقبض السحب
-                Box(
+                if (!native) Box(
                     Modifier.fillMaxWidth().draggable(
                         rememberDraggableState { d -> scope.launch { drag.snapTo((drag.value + d).coerceAtLeast(0f)) } },
                         Orientation.Vertical,
@@ -217,7 +230,7 @@ internal fun BoxScope.ReadingPanel(visible: Boolean, onDismiss: () -> Unit, pape
                 ) {
                     Box(Modifier.size(width = 36.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.outline))
                 }
-                content()
+                inner()
             }
         }
     }
@@ -241,7 +254,7 @@ internal fun readingPanelWidth(): Dp = (LocalWindowLayout.current.width * 0.42f)
  * بلا ستار يغطي النص، فيبقى المصحف ظاهراً ويمكن لمس آية أخرى ليتبعها التفسير. تُغلق بزرها أو بالرجوع.
  */
 @Composable
-private fun BoxScope.SidePanel(visible: Boolean, onDismiss: () -> Unit, paper: Boolean, content: @Composable () -> Unit) {
+private fun BoxScope.SidePanel(visible: Boolean, onDismiss: () -> Unit, paper: Boolean, native: Boolean, content: @Composable () -> Unit) {
     val s = LocalStrings.current
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val width = readingPanelWidth()
@@ -254,12 +267,15 @@ private fun BoxScope.SidePanel(visible: Boolean, onDismiss: () -> Unit, paper: B
             Modifier.width(width).fillMaxHeight()
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.End))
                 .padding(start = 4.dp, end = 12.dp, top = 12.dp, bottom = 12.dp)
-                .floatingGlass(LocalAppHaze.current, RoundedCornerShape(28.dp), panelMaterial(paper), elevation = 16.dp)
-                // تمنع لمسات اللوحة من الوصول إلى الصفحة تحتها
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
+                .then(
+                    if (native) Modifier
+                    else Modifier.floatingGlass(LocalAppHaze.current, RoundedCornerShape(28.dp), panelMaterial(paper), elevation = 16.dp)
+                        // تمنع لمسات اللوحة من الوصول إلى الصفحة تحتها
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
+                ),
         ) {
             Column {
-                Box(Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp), contentAlignment = Alignment.CenterEnd) {
+                if (!native) Box(Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp), contentAlignment = Alignment.CenterEnd) {
                     IconButton(onClick = onDismiss) { Icon(Icons.Filled.Close, s.close, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
                 Box(Modifier.weight(1f)) { content() }
