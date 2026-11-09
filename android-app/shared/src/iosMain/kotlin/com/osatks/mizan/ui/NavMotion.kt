@@ -197,8 +197,8 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
                 c.layer.cornerCurve = kCACornerCurveContinuous
                 c.layer.cornerRadius = RADIUS
                 c.clipsToBounds = true
+                // الشريط يكبر مع الصفحة فقط: شفافية جزئية على زجاج Liquid Glass لا تُرسم صحيحة
                 b?.transform = back
-                b?.alpha = BACK_ALPHA
                 UIView.animateWithDuration(
                     0.44, 0.0, 1.0, 0.0, UIViewAnimationOptionBeginFromCurrentState,
                     {
@@ -206,7 +206,6 @@ internal class NavMotion(private val root: UIView) : NavTransitions {
                         c.alpha = 1.0
                         c.layer.cornerRadius = 0.0
                         b?.transform = identity()
-                        b?.alpha = 1.0
                         top.transform = zoom(EXIT_SCALE, o, w, h)
                         top.layer.cornerRadius = RADIUS
                     },
