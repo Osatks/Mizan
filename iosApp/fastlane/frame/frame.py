@@ -74,13 +74,14 @@ CAPTIONS = {
     },
 }
 
-# خلفيات متناوبة: (أعلى، أسفل، لون العنوان، لون الشرح، لون الزخرفة)
+# خلفيات متناوبة: (أعلى، أسفل، لون العنوان، لون الشرح، لون الزخرفة، لون التوهج خلف الجهاز)
 PALETTES = [
-    ((10, 74, 60), (6, 40, 33), (255, 255, 255), (230, 201, 128), (230, 201, 128)),     # زمردي عميق
-    ((246, 240, 226), (233, 222, 196), (12, 76, 61), (120, 96, 52), (176, 141, 66)),    # عاجي وذهبي
-    ((14, 46, 58), (9, 24, 34), (255, 255, 255), (152, 210, 196), (110, 190, 170)),     # ليلي فيروزي
-    ((20, 98, 78), (11, 61, 49), (250, 241, 214), (255, 255, 255), (250, 230, 170)),    # أخضر مشرق
+    ((12, 84, 67), (5, 38, 31), (255, 255, 255), (232, 205, 140), (232, 205, 140), (64, 170, 132)),     # زمردي عميق
+    ((250, 245, 233), (236, 226, 202), (10, 78, 62), (122, 98, 54), (184, 146, 64), (255, 255, 255)),   # عاجي وذهبي
+    ((16, 52, 64), (7, 22, 31), (255, 255, 255), (160, 214, 200), (120, 196, 176), (40, 140, 130)),     # ليلي فيروزي
+    ((22, 104, 82), (9, 56, 45), (252, 243, 218), (238, 226, 196), (240, 214, 150), (90, 196, 150)),    # أخضر مشرق
 ]
+GOLD = (226, 186, 92)
 
 
 def font(path, size):
@@ -95,12 +96,42 @@ def gradient(w, h, top, bottom):
     return g.resize((w, h), Image.BICUBIC)
 
 
-def star(draw, cx, cy, r, color, width):
+def star(draw, cx, cy, r, color, width, ring=True):
     """نجمة ثمانية (مربعان متراكبان) كما في زخرفة التطبيق"""
     for rot in (0, 45):
         pts = [(cx + r * math.cos(math.radians(rot + 45 + 90 * i)), cy + r * math.sin(math.radians(rot + 45 + 90 * i))) for i in range(4)]
         draw.polygon(pts, outline=color, width=width)
-    draw.ellipse((cx - r * 0.42, cy - r * 0.42, cx + r * 0.42, cy + r * 0.42), outline=color, width=width)
+    if ring:
+        draw.ellipse((cx - r * 0.42, cy - r * 0.42, cx + r * 0.42, cy + r * 0.42), outline=color, width=width)
+
+
+def filled_star(draw, cx, cy, r, color):
+    """نجمة ثمانية مصمتة صغيرة (زخرفة فوق العنوان)"""
+    for rot in (0, 45):
+        pts = [(cx + r * math.cos(math.radians(rot + 45 + 90 * i)), cy + r * math.sin(math.radians(rot + 45 + 90 * i))) for i in range(4)]
+        draw.polygon(pts, fill=color)
+
+
+def pattern(w, h, color, alpha, cell):
+    """شبكة نجوم ثمانية خافتة على الخلفية كلها (زخرفة إسلامية هادئة)، تتلاشى نحو الأسفل"""
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    lw = max(2, cell // 70)
+    for j, y in enumerate(range(-cell, h + cell, cell)):
+        for x in range(-cell, w + cell, cell):
+            ox = cell // 2 if j % 2 else 0
+            star(d, x + ox, y, cell * 0.34, color + (alpha,), lw, ring=False)
+    fade = Image.linear_gradient("L").resize((w, h)).point(lambda v: 255 - v * 0.75)
+    a = layer.getchannel("A").point(lambda v: v)
+    layer.putalpha(Image.composite(a, Image.new("L", (w, h), 0), fade).point(lambda v: v))
+    return layer
+
+
+def glow(w, h, cx, cy, r, color, alpha):
+    """توهج ناعم خلف الجهاز"""
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(layer).ellipse((cx - r, cy - r * 0.8, cx + r, cy + r * 0.8), fill=color + (alpha,))
+    return layer.filter(ImageFilter.GaussianBlur(r * 0.45))
 
 
 def fit_text(text, path, size, max_w, lang):
@@ -112,6 +143,47 @@ def fit_text(text, path, size, max_w, lang):
     return font(path, size)
 
 
+def device(shot: Image.Image, sw: int, ipad: bool) -> Image.Image:
+    """إطار جهاز واقعي: حافة معدنية بتدرج ولمعة، وإطار أسود رفيع، وزوايا مستديرة، وجزيرة iPhone، وأزرار جانبية"""
+    shh = round(sw * shot.height / shot.width)
+    screen = shot.resize((sw, shh), Image.LANCZOS)
+    landscape = shot.width > shot.height
+    short = min(sw, shh)
+    radius = round(short * (0.045 if ipad else 0.125))
+    bezel = round(short * (0.035 if ipad else 0.032))      # الإطار الأسود حول الشاشة
+    rim = max(6, round(short * (0.011 if ipad else 0.013)))  # الحافة المعدنية
+    btn = 0 if ipad else round(rim * 0.9)                   # بروز الأزرار الجانبية
+    fw, fh = sw + 2 * (bezel + rim) + 2 * btn, shh + 2 * (bezel + rim)
+    img = Image.new("RGBA", (fw, fh), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    x0 = btn
+    R = radius + bezel + rim
+    # الأزرار الجانبية (iPhone): الصوت والإجراء يساراً، والتشغيل يميناً
+    if not ipad and not landscape:
+        bc = (58, 62, 64, 255)
+        for y, hgt in ((0.17, 0.035), (0.225, 0.06), (0.30, 0.06)):
+            d.rounded_rectangle((0, fh * y, btn + rim, fh * (y + hgt)), btn, fill=bc)
+        d.rounded_rectangle((fw - btn - rim, fh * 0.25, fw, fh * 0.34), btn, fill=bc)
+    # الحافة المعدنية: تدرج من فاتح إلى داكن ولمعة رفيعة
+    metal = gradient(fw - 2 * btn, fh, (150, 152, 150), (70, 72, 72)).convert("RGBA")
+    mmask = Image.new("L", metal.size, 0)
+    ImageDraw.Draw(mmask).rounded_rectangle((0, 0, metal.width - 1, fh - 1), R, fill=255)
+    img.paste(metal, (x0, 0), mmask)
+    d.rounded_rectangle((x0 + 2, 2, fw - btn - 3, fh - 3), R - 2, outline=(215, 218, 216, 160), width=max(2, rim // 4))
+    # الإطار الأسود
+    d.rounded_rectangle((x0 + rim, rim, fw - btn - rim - 1, fh - rim - 1), radius + bezel, fill=(10, 11, 12, 255))
+    # الشاشة
+    smask = Image.new("L", (sw, shh), 0)
+    ImageDraw.Draw(smask).rounded_rectangle((0, 0, sw - 1, shh - 1), radius, fill=255)
+    img.paste(screen, (x0 + rim + bezel, rim + bezel), smask)
+    # جزيرة iPhone (تغطي الجزيرة إن ظهرت في اللقطة، فتتطابق الصور كلها)
+    if not ipad and not landscape:
+        iw, ih = round(sw * 0.29), round(sw * 0.085)
+        cx, top = x0 + rim + bezel + sw // 2, rim + bezel + round(sw * 0.027)
+        d.rounded_rectangle((cx - iw // 2, top, cx + iw // 2, top + ih), ih // 2, fill=(0, 0, 0, 255))
+    return img
+
+
 def compose(raw: Path, out: Path, key: str, lang: str, index: int, size=None):
     shot = Image.open(raw).convert("RGB")
     W, H = shot.size
@@ -121,67 +193,63 @@ def compose(raw: Path, out: Path, key: str, lang: str, index: int, size=None):
     elif W < 1000:
         # لقطة صغيرة (صور الموقع 540×1137): الصورة بمقاس iPhone 6.9 بوصة، واللقطة بنسبتها داخل الإطار
         W, H = 1320, 2868
-    ipad = W > 1500
-    top, bottom, title_c, sub_c, orn_c = PALETTES[index % len(PALETTES)]
+    ipad = max(W, H) > 2000 and min(W, H) > 1500
+    landscape = W > H
+    top, bottom, title_c, sub_c, orn_c, glow_c = PALETTES[index % len(PALETTES)]
     canvas = gradient(W, H, top, bottom).convert("RGBA")
+    light = sum(top) > 600
 
-    # زخرفة: نجمتان خافتتان في زاويتين متبدلتين
+    # زخرفة: شبكة نجوم خافتة، ونجمة كبيرة في زاوية متبدلة
+    canvas = Image.alpha_composite(canvas, pattern(W, H, orn_c, 16 if light else 13, round(min(W, H) * 0.16)))
     orn = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     od = ImageDraw.Draw(orn)
-    a = 34
-    big = W * 0.42
     side = index % 2
-    star(od, W * (0.92 if side else 0.08), H * 0.06, big, orn_c + (a,), max(3, W // 300))
-    star(od, W * (0.06 if side else 0.94), H * 0.97, big * 0.75, orn_c + (a,), max(3, W // 300))
+    star(od, W * (0.95 if side else 0.05), H * 0.04, min(W, H) * 0.36, orn_c + (40,), max(3, W // 280))
     canvas = Image.alpha_composite(canvas, orn)
 
-    # العنوان أعلى الصورة في الصور الزوجية وأسفلها في الفردية
-    caption_top = index % 2 == 0
-    margin = round(W * 0.07)
+    # العنوان وسطر الشرح أعلى الصورة دائماً، وفوقهما نجمة ذهبية صغيرة
+    margin = round(W * 0.08)
     title, sub = CAPTIONS[key][lang]
     direction = "rtl" if lang == "ar" else "ltr"
-    tf = fit_text(title, BOLD, round(W * (0.075 if ipad else 0.088)), W - 2 * margin, lang)
-    sf = fit_text(sub, REGULAR, round(W * (0.032 if ipad else 0.04)), W - 2 * margin, lang)
+    base = min(W, H)
+    tf = fit_text(title, BOLD, round(base * (0.068 if ipad else 0.092)), W - 2 * margin, lang)
+    sf = fit_text(sub, REGULAR, round(base * (0.03 if ipad else 0.041)), W - 2 * margin, lang)
     th = tf.getbbox(title, direction=direction)[3]
     sh = sf.getbbox(sub, direction=direction)[3]
-    gap = round(W * 0.02)
-    block = th + gap + sh
-    caption_h = round(H * 0.2)
-
-    # اللقطة: مصغّرة بزوايا مستديرة وإطار رفيع وظل
-    scale = 0.74 if ipad else 0.78
-    sw, shh = round(W * scale), round(H * scale)
-    if abs(shot.width / shot.height - W / H) > 0.01:
-        shh = round(sw * shot.height / shot.width)
-    # لقطة أطول من الصورة (هاتف 20:9 في صورة 16:9): تصغر حتى تترك مكان العنوان
-    if shh > H * 0.74:
-        shh = round(H * 0.74)
-        sw = round(shh * shot.width / shot.height)
-    small = shot.resize((sw, shh), Image.LANCZOS)
-    radius = round(sw * (0.045 if ipad else 0.11))
-    border = max(10, round(sw * 0.018))
-    fw, fh = sw + 2 * border, shh + 2 * border
-    frame = Image.new("RGBA", (fw, fh), (0, 0, 0, 0))
-    ImageDraw.Draw(frame).rounded_rectangle((0, 0, fw - 1, fh - 1), radius + border, fill=(18, 20, 22, 255))
-    mask = Image.new("L", (sw, shh), 0)
-    ImageDraw.Draw(mask).rounded_rectangle((0, 0, sw - 1, shh - 1), radius, fill=255)
-    frame.paste(small, (border, border), mask)
-
-    fx = (W - fw) // 2
-    fy = (caption_h + round(H * 0.035)) if caption_top else round(H * 0.045)
-    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle((fx + 10, fy + 30, fx + fw + 10, fy + fh + 30), radius + border, fill=(0, 0, 0, 110))
-    shadow = shadow.filter(ImageFilter.GaussianBlur(W // 40))
-    canvas = Image.alpha_composite(canvas, shadow)
-    canvas.alpha_composite(frame, (fx, fy))
-
-    # العنوان وسطر الشرح في المساحة الباقية
+    ornament = round(base * 0.022)
+    y0 = round(H * (0.05 if landscape else 0.055))
     d = ImageDraw.Draw(canvas)
-    region_top = 0 if caption_top else fy + fh
-    region_h = (fy if caption_top else H - (fy + fh))
-    y = region_top + (region_h - block) // 2
-    d.text((W // 2, y), title, font=tf, fill=title_c, anchor="mt", direction=direction)
-    d.text((W // 2, y + th + gap), sub, font=sf, fill=sub_c, anchor="mt", direction=direction)
+    filled_star(d, W // 2, y0 + ornament, ornament, GOLD if not light else (190, 150, 62))
+    line_w = round(base * 0.07)
+    lc = (GOLD if not light else (190, 150, 62)) + (140,)
+    d.line((W // 2 - ornament * 2 - line_w, y0 + ornament, W // 2 - ornament * 2, y0 + ornament), fill=lc, width=max(2, base // 400))
+    d.line((W // 2 + ornament * 2, y0 + ornament, W // 2 + ornament * 2 + line_w, y0 + ornament), fill=lc, width=max(2, base // 400))
+    ty = y0 + ornament * 2 + round(base * 0.03)
+    d.text((W // 2, ty), title, font=tf, fill=title_c, anchor="mt", direction=direction)
+    sy = ty + th + round(base * 0.022)
+    d.text((W // 2, sy), sub, font=sf, fill=sub_c, anchor="mt", direction=direction)
+    text_bottom = sy + sh
+
+    # الجهاز: تحت العنوان، ويخرج طرفه السفلي من الصورة في العمودي (أسلوب صور المتجر الحديثة)
+    gap = round(H * 0.045)
+    if landscape:
+        avail_h = H - text_bottom - gap - round(H * 0.05)
+        dev = device(shot, 100, ipad)
+        sw = round(100 * min(avail_h / dev.height, (W * 0.86) / dev.width))
+    else:
+        sw = round(W * (0.74 if ipad else 0.78))
+    dev = device(shot, sw, ipad)
+    fx = (W - dev.width) // 2
+    fy = text_bottom + gap
+    if landscape:
+        fy = text_bottom + gap + max(0, (H - text_bottom - gap - round(H * 0.05) - dev.height) // 2)
+    # توهج خلف الجهاز وظل ناعم تحته
+    canvas = Image.alpha_composite(canvas, glow(W, H, W // 2, fy + dev.height * 0.4, dev.width * 0.62, glow_c, 70 if not light else 150))
+    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rounded_rectangle((fx + 6, fy + 26, fx + dev.width - 6, fy + dev.height + 26), round(dev.width * 0.12), fill=(0, 0, 0, 120 if not light else 70))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(W // 36))
+    canvas = Image.alpha_composite(canvas, shadow)
+    canvas.alpha_composite(dev, (fx, fy)) if fy + dev.height <= H else canvas.alpha_composite(dev.crop((0, 0, dev.width, H - fy)), (fx, fy))
 
     out.parent.mkdir(parents=True, exist_ok=True)
     canvas.convert("RGB").save(out, "PNG", optimize=True)
