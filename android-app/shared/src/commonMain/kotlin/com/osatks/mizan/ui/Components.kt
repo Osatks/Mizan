@@ -696,7 +696,8 @@ fun ResultCard(
             ) {
                 Text(label, color = Color.White.copy(alpha = .85f), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    RollingText(value, MaterialTheme.typography.headlineLarge.copy(fontSize = 36.sp, fontWeight = FontWeight.Black), Color.White, textAlign = TextAlign.Center)
+                    // الرقم كبير ثقيل كما في iPhone، ويصغر للقيم الطويلة (التاريخ الهجري كاملاً) فلا ينكسر سطره
+                    RollingText(value, MaterialTheme.typography.headlineLarge.copy(fontSize = if (value.length > 12) 28.sp else 36.sp, fontWeight = FontWeight.Black), Color.White, textAlign = TextAlign.Center)
                     if (unit != null) Text(unit, color = Color.White.copy(alpha = .9f), style = MaterialTheme.typography.titleLarge)
                 }
                 if (badge != null) {
