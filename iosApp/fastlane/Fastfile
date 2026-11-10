@@ -102,6 +102,24 @@ platform :ios do
 
   desc "Upload metadata + screenshots, attach build MIZAN_BUILD (waits for processing) and submit for review with automatic release"
   lane :submit do
-    deliver_common(asc_key, submit: true)
+    key = asc_key
+    wait_for_build(ENV.fetch("MIZAN_VERSION"), ENV.fetch("MIZAN_BUILD"))
+    deliver_common(key, submit: true)
+  end
+end
+
+# بعد الرفع يعالج App Store Connect البناء دقائق قبل أن يُختار للنسخة (deliver يفشل بـ «Build number does not exist»):
+# ننتظر حتى تصير حالته VALID، ساعة على الأكثر
+def wait_for_build(version, number)
+  app = Spaceship::ConnectAPI::App.find(APP_ID) || UI.user_error!("No app #{APP_ID}")
+  deadline = Time.now + 3600
+  loop do
+    build = Spaceship::ConnectAPI::Build.all(app_id: app.id, version: version, build_number: number.to_s).first
+    state = build&.processing_state
+    UI.message("Build #{version} (#{number}): #{state || 'not visible yet'}")
+    return if state == Spaceship::ConnectAPI::Build::ProcessingState::VALID
+    UI.user_error!("Build #{number} is #{state}") if %w[FAILED INVALID].include?(state)
+    UI.user_error!("Build #{number} still not processed after an hour") if Time.now > deadline
+    sleep 60
   end
 end

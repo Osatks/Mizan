@@ -31,6 +31,10 @@ on:
         description: "Only upload metadata + screenshots for this version (no build, no submission)"
         type: boolean
         default: false
+      existing_build:
+        description: "With metadata_only + submit: submit this already-uploaded build number for review (no new build)"
+        type: string
+        default: ""
 
 # لا يُرفع بناءان معاً (رقم البناء نفسه يُرفض في المرة الثانية)
 concurrency:
@@ -370,7 +374,7 @@ jobs:
         working-directory: iosApp
         env:
           MIZAN_VERSION: ${{ steps.v.outputs.name }}
-          MIZAN_BUILD: ${{ steps.v.outputs.build }}
+          MIZAN_BUILD: ${{ inputs.existing_build || steps.v.outputs.build }}
           REVIEW_FIRST_NAME: ${{ secrets.REVIEW_FIRST_NAME }}
           REVIEW_LAST_NAME: ${{ secrets.REVIEW_LAST_NAME }}
           REVIEW_PHONE: ${{ secrets.REVIEW_PHONE }}
@@ -382,9 +386,10 @@ jobs:
           LC_ALL: en_US.UTF-8
           LANG: en_US.UTF-8
         run: |
-          if [ "${{ inputs.submit }}" = "true" ] && [ "${{ inputs.metadata_only }}" != "true" ]; then
+          # بناء مرفوع سابقاً (existing_build) يُرسل للمراجعة دون بناء جديد
+          if [ "${{ inputs.submit }}" = "true" ] && { [ "${{ inputs.metadata_only }}" != "true" ] || [ -n "${{ inputs.existing_build }}" ]; }; then
             bundle exec fastlane ios submit
-            echo "Submitted ${{ steps.v.outputs.name }} (${{ steps.v.outputs.build }}) for review — automatic release after approval" >> "$GITHUB_STEP_SUMMARY"
+            echo "Submitted ${{ steps.v.outputs.name }} ($MIZAN_BUILD) for review — automatic release after approval" >> "$GITHUB_STEP_SUMMARY"
           else
             bundle exec fastlane ios metadata
             echo "Metadata uploaded for ${{ steps.v.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
