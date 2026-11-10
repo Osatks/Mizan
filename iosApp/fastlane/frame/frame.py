@@ -143,13 +143,14 @@ def fit_text(text, path, size, max_w, lang):
     return font(path, size)
 
 
-def device(shot: Image.Image, sw: int, ipad: bool) -> Image.Image:
-    """إطار جهاز واقعي: حافة معدنية بتدرج ولمعة، وإطار أسود رفيع، وزوايا مستديرة، وجزيرة iPhone، وأزرار جانبية"""
+def device(shot: Image.Image, sw: int, ipad: bool, android: bool = False) -> Image.Image:
+    """إطار جهاز واقعي: حافة معدنية بتدرج ولمعة، وإطار أسود رفيع، وزوايا مستديرة، وجزيرة iPhone، وأزرار جانبية.
+    android: هاتف Android (صور Google Play): ثقب كاميرا صغير بدل الجزيرة، والأزرار في الجانب الأيمن وحده"""
     shh = round(sw * shot.height / shot.width)
     screen = shot.resize((sw, shh), Image.LANCZOS)
     landscape = shot.width > shot.height
     short = min(sw, shh)
-    radius = round(short * (0.045 if ipad else 0.125))
+    radius = round(short * (0.045 if ipad else (0.09 if android else 0.125)))
     bezel = round(short * (0.035 if ipad else 0.032))      # الإطار الأسود حول الشاشة
     rim = max(6, round(short * (0.011 if ipad else 0.013)))  # الحافة المعدنية
     btn = 0 if ipad else round(rim * 0.9)                   # بروز الأزرار الجانبية
@@ -161,9 +162,14 @@ def device(shot: Image.Image, sw: int, ipad: bool) -> Image.Image:
     # الأزرار الجانبية (iPhone): الصوت والإجراء يساراً، والتشغيل يميناً
     if not ipad and not landscape:
         bc = (58, 62, 64, 255)
-        for y, hgt in ((0.17, 0.035), (0.225, 0.06), (0.30, 0.06)):
-            d.rounded_rectangle((0, fh * y, btn + rim, fh * (y + hgt)), btn, fill=bc)
-        d.rounded_rectangle((fw - btn - rim, fh * 0.25, fw, fh * 0.34), btn, fill=bc)
+        if android:
+            # التشغيل والصوت في الجانب الأيمن (كهواتف Pixel)
+            d.rounded_rectangle((fw - btn - rim, fh * 0.19, fw, fh * 0.24), btn, fill=bc)
+            d.rounded_rectangle((fw - btn - rim, fh * 0.28, fw, fh * 0.38), btn, fill=bc)
+        else:
+            for y, hgt in ((0.17, 0.035), (0.225, 0.06), (0.30, 0.06)):
+                d.rounded_rectangle((0, fh * y, btn + rim, fh * (y + hgt)), btn, fill=bc)
+            d.rounded_rectangle((fw - btn - rim, fh * 0.25, fw, fh * 0.34), btn, fill=bc)
     # الحافة المعدنية: تدرج من فاتح إلى داكن ولمعة رفيعة
     metal = gradient(fw - 2 * btn, fh, (150, 152, 150), (70, 72, 72)).convert("RGBA")
     mmask = Image.new("L", metal.size, 0)
@@ -177,7 +183,12 @@ def device(shot: Image.Image, sw: int, ipad: bool) -> Image.Image:
     ImageDraw.Draw(smask).rounded_rectangle((0, 0, sw - 1, shh - 1), radius, fill=255)
     img.paste(screen, (x0 + rim + bezel, rim + bezel), smask)
     # جزيرة iPhone (تغطي الجزيرة إن ظهرت في اللقطة، فتتطابق الصور كلها)
-    if not ipad and not landscape:
+    if android and not landscape:
+        # ثقب الكاميرا الأمامية في وسط الأعلى
+        r = round(sw * 0.022)
+        cx, cy = x0 + rim + bezel + sw // 2, rim + bezel + round(sw * 0.038)
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(0, 0, 0, 255))
+    elif not ipad and not landscape:
         iw, ih = round(sw * 0.29), round(sw * 0.085)
         cx, top = x0 + rim + bezel + sw // 2, rim + bezel + round(sw * 0.027)
         d.rounded_rectangle((cx - iw // 2, top, cx + iw // 2, top + ih), ih // 2, fill=(0, 0, 0, 255))
@@ -194,6 +205,8 @@ def compose(raw: Path, out: Path, key: str, lang: str, index: int, size=None):
         # لقطة صغيرة (صور الموقع 540×1137): الصورة بمقاس iPhone 6.9 بوصة، واللقطة بنسبتها داخل الإطار
         W, H = 1320, 2868
     ipad = max(W, H) > 2000 and min(W, H) > 1500
+    # مقاس ثابت = صور Google Play: إطار هاتف Android
+    android = bool(size)
     landscape = W > H
     top, bottom, title_c, sub_c, orn_c, glow_c = PALETTES[index % len(PALETTES)]
     canvas = gradient(W, H, top, bottom).convert("RGBA")
@@ -234,11 +247,11 @@ def compose(raw: Path, out: Path, key: str, lang: str, index: int, size=None):
     gap = round(H * 0.045)
     if landscape:
         avail_h = H - text_bottom - gap - round(H * 0.05)
-        dev = device(shot, 100, ipad)
+        dev = device(shot, 100, ipad, android)
         sw = round(100 * min(avail_h / dev.height, (W * 0.86) / dev.width))
     else:
         sw = round(W * (0.74 if ipad else 0.78))
-    dev = device(shot, sw, ipad)
+    dev = device(shot, sw, ipad, android)
     fx = (W - dev.width) // 2
     fy = text_bottom + gap
     if landscape:
