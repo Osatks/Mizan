@@ -212,6 +212,8 @@ struct PlacedGlyph {
     let right: CGFloat
     let ayah: Int
     let end: Bool
+    /// إزاحة رسم الكلمة عن طرفها الأيسر (الكلمة التي يقلّص التشكيل عرضها)
+    var dx: CGFloat = 0
 }
 
 enum LaidRow {
@@ -246,12 +248,19 @@ final class MadinahLayout {
         let w = size.width, h = size.height
         guard !lines.isEmpty, w > 0, h > 0 else { return nil }
         let f100 = CTFontCreateWithGraphicsFont(font, ref, nil, nil)
+        // عرض الكلمة من رموزها كلاً على حدة إن كان التشكيل يقلّصه: في بعض خطوط المجمع يُعطى رمز الحركة (بلا عرض)
+        // عرضاً سالباً، فتنسحب الكلمة كلها نحو جارتها وتلتصق بها («طسٓ» بـ«تِلۡكَ» في أول النمل)؛ والفرق إزاحة رسمها
+        var shifts: [String: CGFloat] = [:]
         var measured: [Int: [(CTLine, CGFloat)]] = [:]
         for (i, l) in lines.enumerated() {
             if case .ayah(_, let glyphs, _, _) = l {
                 measured[i] = glyphs.map { (g: String) -> (CTLine, CGFloat) in
                     let line = ctLine(g, f100)
-                    return (line, lineWidth(line))
+                    let whole = lineWidth(line)
+                    guard g.unicodeScalars.count > 1 else { return (line, whole) }
+                    let parts = g.unicodeScalars.reduce(CGFloat(0)) { $0 + lineWidth(ctLine(String($1), f100)) }
+                    if parts > whole + 0.5 { shifts[g] = parts - whole; return (line, parts) }
+                    return (line, whole)
                 }
             }
         }
@@ -289,7 +298,8 @@ final class MadinahLayout {
                 placed.reserveCapacity(glyphs.count)
                 for j in glyphs.indices {
                     let ww = ws[j].1 * k
-                    placed.append(PlacedGlyph(line: ctLine(glyphs[j], fs), left: right - ww, right: right, ayah: ayahs[j], end: ends.contains(j)))
+                    placed.append(PlacedGlyph(line: ctLine(glyphs[j], fs), left: right - ww, right: right, ayah: ayahs[j],
+                                              end: ends.contains(j), dx: (shifts[glyphs[j]] ?? 0) * k))
                     right -= ww + gap
                 }
                 rows.append(.text(top: top, height: lineH, words: placed))
@@ -592,7 +602,7 @@ final class PageGlyphView: UIView {
                         roundRect(ctx, CGRect(x: g.left + inset, y: y - l.textSize * 0.52, width: max(g.right - g.left - 2 * inset, 1), height: bh),
                                   radius: bh / 2, fill: p.ink.withAlphaComponent(0.16))
                     } else {
-                        paint(g.line, ctx, x: g.left, y: y, color: g.end ? p.accent : p.ink)
+                        paint(g.line, ctx, x: g.left + g.dx, y: y, color: g.end ? p.accent : p.ink)
                     }
                 }
             case .banner(let top, let height, let surah):

@@ -68,7 +68,8 @@ internal class MWord(val text: String, val marker: String?, val index: Int, val 
 internal class MBlock(val surah: Int, val banner: Boolean, val bismillah: Boolean, val words: List<MWord>)
 
 /** كلمة في موضعها من السطر؛ left/right حدود الكلمة مع علامتها، و text نصها كما يُرسم (قد يكون ممدوداً) */
-internal class Placed(val word: MWord, val left: Float, val right: Float, val wordW: Float, val markerW: Float, val text: String = word.text)
+/** dx: إزاحة رسم الكلمة عن طرفها الأيسر (كلمة مصحف المدينة التي يقلّص التشكيل عرضها، MadinahPage.kt) */
+internal class Placed(val word: MWord, val left: Float, val right: Float, val wordW: Float, val markerW: Float, val text: String = word.text, val dx: Float = 0f)
 
 internal sealed class MRow(val top: Float, val height: Float)
 internal class TextRow(top: Float, height: Float, val words: List<Placed>) : MRow(top, height)

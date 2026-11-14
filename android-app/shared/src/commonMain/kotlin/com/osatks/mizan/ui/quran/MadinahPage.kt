@@ -24,7 +24,17 @@ internal fun prepareMadinah(page: Int, w: Float, h: Float): PageLayout? {
     val ref = 100f
     paint.textSize = ref
     val ayahLines = lines.filterIsInstance<MadinahLine.Ayah>()
-    val widths = ayahLines.associateWith { l -> FloatArray(l.glyphs.size) { paint.measure(l.glyphs[it]) } }
+    // عرض الكلمة من رموزها كلاً على حدة إن كان التشكيل يقلّصه: في بعض خطوط المجمع يُعطى رمز الحركة (بلا عرض)
+    // عرضاً سالباً، فتنسحب الكلمة كلها نحو جارتها وتلتصق بها («طسٓ» بـ«تِلۡكَ» في أول النمل)؛ والفرق إزاحة رسمها
+    val shifts = HashMap<String, Float>()
+    fun wordWidth(g: String): Float {
+        val whole = paint.measure(g)
+        if (g.length < 2) return whole
+        val parts = g.sumOf { paint.measure(it.toString()).toDouble() }.toFloat()
+        if (parts > whole + 0.5f) { shifts[g] = parts - whole; return parts }
+        return whole
+    }
+    val widths = ayahLines.associateWith { l -> FloatArray(l.glyphs.size) { wordWidth(l.glyphs[it]) } }
     val natural = { l: MadinahLine.Ayah -> widths.getValue(l).sum() }
     // الفاتحة وأول البقرة: أسطر قليلة أقصر وأكبر في وسط إطار مزخرف
     val special = page <= 2
@@ -57,7 +67,7 @@ internal fun prepareMadinah(page: Int, w: Float, h: Float): PageLayout? {
                 for (j in line.glyphs.indices) {
                     val ww = ws[j] * k
                     val word = MWord(line.glyphs[j], if (j in line.ends) END else null, line.ayahs[j])
-                    placed += Placed(word, right - ww, right, ww, 0f, line.glyphs[j])
+                    placed += Placed(word, right - ww, right, ww, 0f, line.glyphs[j], (shifts[line.glyphs[j]] ?: 0f) * k)
                     right -= ww + gap
                 }
                 rows += TextRow(top, lineH, placed)
@@ -120,7 +130,7 @@ internal fun DrawScope.drawMadinah(l: PageLayout, p: MushafPalette, accent: Colo
                             h <= 0f -> ink
                             else -> p.ink.copy(alpha = p.ink.alpha * alpha * (1f - h)).toArgb()
                         }
-                        pp.draw(c, pl.text, pl.left, y)
+                        pp.draw(c, pl.text, pl.left + pl.dx, y)
                     }
                 }
             }
