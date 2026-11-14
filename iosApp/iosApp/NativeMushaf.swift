@@ -1,5 +1,6 @@
 import UIKit
 import CoreText
+import CoreMotion
 import Shared
 
 /// قارئ المصحف من النظام: صفحات مصحف المدينة (طبعة مجمع الملك فهد) يقلّبها UICollectionView ويرسمها Core Text،
@@ -54,6 +55,8 @@ struct MushafState: Decodable {
     var spread: Bool?
     var count: Int?
     var pages: Int?
+    /// ثلاثي الأبعاد: الكلمات بارزة فوق الورقة بظلها وتتحرك مع ميل الجهاز (MushafDepthMotion)
+    var depth: Bool?
 
     /// عدد صفحات المصحف
     var totalPages: Int { max(pages ?? 604, 1) }
@@ -264,7 +267,13 @@ final class MadinahLayout {
                 }
             }
         }
-        func natural(_ i: Int) -> CGFloat { measured[i]?.reduce(0) { $0 + $1.1 } ?? 0 }
+        // فراغ صغير ثابت بين الكلمات (٠٫٠٦ من المقاس): كلمات خطوط المجمع لا فراغ بينها إلا هوامش الحروف، وأسطر الصفحة
+        // متقاربة العرض، فلو مُلئ أطول سطر بلا فراغ لتقاربت الكلمات في الأسطر كلها حتى تكاد تلتصق
+        let space = ref * 0.06
+        func natural(_ i: Int) -> CGFloat {
+            guard let m = measured[i] else { return 0 }
+            return m.reduce(0) { $0 + $1.1 } + space * CGFloat(max(m.count - 1, 0))
+        }
         let special = page <= 2
         let full = lines.indices.filter { i in
             if case .ayah(let c, _, _, _) = lines[i] { return !c || special }
@@ -290,9 +299,11 @@ final class MadinahLayout {
             case .basmala: rows.append(.basmala(top: top, height: lineH))
             case .ayah(let c, let glyphs, let ayahs, let ends):
                 guard let ws = measured[li] else { continue }
-                let total = ws.reduce(0) { $0 + $1.1 } * k
+                let inked = ws.reduce(0) { $0 + $1.1 } * k
                 let centered = c || special || glyphs.count == 1
-                let gap = centered ? 0 : (lineW - total) / CGFloat(glyphs.count - 1)
+                // السطر الموسَّط بالفراغ الثابت، والكامل يملأ العرض (ولا يقل فراغه عنه)
+                let gap = centered ? space * k : (lineW - inked) / CGFloat(glyphs.count - 1)
+                let total = inked + (centered ? gap * CGFloat(max(glyphs.count - 1, 0)) : 0)
                 var right = centered ? x0 + (lineW + total) / 2 : x0 + lineW
                 var placed: [PlacedGlyph] = []
                 placed.reserveCapacity(glyphs.count)
@@ -465,6 +476,70 @@ private enum Geo {
     static let edge: CGFloat = 0.14
 }
 
+/// حركة الجهاز للوضع ثلاثي الأبعاد: اتجاه الجاذبية بمحوري الشاشة كما يراها القارئ، والفرق بينه وبين وضع مرجعي
+/// يلحق بطريقة الإمساك ببطء (نحو ثانيتين)، فتعود الكلمات إلى مكانها حين يستقر الجهاز على أي زاوية.
+/// تعمل ما دامت صفحة ثلاثية الأبعاد ظاهرة فقط، وتتوقف مع «تقليل الحركة»
+final class MushafDepthMotion {
+    static let shared = MushafDepthMotion()
+    private let manager = CMMotionManager()
+    private let views = NSHashTable<MushafPageView>.weakObjects()
+    private var ref: (x: Double, y: Double)?
+    private var smooth: (x: Double, y: Double) = (x: 0, y: 0)
+    /// الميل الحالي، لكل محور بين -1 و 1 (المحور الرأسي إلى الأسفل كما في UIKit)
+    private(set) var tilt: CGPoint = .zero
+
+    func attach(_ v: MushafPageView) {
+        views.add(v)
+        start()
+    }
+
+    func detach(_ v: MushafPageView) {
+        views.remove(v)
+        if views.allObjects.isEmpty { stop() }
+    }
+
+    private func start() {
+        guard !manager.isDeviceMotionActive, manager.isDeviceMotionAvailable, !UIAccessibility.isReduceMotionEnabled else { return }
+        ref = nil
+        smooth = (x: 0, y: 0)
+        manager.deviceMotionUpdateInterval = 1.0 / 60
+        manager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
+            guard let self = self, let g = motion?.gravity else { return }
+            self.update(g)
+        }
+    }
+
+    private func stop() {
+        if manager.isDeviceMotionActive { manager.stopDeviceMotionUpdates() }
+        tilt = .zero
+    }
+
+    private func update(_ g: CMAcceleration) {
+        // محورا الشاشة (x إلى اليمين، y إلى الأعلى) حسب اتجاه الواجهة
+        var orientation = UIInterfaceOrientation.portrait
+        if #available(iOS 13.0, *), let o = views.allObjects.first?.window?.windowScene?.interfaceOrientation { orientation = o }
+        let gx: Double, gy: Double
+        switch orientation {
+        case .landscapeRight: gx = -g.y; gy = g.x
+        case .landscapeLeft: gx = g.y; gy = -g.x
+        case .portraitUpsideDown: gx = -g.x; gy = -g.y
+        default: gx = g.x; gy = g.y
+        }
+        var r: (x: Double, y: Double) = ref ?? (x: gx, y: gy)
+        r.x += (gx - r.x) * 0.012
+        r.y += (gy - r.y) * 0.012
+        ref = r
+        smooth.x += ((gx - r.x) - smooth.x) * 0.18
+        smooth.y += ((gy - r.y) - smooth.y) * 0.18
+        // ميل نحو 15° يبلغ أقصى الحركة؛ الكلمات تنزاح نحو الطرف المائل إلى الأسفل
+        let x = CGFloat(max(-1, min(1, smooth.x / 0.26)))
+        let y = CGFloat(max(-1, min(1, -smooth.y / 0.26)))
+        guard abs(x - tilt.x) > 0.004 || abs(y - tilt.y) > 0.004 else { return }
+        tilt = CGPoint(x: x, y: y)
+        for v in views.allObjects { v.applyTilt(tilt) }
+    }
+}
+
 /// ورقة الصفحة وإطارها ورأسها ورقمها وشريط العلامة: تُرسم مرة لكل صفحة (لا مع التقليب)
 final class PageChromeView: UIView {
     var page = 1
@@ -574,6 +649,8 @@ final class PageGlyphView: UIView {
     var colors: MushafColors?
     var hifz = false
     var revealed: Set<Int> = []
+    /// لون واحد لكل ما يُرسم: نسخة ظل الكلمات على الورقة في الوضع ثلاثي الأبعاد (بلا إطار الفاتحة ولا أشرطة الحفظ)
+    var tint: UIColor?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -588,7 +665,8 @@ final class PageGlyphView: UIView {
     override func draw(_ rect: CGRect) {
         guard let ctx = UIGraphicsGetCurrentContext(), let l = layout, let p = colors else { return }
         let w = bounds.width
-        if l.capped, let first = l.rows.first, let last = l.rows.last {
+        let ink = tint ?? p.ink, accent = tint ?? p.accent
+        if tint == nil, l.capped, let first = l.rows.first, let last = l.rows.last {
             drawCappedFrame(ctx, l, first: first, last: last, p)
         }
         for row in l.rows {
@@ -597,12 +675,13 @@ final class PageGlyphView: UIView {
                 let y = top + height / 2 + l.textSize * 0.3
                 for g in words {
                     if hifz && !g.end && !revealed.contains(g.ayah) {
+                        if tint != nil { continue }
                         // الكلمة المخفية للحفظ: شريط لين بطولها
                         let inset = l.textSize * 0.04, bh = l.textSize * 0.62
                         roundRect(ctx, CGRect(x: g.left + inset, y: y - l.textSize * 0.52, width: max(g.right - g.left - 2 * inset, 1), height: bh),
                                   radius: bh / 2, fill: p.ink.withAlphaComponent(0.16))
                     } else {
-                        paint(g.line, ctx, x: g.left + g.dx, y: y, color: g.end ? p.accent : p.ink)
+                        paint(g.line, ctx, x: g.left + g.dx, y: y, color: g.end ? accent : ink)
                     }
                 }
             case .banner(let top, let height, let surah):
@@ -613,14 +692,14 @@ final class PageGlyphView: UIView {
                 // الإطار ممتد إلى طرفي الصفحة (وفي الفاتحة وأول البقرة بعرض أسطرهما)، ولا يتجاوز ارتفاع السطر إلا قليلاً
                 let ts = min(MadinahLayout.ref * (l.capped ? l.lineW : w) / gw, height * 1.12 / 0.39)
                 let line = ctLine(code, CTFontCreateWithGraphicsFont(hf, ts, nil, nil))
-                paint(line, ctx, x: (w - lineWidth(line)) / 2, y: top + height / 2, color: p.accent)
+                paint(line, ctx, x: (w - lineWidth(line)) / 2, y: top + height / 2, color: accent)
             case .basmala(let top, let height):
                 guard let bf = MadinahStore.shared.basmalaFont else { continue }
                 let bw = lineWidth(ctLine(MadinahStore.basmala, CTFontCreateWithGraphicsFont(bf, MadinahLayout.ref, nil, nil)))
                 var size = l.textSize * 1.02
                 if bw * size / MadinahLayout.ref > l.lineW * 0.75 { size = l.lineW * 0.75 * MadinahLayout.ref / bw }
                 let line = ctLine(MadinahStore.basmala, CTFontCreateWithGraphicsFont(bf, size, nil, nil))
-                paint(line, ctx, x: (w - lineWidth(line)) / 2, y: top + height / 2 + size * 0.32, color: p.ink)
+                paint(line, ctx, x: (w - lineWidth(line)) / 2, y: top + height / 2 + size * 0.32, color: ink)
             }
         }
     }
@@ -670,6 +749,10 @@ final class MushafPageView: UIView {
     private let selectLayer = CAShapeLayer()
     private let pressLayer = CAShapeLayer()
     private let glyphs = PageGlyphView()
+    /// ظل الكلمات على الورقة في الوضع ثلاثي الأبعاد: نسخة بلون الظل تُرسم مرة بدقة منخفضة فتلين حوافها
+    private let shade = PageGlyphView()
+    /// الوضع ثلاثي الأبعاد مفعّل في هذه الصفحة
+    private var depthOn = false
     private let spinner = UIActivityIndicatorView(style: .medium)
     private let note = UILabel()
     private let retry = UIButton(type: .system)
@@ -698,6 +781,9 @@ final class MushafPageView: UIView {
         if #available(iOS 13.0, *) { card.layer.cornerCurve = .continuous }
         addSubview(card)
         card.addSubview(chrome)
+        shade.isHidden = true
+        shade.tint = MushafPageView.depthShadow
+        card.addSubview(shade)
         card.addSubview(textArea)
         textArea.isUserInteractionEnabled = false
         selectLayer.opacity = 1
@@ -775,7 +861,11 @@ final class MushafPageView: UIView {
         let top = Geo.colTop + Geo.headH + Geo.ruleH + Geo.canvasTop
         let area = CGRect(x: Geo.colSide, y: top, width: max(card.bounds.width - 2 * Geo.colSide, 0),
                           height: max(card.bounds.height - top - Geo.colBottom - Geo.canvasBottom, 0))
-        textArea.frame = area
+        // الإطار بالمركز والحدود (لا frame): منطقة الأسطر وظلها قد تُزاحان بـ transform في الوضع ثلاثي الأبعاد
+        textArea.bounds = CGRect(origin: .zero, size: area.size)
+        textArea.center = CGPoint(x: area.midX, y: area.midY)
+        shade.bounds = textArea.bounds
+        shade.center = textArea.center
         glyphs.frame = textArea.bounds
         spinner.center = CGPoint(x: area.midX, y: area.midY - 12)
         note.frame = CGRect(x: area.minX, y: area.midY + 4, width: area.width, height: 40)
@@ -827,6 +917,7 @@ final class MushafPageView: UIView {
     func show(page p: Int) {
         let changed = p != page
         page = p
+        updateLift()
         if changed {
             endResize()
             shownSelection = -2
@@ -885,6 +976,7 @@ final class MushafPageView: UIView {
             self.glyphs.hifz = s.hifz
             self.glyphs.revealed = Set(s.revealed)
             self.glyphs.setNeedsDisplay()
+            self.syncShade()
         }
         if animated && window != nil && !UIAccessibility.isReduceMotionEnabled {
             UIView.transition(with: glyphs, duration: layoutChanged ? 0.24 : 0.32, options: [.transitionCrossDissolve, .allowUserInteraction], animations: apply)
@@ -936,6 +1028,58 @@ final class MushafPageView: UIView {
             selectLayer.path = glyphs.layout?.band(sel)
         }
         CATransaction.commit()
+    }
+
+    // MARK: ثلاثي الأبعاد
+
+    /// لون ظل الكلمات على الورقة (DepthShadow في MushafStyle.kt)
+    static let depthShadow = UIColor(red: 0x3B / 255, green: 0x2A / 255, blue: 0x10 / 255, alpha: 0x5C / 255)
+    /// ارتفاع الكلمات عن الورقة: أقصى إزاحة لها مع الميل
+    private static let lift: CGFloat = 6
+
+    /// يفعّل الوضع ثلاثي الأبعاد أو يوقفه حسب الحالة: نسخة الظل، وقراءة حركة الجهاز ما دامت الصفحة ظاهرة
+    func updateLift() {
+        let on = host?.state?.depth ?? false
+        if on != depthOn {
+            depthOn = on
+            shade.isHidden = !on
+            syncShade()
+            if !on { textArea.transform = .identity; shade.transform = .identity }
+        }
+        if on && window != nil { MushafDepthMotion.shared.attach(self) } else { MushafDepthMotion.shared.detach(self) }
+        applyTilt(MushafDepthMotion.shared.tilt)
+    }
+
+    /// نسخة الظل تتبع أسطر الصفحة، وتُخزَّن صورتها بدقة منخفضة: ظل لين بلا حساب تمويه مع كل إطار
+    private func syncShade() {
+        guard depthOn else {
+            if shade.layout != nil { shade.layout = nil; shade.setNeedsDisplay() }
+            return
+        }
+        shade.layout = glyphs.layout
+        shade.colors = glyphs.colors
+        shade.hifz = glyphs.hifz
+        shade.revealed = glyphs.revealed
+        shade.layer.shouldRasterize = true
+        shade.layer.rasterizationScale = 0.9
+        shade.setNeedsDisplay()
+    }
+
+    /// ميل الجهاز (كل محور بين -1 و 1): الكلمات تنزاح معه، وظلها على الورقة عكسه، فتبدو مرفوعة عنها.
+    /// مع «تقليل الحركة» يبقى الميل صفراً: الكلمات بارزة بظلها بلا حركة
+    func applyTilt(_ t: CGPoint) {
+        guard depthOn else { return }
+        let h = Self.lift
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        textArea.transform = CGAffineTransform(translationX: t.x * h, y: t.y * h - h * 0.15)
+        shade.transform = CGAffineTransform(translationX: -t.x * h * 0.5, y: -t.y * h * 0.5 + h * 0.45)
+        CATransaction.commit()
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if depthOn && window != nil { MushafDepthMotion.shared.attach(self) } else { MushafDepthMotion.shared.detach(self) }
     }
 
     // MARK: اللمس
@@ -1235,6 +1379,7 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
             cell.frameWidth = CGFloat(s.frame)
             if geometry { cell.layoutNow() }
             for v in cell.pageViews {
+                if o.depth != s.depth { v.updateLift() }
                 if colorsChanged || o.marked != s.marked || o.read != s.read { v.refreshChrome() }
                 if colorsChanged || o.hifz != s.hifz || o.revealed != s.revealed || o.fonts != s.fonts || o.failed != s.failed {
                     v.refreshText(animated: true)

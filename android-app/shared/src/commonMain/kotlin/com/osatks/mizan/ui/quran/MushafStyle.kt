@@ -77,12 +77,29 @@ private val NightPalette = MushafPalette(
     marker = Color(0xFFC29B52), select = Color(0x33B8924A), press = Color(0x22B8924A), backdrop = Color(0xFF070503),
 )
 
+/** ثلاثي الأبعاد: ورق عاجي فاتح (يظهر عليه ظل الكلمات) وحبر داكن عميق، والكلمات بارزة فوقه تتحرك مع ميل الجهاز */
+private val DepthPalette = MushafPalette(
+    paper = Color(0xFFFDF9F0), paperEdge = Color(0xFFEDE1C4), ink = Color(0xFF15110B), muted = Color(0xFF7A6A4C),
+    gold = Color(0xFFC99A3A), goldDeep = Color(0xFF94691A), fill = Color(0xFFF6E9C7), fillDeep = Color(0xFFE9D091),
+    marker = Color(0xFF8A6418), select = Color(0x55E2C270), press = Color(0x33C99A3A),
+)
+
+/** لون ظل الكلمات على الورقة في الوضع ثلاثي الأبعاد */
+val DepthShadow = Color(0x5C3B2A10)
+
+/** الوضع ثلاثي الأبعاد: الكلمات فوق الورقة بظلها، وتتحرك مع ميل الجهاز */
+fun isDepthTone(tone: String) = tone == "depth"
+
 /** لون ورق القراءة الذي اختاره المستخدم ("" = حسب مظهر التطبيق) */
 fun readingPalette(tone: String): MushafPalette? = when (tone) {
     "sepia" -> SepiaPalette
     "night" -> NightPalette
+    "depth" -> DepthPalette
     else -> null
 }
+
+/** الألوان كلها بلون واحد: نسخة ظل الكلمات في الوضع ثلاثي الأبعاد */
+fun MushafPalette.tinted(c: Color) = MushafPalette(c, c, c, c, c, c, Color.Transparent, Color.Transparent, c, Color.Transparent, Color.Transparent, backdrop)
 
 /** يُوفَّر داخل صفحة القراءة فقط، فتبقى ورقة التفسير والقوائم بألوان التطبيق */
 val LocalReadingPalette = staticCompositionLocalOf<MushafPalette?> { null }

@@ -641,6 +641,7 @@ object De : Strings {
     override val toneAuto = "Automatisch"
     override val toneSepia = "Sepia"
     override val toneNight = "Nacht"
+    override val toneDepth = "3D"
     override val brightness = "Helligkeit"
     override val brightnessSystem = "Gerätehelligkeit"
     override val textSizeLabel = "Textgröße"

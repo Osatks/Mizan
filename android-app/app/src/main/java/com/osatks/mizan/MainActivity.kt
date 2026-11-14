@@ -106,6 +106,8 @@ class MainActivity : ComponentActivity() {
         // لقطات المتجر: موقع ثابت (المدينة المنورة) بدل بطاقة «حدّد موقعك»، والمصحف بصفحاته في كل اللغات
         if (Demo.enabled && !AppSettings.placeSet) AppSettings.updatePlace(com.osatks.mizan.core.Place.of(com.osatks.mizan.core.PrayTimes.CITIES[1]))
         if (Demo.enabled) { com.osatks.mizan.quran.QuranPrefs.ensure(); com.osatks.mizan.quran.QuranPrefs.updateMode("mushaf") }
+        // لقطات الشاشة: لون صفحة المصحف من الأمر نفسه (--es tone depth)، وبدونه حسب مظهر التطبيق
+        if (Demo.enabled) com.osatks.mizan.quran.QuranPrefs.updateTone(intent?.getStringExtra("tone").orEmpty())
         setContent { LanguageHost { MizanTheme { MizanApp(startRoute) } } }
     }
 

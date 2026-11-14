@@ -641,6 +641,7 @@ object En : Strings {
     override val toneAuto = "Auto"
     override val toneSepia = "Sepia"
     override val toneNight = "Night"
+    override val toneDepth = "3D"
     override val brightness = "Brightness"
     override val brightnessSystem = "Device brightness"
     override val textSizeLabel = "Text size"

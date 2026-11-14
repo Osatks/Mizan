@@ -642,6 +642,7 @@ object Tr : Strings {
     override val toneAuto = "Otomatik"
     override val toneSepia = "Sepya"
     override val toneNight = "Gece"
+    override val toneDepth = "3B"
     override val brightness = "Parlaklık"
     override val brightnessSystem = "Cihaz parlaklığı"
     override val textSizeLabel = "Yazı boyutu"

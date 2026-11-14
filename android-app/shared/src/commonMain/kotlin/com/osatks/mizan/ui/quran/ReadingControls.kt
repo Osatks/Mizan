@@ -422,6 +422,7 @@ fun DisplayOptions(showTextSize: Boolean) {
             ToneSwatch("", s.toneAuto)
             ToneSwatch("sepia", s.toneSepia)
             ToneSwatch("night", s.toneNight)
+            ToneSwatch("depth", s.toneDepth)
         }
         OptionLabel(s.brightness)
         val system = QuranPrefs.brightness < 0f
@@ -519,7 +520,12 @@ private fun RowScope.ToneSwatch(tone: String, label: String) {
             border = BorderStroke(if (selected) 2.dp else 1.dp, edge), modifier = Modifier.fillMaxWidth().height(64.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text("بِسْمِ ٱللَّهِ", style = quranStyle(17, TextAlign.Center), color = pal.ink, maxLines = 1)
+                // ثلاثي الأبعاد: الكلمة بارزة بظلها على الورقة
+                val st = quranStyle(17, TextAlign.Center)
+                Text(
+                    "بِسْمِ ٱللَّهِ", maxLines = 1, color = pal.ink,
+                    style = if (isDepthTone(tone)) st.copy(shadow = androidx.compose.ui.graphics.Shadow(DepthShadow, Offset(-2f, 5f), 6f)) else st,
+                )
             }
         }
         Text(

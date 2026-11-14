@@ -487,6 +487,7 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val toneAuto: String by lazy { s("toneAuto") ?: En.toneAuto }
     override val toneSepia: String by lazy { s("toneSepia") ?: En.toneSepia }
     override val toneNight: String by lazy { s("toneNight") ?: En.toneNight }
+    override val toneDepth: String by lazy { s("toneDepth") ?: En.toneDepth }
     override val brightness: String by lazy { s("brightness") ?: En.brightness }
     override val brightnessSystem: String by lazy { s("brightnessSystem") ?: En.brightnessSystem }
     override val textSizeLabel: String by lazy { s("textSizeLabel") ?: En.textSizeLabel }

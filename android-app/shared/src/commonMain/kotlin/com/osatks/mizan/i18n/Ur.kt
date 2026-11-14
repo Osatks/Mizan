@@ -642,6 +642,7 @@ object Ur : Strings {
     override val toneAuto = "خودکار"
     override val toneSepia = "سیپیا"
     override val toneNight = "رات"
+    override val toneDepth = "سہ جہتی"
     override val brightness = "چمک"
     override val brightnessSystem = "آلے کی چمک"
     override val textSizeLabel = "متن کا سائز"

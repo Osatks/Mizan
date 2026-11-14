@@ -179,6 +179,8 @@ internal actual fun NativeMushafPager(
             "hifz" to hifz, "revealed" to revealed.sorted(),
             "fonts" to Madinah.fontsVersion, "failed" to session.failed.toList(),
             "marked" to marked, "read" to read,
+            // ثلاثي الأبعاد: الكلمات بارزة فوق الورقة تتحرك مع ميل الجهاز (MushafDepthMotion في NativeMushaf.swift)
+            "depth" to isDepthTone(QuranPrefs.tone),
             "paper" to hex(p.paper), "paperEdge" to hex(p.paperEdge), "ink" to hex(p.ink), "muted" to hex(p.muted),
             "gold" to hex(p.gold), "goldDeep" to hex(p.goldDeep), "fill" to hex(p.fill), "fillDeep" to hex(p.fillDeep),
             "select" to hex(p.select), "press" to hex(p.press), "accent" to hex(accent), "backdrop" to hex(backdrop),

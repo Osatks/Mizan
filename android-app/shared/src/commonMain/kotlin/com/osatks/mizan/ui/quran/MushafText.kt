@@ -531,11 +531,36 @@ fun MushafCanvas(
         val paint = remember { mushafPaint() }
         // علامات الآيات وترويسات السور في مصحف المدينة بلون التطبيق
         val accent = androidx.compose.material3.MaterialTheme.colorScheme.primary
+        // ثلاثي الأبعاد: الكلمات فوق الورقة تتحرك مع ميل الجهاز، وظلها على الورقة يتحرك عكسها
+        val depth = isDepthTone(com.osatks.mizan.quran.QuranPrefs.tone)
+        val tilt = rememberDeviceTilt(depth)
+        val lift = with(density) { 6.dp.toPx() }
         @Composable
         fun layer(l: PageLayout, alpha: () -> Float, interactive: Boolean) {
             val qp = remember(l.font) { l.font?.let { madinahPaints(it) } }
             val area = if (l.fits) Modifier.fillMaxSize() else Modifier.fillMaxWidth().height(with(density) { l.height.toDp() })
+            val floating = depth && l.fits
+            if (floating) {
+                val shade = remember(p) { p.tinted(DepthShadow) }
+                Spacer(
+                    area
+                        .graphicsLayer {
+                            this.alpha = alpha()
+                            val t = tilt.value
+                            translationX = -t.x * lift * 0.5f
+                            translationY = -t.y * lift * 0.5f + lift * 0.45f
+                            renderEffect = androidx.compose.ui.graphics.BlurEffect(lift * 0.45f, lift * 0.45f)
+                        }
+                        .drawBehind { drawPage(l, shade, paint, text[0], 1f, hide, qp, DepthShadow) }
+                )
+            }
             val canvas = area
+                // الكلمات (وأشرطة التظليل معها) مرفوعة عن الورقة، واللمس في الطبقة نفسها فيبقى على الكلمة
+                .then(if (!floating) Modifier else Modifier.graphicsLayer {
+                    val t = tilt.value
+                    translationX = t.x * lift
+                    translationY = t.y * lift - lift * 0.15f
+                })
                 .then(
                     if (!interactive) Modifier else Modifier
                         .semantics { contentDescription = description.value }

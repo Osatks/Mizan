@@ -661,6 +661,7 @@ object Ru : Strings {
     override val toneAuto = "Авто"
     override val toneSepia = "Сепия"
     override val toneNight = "Ночь"
+    override val toneDepth = "3D"
     override val brightness = "Яркость"
     override val brightnessSystem = "Яркость устройства"
     override val textSizeLabel = "Размер текста"

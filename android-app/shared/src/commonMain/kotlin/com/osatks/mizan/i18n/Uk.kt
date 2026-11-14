@@ -661,6 +661,7 @@ object Uk : Strings {
     override val toneAuto = "Авто"
     override val toneSepia = "Сепія"
     override val toneNight = "Ніч"
+    override val toneDepth = "3D"
     override val brightness = "Яскравість"
     override val brightnessSystem = "Яскравість пристрою"
     override val textSizeLabel = "Розмір тексту"

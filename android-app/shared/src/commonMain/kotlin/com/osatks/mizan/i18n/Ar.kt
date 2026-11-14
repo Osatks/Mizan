@@ -624,6 +624,7 @@ object Ar : Strings {
     override val toneAuto = "تلقائي"
     override val toneSepia = "ورقي"
     override val toneNight = "ليلي"
+    override val toneDepth = "ثلاثي الأبعاد"
     override val brightness = "السطوع"
     override val brightnessSystem = "سطوع الجهاز"
     override val textSizeLabel = "حجم الخط"

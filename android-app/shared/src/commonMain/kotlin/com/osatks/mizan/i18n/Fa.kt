@@ -642,6 +642,7 @@ object Fa : Strings {
     override val toneAuto = "خودکار"
     override val toneSepia = "سپیا"
     override val toneNight = "شب"
+    override val toneDepth = "سه‌بعدی"
     override val brightness = "روشنایی"
     override val brightnessSystem = "روشنایی دستگاه"
     override val textSizeLabel = "اندازه متن"

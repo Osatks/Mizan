@@ -35,7 +35,10 @@ internal fun prepareMadinah(page: Int, w: Float, h: Float): PageLayout? {
         return whole
     }
     val widths = ayahLines.associateWith { l -> FloatArray(l.glyphs.size) { wordWidth(l.glyphs[it]) } }
-    val natural = { l: MadinahLine.Ayah -> widths.getValue(l).sum() }
+    // فراغ صغير ثابت بين الكلمات (٠٫٠٦ من المقاس): كلمات خطوط المجمع لا فراغ بينها إلا هوامش الحروف، وأسطر الصفحة
+    // متقاربة العرض، فلو مُلئ أطول سطر بلا فراغ لتقاربت الكلمات في الأسطر كلها حتى تكاد تلتصق
+    val space = ref * 0.06f
+    val natural = { l: MadinahLine.Ayah -> widths.getValue(l).sum() + space * (l.glyphs.size - 1).coerceAtLeast(0) }
     // الفاتحة وأول البقرة: أسطر قليلة أقصر وأكبر في وسط إطار مزخرف
     val special = page <= 2
     val widest = ayahLines.filter { !it.centered || special }.maxOfOrNull(natural) ?: ayahLines.maxOfOrNull(natural) ?: return null
@@ -59,9 +62,11 @@ internal fun prepareMadinah(page: Int, w: Float, h: Float): PageLayout? {
             is MadinahLine.Basmala -> rows += BasmalaRow(top, lineH)
             is MadinahLine.Ayah -> {
                 val ws = widths.getValue(line)
-                val total = ws.sum() * k
+                val inked = ws.sum() * k
                 val centered = line.centered || special || line.glyphs.size == 1
-                val gap = if (centered) 0f else (lineW - total) / (line.glyphs.size - 1)
+                // السطر الموسَّط بالفراغ الثابت، والكامل يملأ العرض (ولا يقل فراغه عنه)
+                val gap = if (centered) space * k else (lineW - inked) / (line.glyphs.size - 1)
+                val total = inked + if (centered) gap * (line.glyphs.size - 1).coerceAtLeast(0) else 0f
                 var right = if (centered) x0 + (lineW + total) / 2 else x0 + lineW
                 val placed = ArrayList<Placed>(line.glyphs.size)
                 for (j in line.glyphs.indices) {
