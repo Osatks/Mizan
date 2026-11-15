@@ -1,6 +1,7 @@
 import UIKit
 import CoreText
 import CoreMotion
+import CoreImage
 import Shared
 
 /// قارئ المصحف من النظام: صفحات مصحف المدينة (طبعة مجمع الملك فهد) يقلّبها UICollectionView ويرسمها Core Text،
@@ -749,8 +750,10 @@ final class MushafPageView: UIView {
     private let selectLayer = CAShapeLayer()
     private let pressLayer = CAShapeLayer()
     private let glyphs = PageGlyphView()
-    /// ظل الكلمات على الورقة في الوضع ثلاثي الأبعاد: نسخة بلون الظل تُرسم مرة بدقة منخفضة فتلين حوافها
-    private let shade = PageGlyphView()
+    /// ظل الكلمات على الورقة في الوضع ثلاثي الأبعاد: غباش لين تحت الأسطر (لا نسخة من الحروف)، صورة تُحسب مرة لكل صفحة
+    private let shade = UIImageView()
+    /// يرسم الأسطر بلون الظل لصورة الغباش (خارج الشاشة)
+    private let shadeDrawer = PageGlyphView()
     /// الوضع ثلاثي الأبعاد مفعّل في هذه الصفحة
     private var depthOn = false
     private let spinner = UIActivityIndicatorView(style: .medium)
@@ -782,7 +785,9 @@ final class MushafPageView: UIView {
         addSubview(card)
         card.addSubview(chrome)
         shade.isHidden = true
-        shade.tint = MushafPageView.depthShadow
+        shade.isUserInteractionEnabled = false
+        shade.contentMode = .scaleToFill
+        shadeDrawer.tint = MushafPageView.depthShadow
         card.addSubview(shade)
         card.addSubview(textArea)
         textArea.isUserInteractionEnabled = false
@@ -864,7 +869,7 @@ final class MushafPageView: UIView {
         // الإطار بالمركز والحدود (لا frame): منطقة الأسطر وظلها قد تُزاحان بـ transform في الوضع ثلاثي الأبعاد
         textArea.bounds = CGRect(origin: .zero, size: area.size)
         textArea.center = CGPoint(x: area.midX, y: area.midY)
-        shade.bounds = textArea.bounds
+        shade.bounds = textArea.bounds.insetBy(dx: -Self.hazePad, dy: -Self.hazePad)
         shade.center = textArea.center
         glyphs.frame = textArea.bounds
         spinner.center = CGPoint(x: area.midX, y: area.midY - 12)
@@ -1032,8 +1037,8 @@ final class MushafPageView: UIView {
 
     // MARK: ثلاثي الأبعاد
 
-    /// لون ظل الكلمات على الورقة (DepthShadow في MushafStyle.kt)
-    static let depthShadow = UIColor(red: 0x3B / 255, green: 0x2A / 255, blue: 0x10 / 255, alpha: 0x5C / 255)
+    /// لون الأسطر قبل تمويهها إلى غباش (يخفّ كثيراً بعد التمويه؛ DepthShadow في MushafStyle.kt)
+    static let depthShadow = UIColor(red: 0x3B / 255, green: 0x2A / 255, blue: 0x10 / 255, alpha: 0.7)
     /// ارتفاع الكلمات عن الورقة: أقصى إزاحة لها مع الميل
     private static let lift: CGFloat = 6
 
@@ -1044,25 +1049,43 @@ final class MushafPageView: UIView {
             depthOn = on
             shade.isHidden = !on
             syncShade()
-            if !on { textArea.transform = .identity; shade.transform = .identity }
+            if !on { textArea.transform = .identity; shade.transform = .identity; shade.image = nil }
         }
         if on && window != nil { MushafDepthMotion.shared.attach(self) } else { MushafDepthMotion.shared.detach(self) }
         applyTilt(MushafDepthMotion.shared.tilt)
     }
 
-    /// نسخة الظل تتبع أسطر الصفحة، وتُخزَّن صورتها بدقة منخفضة: ظل لين بلا حساب تمويه مع كل إطار
+    /// هامش صورة الغباش حول منطقة الأسطر (يتسع له التمويه)
+    private static let hazePad: CGFloat = 24
+    private static let ciContext = CIContext(options: [.useSoftwareRenderer: false])
+
+    /// الغباش يتبع أسطر الصفحة: تُرسم الأسطر بلون الظل بدقة منخفضة ثم تُموَّه بقوة (Core Image)، فيبقى ظل لين
+    /// تحت الأسطر لا يُقرأ فيه شكل الحروف. يُحسب مرة لكل صفحة (لا مع الحركة)
     private func syncShade() {
-        guard depthOn else {
-            if shade.layout != nil { shade.layout = nil; shade.setNeedsDisplay() }
+        guard depthOn, let l = glyphs.layout, let colors = glyphs.colors else {
+            shade.image = nil
             return
         }
-        shade.layout = glyphs.layout
-        shade.colors = glyphs.colors
-        shade.hifz = glyphs.hifz
-        shade.revealed = glyphs.revealed
-        shade.layer.shouldRasterize = true
-        shade.layer.rasterizationScale = 0.7
-        shade.setNeedsDisplay()
+        let size = textArea.bounds.size
+        guard size.width > 0, size.height > 0 else { return }
+        let pad = Self.hazePad
+        shadeDrawer.frame = CGRect(origin: .zero, size: size)
+        shadeDrawer.layout = l
+        shadeDrawer.colors = colors
+        shadeDrawer.hifz = glyphs.hifz
+        shadeDrawer.revealed = glyphs.revealed
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = false
+        let full = CGSize(width: size.width + 2 * pad, height: size.height + 2 * pad)
+        let flat = UIGraphicsImageRenderer(size: full, format: format).image { r in
+            r.cgContext.translateBy(x: pad, y: pad)
+            self.shadeDrawer.draw(CGRect(origin: .zero, size: size))
+        }
+        guard let input = CIImage(image: flat) else { shade.image = nil; return }
+        let blurred = input.clampedToExtent().applyingGaussianBlur(sigma: 7).cropped(to: input.extent)
+        guard let cg = Self.ciContext.createCGImage(blurred, from: input.extent) else { shade.image = nil; return }
+        shade.image = UIImage(cgImage: cg)
     }
 
     /// ميل الجهاز (كل محور بين -1 و 1): الكلمات تنزاح معه، وظلها على الورقة عكسه، فتبدو مرفوعة عنها.

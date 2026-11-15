@@ -540,8 +540,9 @@ fun MushafCanvas(
             val qp = remember(l.font) { l.font?.let { madinahPaints(it) } }
             val area = if (l.fits) Modifier.fillMaxSize() else Modifier.fillMaxWidth().height(with(density) { l.height.toDp() })
             val floating = depth && l.fits
-            if (floating) {
-                val shade = remember(p) { p.tinted(DepthShadow) }
+            if (floating && canBlurLayers) {
+                // غباش لين تحت الأسطر (لا نسخة من الحروف): الأسطر بلون الظل ثم تمويه قوي
+                val shade = remember(p) { p.tinted(DepthShadow.copy(alpha = 0.7f)) }
                 Spacer(
                     area
                         .graphicsLayer {
@@ -550,9 +551,9 @@ fun MushafCanvas(
                             this.alpha = alpha() * kotlin.math.sqrt(t.x * t.x + t.y * t.y).coerceAtMost(1f)
                             translationX = -t.x * lift * 0.6f
                             translationY = -t.y * lift * 0.6f
-                            renderEffect = androidx.compose.ui.graphics.BlurEffect(lift * 0.6f, lift * 0.6f)
+                            renderEffect = androidx.compose.ui.graphics.BlurEffect(lift * 2f, lift * 2f)
                         }
-                        .drawBehind { drawPage(l, shade, paint, text[0], 1f, hide, qp, DepthShadow) }
+                        .drawBehind { drawPage(l, shade, paint, text[0], 1f, hide, qp, DepthShadow.copy(alpha = 0.7f)) }
                 )
             }
             val canvas = area

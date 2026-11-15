@@ -12,3 +12,6 @@ import androidx.compose.ui.geometry.Offset
  */
 @Composable
 expect fun rememberDeviceTilt(enabled: Boolean): State<Offset>
+
+/** تمويه الطبقات متاح (غباش ظل الكلمات في الوضع ثلاثي الأبعاد)؛ أندرويد قبل 12 لا يموّه، فلا ظل فيه */
+expect val canBlurLayers: Boolean

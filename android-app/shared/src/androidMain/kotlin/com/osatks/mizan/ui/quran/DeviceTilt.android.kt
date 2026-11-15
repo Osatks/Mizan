@@ -66,3 +66,5 @@ actual fun rememberDeviceTilt(enabled: Boolean): State<Offset> {
     }
     return tilt
 }
+
+actual val canBlurLayers: Boolean = android.os.Build.VERSION.SDK_INT >= 31
