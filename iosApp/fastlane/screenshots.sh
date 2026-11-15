@@ -67,6 +67,14 @@ MUSHAF_CHECK=(
   "p440_yasin:surah/36?ayah=0&from=row"
   "p562_mulk:surah/67?ayah=0&from=row"
   "p604_ikhlas:surah/112?ayah=0&from=row"
+  "p305_maryam:surah/19?ayah=0&from=row"
+  "p367_shuara:surah/26?ayah=0&from=row"
+  "p377_naml:surah/27?ayah=0&from=row"
+)
+# الوضع ثلاثي الأبعاد (لون الصفحة depth): الكلمات بظلها فوق الورقة (المحاكي لا يميل، فلا حركة)
+MUSHAF_DEPTH=(
+  "p377_naml_depth:surah/27?ayah=0&from=row"
+  "p002_baqarah_depth:surah/2?ayah=0&from=row"
 )
 # الشاشات التي صارت بواجهة النظام في iPhone (تبويب القرآن والإعدادات وكل أداة)، للفحص لا للمتجر
 NATIVE_CHECK=(
@@ -184,7 +192,7 @@ launch() {
     -mizan.onboarded YES -mizan.guideSeen 99 -mizan.q_mode mushaf -mizan.lang "$lang" \
     -mizan.place_key madinah -mizan.place_lat 24.4672 -mizan.place_lng 39.6111 \
     -mizan.place_tz Asia/Riyadh -mizan.place_method makkah -mizan.place_gps NO -mizan.method makkah \
-    -mizan.theme light ${route:+-mizan.open_route "$route"} >/dev/null
+    -mizan.theme light -mizan.q_tone "${TONE:-}" ${route:+-mizan.open_route "$route"} >/dev/null
   sleep "$LAUNCH_WAIT"
   [ -z "$route" ] || sleep "$ROUTE_WAIT"
 }
@@ -402,6 +410,7 @@ run_mushaf() {
     set_locale "$loc"
     mkdir -p "$CHECK_OUT/$loc"
     TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${MUSHAF_CHECK[@]}"
+    TONE=depth TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${MUSHAF_DEPTH[@]}"
   done
 }
 
