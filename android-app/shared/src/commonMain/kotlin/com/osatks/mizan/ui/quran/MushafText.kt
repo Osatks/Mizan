@@ -531,7 +531,7 @@ fun MushafCanvas(
         val paint = remember { mushafPaint() }
         // علامات الآيات وترويسات السور في مصحف المدينة بلون التطبيق
         val accent = androidx.compose.material3.MaterialTheme.colorScheme.primary
-        // ثلاثي الأبعاد: الكلمات فوق الورقة تتحرك مع ميل الجهاز، وظلها على الورقة يتحرك عكسها
+        // ثلاثي الأبعاد: الكلمات فوق الورقة تتحرك مع ميل الجهاز، وظلها على الورقة يظهر مع الحركة ويتحرك عكسها
         val depth = isDepthTone(com.osatks.mizan.quran.QuranPrefs.tone)
         val tilt = rememberDeviceTilt(depth)
         val lift = with(density) { 6.dp.toPx() }
@@ -545,11 +545,12 @@ fun MushafCanvas(
                 Spacer(
                     area
                         .graphicsLayer {
-                            this.alpha = alpha()
+                            // الظل مع الحركة فقط وبقدر الميل: والجهاز ساكن (أثناء القراءة) لا ظل يشوّش على الحروف
                             val t = tilt.value
-                            translationX = -t.x * lift * 0.5f
-                            translationY = -t.y * lift * 0.5f + lift * 0.45f
-                            renderEffect = androidx.compose.ui.graphics.BlurEffect(lift * 0.45f, lift * 0.45f)
+                            this.alpha = alpha() * kotlin.math.sqrt(t.x * t.x + t.y * t.y).coerceAtMost(1f)
+                            translationX = -t.x * lift * 0.6f
+                            translationY = -t.y * lift * 0.6f
+                            renderEffect = androidx.compose.ui.graphics.BlurEffect(lift * 0.6f, lift * 0.6f)
                         }
                         .drawBehind { drawPage(l, shade, paint, text[0], 1f, hide, qp, DepthShadow) }
                 )
@@ -559,7 +560,7 @@ fun MushafCanvas(
                 .then(if (!floating) Modifier else Modifier.graphicsLayer {
                     val t = tilt.value
                     translationX = t.x * lift
-                    translationY = t.y * lift - lift * 0.15f
+                    translationY = t.y * lift
                 })
                 .then(
                     if (!interactive) Modifier else Modifier

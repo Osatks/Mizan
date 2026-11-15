@@ -1061,19 +1061,22 @@ final class MushafPageView: UIView {
         shade.hifz = glyphs.hifz
         shade.revealed = glyphs.revealed
         shade.layer.shouldRasterize = true
-        shade.layer.rasterizationScale = 0.9
+        shade.layer.rasterizationScale = 0.7
         shade.setNeedsDisplay()
     }
 
     /// ميل الجهاز (كل محور بين -1 و 1): الكلمات تنزاح معه، وظلها على الورقة عكسه، فتبدو مرفوعة عنها.
-    /// مع «تقليل الحركة» يبقى الميل صفراً: الكلمات بارزة بظلها بلا حركة
+    /// الظل يظهر مع الحركة فقط ويقوى بقدر الميل: والجهاز ساكن (أثناء القراءة) الميل صفر بعد لحظة، فلا ظل
+    /// يشوّش على الحروف والصفحة نظيفة كالمطبوعة. مع «تقليل الحركة» يبقى الميل صفراً فلا حركة ولا ظل
     func applyTilt(_ t: CGPoint) {
         guard depthOn else { return }
         let h = Self.lift
+        let amount = min(1, (t.x * t.x + t.y * t.y).squareRoot())
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        textArea.transform = CGAffineTransform(translationX: t.x * h, y: t.y * h - h * 0.15)
-        shade.transform = CGAffineTransform(translationX: -t.x * h * 0.5, y: -t.y * h * 0.5 + h * 0.45)
+        textArea.transform = CGAffineTransform(translationX: t.x * h, y: t.y * h)
+        shade.transform = CGAffineTransform(translationX: -t.x * h * 0.6, y: -t.y * h * 0.6)
+        shade.alpha = amount
         CATransaction.commit()
     }
 
