@@ -411,6 +411,7 @@ run_mushaf() {
     mkdir -p "$CHECK_OUT/$loc"
     TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${MUSHAF_CHECK[@]}"
     TONE=depth TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${MUSHAF_DEPTH[@]}"
+    TONE=depthNight TAKE_OUT="$CHECK_OUT" take "$loc" "night_" "" "${MUSHAF_DEPTH[@]}"
   done
 }
 

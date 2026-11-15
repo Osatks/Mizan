@@ -643,6 +643,7 @@ object Id : Strings {
     override val toneSepia = "Sepia"
     override val toneNight = "Malam"
     override val toneDepth = "3D"
+    override val toneDepthNight = "3D Malam"
     override val brightness = "Kecerahan"
     override val brightnessSystem = "Kecerahan perangkat"
     override val textSizeLabel = "Ukuran teks"

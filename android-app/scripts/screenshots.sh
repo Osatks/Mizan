@@ -2,6 +2,8 @@
 # يلتقط صوراً لشاشات التطبيق على المحاكي (يُشغَّل من GitHub Actions)
 set -u
 PKG=com.mizan.almuslim
+# وصف زر إعداد العرض في صفحة السورة بالعربية (s.displayTitle)
+DISPLAY_DESC="العرض"
 # اسم الملف يحمل رقم الإصدار (mizan-2.1.N-debug.apk)
 APK=$(ls android-app/app/build/outputs/apk/debug/*.apk | head -1)
 OUT=screenshots
@@ -25,6 +27,14 @@ shot() {
   # نصوص الشاشة من شجرة الوصول: تبيّن أي شاشة ظهرت فعلاً
   adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1 && adb exec-out cat /sdcard/ui.xml > "$OUT/$2.xml" || true
   echo "captured $2 ($(adb shell dumpsys window | grep -m1 mCurrentFocus | tr -d '\r'))"
+}
+
+# يضغط وسط أول عنصر يحمل هذا الوصف (content-desc) من شجرة الوصول
+tap_desc() {
+  adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
+  b=$(adb exec-out cat /sdcard/ui.xml | grep -o "content-desc=\"$1\"[^>]*bounds=\"[^\"]*\"" | head -1 | grep -o 'bounds="[^"]*"' | grep -o '[0-9]\+')
+  set -- $b
+  [ $# -eq 4 ] && adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))
 }
 
 # يضغط وسط أول عنصر يحمل هذا النص (من شجرة الوصول)
@@ -63,6 +73,11 @@ shot "surah/18"     15-surah-kahf
 # النمل (ص 377): «طسٓ» منفصلة عن «تِلۡكَ» والفراغ بين الكلمات، ثم الوضع ثلاثي الأبعاد (ظل الكلمات على الورقة)
 shot "surah/27"     15b-naml-377
 shot "surah/27"     15c-naml-377-depth ar emerald depth
+shot "surah/27"     15d-naml-377-depth-night ar emerald depthNight
+# إعداد العرض: ألوان الصفحة صفحاتٍ مصغّرة (زر الإعداد في رأس صفحة السورة)
+tap_desc "$DISPLAY_DESC"; sleep 3
+adb exec-out screencap -p > "$OUT/15e-display-options.png"; echo "captured 15e-display-options"
+adb shell input keyevent KEYCODE_BACK; sleep 1
 # الضغط المطوّل على آية: شريط خياراتها، ثم التفسير في لوحته
 adb shell input swipe 540 1250 540 1250 900
 sleep 2

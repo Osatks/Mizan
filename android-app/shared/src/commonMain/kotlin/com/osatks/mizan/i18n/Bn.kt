@@ -643,6 +643,7 @@ object Bn : Strings {
     override val toneSepia = "সেপিয়া"
     override val toneNight = "রাত"
     override val toneDepth = "থ্রিডি"
+    override val toneDepthNight = "থ্রিডি রাত"
     override val brightness = "উজ্জ্বলতা"
     override val brightnessSystem = "ডিভাইসের উজ্জ্বলতা"
     override val textSizeLabel = "লেখার আকার"

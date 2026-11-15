@@ -181,6 +181,8 @@ internal actual fun NativeMushafPager(
             "marked" to marked, "read" to read,
             // ثلاثي الأبعاد: الكلمات بارزة فوق الورقة تتحرك مع ميل الجهاز (MushafDepthMotion في NativeMushaf.swift)
             "depth" to isDepthTone(QuranPrefs.tone),
+            // لون غباش الكلمات: ظل في الفاتح، ووهج ذهبي في الليلي
+            "haze" to hex(p.haze.takeOrElse { DepthShadow.copy(alpha = 0.7f) }),
             "paper" to hex(p.paper), "paperEdge" to hex(p.paperEdge), "ink" to hex(p.ink), "muted" to hex(p.muted),
             "gold" to hex(p.gold), "goldDeep" to hex(p.goldDeep), "fill" to hex(p.fill), "fillDeep" to hex(p.fillDeep),
             "select" to hex(p.select), "press" to hex(p.press), "accent" to hex(accent), "backdrop" to hex(backdrop),

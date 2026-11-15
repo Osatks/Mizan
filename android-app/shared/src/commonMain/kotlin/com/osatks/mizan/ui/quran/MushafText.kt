@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -542,7 +543,8 @@ fun MushafCanvas(
             val floating = depth && l.fits
             if (floating && canBlurLayers) {
                 // غباش لين تحت الأسطر (لا نسخة من الحروف): الأسطر بلون الظل ثم تمويه قوي
-                val shade = remember(p) { p.tinted(DepthShadow.copy(alpha = 0.7f)) }
+                val hazeColor = p.haze.takeOrElse { DepthShadow.copy(alpha = 0.7f) }
+                val shade = remember(p) { p.tinted(hazeColor) }
                 Spacer(
                     area
                         .graphicsLayer {
@@ -553,7 +555,7 @@ fun MushafCanvas(
                             translationY = -t.y * lift * 0.6f
                             renderEffect = androidx.compose.ui.graphics.BlurEffect(lift * 2f, lift * 2f)
                         }
-                        .drawBehind { drawPage(l, shade, paint, text[0], 1f, hide, qp, DepthShadow.copy(alpha = 0.7f)) }
+                        .drawBehind { drawPage(l, shade, paint, text[0], 1f, hide, qp, hazeColor) }
                 )
             }
             val canvas = area

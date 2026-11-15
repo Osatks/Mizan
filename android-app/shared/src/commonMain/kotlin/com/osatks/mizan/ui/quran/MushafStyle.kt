@@ -49,6 +49,8 @@ class MushafPalette(
     val marker: Color, val select: Color, val press: Color,
     /** لون ما حول الصفحة؛ Unspecified = لون التطبيق */
     val backdrop: Color = Color.Unspecified,
+    /** الوضع ثلاثي الأبعاد: لون الأسطر قبل تمويهها إلى غباش تحتها (ظل في الفاتح، وهج ذهبي في الليلي) */
+    val haze: Color = Color.Unspecified,
 )
 
 private val LightPalette = MushafPalette(
@@ -82,19 +84,29 @@ private val DepthPalette = MushafPalette(
     paper = Color(0xFFFDF9F0), paperEdge = Color(0xFFEDE1C4), ink = Color(0xFF15110B), muted = Color(0xFF7A6A4C),
     gold = Color(0xFFC99A3A), goldDeep = Color(0xFF94691A), fill = Color(0xFFF6E9C7), fillDeep = Color(0xFFE9D091),
     marker = Color(0xFF8A6418), select = Color(0x55E2C270), press = Color(0x33C99A3A),
+    haze = Color(0xB33B2A10),
 )
 
-/** لون ظل الكلمات على الورقة في الوضع ثلاثي الأبعاد */
+/** ثلاثي الأبعاد ليلي: ورق ليلي دافئ وحروف عاجية، والكلمات تطفو فوق وهج ذهبي خافت بدل الظل (الظل لا يُرى على الداكن) */
+private val DepthNightPalette = MushafPalette(
+    paper = Color(0xFF16130E), paperEdge = Color(0xFF0D0B08), ink = Color(0xFFF1E6CB), muted = Color(0xFFB3A27E),
+    gold = Color(0xFFB8933F), goldDeep = Color(0xFFE0BC66), fill = Color(0xFF2A2318), fillDeep = Color(0xFF3A3020),
+    marker = Color(0xFFE0BC66), select = Color(0x33E0B54A), press = Color(0x22E0B54A), backdrop = Color(0xFF090705),
+    haze = Color(0x99D9A441),
+)
+
+/** لون ظل الكلمات على الورقة في الوضع ثلاثي الأبعاد
 val DepthShadow = Color(0x5C3B2A10)
 
 /** الوضع ثلاثي الأبعاد: الكلمات فوق الورقة بظلها، وتتحرك مع ميل الجهاز */
-fun isDepthTone(tone: String) = tone == "depth"
+fun isDepthTone(tone: String) = tone == "depth" || tone == "depthNight"
 
 /** لون ورق القراءة الذي اختاره المستخدم ("" = حسب مظهر التطبيق) */
 fun readingPalette(tone: String): MushafPalette? = when (tone) {
     "sepia" -> SepiaPalette
     "night" -> NightPalette
     "depth" -> DepthPalette
+    "depthNight" -> DepthNightPalette
     else -> null
 }
 

@@ -58,6 +58,8 @@ struct MushafState: Decodable {
     var pages: Int?
     /// ثلاثي الأبعاد: الكلمات بارزة فوق الورقة بظلها وتتحرك مع ميل الجهاز (MushafDepthMotion)
     var depth: Bool?
+    /// لون غباش الكلمات "#AARRGGBB": ظل في الفاتح، ووهج ذهبي في الليلي
+    var haze: String?
 
     /// عدد صفحات المصحف
     var totalPages: Int { max(pages ?? 604, 1) }
@@ -1070,6 +1072,7 @@ final class MushafPageView: UIView {
         guard size.width > 0, size.height > 0 else { return }
         let pad = Self.hazePad
         shadeDrawer.frame = CGRect(origin: .zero, size: size)
+        shadeDrawer.tint = host?.state?.haze.map { MushafColors.color($0) } ?? MushafPageView.depthShadow
         shadeDrawer.layout = l
         shadeDrawer.colors = colors
         shadeDrawer.hifz = glyphs.hifz
@@ -1406,6 +1409,7 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
             if geometry { cell.layoutNow() }
             for v in cell.pageViews {
                 if o.depth != s.depth { v.updateLift() }
+                else if o.haze != s.haze { v.refreshText(animated: false) }
                 if colorsChanged || o.marked != s.marked || o.read != s.read { v.refreshChrome() }
                 if colorsChanged || o.hifz != s.hifz || o.revealed != s.revealed || o.fonts != s.fonts || o.failed != s.failed {
                     v.refreshText(animated: true)

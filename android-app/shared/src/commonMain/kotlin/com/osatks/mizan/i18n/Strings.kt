@@ -485,6 +485,7 @@ interface Strings {
     val toneSepia: String               // "Sepia"
     val toneNight: String               // "Night"
     val toneDepth: String               // "3D": الكلمات بارزة فوق الورقة تتحرك مع ميل الجهاز
+    val toneDepthNight: String          // "3D Night": ثلاثي الأبعاد على ورق ليلي
     val brightness: String              // "Brightness"
     val brightnessSystem: String        // "Device brightness" (switch)
     val textSizeLabel: String           // "Text size"
