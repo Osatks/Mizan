@@ -423,9 +423,17 @@ fun DisplayOptions(showTextSize: Boolean) {
         SheetTitle(Icons.Filled.FormatSize, s.displayTitle)
         ScriptOptions()
         OptionLabel(s.pageColor)
-        // ألوان الصفحة صفحاتٌ مصغّرة تُمرَّر أفقياً: ورقها وإطارها المذهّب وحبرها، والوضعان ثلاثيا الأبعاد بغباشهما
+        // ألوان الصفحة صفحاتٌ مصغّرة تُمرَّر أفقياً: ورقها وإطارها المذهّب وحبرها، والوضعان ثلاثيا الأبعاد بغباشهما.
+        // عند الفتح يُمرَّر الصف إلى اللون المختار فيظهر وإن كان في آخره
+        val tones = listOf("", "sepia", "night", "depth", "depthNight")
+        val toneScroll = rememberScrollState()
+        val cardStep = with(androidx.compose.ui.platform.LocalDensity.current) { (92 + 12).dp.roundToPx() }
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            val i = tones.indexOf(QuranPrefs.tone).coerceAtLeast(0)
+            if (i >= 3) toneScroll.animateScrollTo(((i - 1) * cardStep).coerceAtMost(toneScroll.maxValue))
+        }
         Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 4.dp),
+            Modifier.fillMaxWidth().horizontalScroll(toneScroll).padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ToneCard("", s.toneAuto)
