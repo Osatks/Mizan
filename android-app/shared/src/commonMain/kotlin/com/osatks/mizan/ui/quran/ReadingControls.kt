@@ -40,6 +40,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.drawBehind
@@ -430,7 +431,11 @@ fun DisplayOptions(showTextSize: Boolean) {
         val cardStep = with(androidx.compose.ui.platform.LocalDensity.current) { (92 + 12).dp.roundToPx() }
         androidx.compose.runtime.LaunchedEffect(Unit) {
             val i = tones.indexOf(QuranPrefs.tone).coerceAtLeast(0)
-            if (i >= 3) toneScroll.animateScrollTo(((i - 1) * cardStep).coerceAtMost(toneScroll.maxValue))
+            if (i >= 3) {
+                // بعد أن يُقاس الصف (قبلها لا مسافة للتمرير)
+                androidx.compose.runtime.snapshotFlow { toneScroll.maxValue }.first { it > 0 }
+                toneScroll.animateScrollTo((i - 1) * cardStep)
+            }
         }
         Row(
             Modifier.fillMaxWidth().horizontalScroll(toneScroll).padding(vertical = 4.dp),
