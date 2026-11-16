@@ -1,5 +1,4 @@
-• El Mushaf de Medina: la edición del Complejo del Rey Fahd, línea a línea como la impresa, con sus propias fuentes, y Amiri como opción.
-• El hadiz del día de HadeethEnc.com con su explicación y enseñanzas, y un widget para la pantalla de inicio.
-• La aya del día abre directamente su tafsir.
-• Comparte una aya, un hadiz o un dhikr como imagen en formato historia.
-• Un inicio más sereno, una pestaña de Herramientas, una guía de funciones que podrías pasar por alto y una forma de enviar comentarios.
+• Un Mushaf más claro: un espacio suave entre palabras, y las letras iniciales como «طسٓ» ya no tocan la palabra siguiente.
+• Nuevo Mushaf 3D en claro y noche: las palabras flotan sobre la página y se mueven suavemente al inclinar el teléfono.
+• Nuevo selector del color de la página.
+• Una app de iPhone más rápida y fluida, con diseño nativo en todas las pantallas.

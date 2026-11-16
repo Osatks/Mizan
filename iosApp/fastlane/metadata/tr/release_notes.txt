@@ -1,5 +1,4 @@
-• Medine Mushafı: Kral Fahd Kompleksi baskısı, basılı hâliyle satır satır, kendi yazı tipleriyle; isteğe bağlı Amiri hattı.
-• HadeethEnc.com'dan açıklaması ve faydalarıyla günün hadisi ve ana ekran araç takımı.
-• Günün ayeti doğrudan tefsirini açar.
-• Bir ayeti, hadisi veya zikri hikâye boyutunda görsel olarak paylaşın.
-• Daha sakin bir ana ekran, Araçlar sekmesi, gözden kaçabilecek özellikler rehberi ve geri bildirim gönderme.
+• Daha net bir Mushaf: kelimeler arasında hafif bir boşluk, «طسٓ» gibi hurûf-ı mukattaa artık sonraki kelimeye değmiyor.
+• Yeni 3B Mushaf, açık ve gece: kelimeler sayfanın üzerinde süzülür ve telefonu eğdikçe hafifçe hareket eder.
+• Yenilenen sayfa rengi seçimi.
+• Her ekranda yerel tasarımla daha hızlı ve akıcı bir iPhone uygulaması.

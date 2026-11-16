@@ -1,5 +1,4 @@
-• Mushaf Madinah: cetakan Kompleks Raja Fahd, baris demi baris seperti cetakannya, dengan font Kompleks sendiri, dan pilihan tulisan Amiri.
-• Hadis hari ini dari HadeethEnc.com beserta penjelasan dan faedahnya, serta widget layar utama.
-• Ayat hari ini langsung membuka tafsirnya.
-• Bagikan ayat, hadis, atau zikir sebagai gambar seukuran story.
-• Beranda yang lebih tenang, tab Alat, panduan fitur yang mungkin terlewat, dan cara mengirim masukan.
+• Mushaf lebih jelas: jarak halus antarkata, dan huruf muqatta'at seperti «طسٓ» tidak lagi menempel pada kata berikutnya.
+• Mushaf 3D baru, terang dan malam: kata-kata melayang di atas halaman dan bergerak lembut saat ponsel dimiringkan.
+• Pemilih warna halaman yang baru.
+• Aplikasi iPhone lebih cepat dan mulus, dengan desain bawaan di setiap layar.
