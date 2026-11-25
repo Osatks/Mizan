@@ -45,6 +45,51 @@ tap_text() {
   [ $# -eq 4 ] && adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))
 }
 
+# ONLY=new: لقطات ميزات 2.5.0 وحدها (Actions ← Android Screenshots ← only=new)
+swipe_up() { adb shell input swipe 540 1900 540 700 500; sleep 2; }
+cap() { adb exec-out screencap -p > "$OUT/$1.png"; echo "captured $1"; }
+if [ "${ONLY:-}" = "new" ]; then
+  adb shell cmd uimode night no || true
+  # الترحيب التفاعلي: أول تشغيل بعد مسح بيانات التطبيق
+  adb shell pm clear $PKG > /dev/null
+  adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
+  adb shell am start -W -n $PKG/com.osatks.mizan.MainActivity --es lang ar > /dev/null
+  sleep 10; cap new-01-welcome-language
+  tap_text "التالي"; sleep 4; cap new-02-welcome-location
+  tap_text "التالي"; sleep 4; cap new-03-welcome-adhan
+  tap_text "التالي"; sleep 4; cap new-04-welcome-style
+  tap_text "التالي"; sleep 4; cap new-05-welcome-try
+  for i in 1 2 3; do adb shell input tap 540 1200; sleep 1; done; sleep 2; cap new-06-welcome-try-done
+  tap_text "التالي"; sleep 4; cap new-07-welcome-done
+  shot tools        new-10-tools
+  WAIT=16 shot mosques new-11-mosques
+  shot fasting      new-12-fasting
+  swipe_up; cap new-13-fasting-sunnah
+  shot kids         new-14-kids
+  swipe_up; cap new-15-kids-more
+  shot kids         new-16a-kids-open
+  tap_text "الإخلاص"; sleep 6; cap new-16-kids-surah
+  shot adhan        new-17-adhan
+  swipe_up; swipe_up; cap new-18-adhan-end-alerts
+  shot settings     new-19-settings
+  swipe_up; cap new-20-settings-backup
+  swipe_up; cap new-21-settings-more
+  shot downloads    new-22-downloads
+  shot tafsirs      new-23-tafsir-library
+  shot fasting      new-30-fasting-en en
+  shot kids         new-31-kids-en en
+  WAIT=16 shot mosques new-32-mosques-en en
+  shot settings     new-33-settings-en en
+  swipe_up; cap new-34-settings-backup-en
+  adb shell cmd uimode night yes || true
+  sleep 2
+  shot fasting      new-40-fasting-dark
+  shot kids         new-41-kids-dark
+  adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
+  ls -la "$OUT"
+  exit 0
+fi
+
 adb shell cmd uimode night no || true
 shot home        01-home
 shot prayer      02-prayer
