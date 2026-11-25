@@ -159,8 +159,8 @@ internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
 
     // الأدلة: نص الآية من المصحف، وترجمة معانيها بلغة الواجهة
     val trSource = remember(lang) { if (lang == Lang.AR) null else Sources.translationFor(lang) }
-    val trText by produceState(trSource?.let { QuranData.cached("tafsir/${it.id}.txt") }, trSource) {
-        value = trSource?.let { runCatching { QuranData.source(it.id) }.getOrNull() }
+    val trText by produceState(trSource?.let { QuranData.cached("tafsir/${it.id}.txt") }, trSource, com.osatks.mizan.content.ContentStore.version) {
+        value = trSource?.let { QuranData.sourceOrNull(it.id) }
     }
 
     // السور والأجزاء ثابتة ما لم تتغير اللغة أو ما قُرئ من الختمة

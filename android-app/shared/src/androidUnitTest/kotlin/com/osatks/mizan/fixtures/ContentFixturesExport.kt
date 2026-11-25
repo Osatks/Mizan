@@ -1,5 +1,7 @@
 package com.osatks.mizan.fixtures
 
+import com.osatks.mizan.TestAssets
+
 import android.content.ContextWrapper
 import android.content.SharedPreferences
 import com.osatks.mizan.TestPacks
@@ -59,9 +61,9 @@ class ContentFixturesExport {
 
     init {
         TestPacks.load()
-        Adhkar.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        Adhkar.open = { TestAssets.read(it) }
         Adhkar.clearTranslations()
-        Hadiths.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        Hadiths.open = { TestAssets.read(it) }
     }
 
     // ---------- JSON مضغوط ----------

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Info
@@ -131,9 +132,11 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
             }
         }
         item {
-            // مكتبة التفاسير: تنزيل التفاسير واختيار ما يظهر منها
+            // مكتبة التفاسير: تنزيل التفاسير واختيار ما يظهر منها؛ والتنزيلات: ما نُزّل من موقع ميزان بحجمه وحذفه
             SettingsGroup(s.quranTitle) {
                 SettingsRow(Icons.AutoMirrored.Filled.LibraryBooks, s.tafsirLibrary, s.tafsirLibrarySub, onClick = { open("tafsirs") }) { SettingsChevron() }
+                SettingsDivider()
+                SettingsRow(Icons.Filled.Download, s.downloadsTitle, s.downloadsSub, onClick = { open("downloads") }) { SettingsChevron() }
             }
         }
         item {

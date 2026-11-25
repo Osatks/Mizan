@@ -1,0 +1,114 @@
+{
+ "format": 1,
+ "kind": "hadith",
+ "items": [
+  {
+   "id": "bn",
+   "language": "bn",
+   "title": "HadeethEnc.com",
+   "bytes": 1580955,
+   "sha256": "a7593490008ab569e4838a71ade4ae18ec9ead326c6b1fd8500ca8db28344c80",
+   "version": 1,
+   "file": "bn.json"
+  },
+  {
+   "id": "de",
+   "language": "de",
+   "title": "HadeethEnc.com",
+   "bytes": 682025,
+   "sha256": "72c9a635d73a308116bcbf6fb6de65f0b39505c8bfd1fce52af54e46d399cd8a",
+   "version": 1,
+   "file": "de.json"
+  },
+  {
+   "id": "es",
+   "language": "es",
+   "title": "HadeethEnc.com",
+   "bytes": 697656,
+   "sha256": "dbd06455141007d97f61b6e765e21fa99765c6ec08d56dd49f9f92f1af27ac23",
+   "version": 1,
+   "file": "es.json"
+  },
+  {
+   "id": "fa",
+   "language": "fa",
+   "title": "HadeethEnc.com",
+   "bytes": 990513,
+   "sha256": "732ec257c30c7e1ccdff4799c816861a8ccf4f35f0bb706f323fedb8abb11b07",
+   "version": 1,
+   "file": "fa.json"
+  },
+  {
+   "id": "fr",
+   "language": "fr",
+   "title": "HadeethEnc.com",
+   "bytes": 727225,
+   "sha256": "2116d12ed9d647de312dbdc2af2b917fd4a099e521dcb5054bf7f5bcf407d2fa",
+   "version": 1,
+   "file": "fr.json"
+  },
+  {
+   "id": "id",
+   "language": "id",
+   "title": "HadeethEnc.com",
+   "bytes": 651643,
+   "sha256": "4e30bc5fc74a6fcf1bf3151c9b11e77e02f873a2891b3648a6b7f1a4aea298e5",
+   "version": 1,
+   "file": "id.json"
+  },
+  {
+   "id": "ms",
+   "language": "ms",
+   "title": "HadeethEnc.com",
+   "bytes": 316974,
+   "sha256": "5c79020a0cd851e74aebe5f4ac7f96d9eeb6df8256f6cdd765cebe2166b51e6e",
+   "version": 1,
+   "file": "ms.json"
+  },
+  {
+   "id": "ru",
+   "language": "ru",
+   "title": "HadeethEnc.com",
+   "bytes": 1219839,
+   "sha256": "8be5bf0b3154b30ac894e1cd29e5086f4248ba23394c425087610e8c5a38f4a6",
+   "version": 1,
+   "file": "ru.json"
+  },
+  {
+   "id": "tr",
+   "language": "tr",
+   "title": "HadeethEnc.com",
+   "bytes": 654770,
+   "sha256": "2a3ec56c6b5f316d75913356ffe548a618c8a760fca6e5c74c3b1db44c99b1b1",
+   "version": 1,
+   "file": "tr.json"
+  },
+  {
+   "id": "uk",
+   "language": "uk",
+   "title": "HadeethEnc.com",
+   "bytes": 1012389,
+   "sha256": "e27bd2631b047ce5afb7ca6f30ad8407e3e9f5142a4649c5c6a7065749881af8",
+   "version": 1,
+   "file": "uk.json"
+  },
+  {
+   "id": "ur",
+   "language": "ur",
+   "title": "HadeethEnc.com",
+   "bytes": 1004929,
+   "sha256": "5f0318729accf0570085800a56326afb6381bb880ed31aeb4012560bd54ad5aa",
+   "version": 1,
+   "file": "ur.json"
+  },
+  {
+   "id": "uz",
+   "language": "uz",
+   "title": "HadeethEnc.com",
+   "bytes": 903077,
+   "sha256": "150db743758071e7247f35e73ff1f3c2d70196008967eb95f4106169cc87548d",
+   "version": 1,
+   "file": "uz.json"
+  }
+ ]
+}

@@ -21,7 +21,7 @@ class QuranTest {
 
     companion object {
         @JvmStatic @BeforeClass
-        fun setUp() { QuranData.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() } }
+        fun setUp() { QuranData.open = { TestAssets.read(it) } }
     }
 
     @Test

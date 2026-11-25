@@ -81,9 +81,17 @@ expect object Fs {
     /** أسماء الملفات في مجلد (لا المسارات) */
     fun list(dir: String): List<String>
     fun mkdirs(dir: String)
+    /** حجم الملف بالبايت (0 إن لم يوجد) */
+    fun size(path: String): Long
     fun gzip(bytes: ByteArray): ByteArray
     fun gunzip(bytes: ByteArray): ByteArray
 }
+
+/**
+ * يستثني مجلداً من نسخ iCloud الاحتياطي في iOS (ما يُنزَّل من جديد عند الحاجة لا يُثقل نسخة الجهاز).
+ * أندرويد لا يحتاجه: قواعد النسخ الاحتياطي في التطبيق تستثني هذه المجلدات (backup_rules و data_extraction_rules)
+ */
+expect fun excludeFromBackup(path: String)
 
 /** طلب GET؛ يرمي استثناءً إن لم يكن الرد 200. onProgress بالنسبة المئوية إن عُرف الحجم */
 expect suspend fun httpGet(url: String, onProgress: (Int) -> Unit = {}): ByteArray

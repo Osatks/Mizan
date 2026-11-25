@@ -45,7 +45,7 @@ internal fun IosAdhkarScreen(onBack: () -> Unit, start: String = com.osatks.miza
     val s = LocalStrings.current
     val d = shareId?.let { id -> list?.flatMap { it.items }?.firstOrNull { it.id == id } }
     if (d != null) {
-        val tr = remember(lang) { Adhkar.tr(lang) }
+        val tr = remember(lang, com.osatks.mizan.content.ContentStore.version) { Adhkar.tr(lang) }
         val t = translation(d, tr, lang, null)
         com.osatks.mizan.ui.quran.NativeStoryShare(
             com.osatks.mizan.ui.quran.StoryContent(

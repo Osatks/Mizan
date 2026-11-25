@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import com.osatks.mizan.content.ContentStore
+import com.osatks.mizan.core.AdhanSounds
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.PlaceNames
 import com.osatks.mizan.i18n.Lang
@@ -73,6 +75,7 @@ fun LanguageHost(animate: () -> Boolean = { true }, content: @Composable () -> U
     }
 
     PlaceNameSync(target.code)
+    ContentSync(target)
 
     Box(Modifier.fillMaxSize()) {
         CompositionLocalProvider(
@@ -98,6 +101,22 @@ fun LanguageHost(animate: () -> Boolean = { true }, content: @Composable () -> U
                     Text(target.strings.appName, color = Gold, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
+        }
+    }
+}
+
+/**
+ * محتوى لغة الواجهة الذي لم يُضمَّن في التطبيق (ترجمة المعاني وأحاديث اليوم والأذكار): يُنزَّل في الخلفية من موقع ميزان
+ * عند البدء (أول تشغيل، وأول تشغيل بعد التحديث) وعند تبدّل اللغة، ويُعاد بعد دقيقة وخمس دقائق إن تعذّر (لا شبكة).
+ * ومعه المؤذن المختار إن لم يكن على الجهاز (كان مضمّناً قبل التحديث). في iOS لكل صفحة مضيفها، والتنزيل الجاري لا يتكرر
+ */
+@Composable
+private fun ContentSync(lang: Lang) {
+    LaunchedEffect(lang.code) {
+        for (wait in longArrayOf(1_500L, 60_000L, 300_000L)) {
+            delay(wait)
+            ContentStore.ensureFor(lang)
+            AdhanSounds.ensureChosen()
         }
     }
 }

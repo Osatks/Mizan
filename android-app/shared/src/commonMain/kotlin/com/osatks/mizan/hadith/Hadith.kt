@@ -1,5 +1,6 @@
 package com.osatks.mizan.hadith
 
+import com.osatks.mizan.content.ContentStore
 import com.osatks.mizan.core.toEpochDay
 import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.platform.Lock
@@ -24,13 +25,14 @@ class Hadith(val id: String, val ar: HadithText, val tr: HadithText?, val trLang
 }
 
 /**
- * أحاديث اليوم: ٣٦٦ حديثاً من موسوعة الأحاديث النبوية (assets/hadith، يبنيها tools/make_hadith.py)،
+ * أحاديث اليوم: ٣٦٦ حديثاً من موسوعة الأحاديث النبوية (يبنيها tools/make_hadith.py): العربية والإنجليزية مضمّنتان
+ * (assets/hadith)، وبقية اللغات تُنزَّل من موقع ميزان ([ContentStore])،
  * حديث لكل يوم بترتيب ثابت، فيتفق التطبيق والأدوات على حديث اليوم.
  * اللغات التي لا ترجمة فيها لحديث تأخذ أقرب لغة: الملايوية الإندونيسية، والكازاخية والأوزبكية الروسية، وغيرها الإنجليزية.
  */
 object Hadiths {
-    /** يُضبط عند بدء التطبيق؛ والاختبارات تقرأ الملفات من القرص */
-    var open: (String) -> ByteArray? = { Platform.asset(it) }
+    /** المضمّن في التطبيق ثم المنزَّل من الموقع؛ والاختبارات تقرأ الملفات من القرص */
+    var open: (String) -> ByteArray? = { Platform.asset(it) ?: ContentStore.read(it) }
 
     const val SOURCE = "HadeethEnc.com"
     const val SOURCE_URL = "https://hadeethenc.com"
@@ -40,6 +42,12 @@ object Hadiths {
     private val files = SyncMap<String, Map<String, HadithText>>()
 
     private val FALLBACK = mapOf("ms" to "id", "kk" to "ru", "uz" to "ru")
+
+    /** اللغة التي تكمل ترجمة [code] (null إن لم تكن لها بديلة غير الإنجليزية) */
+    fun fallback(code: String): String? = FALLBACK[code]
+
+    /** بعد تنزيل ترجمة أو حذفها: تُقرأ الملفات من جديد (ما لم يوجد حُفظ فارغاً) */
+    fun clearCache() = files.removeKeys { it != "ar" }
 
     @Suppress("UNCHECKED_CAST")
     private fun file(code: String): Map<String, HadithText> = files.getOrPut(code) {

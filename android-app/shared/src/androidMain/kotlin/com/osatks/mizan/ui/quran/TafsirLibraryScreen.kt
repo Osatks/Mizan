@@ -57,6 +57,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.osatks.mizan.content.ContentCatalog
+import com.osatks.mizan.content.ContentItem
+import com.osatks.mizan.content.ContentStore
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.LocalLang
@@ -72,7 +75,8 @@ import com.osatks.mizan.ui.ToolPage
 
 /**
  * مكتبة التفاسير: ما على الجهاز (المدمج والمنزَّل) مع مفتاح لإظهاره في ورقة التفسير أو إخفائه وحذف المنزَّل،
- * وما يمكن تنزيله (لغة الواجهة أولاً ثم العربية) مع حجمه، وشريط تقدم أثناء التنزيل، وإلغاء وإعادة محاولة.
+ * وما يمكن تنزيله (لغة الواجهة أولاً ثم العربية) مع حجمه، وشريط تقدم أثناء التنزيل، وإلغاء وإعادة محاولة:
+ * ترجمات المعاني والتفاسير غير المضمّنة من موقع ميزان ([ContentStore])، ثم التفاسير من مجموعة tafsir_api.
  */
 @Composable
 fun TafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get") {
@@ -85,18 +89,24 @@ fun TafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get") {
     val catalog = TafsirLibrary.CATALOG.let { list ->
         list.filter { it.lang == lang } + list.filter { it.lang == Lang.AR && lang != Lang.AR } + list.filter { it.lang != lang && it.lang != Lang.AR }
     }
+    // ترجمات المعاني والتفاسير التي تُنزَّل من موقع ميزان (المنزَّل منها يبقى بعلامة ✓)
+    val siteSources = Sources.ordered(lang, Sources.ALL.filter { ContentCatalog.tafsir(it.id) != null })
     var tab by rememberSaveable { mutableStateOf(startTab) }
     var confirm by remember { mutableStateOf<RemoteTafsir?>(null) }
+    var confirmSite by remember { mutableStateOf<TafsirSource?>(null) }
 
     ToolPage(s.tafsirLibrary, s.tafsirLibrarySub, onBack = onBack, icon = Icons.AutoMirrored.Filled.LibraryBooks, spacing = 10.dp) {
         item(key = "tabs") { Segmented(listOf("get" to s.download, "device" to s.onDevice), tab) { tab = it } }
         if (tab == "get") {
             item(key = "h-get") { SectionTitle(s.availableDownloads) }
+            siteSources.forEach { src -> ContentCatalog.tafsir(src.id)?.let { c -> item(key = "c-${src.id}") { SiteDownloadRow(src, c, lang) } } }
             catalog.forEach { r -> item(key = "d-${r.slug}") { DownloadRow(r, lang) } }
             item(key = "note") { Note(s.tafsirLibraryNote) }
         } else {
             item(key = "h-device") { SectionTitle(s.onDevice) }
-            installed.forEach { src -> item(key = "i-${src.id}") { InstalledRow(src, lang) { confirm = src.remote } } }
+            installed.forEach { src ->
+                item(key = "i-${src.id}") { InstalledRow(src, lang) { if (src.remote != null) { confirm = src.remote } else { confirmSite = src } } }
+            }
         }
     }
 
@@ -110,11 +120,66 @@ fun TafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get") {
             ),
         )
     }
+    confirmSite?.let { src ->
+        com.osatks.mizan.ui.PlatformDialog(
+            onDismissRequest = { confirmSite = null },
+            title = s.deleteTafsirQ(Sources.label(src, s, lang)),
+            actions = listOf(
+                com.osatks.mizan.ui.DialogAction(s.cancel, com.osatks.mizan.ui.ActionRole.Cancel) { confirmSite = null },
+                com.osatks.mizan.ui.DialogAction(s.delete, com.osatks.mizan.ui.ActionRole.Destructive) {
+                    ContentCatalog.tafsir(src.id)?.let(ContentStore::delete); confirmSite = null
+                },
+            ),
+        )
+    }
+}
+
+/** ترجمة أو تفسير من موقع ميزان: على الجهاز ✓، أو إلغاء أثناء التنزيل مع شريط التقدم، أو تنزيل بحجمه / إعادة محاولة */
+@Composable
+private fun SiteDownloadRow(src: TafsirSource, item: ContentItem, lang: Lang) {
+    val s = LocalStrings.current
+    val p = ContentStore.progress[item.key]
+    val running = p != null && p >= 0
+    val progress by animateFloatAsState((p ?: 0).coerceAtLeast(0) / 100f, tween(400), label = "site-download")
+    RowCard {
+        Column(Modifier.padding(start = 14.dp, end = 10.dp, top = 10.dp, bottom = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LangBadge(src.lang)
+                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                    Text(Sources.label(src, s, lang), style = MaterialTheme.typography.titleSmall, fontSize = 15.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        listOf(Sources.kindLabel(src, s), isolate(src.author), isolate(s.sizeMb(Fmt.num(item.sizeMb, 1)))).joinToString(" · "),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis
+                    )
+                }
+                when {
+                    ContentStore.isDownloaded(item) -> Icon(
+                        Icons.Filled.CheckCircle, s.onDevice, Modifier.padding(horizontal = 12.dp).size(24.dp), tint = MaterialTheme.colorScheme.primary
+                    )
+                    running -> TextButton(onClick = { ContentStore.cancel(item) }) { Text(s.cancel, fontWeight = FontWeight.SemiBold) }
+                    else -> DownloadPill(p == -1) { ContentStore.start(item) { ok -> if (ok) QuranPrefs.updateSource(src.id) } }
+                }
+            }
+            AnimatedVisibility(running) {
+                Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    LinearProgressIndicator(
+                        progress = { progress }, modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(6.dp)),
+                        color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.primaryContainer,
+                        strokeCap = StrokeCap.Round, gapSize = 0.dp, drawStopIndicator = {}
+                    )
+                    Text(s.downloadingPct((progress * 100).toInt()), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (p == -1) Text(
+                s.downloadFailed, Modifier.padding(top = 6.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
 }
 
 /** عنوان القسم: نجمة ذهبية صغيرة ثم العنوان بلون التطبيق (كما في iPhone) */
 @Composable
-private fun SectionTitle(t: String) {
+internal fun SectionTitle(t: String) {
     Row(Modifier.padding(start = 6.dp, top = 6.dp).semantics(mergeDescendants = true) { heading() }, verticalAlignment = Alignment.CenterVertically) {
         Canvas(Modifier.size(11.dp)) {
             val c = Offset(size.width / 2, size.height / 2)
@@ -151,7 +216,7 @@ private fun LangBadge(l: Lang) {
 }
 
 @Composable
-private fun RowCard(content: @Composable () -> Unit) {
+internal fun RowCard(content: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .7f)), modifier = Modifier.fillMaxWidth()
@@ -167,12 +232,15 @@ private fun InstalledRow(src: TafsirSource, lang: Lang, onDelete: () -> Unit) {
             LangBadge(src.lang)
             Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                 Text(Sources.label(src, s, lang), style = MaterialTheme.typography.titleSmall, fontSize = 15.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                // «مضمّن» لما في التطبيق نفسه؛ وما نُزّل من موقع ميزان يُحذف كالتفاسير المنزَّلة
+                val site = src.remote == null && ContentCatalog.tafsir(src.id) != null
                 Text(
-                    listOf(Sources.kindLabel(src, s), isolate(src.remote?.author(lang) ?: src.author)).joinToString(" · ") + if (src.remote == null) " · ${s.builtIn}" else "",
+                    listOf(Sources.kindLabel(src, s), isolate(src.remote?.author(lang) ?: src.author)).joinToString(" · ") + if (src.remote == null && !site) " · ${s.builtIn}" else "",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis
                 )
             }
-            if (src.remote != null) IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, s.delete, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+            val deletable = src.remote != null || ContentCatalog.tafsir(src.id)?.let { ContentStore.isDownloaded(it) } == true
+            if (deletable) IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, s.delete, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
             Switch(checked = shown, onCheckedChange = { QuranPrefs.setVisible(src.id, it) })
         }
     }
@@ -224,7 +292,7 @@ private fun DownloadRow(r: RemoteTafsir, lang: Lang) {
 
 /** زر التنزيل (أو إعادة المحاولة) في كبسولة بلون التطبيق الفاتح، كما في iPhone */
 @Composable
-private fun DownloadPill(failed: Boolean, onClick: () -> Unit) {
+internal fun DownloadPill(failed: Boolean, onClick: () -> Unit) {
     val s = LocalStrings.current
     val src = remember { MutableInteractionSource() }
     Surface(

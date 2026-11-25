@@ -39,6 +39,9 @@ import com.osatks.mizan.ui.theme.GoldDeep
 import com.osatks.mizan.ui.theme.LocalAccent
 import com.osatks.mizan.ui.theme.LocalDark
 import com.osatks.mizan.ui.theme.recolor
+import com.osatks.mizan.content.ContentKind
+import com.osatks.mizan.content.ContentStore
+import com.osatks.mizan.core.Fmt
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIViewController
 
@@ -68,6 +71,7 @@ class NativeHadithSession internal constructor() {
     internal var onShare: () -> Unit = {}
     internal var onSource: () -> Unit = {}
     internal var onBack: () -> Unit = {}
+    internal var onDownload: () -> Unit = {}
 
     internal fun prime(json: String) {
         if (state.isEmpty()) state = json
@@ -92,6 +96,9 @@ class NativeHadithSession internal constructor() {
     fun openSource() = onSource()
 
     fun back() = onBack()
+
+    /** ينزّل ترجمة الأحاديث بلغة الواجهة من موقع ميزان (أو يعيد المحاولة) */
+    fun download() = onDownload()
 }
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
@@ -119,13 +126,16 @@ internal fun NativeHadithView(
         session.onShare = { shareS() }
         session.onSource = { sourceS() }
         session.onBack = { backS() }
-        onDispose { session.onDay = {}; session.onShare = {}; session.onSource = {}; session.onBack = {} }
+        onDispose { session.onDay = {}; session.onShare = {}; session.onSource = {}; session.onBack = {}; session.onDownload = {} }
     }
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ht = HomeText.of(lang.code)
     val dark = LocalDark.current
     StatusBarStyle(lightContent = dark)
+    // ترجمة الأحاديث بلغة الواجهة لم تُنزَّل بعد من موقع ميزان (تُعرض البديلة حتى تصل): بطاقة تنزيل بحجمها وتقدمها
+    val missing = ContentStore.missing(lang, ContentKind.HADITH)
+    session.onDownload = { missing?.let { ContentStore.start(it) } }
 
     BoxWithConstraints(modifier) {
         val g = gutters(maxWidth, TextColumnMax, LocalLeadingInset.current)
@@ -152,6 +162,17 @@ internal fun NativeHadithView(
                 "explanation" to ht.explanation, "benefits" to ht.benefits, "share" to ht.shareStory,
                 "source" to Hadiths.SOURCE, "prev" to s.prevDay, "next" to s.nextDay, "canNext" to canNext,
                 "hadith" to h,
+                "download" to missing?.let { m ->
+                    val p = ContentStore.progress[m.key]
+                    linkedMapOf<String, Any?>(
+                        "text" to s.hadithMissing,
+                        "button" to if (p == -1) s.retry else s.downloadSized(Fmt.num(m.sizeMb, 1)),
+                        "state" to when { p == null -> "idle"; p < 0 -> "failed"; else -> "running" },
+                        "pct" to s.downloadingPct(p?.coerceAtLeast(0) ?: 0),
+                        "progress" to (p?.coerceAtLeast(0) ?: 0) / 100.0,
+                        "failed" to s.downloadFailed,
+                    )
+                },
                 "c" to linkedMapOf(
                     "primary" to hex(cs.primary), "primaryContainer" to hex(cs.primaryContainer),
                     "onPrimaryContainer" to hex(cs.onPrimaryContainer), "background" to hex(cs.background),

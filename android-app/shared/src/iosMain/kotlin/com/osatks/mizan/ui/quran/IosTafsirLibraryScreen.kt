@@ -8,6 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.osatks.mizan.content.ContentCatalog
+import com.osatks.mizan.content.ContentItem
+import com.osatks.mizan.content.ContentStore
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.LocalLang
@@ -17,6 +20,7 @@ import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.quran.RemoteTafsir
 import com.osatks.mizan.quran.Sources
 import com.osatks.mizan.quran.TafsirLibrary
+import com.osatks.mizan.quran.TafsirSource
 
 /**
  * مكتبة التفاسير في iOS بواجهة النظام (SwiftUI) بطراز الرئيسية؛ التنزيل والحذف والإظهار هنا كما في شاشة Compose
@@ -33,8 +37,11 @@ internal fun IosTafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get"
     val catalog = TafsirLibrary.CATALOG.let { list ->
         list.filter { it.lang == lang } + list.filter { it.lang == Lang.AR && lang != Lang.AR } + list.filter { it.lang != lang && it.lang != Lang.AR }
     }
+    // ترجمات المعاني والتفاسير التي تُنزَّل من موقع ميزان (المنزَّل منها يبقى بعلامة ✓)؛ صفوفها بمعرّف «content:<id>»
+    val siteSources = Sources.ordered(lang, Sources.ALL.filter { ContentCatalog.tafsir(it.id) != null })
     var tab by rememberSaveable { mutableStateOf(startTab) }
     var confirm by remember { mutableStateOf<RemoteTafsir?>(null) }
+    var confirmSite by remember { mutableStateOf<TafsirSource?>(null) }
 
     NativeTafsirsView(
         content = linkedMapOf(
@@ -43,13 +50,17 @@ internal fun IosTafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get"
             "availableTitle" to s.availableDownloads, "deviceTitle" to s.onDevice, "note" to s.tafsirLibraryNote,
             "download" to s.download, "retry" to s.retry, "cancel" to s.cancel, "delete" to s.delete,
             "failed" to s.downloadFailed, "onDevice" to s.onDevice,
-            "downloads" to catalog.map { r -> nativeDownloadRow(r, lang, s) },
+            "downloads" to siteSources.mapNotNull { src -> ContentCatalog.tafsir(src.id)?.let { c -> nativeSiteRow(src, c, lang, s) } } +
+                catalog.map { r -> nativeDownloadRow(r, lang, s) },
             "installed" to installed.map { src ->
+                // ما نُزّل من موقع ميزان يُحذف كالتفاسير المنزَّلة؛ «مضمّن» لما في التطبيق نفسه
+                val site = ContentCatalog.tafsir(src.id)?.takeIf { src.remote == null }
                 linkedMapOf<String, Any?>(
-                    "id" to src.id, "slug" to src.remote?.slug, "badge" to badge(src.lang),
+                    "id" to src.id, "slug" to (src.remote?.slug ?: site?.takeIf { ContentStore.isDownloaded(it) }?.let { SITE + src.id }),
+                    "badge" to badge(src.lang),
                     "name" to Sources.label(src, s, lang),
                     "sub" to listOf(Sources.kindLabel(src, s), isolate(src.remote?.author(lang) ?: src.author)).joinToString(" · ") +
-                        if (src.remote == null) " · ${s.builtIn}" else "",
+                        if (src.remote == null && site == null) " · ${s.builtIn}" else "",
                     "shown" to !QuranPrefs.isHidden(src.id),
                 )
             },
@@ -57,6 +68,9 @@ internal fun IosTafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get"
         onAction = { k, x ->
             when {
                 k == "tab" -> { if (x == "get" || x == "device") tab = x }
+                k == "download" && x.startsWith(SITE) -> siteItem(x)?.let { (src, c) -> ContentStore.start(c) { ok -> if (ok) QuranPrefs.updateSource(src.id) } }
+                k == "cancel" && x.startsWith(SITE) -> siteItem(x)?.let { ContentStore.cancel(it.second) }
+                k == "delete" && x.startsWith(SITE) -> { confirmSite = siteItem(x)?.first }
                 k == "download" -> TafsirLibrary.bySlug(x)?.let { r -> TafsirLibrary.download(r.slug) { QuranPrefs.updateSource(r.id) } }
                 k == "cancel" -> TafsirLibrary.cancel(x)
                 k == "delete" -> { confirm = TafsirLibrary.bySlug(x) }
@@ -78,6 +92,44 @@ internal fun IosTafsirLibraryScreen(onBack: () -> Unit, startTab: String = "get"
             ),
         )
     }
+    confirmSite?.let { src ->
+        com.osatks.mizan.ui.PlatformDialog(
+            onDismissRequest = { confirmSite = null },
+            title = s.deleteTafsirQ(Sources.label(src, s, lang)),
+            actions = listOf(
+                com.osatks.mizan.ui.DialogAction(s.cancel, com.osatks.mizan.ui.ActionRole.Cancel) { confirmSite = null },
+                com.osatks.mizan.ui.DialogAction(s.delete, com.osatks.mizan.ui.ActionRole.Destructive) {
+                    ContentCatalog.tafsir(src.id)?.let(ContentStore::delete); confirmSite = null
+                },
+            ),
+        )
+    }
+}
+
+/** بادئة صفوف ما يُنزَّل من موقع ميزان في حالة الشاشة (تميّزه عن تفاسير tafsir_api بأسمائها) */
+private const val SITE = "content:"
+
+private fun siteItem(slug: String): Pair<TafsirSource, ContentItem>? {
+    val id = slug.removePrefix(SITE)
+    val src = Sources.ALL.firstOrNull { it.id == id } ?: return null
+    return ContentCatalog.tafsir(id)?.let { src to it }
+}
+
+/** صف ترجمة أو تفسير من موقع ميزان بصيغة صفوف [nativeDownloadRow]: الحالة والتقدم من [ContentStore] */
+private fun nativeSiteRow(src: TafsirSource, item: ContentItem, lang: Lang, s: com.osatks.mizan.i18n.Strings): Map<String, Any?> {
+    val p = ContentStore.progress[item.key]
+    val progress = (p ?: 0).coerceAtLeast(0) / 100.0
+    return linkedMapOf(
+        "slug" to SITE + src.id, "badge" to badge(src.lang), "name" to Sources.label(src, s, lang),
+        "sub" to listOf(Sources.kindLabel(src, s), isolate(src.author), isolate(s.sizeMb(Fmt.num(item.sizeMb, 1)))).joinToString(" · "),
+        "state" to when {
+            ContentStore.isDownloaded(item) -> "done"
+            p != null && p >= 0 -> "running"
+            p == -1 -> "failed"
+            else -> "idle"
+        },
+        "progress" to progress, "pct" to s.downloadingPct((progress * 100).toInt()),
+    )
 }
 
 /** صف تفسير قابل للتنزيل لواجهة النظام: حالته (done، running، failed، idle) ونسبة تقدمه منسّقة كما في [DownloadRow] */

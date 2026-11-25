@@ -161,8 +161,9 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         if (value == null) value = QuranData.uthmani().also { warmMushafFont() }
     }
     val translation = remember(lang) { Sources.translationFor(lang) }
-    val trText by produceState(translation?.let { QuranData.cached("tafsir/${it.id}.txt") }, translation) {
-        value = translation?.let { QuranData.source(it.id) }
+    // الترجمة قد لا تكون نُزّلت بعد من موقع ميزان: تُعرض الآيات بلا ترجمة حتى تصل (ContentStore.version)
+    val trText by produceState(translation?.let { QuranData.cached("tafsir/${it.id}.txt") }, translation, com.osatks.mizan.content.ContentStore.version) {
+        value = translation?.let { QuranData.sourceOrNull(it.id) }
     }
     val mode = QuranPrefs.modeFor(lang)
     val size = QuranPrefs.textSize
@@ -526,6 +527,9 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                 )
             } else {
                 val paper = mushafPalette()
+                // ترجمة المعاني بلغة الواجهة لم تُنزَّل بعد: بطاقة تنزيل فوق الآيات، تختفي حين تصل
+                val missingTr = com.osatks.mizan.content.ContentStore.missing(lang, com.osatks.mizan.content.ContentKind.TAFSIR)
+                    ?.takeIf { it.id == translation?.id }
                 // على الشاشات العريضة عمود الآيات في الوسط بعرض مريح، لا أسطر بعرض الشاشة
                 val g = gutters(window.width, 680.dp, min = 12.dp)
                 LazyColumn(
@@ -542,6 +546,11 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                                 )
                             }
                             Text(s.quranSubtitle, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodySmall, color = paper.muted)
+                        }
+                    }
+                    missingTr?.let { m ->
+                        item(key = "download-tr") {
+                            com.osatks.mizan.ui.ContentDownloadCard(m, s.translationMissing, Modifier.padding(bottom = 12.dp))
                         }
                     }
                     items(count, key = { "a${listSurah}_${it + 1}" }) { i ->

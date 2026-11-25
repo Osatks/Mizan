@@ -15,7 +15,7 @@ Recordings captured from radio or television broadcasts were rejected even when 
 public domain.
 
 
-1. Asim Javed — bundled (default adhan)
+1. Asim Javed — downloadable
    Title:      ICR Friday Prayer 1st Adhan, 17 May 2024 (9 Dhul-Qadah 1445), called by Asim Javed
    Source:     https://archive.org/details/icr-friday-prayer-1st-adhan-17th-may-2024-9th-dhul-qadah-1445-by-asim-javed
    Creator:    Asim Javed (the muezzin)
@@ -23,7 +23,7 @@ public domain.
                https://creativecommons.org/publicdomain/zero/1.0/
    Changes:    0:00–3:15.5 kept; the du'a and a spoken announcement after the adhan were removed.
 
-2. Fajr — Kalkan, Turkey — bundled (default Fajr adhan)
+2. Fajr — Kalkan, Turkey — downloadable
    Title:      Marina Kalkan, Turkey - 915c Muezzin call to prayer (early morning), 22 September 2022
    Source:     https://archive.org/details/aporee_58326_66906 (radio aporee ::: maps)
    Recordist:  Piotrek Zyla, https://piotrekzyla.com (Sennheiser MKH 8020 AB pair, Sound Devices MixPre-6 II)
@@ -91,7 +91,7 @@ public domain.
                licensed CC BY-SA 4.0.
    Changes:    the whole recording (0:00–1:26.5) kept.
 
-9. Fouad Adan — adhan and Fajr adhan — downloadable
+9. Fouad Adan — adhan and Fajr adhan — bundled (default adhan and default Fajr adhan)
    Title:      Adhan Fouad Adan (files "Mp32.mp3" and "adan alfajr  fouad adan.mp3")
    Source:     https://archive.org/details/AdanAlfajrFouadAdan
    Creator:    Fouad Adan (the muezzin); uploaded from the artist's own archive.org account, which also publishes

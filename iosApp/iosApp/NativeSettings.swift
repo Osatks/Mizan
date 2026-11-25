@@ -51,6 +51,8 @@ struct SettingsState: Decodable {
     let accents: [AccentItem]
     let quranTitle: String
     let tafsir: Row
+    /// التنزيلات: ما نُزّل من موقع ميزان بحجمه وحذفه، وصفحات المصحف
+    let downloads: Row
     let prayerTitle: String
     let notify: Bool
     let alert, adhan: Row
@@ -165,6 +167,8 @@ struct SettingsView: View {
                         // مكتبة التفاسير: تنزيل التفاسير واختيار ما يظهر منها
                         SettingsGroup(title: s.quranTitle, p: p) {
                             SettingsNavRow(symbol: "books.vertical.fill", row: s.tafsir, p: p) { model.open("tafsirs") }
+                            SettingsDivider(p: p)
+                            SettingsNavRow(symbol: "arrow.down.circle.fill", row: s.downloads, p: p) { model.open("downloads") }
                         }
                         SettingsGroup(title: s.prayerTitle, p: p) {
                             SettingsToggleRow(symbol: "bell.badge.fill", row: s.alert, isOn: s.notify, p: p) { model.notify($0) }

@@ -4,7 +4,8 @@ package com.osatks.mizan.core
  * تسجيلات الأذان: كلها برخص تسمح بإعادة النشر (CC0 أو علامة الملك العام أو CC BY أو CC BY-SA)، والتفاصيل والروابط في
  * assets/licenses/adhan-recordings.txt. الملفات تُصنع بـ tools/make_adhan.py (تسوية الصوت وقص الصمت).
  * [Muezzin.takbir]: نهاية أول تكبيرتين، يحسبها make_adhan.py لكل تسجيل (وكل تسجيل جديد) ويطبعها هنا.
- * المضمّن في التطبيق: فؤاد (الافتراضي، أذانه وأذان فجره) وعاصم وأذان فجر كالكان؛ والبقية في موقع ميزان (/adhan/) تُنزَّل عند اختيارها.
+ * المضمّن في التطبيق: فؤاد وحده (الافتراضي، أذانه وأذان فجره) ليصغر حجم التطبيق؛ والبقية في موقع ميزان (/adhan/) تُنزَّل
+ * عند اختيارها (ومنها عاصم وأذان فجر كالكان، وكانا مضمّنين: من اختارهما قبل التحديث يُنزَّلان له في الخلفية، AdhanSounds.ensureChosen).
  */
 internal object AdhanCatalog {
     val ALL = listOf(
@@ -13,7 +14,7 @@ internal object AdhanCatalog {
             credit = "Fouad Adan · Public Domain Mark 1.0 · archive.org"),
         Muezzin("fouad_fajr", fajr = true, bundled = true, seconds = 137, sizeKb = 1129, takbir = 10.25,
             credit = "Fouad Adan · Public Domain Mark 1.0 · archive.org"),
-        Muezzin("asim", fajr = false, bundled = true, seconds = 196, sizeKb = 1606, takbir = 9.45,
+        Muezzin("asim", fajr = false, bundled = false, seconds = 196, sizeKb = 1606, takbir = 9.45,
             credit = "Asim Javed (ICR) · CC0 1.0 · archive.org"),
         Muezzin("klcc", fajr = false, bundled = false, seconds = 170, sizeKb = 1403, takbir = 21.0,
             credit = "Recorded by the archive.org uploader · CC0 1.0"),
@@ -29,7 +30,7 @@ internal object AdhanCatalog {
             credit = "Atcovi (own work) · CC BY-SA 4.0 · Wikimedia Commons"),
         Muezzin("shalqar", fajr = false, bundled = false, seconds = 132, sizeKb = 1088, takbir = 8.4,
             credit = "Esetok (own work) · CC BY-SA 4.0 · Wikimedia Commons"),
-        Muezzin("kalkan_fajr", fajr = true, bundled = true, seconds = 279, sizeKb = 2295, takbir = 11.25,
+        Muezzin("kalkan_fajr", fajr = true, bundled = false, seconds = 279, sizeKb = 2295, takbir = 11.25,
             credit = "Recorded by Piotrek Zyla (piotrekzyla.com) · Public Domain Mark 1.0 · radio aporee / archive.org"),
         Muezzin("kas_fajr", fajr = true, bundled = false, seconds = 312, sizeKb = 2561, takbir = 18.85,
             credit = "Recorded by Heleste (ambientfeel.t.me) · Public Domain Mark 1.0 · radio aporee / archive.org"),

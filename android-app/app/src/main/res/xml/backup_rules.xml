@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   النسخ الاحتياطي التلقائي في أندرويد 11 فما قبل (fullBackupContent): القواعد نفسها في data_extraction_rules.xml.
-  الإعدادات تُنسخ، والملفات المنزَّلة (خطوط المصحف والتفاسير والأذان وحزم اللغات) وحال الأدوات لا تُنسخ.
+  الإعدادات تُنسخ، والملفات المنزَّلة (خطوط المصحف والتفاسير والأذان وحزم اللغات ومحتوى الموقع) وحال الأدوات لا تُنسخ.
 -->
 <full-backup-content>
     <exclude domain="file" path="madinah" />
     <exclude domain="file" path="tafsir" />
     <exclude domain="file" path="adhan" />
     <exclude domain="file" path="lang" />
+    <exclude domain="file" path="content" />
     <exclude domain="sharedpref" path="mizan_widgets.xml" />
 </full-backup-content>

@@ -24,7 +24,7 @@ import java.io.File
 class WidgetAdhkarTest {
     init {
         TestPacks.load()
-        Adhkar.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        Adhkar.open = { TestAssets.read(it) }
         Adhkar.clearTranslations()
     }
 

@@ -138,8 +138,8 @@ internal fun NativeQiblaView(onBack: (() -> Unit)?, modifier: Modifier) {
     val place = AppSettings.place
     val quran by produceState(QuranData.cached(QuranData.UTHMANI)) { value = runCatching { QuranData.uthmani() }.getOrNull() }
     val trSource = remember(lang) { if (lang == Lang.AR) null else Sources.translationFor(lang) }
-    val trText by produceState(trSource?.let { QuranData.cached("tafsir/${it.id}.txt") }, trSource) {
-        value = trSource?.let { runCatching { QuranData.source(it.id) }.getOrNull() }
+    val trText by produceState(trSource?.let { QuranData.cached("tafsir/${it.id}.txt") }, trSource, com.osatks.mizan.content.ContentStore.version) {
+        value = trSource?.let { QuranData.sourceOrNull(it.id) }
     }
 
     BoxWithConstraints(modifier) {

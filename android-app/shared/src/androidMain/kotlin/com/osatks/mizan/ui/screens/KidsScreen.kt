@@ -194,8 +194,8 @@ private fun KidsHome(onBack: (() -> Unit)?, quran: Array<String>?, onOpen: (Int)
         value = withContext(Dispatchers.IO) { runCatching { kidsDuas(lang) }.getOrNull() }
     }
     val meaningId = remember(lang) { kidsMeaningSource(lang) }
-    val meanings by produceState(meaningId?.let { QuranData.cached("tafsir/$it.txt") }, meaningId) {
-        value = meaningId?.let { runCatching { QuranData.source(it) }.getOrNull() }
+    val meanings by produceState(meaningId?.let { QuranData.cached("tafsir/$it.txt") }, meaningId, com.osatks.mizan.content.ContentStore.version) {
+        value = meaningId?.let { QuranData.sourceOrNull(it) }
     }
     ToolPage(tool.name, tool.desc, onBack, sharedKey = "kids", icon = TOOL_ICONS["kids"], spacing = 16.dp) {
         item(key = "banner") { KidsStarsBanner() }

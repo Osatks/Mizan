@@ -154,7 +154,7 @@ fun EvidenceCard(points: List<Proof>, startOpen: Boolean = false) {
     val turn by animateFloatAsState(if (open) 180f else 0f, tween(250), label = "evidence")
     val quran by produceState(QuranData.cached(QuranData.UTHMANI)) { value = QuranData.uthmani() }
     val tr = remember(lang) { if (lang == Lang.AR) null else Sources.translationFor(lang) }
-    val trText by produceState(tr?.let { QuranData.cached("tafsir/${it.id}.txt") }, tr) { value = tr?.let { QuranData.source(it.id) } }
+    val trText by produceState(tr?.let { QuranData.cached("tafsir/${it.id}.txt") }, tr, com.osatks.mizan.content.ContentStore.version) { value = tr?.let { QuranData.sourceOrNull(it.id) } }
     Surface(
         shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(1.dp, Gold.copy(alpha = .45f)), modifier = Modifier.fillMaxWidth()

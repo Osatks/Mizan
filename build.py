@@ -722,6 +722,7 @@ def build():
 
     publish_language_packs()
     publish_adhan_sounds()
+    publish_content()
 
     # عامل الخدمة: يخزّن الصفحات العربية والملفات ليعمل الموقع دون إنترنت (صفحات اللغات الأخرى تُخزَّن عند زيارتها)
     sw_tpl = SRC / "templates" / "sw.js"
@@ -749,7 +750,8 @@ def build():
     (DIST / "_headers").write_text(
         "/assets/*\n  Cache-Control: public, max-age=604800\n"
         "/lang/*\n  Cache-Control: public, max-age=3600\n  Access-Control-Allow-Origin: *\n"
-        "/adhan/*\n  Cache-Control: public, max-age=604800\n  Access-Control-Allow-Origin: *\n", encoding="utf-8")
+        "/adhan/*\n  Cache-Control: public, max-age=604800\n  Access-Control-Allow-Origin: *\n"
+        "/content/*\n  Cache-Control: public, max-age=86400\n  Access-Control-Allow-Origin: *\n", encoding="utf-8")
 
     print("\n".join(report))
     print(f"\nتم بناء {sum(len(p) for p in all_pages.values())} صفحة في {DIST}")
@@ -774,14 +776,16 @@ def publish_language_packs():
     index = []
     for code, (f, pack) in sorted(packs.items()):
         # ترجمة الأذكار المضمّنة في التطبيق تُرفق بالحزمة المنشورة
-        adhkar = app / "adhkar" / f"{code}.json"
+        # (مضمّنة، أو من محتوى الموقع الذي ينزّله التطبيق: src/content/adhkar)
+        adhkar = next((c for c in (app / "adhkar" / f"{code}.json", SRC / "content" / "adhkar" / f"{code}.json") if c.exists()), app / "adhkar" / f"{code}.json")
         if adhkar.exists() and "adhkar" not in pack:
             pack["adhkar"] = json.loads(adhkar.read_text(encoding="utf-8"))
         (out / f"{code}.json").write_text(json.dumps(pack, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         size = (out / f"{code}.json").stat().st_size
         q = pack.get("quran")
         if q:
-            qf = next((c for c in (site / q["file"], app / "tafsir" / f"{q['id']}.txt") if c.exists()), None)
+            qf = next((c for c in (site / q["file"], app / "tafsir" / f"{q['id']}.txt",
+                                   SRC / "content" / "tafsir" / f"{q['id']}.txt") if c.exists()), None)
             if qf is None:
                 raise SystemExit(f"language pack {code}: Quran translation {q['file']} not found")
             shutil.copy2(qf, out / q["file"])
@@ -814,6 +818,51 @@ def publish_adhan_sounds():
             shutil.copy2(f, out / f.name)
             names.append(f.name)
     print(f"تسجيلات الأذان: {len(names)} ملفاً")
+
+
+
+# أسماء محتوى الموقع الذي ينزّله التطبيق (src/content/meta.json يغلبها)؛ اللغة من أول المعرّف
+CONTENT_KINDS = (("tafsir", ".txt"), ("hadith", ".json"), ("adhkar", ".json"))
+
+
+def publish_content():
+    """محتوى التطبيق الذي يُنزَّل عند الطلب بدل تضمينه (ليصغر حجم التطبيق): يُنشر في dist/content/<النوع>.
+
+    المصدر src/content/<النوع>: ترجمات المعاني والتفاسير (tafsir/<id>.txt بصيغة tanzil «سورة|آية|نص»)،
+    وترجمات أحاديث اليوم (hadith/<code>.json)، وترجمات الأذكار (adhkar/<code>.json). المضمّن في التطبيق يبقى في
+    android-app/shared/src/commonMain/assets ولا يُنشر هنا. لكل نوع فهرس index.json فيه لكل ملف: المعرّف واللغة
+    والعنوان والحجم بالبايت وبصمة sha256 والإصدار. التطبيق يتحقق من البصمة بعد التنزيل (ContentCatalog.kt يحمل
+    البصمات نفسها، ويتأكد اختبار ContentCatalogTest من تطابقهما)، فارفع "version" في meta.json عند تعديل ملف
+    وحدّث البصمة في ContentCatalog.kt.
+    """
+    import hashlib
+    src = SRC / "content"
+    meta_f = src / "meta.json"
+    meta = json.loads(meta_f.read_text(encoding="utf-8")) if meta_f.exists() else {}
+    total = 0
+    for kind, ext in CONTENT_KINDS:
+        d = src / kind
+        if not d.is_dir():
+            continue
+        out = DIST / "content" / kind
+        if out.exists():
+            shutil.rmtree(out)
+        out.mkdir(parents=True, exist_ok=True)
+        items = []
+        for f in sorted(d.glob("*" + ext)):
+            data = f.read_bytes()
+            cid = f.stem
+            m = meta.get(kind, {}).get(cid, {})
+            shutil.copy2(f, out / f.name)
+            items.append({
+                "id": cid, "language": m.get("language", cid.split(".")[0]), "title": m.get("title", cid),
+                "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(), "version": m.get("version", 1),
+                "file": f.name,
+            })
+        (out / "index.json").write_text(
+            json.dumps({"format": 1, "kind": kind, "items": items}, ensure_ascii=False, indent=1), encoding="utf-8")
+        total += len(items)
+    print(f"محتوى التطبيق المنزَّل: {total} ملفاً")
 
 
 if __name__ == "__main__":

@@ -149,9 +149,13 @@ actual object Fs {
     actual fun deleteDir(path: String) { File(path).deleteRecursively() }
     actual fun list(dir: String): List<String> = File(dir).list()?.toList().orEmpty()
     actual fun mkdirs(dir: String) { File(dir).mkdirs() }
+    actual fun size(path: String): Long = File(path).length()
     actual fun gzip(bytes: ByteArray): ByteArray = ByteArrayOutputStream().also { o -> GZIPOutputStream(o).use { it.write(bytes) } }.toByteArray()
     actual fun gunzip(bytes: ByteArray): ByteArray = GZIPInputStream(bytes.inputStream()).use { it.readBytes() }
 }
+
+/** أندرويد: المجلدات المنزَّلة مستثناة في قواعد النسخ الاحتياطي (res/xml/backup_rules.xml و data_extraction_rules.xml) */
+actual fun excludeFromBackup(path: String) {}
 
 actual suspend fun httpGet(url: String, onProgress: (Int) -> Unit): ByteArray = withContext(Dispatchers.IO) {
     val conn = URL(url).openConnection().apply { connectTimeout = 15_000; readTimeout = 60_000 }

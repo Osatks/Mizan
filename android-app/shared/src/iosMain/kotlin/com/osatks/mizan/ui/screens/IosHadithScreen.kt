@@ -43,7 +43,7 @@ internal fun IosHadithScreen(onBack: () -> Unit) {
         offset = withContext(Dispatchers.IO) { runCatching { hadithOffset(id, today) }.getOrDefault(0) }
     }
     val day = today.plusDays(offset)
-    val hadith by produceState<Hadith?>(null, day, lang) {
+    val hadith by produceState<Hadith?>(null, day, lang, com.osatks.mizan.content.ContentStore.version) {
         value = withContext(Dispatchers.IO) { runCatching { Hadiths.forDay(day, lang.code) }.getOrNull() }
     }
     var story by remember { mutableStateOf<StoryContent?>(null) }

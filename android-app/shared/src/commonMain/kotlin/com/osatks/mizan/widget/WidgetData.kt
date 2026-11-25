@@ -242,7 +242,7 @@ object WidgetData {
         fun time(h: Double) = PrayTimes.format(h, h24, s.am, s.pm)
 
         val quran = runCatching { QuranData.uthmani() }.getOrNull()
-        val meaning = Sources.translationFor(lang)?.let { src -> runCatching { QuranData.source(src.id) }.getOrNull() }
+        val meaning = Sources.translationFor(lang)?.let { src -> QuranData.sourceOrNull(src.id) }
 
         val dayList = (0 until days).map { i ->
             val d = today.plusDays(i)

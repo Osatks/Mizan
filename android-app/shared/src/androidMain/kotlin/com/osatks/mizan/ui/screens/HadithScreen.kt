@@ -80,12 +80,15 @@ fun HadithScreen(onBack: () -> Unit) {
     val today = remember { PrayerUtil.now().date }
     var offset by remember { mutableIntStateOf(0) }
     val day = today.plusDays(offset)
-    val hadith by produceState<Hadith?>(null, day, lang) {
+    val hadith by produceState<Hadith?>(null, day, lang, com.osatks.mizan.content.ContentStore.version) {
         value = withContext(Dispatchers.IO) { runCatching { Hadiths.forDay(day, lang.code) }.getOrNull() }
     }
     var story by remember { mutableStateOf<StoryContent?>(null) }
+    // ترجمة الأحاديث بلغة الواجهة لم تُنزَّل بعد من موقع ميزان (تُعرض البديلة حتى تصل): بطاقة تنزيل بحجمها وتقدمها
+    val missing = com.osatks.mizan.content.ContentStore.missing(lang, com.osatks.mizan.content.ContentKind.HADITH)
     ToolPage(ht.hadithOfDay, "${s.weekday(day)} · ${s.greg(day)}", onBack, icon = Icons.Filled.FormatQuote) {
         val h = hadith ?: return@ToolPage
+        missing?.let { m -> item(key = "download") { com.osatks.mizan.ui.ContentDownloadCard(m, s.hadithMissing) } }
         item(key = "text-${h.id}") { HadithHero(h) }
         h.tr?.let { tr -> item(key = "tr-${h.id}") { HadithCard { BodyText(tr.text) } } }
         val main = h.tr ?: h.ar

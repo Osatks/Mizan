@@ -141,7 +141,7 @@ fun AdhkarScreen(onBack: () -> Unit, start: String = com.osatks.mizan.widget.Wid
 private fun AdhkarHome(sections: List<AdhkarSection>, ready: Boolean, onBack: () -> Unit, pick: (String) -> Unit) {
     val s = LocalStrings.current
     val lang = LocalLang.current
-    val tr = remember(lang) { Adhkar.tr(lang) }
+    val tr = remember(lang, com.osatks.mizan.content.ContentStore.version) { Adhkar.tr(lang) }
     val tool = s.tools["adhkar"]
     val now = remember { suggested() }
     ToolPage(tool?.name ?: "", tool?.desc, onBack, sharedKey = "adhkar", icon = TOOL_ICONS["adhkar"], spacing = 12.dp) {
@@ -219,7 +219,7 @@ private fun SectionTile(sec: AdhkarSection, tr: AdhkarTr, lang: Lang, modifier: 
 internal fun AdhkarSectionPage(sec: AdhkarSection, onBack: () -> Unit) {
     val s = LocalStrings.current
     val lang = LocalLang.current
-    val tr = remember(lang) { Adhkar.tr(lang) }
+    val tr = remember(lang, com.osatks.mizan.content.ContentStore.version) { Adhkar.tr(lang) }
     val done = remember(sec.id) { mutableStateMapOf<String, Int>() }
     var evidence by remember { mutableStateOf<Dhikr?>(null) }
     val haptic = LocalHapticFeedback.current
@@ -228,9 +228,9 @@ internal fun AdhkarSectionPage(sec: AdhkarSection, onBack: () -> Unit) {
     val complete = progress >= total
     // ترجمة الآيات للأذكار القرآنية من ترجمة المعاني بلغة الواجهة
     val quranSrc = remember(lang) { if (lang == Lang.AR) null else Sources.translationFor(lang) }
-    val quran by produceState(quranSrc?.let { QuranData.cached("tafsir/${it.id}.txt") }, lang) {
+    val quran by produceState(quranSrc?.let { QuranData.cached("tafsir/${it.id}.txt") }, lang, com.osatks.mizan.content.ContentStore.version) {
         value = if (lang == Lang.AR || sec.items.none { it.ayah.isNotEmpty() }) null
-        else Sources.translationFor(lang)?.let { runCatching { QuranData.source(it.id) }.getOrNull() }
+        else Sources.translationFor(lang)?.let { QuranData.sourceOrNull(it.id) }
     }
     ToolPage(tr.title(sec, lang), tr.desc(sec, lang), onBack, icon = sectionIcon(sec), spacing = 12.dp) {
         item {

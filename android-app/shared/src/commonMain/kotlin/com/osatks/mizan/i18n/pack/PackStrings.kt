@@ -519,6 +519,21 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val retry: String by lazy { s("retry") ?: En.retry }
     override val moreTafsirs: String by lazy { s("moreTafsirs") ?: En.moreTafsirs }
     override val tafsirLibraryNote: String by lazy { s("tafsirLibraryNote") ?: En.tafsirLibraryNote }
+    override val downloadsTitle: String by lazy { s("downloadsTitle") ?: En.downloadsTitle }
+    override val downloadsSub: String by lazy { s("downloadsSub") ?: En.downloadsSub }
+    override fun downloadsUsed(size: String): String = f("downloadsUsed", "size" to size) ?: En.downloadsUsed(size)
+    override val downloadsNone: String by lazy { s("downloadsNone") ?: En.downloadsNone }
+    override val downloadsNote: String by lazy { s("downloadsNote") ?: En.downloadsNote }
+    override val dlTranslations: String by lazy { s("dlTranslations") ?: En.dlTranslations }
+    override val dlHadith: String by lazy { s("dlHadith") ?: En.dlHadith }
+    override val dlAdhkar: String by lazy { s("dlAdhkar") ?: En.dlAdhkar }
+    override val dlAdhan: String by lazy { s("dlAdhan") ?: En.dlAdhan }
+    override val dlMushaf: String by lazy { s("dlMushaf") ?: En.dlMushaf }
+    override val deletePages: String by lazy { s("deletePages") ?: En.deletePages }
+    override val deletePagesQ: String by lazy { s("deletePagesQ") ?: En.deletePagesQ }
+    override fun downloadSized(mb: String): String = f("downloadSized", "mb" to mb) ?: En.downloadSized(mb)
+    override val translationMissing: String by lazy { s("translationMissing") ?: En.translationMissing }
+    override val hadithMissing: String by lazy { s("hadithMissing") ?: En.hadithMissing }
     override fun ayahRange(from: Int, to: Int): String = f("ayahRange", "from" to from, "to" to to) ?: En.ayahRange(from, to)
     override val recitation: String by lazy { s("recitation") ?: En.recitation }
     override val reciter: String by lazy { s("reciter") ?: En.reciter }

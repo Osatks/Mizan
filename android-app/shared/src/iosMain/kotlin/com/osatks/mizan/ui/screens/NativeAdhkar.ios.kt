@@ -127,14 +127,14 @@ internal fun NativeAdhkarView(
     }
     val s = LocalStrings.current
     val lang = LocalLang.current
-    val tr = remember(lang) { Adhkar.tr(lang) }
+    val tr = remember(lang, com.osatks.mizan.content.ContentStore.version) { Adhkar.tr(lang) }
     val dark = LocalDark.current
     StatusBarStyle(lightContent = dark)
     val sec = sections?.firstOrNull { it.id == open }
     // ترجمة معاني الآيات للأذكار القرآنية بلغة الواجهة
-    val quranTr by produceState<Array<String>?>(null, lang, sec?.id) {
+    val quranTr by produceState<Array<String>?>(null, lang, sec?.id, com.osatks.mizan.content.ContentStore.version) {
         value = if (lang == Lang.AR || sec == null || sec.items.none { it.ayah.isNotEmpty() }) null
-        else Sources.translationFor(lang)?.let { runCatching { QuranData.source(it.id) }.getOrNull() }
+        else Sources.translationFor(lang)?.let { QuranData.sourceOrNull(it.id) }
     }
     val now = remember { suggested() }
     val tool = s.tools["adhkar"]

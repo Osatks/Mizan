@@ -1,5 +1,7 @@
 package com.osatks.mizan.fixtures
 
+import com.osatks.mizan.TestAssets
+
 import android.content.SharedPreferences
 import com.osatks.mizan.TestPacks
 import com.osatks.mizan.core.AppSettings
@@ -39,8 +41,8 @@ class QuranFixturesExport {
 
     init {
         TestPacks.load()
-        QuranData.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
-        Madinah.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        QuranData.open = { TestAssets.read(it) }
+        Madinah.open = { TestAssets.read(it) }
     }
 
     // ---------- JSON ----------
@@ -140,7 +142,7 @@ class QuranFixturesExport {
     }
 
     private fun textFiles(): List<String> =
-        listOf(QuranData.UTHMANI, QuranData.CLEAN) + File("src/commonMain/assets/tafsir").list()!!.sorted().map { "tafsir/$it" }
+        listOf(QuranData.UTHMANI, QuranData.CLEAN) + TestAssets.list("tafsir").map { "tafsir/$it" }
 
     private fun exportText() = runBlocking {
         val files = textFiles().associateWith { f ->

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Builds the "hadith of the day" data from the HadeethEnc.com encyclopedia
-(https://hadeethenc.com), one file per language, into shared/src/commonMain/assets/hadith.
+(https://hadeethenc.com), one file per language: Arabic and English into shared/src/commonMain/assets/hadith
+(bundled), the others into the website's src/content/hadith (downloaded by the app; run build.py, then update
+ContentCatalog.kt with the new sha256 values).
 
 The text, explanation, benefits, grade and takhrij are copied verbatim, as the
 publisher's terms require ("no modification, addition, or deletion of the content");
@@ -32,6 +34,9 @@ URL = "https://hadeethenc.com/{lang}/browse/download/{lang}/csv"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "shared", "src", "commonMain", "assets", "hadith")
+# العربية والإنجليزية مضمّنتان في التطبيق، وبقية اللغات في محتوى الموقع الذي ينزّله التطبيق (build.py: publish_content)
+SITE_OUT = os.path.join(HERE, "..", "..", "src", "content", "hadith")
+BUNDLED = ("ar", "en")
 
 
 def load(path):
@@ -107,9 +112,11 @@ def main():
         doc = {"source": f"https://hadeethenc.com/{l}", "version": versions[l], "items": items}
         if l == "ar":
             doc["order"] = chosen
-        with open(os.path.join(OUT, f"{l}.json"), "w", encoding="utf-8") as f:
+        out = OUT if l in BUNDLED else SITE_OUT
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, f"{l}.json"), "w", encoding="utf-8") as f:
             json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
-        print(l, len(items), os.path.getsize(os.path.join(OUT, f"{l}.json")) // 1024, "KB")
+        print(l, len(items), os.path.getsize(os.path.join(out, f"{l}.json")) // 1024, "KB")
 
 
 if __name__ == "__main__":
