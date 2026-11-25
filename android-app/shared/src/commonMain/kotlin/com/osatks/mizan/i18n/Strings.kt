@@ -556,6 +556,25 @@ interface Strings {
     val obStart: String                 // onboarding
     val obLocationTitle: String         // onboarding: last page asks for the location ("Where are you?")
     val obLocationBody: String          // why the location is needed; it stays on the device
+    val obHelloTitle: String            // greeting on the first setup step: "Assalamu alaikum"
+    val obHelloBody: String             // welcome; set Mizan up together in a few quick steps, starting with the language
+    val obTodayTimes: String            // title of the live preview card: "Today's prayer times"
+    val obAdhanTitle: String            // setup step title: "Hear the adhan"
+    val obAdhanBody: String             // an alert as each prayer time begins, in the voice you like
+    val obMoreVoices: String            // more voices are in Settings › Adhan & alerts
+    val obStyleTitle: String            // setup step title and summary row: "Your style"
+    val obStyleBody: String             // choose how Mizan looks; the screen changes as you tap
+    val obTryTitle: String              // setup step title: "Try it" (a tiny tasbih)
+    val obTryBody: String               // tap the bead three times, saying "SubhanAllah" with each tap
+    val obTryDone: String               // after the third tap: well done, the full tasbih is in Tools
+    val obBead: String                  // accessibility label of the bead: "Tasbih bead"
+    val obDoneTitle: String             // last setup step: "You're all set"
+    val obDoneBody: String              // everything is saved; change it or open the app guide from Settings anytime
+    val obCity: String                  // summary row: "City"
+    val obNotSet: String                // summary value when no city was chosen: "Not set yet"
+    val obOn: String                    // summary value: adhan alerts "On"
+    val obOff: String                   // summary value: adhan alerts "Off"
+    fun obStep(n: Int, total: Int): String  // setup progress, read by screen readers: "Step 2 of 6"
     val locationNeeded: String          // banner on Home/Prayer while no location has been chosen
     val appGuide: String                // settings row
     val appGuideSub: String             // settings row subtitle

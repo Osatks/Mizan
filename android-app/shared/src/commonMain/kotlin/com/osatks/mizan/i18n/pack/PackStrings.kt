@@ -558,6 +558,25 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val obStart: String by lazy { s("obStart") ?: En.obStart }
     override val obLocationTitle: String by lazy { s("obLocationTitle") ?: En.obLocationTitle }
     override val obLocationBody: String by lazy { s("obLocationBody") ?: En.obLocationBody }
+    override val obHelloTitle: String by lazy { s("obHelloTitle") ?: En.obHelloTitle }
+    override val obHelloBody: String by lazy { s("obHelloBody") ?: En.obHelloBody }
+    override val obTodayTimes: String by lazy { s("obTodayTimes") ?: En.obTodayTimes }
+    override val obAdhanTitle: String by lazy { s("obAdhanTitle") ?: En.obAdhanTitle }
+    override val obAdhanBody: String by lazy { s("obAdhanBody") ?: En.obAdhanBody }
+    override val obMoreVoices: String by lazy { s("obMoreVoices") ?: En.obMoreVoices }
+    override val obStyleTitle: String by lazy { s("obStyleTitle") ?: En.obStyleTitle }
+    override val obStyleBody: String by lazy { s("obStyleBody") ?: En.obStyleBody }
+    override val obTryTitle: String by lazy { s("obTryTitle") ?: En.obTryTitle }
+    override val obTryBody: String by lazy { s("obTryBody") ?: En.obTryBody }
+    override val obTryDone: String by lazy { s("obTryDone") ?: En.obTryDone }
+    override val obBead: String by lazy { s("obBead") ?: En.obBead }
+    override val obDoneTitle: String by lazy { s("obDoneTitle") ?: En.obDoneTitle }
+    override val obDoneBody: String by lazy { s("obDoneBody") ?: En.obDoneBody }
+    override val obCity: String by lazy { s("obCity") ?: En.obCity }
+    override val obNotSet: String by lazy { s("obNotSet") ?: En.obNotSet }
+    override val obOn: String by lazy { s("obOn") ?: En.obOn }
+    override val obOff: String by lazy { s("obOff") ?: En.obOff }
+    override fun obStep(n: Int, total: Int): String = f("obStep", "n" to n, "total" to total) ?: En.obStep(n, total)
     override val locationNeeded: String by lazy { s("locationNeeded") ?: En.locationNeeded }
     override val appGuide: String by lazy { s("appGuide") ?: En.appGuide }
     override val appGuideSub: String by lazy { s("appGuideSub") ?: En.appGuideSub }

@@ -42,6 +42,7 @@ import com.osatks.mizan.ui.NavTransitions
 import com.osatks.mizan.ui.TABS
 import com.osatks.mizan.ui.WindowLayout
 import com.osatks.mizan.ui.screens.IosOnboarding
+import com.osatks.mizan.ui.screens.IosWelcome
 import com.osatks.mizan.ui.tabBarStateJson
 import com.osatks.mizan.ui.theme.Accent
 import com.osatks.mizan.ui.theme.LocalDark
@@ -167,12 +168,14 @@ object IosNav {
     fun guide(): UIViewController? {
         val from = pendingGuide() ?: return null
         guideShown = true
+        val done: () -> Unit = {
+            guideDone()
+            guideShown = false
+            navigator?.closeGuide()
+        }
         return PageController("guide", false, overlay = true) {
-            IosOnboarding(onDone = {
-                guideDone()
-                guideShown = false
-                navigator?.closeGuide()
-            }, from = from)
+            // أول تشغيل: إعداد تفاعلي (اللغة، الموقع، الأذان، المظهر)؛ وبعد التحديث: صفحات الدليل الجديدة وحدها
+            if (from == 0) IosWelcome(onDone = done) else IosOnboarding(onDone = done, from = from)
         }
     }
 
