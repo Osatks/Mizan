@@ -14,6 +14,7 @@ import com.osatks.mizan.ui.screens.HadithScreen
 import com.osatks.mizan.ui.screens.HijriScreen
 import com.osatks.mizan.ui.screens.HomeScreen
 import com.osatks.mizan.ui.screens.InheritanceScreen
+import com.osatks.mizan.ui.screens.KidsScreen
 import com.osatks.mizan.ui.screens.LicensesScreen
 import com.osatks.mizan.ui.screens.MosquesScreen
 import com.osatks.mizan.ui.screens.Onboarding
@@ -51,6 +52,7 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "events" -> EventsScreen(back)
         "fidya" -> FidyaScreen(back)
         "fasting" -> FastingScreen(back)
+        "kids" -> KidsScreen(back)
         "search" -> SearchScreen(back) { r -> app.searchResult(r) }
     }
 }

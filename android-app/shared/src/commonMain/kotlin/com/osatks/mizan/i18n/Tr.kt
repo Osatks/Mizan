@@ -68,6 +68,7 @@ object Tr : Strings {
         "fidya" to Named("Fidye ve Kefaret", "Tutulamayan oruçlar ve bozulan yeminler"),
         "mosques" to Named("Yakındaki Camiler", "En yakın camiler ve yol tarifi"),
         "fasting" to Named("Oruç Takibi", "Ramazan, kaza ve nafile oruçlar"),
+        "kids" to Named("Çocuk Köşesi", "Kısa sureler, Allah’ın isimleri, dualar ve yıldızlar"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zekat zekât sadaka mal servet altın altin gümüş gumus nisap nisab para birikim hisse",
@@ -83,6 +84,7 @@ object Tr : Strings {
         "fidya" to "fidye kefaret keffaret yemin oruç oruc doyurma",
         "mosques" to "cami camii camiler mescit mescid yakın yakin harita yol tarifi",
         "fasting" to "oruç savm ramazan kaza nafile sünnet sahur iftar arefe aşure tasua şevval eyyamı biyz beyaz günler pazartesi perşembe",
+        "kids" to "çocuk cocuk çocuklar ezber hafızlık amme cüzü kısa sureler esmaül hüsna allahın isimleri dualar yıldız öğren",
     )
     override val toolsTitle = "Araçlar"
     override fun nextPrayerIn(city: String) = "Sonraki vakit · $city"
@@ -817,6 +819,25 @@ object Tr : Strings {
     override val dhikrTapHint = "Saymak için zikre, kaynağını ve derecesini görmek için “Delil”e dokunun"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, other {# kez}}", mapOf("n" to n), "tr")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, other {# zikir}}", mapOf("n" to n), "tr")
+    // ---------- ركن الأطفال ----------
+    override val kidsSurahs = "Kısa sureler"
+    override val kidsSurahsSub = "Oku, dinle ve kariden sonra tekrarla"
+    override val kidsNames = "Allah’ın güzel isimleri"
+    override val kidsNamesSub = "Her ismi, geçtiği bir ayetle tanımak için kaydır"
+    override val kidsDuas = "Günlük dualar"
+    override val kidsDuasSub = "Yemek, uyku, dışarı çıkma ve daha fazlası için kısa dualar"
+    override val kidsStars = "Yıldız tablosu"
+    override val kidsStarsSub = "Çocuk sureyi ezberleyince anne ya da baba ona dokunur"
+    override fun kidsStarCount(n: Int) = Template.format("{n, plural, other {# yıldız}}", mapOf("n" to n), "tr")
+    override val kidsMarkMemorized = "Ezberledi mi? Yıldız ver"
+    override val kidsMemorized = "Ezberlendi"
+    override val kidsRepeatAfterMe = "Benimle tekrarla"
+    override val kidsListen = "Dinle…"
+    override val kidsYourTurn = "Sıra sende! Ayeti söyle"
+    override val kidsWellDone = "Aferin! Maşallah"
+    override val kidsTapAyah = "Başlamak için bir ayete dokun"
+    override val kidsPrevName = "Önceki isim"
+    override val kidsNextName = "Sonraki isim"
     override val moreLanguages = "Başka diller indir"
     override val langPackHint = "Diller, Kur’an mealleriyle birlikte Mizan web sitesinden indirilir ve sonra internetsiz çalışır."
     override val update = "Güncelle"

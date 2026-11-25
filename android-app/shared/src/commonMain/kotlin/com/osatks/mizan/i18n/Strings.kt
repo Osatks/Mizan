@@ -651,6 +651,25 @@ interface Strings {
     val dhikrTapHint: String           // tap to count, tap Evidence for the source
     fun dhikrTimes(n: Int): String     // "3 times" (repeat count)
     fun dhikrItems(n: Int): String     // "24 adhkar" (section size)
+    // ---------- Kids' Corner (title and description: tools["kids"]) ----------
+    val kidsSurahs: String             // section: "Short surahs"
+    val kidsSurahsSub: String          // "Read, listen and repeat after the reciter"
+    val kidsNames: String              // section: "Names of Allah"
+    val kidsNamesSub: String           // swipe through the names, each with an ayah where it appears
+    val kidsDuas: String               // section: "Everyday duas"
+    val kidsDuasSub: String            // short duas for eating, sleeping, going out and more
+    val kidsStars: String              // section: "Star chart"
+    val kidsStarsSub: String           // a parent taps a surah once the child has memorized it
+    fun kidsStarCount(n: Int): String  // "7 stars"
+    val kidsMarkMemorized: String      // button for the parent: "Memorized? Give a star"
+    val kidsMemorized: String          // the surah has its star: "Memorized"
+    val kidsRepeatAfterMe: String      // play button and card title: "Repeat after me"
+    val kidsListen: String             // while the reciter recites the ayah: "Listen…"
+    val kidsYourTurn: String           // the pause after it, for the child to repeat: "Your turn! Say the ayah"
+    val kidsWellDone: String           // celebration when a surah is finished or memorized
+    val kidsTapAyah: String            // hint: "Tap an ayah to start from it"
+    val kidsPrevName: String           // accessibility: "Previous name"
+    val kidsNextName: String           // accessibility: "Next name"
     val moreLanguages: String          // section in the language sheet: "Download more languages"
     val langPackHint: String           // languages come from the Mizan website, then work offline with their Quran translation
     val update: String                 // button: "Update"

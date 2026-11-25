@@ -87,6 +87,7 @@ object Uk : Strings {
         "fidya" to Named("Фідья і каффара", "Пропущений піст і порушені клятви"),
         "mosques" to Named("Мечеті поблизу", "Найближчі мечеті й маршрут до них"),
         "fasting" to Named("Облік посту", "Рамадан, відшкодування і добровільний піст"),
+        "kids" to Named("Дитячий куточок", "Короткі сури, імена Аллаха, благання та зірки"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "закят закат зякят садака милостиня багатство майно золото срібло нісаб гроші заощадження акції",
@@ -102,6 +103,7 @@ object Uk : Strings {
         "fidya" to "фідья фідія каффара кафара спокута клятва піст годування",
         "mosques" to "мечеть мечеті масджид поруч поблизу мапа карта маршрут",
         "fasting" to "піст пост ураза саум рамадан рамазан каза відшкодування сунна добровільний сухур іфтар арафа ашура шавваль білі дні понеділок четвер",
+        "kids" to "діти дітей дитина заучування хіфз джуз амма короткі сури імена аллаха асма благання дуа зірки",
     )
     override val toolsTitle = "Інструменти"
     override fun nextPrayerIn(city: String) = "Наступний намаз · $city"
@@ -836,6 +838,25 @@ object Uk : Strings {
     override val dhikrTapHint = "Торкніться зікру, щоб рахувати, і «Доказ», щоб побачити джерело та ступінь"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {# раз} few {# рази} many {# разів} other {# рази}}", mapOf("n" to n), "uk")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, one {# зікр} few {# зікри} many {# зікрів} other {# зікру}}", mapOf("n" to n), "uk")
+    // ---------- ركن الأطفال ----------
+    override val kidsSurahs = "Короткі сури"
+    override val kidsSurahsSub = "Читай, слухай і повторюй за читцем"
+    override val kidsNames = "Імена Аллаха"
+    override val kidsNamesSub = "Гортай і знайомся з кожним іменем та аятом, де воно згадується"
+    override val kidsDuas = "Благання на кожен день"
+    override val kidsDuasSub = "Короткі благання для їжі, сну, виходу з дому та іншого"
+    override val kidsStars = "Зіркова таблиця"
+    override val kidsStarsSub = "Батьки позначають суру, коли дитина вивчить її напам’ять"
+    override fun kidsStarCount(n: Int) = Template.format("{n, plural, one {# зірка} few {# зірки} many {# зірок} other {# зірки}}", mapOf("n" to n), "uk")
+    override val kidsMarkMemorized = "Вивчено? Постав зірку"
+    override val kidsMemorized = "Вивчено"
+    override val kidsRepeatAfterMe = "Повторюй за мною"
+    override val kidsListen = "Слухай…"
+    override val kidsYourTurn = "Твоя черга! Повтори аят"
+    override val kidsWellDone = "Молодець! Ма шаа Аллах"
+    override val kidsTapAyah = "Торкнися аята, щоб почати з нього"
+    override val kidsPrevName = "Попереднє ім’я"
+    override val kidsNextName = "Наступне ім’я"
     override val moreLanguages = "Завантажити інші мови"
     override val langPackHint = "Мови завантажуються з сайту Mizan разом із перекладом Корану, а потім працюють без інтернету."
     override val update = "Оновити"

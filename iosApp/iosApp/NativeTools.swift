@@ -74,6 +74,7 @@ private func toolIcon(_ key: String) -> String {
     case "age": if #available(iOS 16.0, *) { return "birthday.cake.fill" } else { return "gift.fill" }
     case "fidya": return "hands.sparkles.fill"
     case "fasting": return "moon.stars.fill"
+    case "kids": return kidsSymbol()
     default: return "square.grid.2x2.fill"
     }
 }

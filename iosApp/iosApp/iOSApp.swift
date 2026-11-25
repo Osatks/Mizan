@@ -44,6 +44,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeFitrFidyaScreen.install()
         // ومتابعة الصيام (NativeFasting.swift)
         NativeFastingScreen.install()
+        // وركن الأطفال (NativeKids.swift)
+        NativeKidsScreen.install()
         // والحديث والبحث ومكتبة التفاسير والأذان والدليل والتراخيص، وأوراق اللغة والمدينة
         NativeHadithScreen.install()
         NativeSearchScreen.install()
