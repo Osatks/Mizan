@@ -20,6 +20,7 @@ import com.osatks.mizan.ui.screens.IosPrayerScreen
 import com.osatks.mizan.ui.screens.IosSearchScreen
 import com.osatks.mizan.ui.screens.IosSettingsScreen
 import com.osatks.mizan.ui.screens.IosZakatScreen
+import com.osatks.mizan.ui.screens.NativeFastingView
 import com.osatks.mizan.ui.screens.NativeLicensesView
 import com.osatks.mizan.ui.screens.NativeMosquesView
 import com.osatks.mizan.ui.screens.NativeQiblaView
@@ -57,6 +58,8 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "age" -> IosAgeScreen(back)
         "events" -> IosEventsScreen(back)
         "fidya" -> IosFidyaScreen(back)
+        // متابعة الصيام: العدّ إلى السحور والإفطار بالثواني في Swift
+        "fasting" -> NativeFastingView(back, Modifier.fillMaxSize())
         "search" -> IosSearchScreen(back) { r -> app.searchResult(r) }
     }
 }

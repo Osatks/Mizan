@@ -10,6 +10,7 @@ import com.osatks.mizan.core.ALERT_PRAYERS
 import com.osatks.mizan.core.AlertMode
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.EndAlerts
+import com.osatks.mizan.core.Fasting
 import com.osatks.mizan.core.Muezzins
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -65,6 +66,9 @@ actual object PrayerAlerts {
     private const val LIMIT = 64
     const val VIBRATE_SOUND = "mizan_vibrate.caf"
 
+    /** تذكيرات صيام التطوع: قليلة، بعد الأذان وقبل تذكيرات خروج الوقت */
+    private const val FAST_MAX = 3
+
     actual fun reschedule() {
         val center = UNUserNotificationCenter.currentNotificationCenter()
         // التطبيق مفتوح عند دخول الوقت: الأذان كاملاً أو نمط الاهتزاز المختار بدل صوت الإشعار
@@ -105,7 +109,9 @@ actual object PrayerAlerts {
                 added++
             }
         }
-        scheduleEndAlerts(center, today, LIMIT - added)
+        // ثم تذكير الصيام (ثلاثة على الأكثر)، ثم «قبل خروج الوقت» فيما بقي من الحد
+        val fast = scheduleFasting(center, minOf(FAST_MAX, LIMIT - added))
+        scheduleEndAlerts(center, today, LIMIT - added - fast)
     }
 
     /**
@@ -137,6 +143,30 @@ actual object PrayerAlerts {
             val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
             center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("end-${a.day}-${a.prayer}", content, trigger), null)
         }
+    }
+
+    /** تذكير صيام التطوع (مطفأ افتراضياً): مساء اليوم السابق لأقرب [budget] يوماً، بوقت الموقع كإشعارات الأذان؛ يعيد عددها */
+    private fun scheduleFasting(center: UNUserNotificationCenter, budget: Int): Int {
+        if (budget <= 0) return 0
+        Fasting.ensure()
+        if (!Fasting.state.remind) return 0
+        val s = Lang.current.strings
+        var count = 0
+        for ((at, day) in Fasting.reminders(budget)) {
+            val comps = NSDateComponents().apply {
+                year = at.year.toLong(); month = at.monthNumber.toLong(); this.day = at.dayOfMonth.toLong()
+                hour = at.hour.toLong(); minute = at.minute.toLong()
+            }
+            val content = UNMutableNotificationContent().apply {
+                setTitle(s.fastingRemindTitle(day.kinds.joinToString(" · ") { s.fastingKinds[it.key] ?: it.key }))
+                setBody(s.fastingRemindBody)
+                setSound(UNNotificationSound.defaultSound)
+            }
+            val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
+            center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("fast-${day.date}", content, trigger), null)
+            count++
+        }
+        return count
     }
 
     actual fun languageChanged() = reschedule()

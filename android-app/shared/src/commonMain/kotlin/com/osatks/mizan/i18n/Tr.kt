@@ -67,6 +67,7 @@ object Tr : Strings {
         "age" to Named("Yaş Hesaplama", "Hicri ve Miladi yıllarla"),
         "fidya" to Named("Fidye ve Kefaret", "Tutulamayan oruçlar ve bozulan yeminler"),
         "mosques" to Named("Yakındaki Camiler", "En yakın camiler ve yol tarifi"),
+        "fasting" to Named("Oruç Takibi", "Ramazan, kaza ve nafile oruçlar"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zekat zekât sadaka mal servet altın altin gümüş gumus nisap nisab para birikim hisse",
@@ -81,6 +82,7 @@ object Tr : Strings {
         "age" to "yaş yas doğum dogum günü gunu yıl yil",
         "fidya" to "fidye kefaret keffaret yemin oruç oruc doyurma",
         "mosques" to "cami camii camiler mescit mescid yakın yakin harita yol tarifi",
+        "fasting" to "oruç savm ramazan kaza nafile sünnet sahur iftar arefe aşure tasua şevval eyyamı biyz beyaz günler pazartesi perşembe",
     )
     override val toolsTitle = "Araçlar"
     override fun nextPrayerIn(city: String) = "Sonraki vakit · $city"
@@ -417,6 +419,39 @@ object Tr : Strings {
     override val halfSaOption = "Yarım sâ' — yaklaşık 1,5 kg (çağdaş fetvalar)"
     override val poorCount = "Fakir / öğün sayısı"
     override val approxValue = "Yaklaşık bedel"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Oruç"
+    override val fastingSubtitle = "Ramazan, kaza ve nafile oruçlar"
+    override val fastingNow = "Bugün oruçlusunuz"
+    override val fastingVoluntaryToday = "Bugün nafile oruç"
+    override val fastingTodayHint = "Bugün oruçluysanız açın: sahurun bitişine ve iftara geri sayım görünür, gün kaydedilir."
+    override val fastingForbiddenToday = "Bugün bayram ya da teşrik günlerinden biri; bu günlerde oruç tutulmaz."
+    override val fastingFasted = "Tutuldu"
+    override val fastingMissed = "Tutulmadı"
+    override val fastingUnmarked = "İşaretsiz"
+    override val fastingRamadanHint = "Bir güne dokunun: oruç tutuldu; tekrar dokunun: tutulmadı; bir kez daha: işaret silinir. Tutulmayan günler kaza günlerine eklenir."
+    override val fastingQadaTitle = "Kaza orucu"
+    override val fastingQadaOwed = "Kaza edilecek gün"
+    override val fastingMadeUp = "Bir gün kaza ettim"
+    override val fastingHistory = "Geçmiş"
+    override val fastingNothingYet = "Henüz kayıt yok"
+    override val fastingLogAdded = "Gün eklendi"
+    override val fastingLogRemoved = "Gün silindi"
+    override val fastingLogMadeUp = "Gün kaza edildi"
+    override val fastingLogMissed = "Ramazan’da tutulmadı"
+    override val fastingSunnahTitle = "Nafile oruçlar"
+    override val fastingUpcoming = "Yaklaşan günler"
+    override val fastingKinds = mapOf(
+        "arafah" to "Arefe günü", "tasua" to "Tasua (9 Muharrem)", "ashura" to "Aşure (10 Muharrem)", "shawwal" to "Şevval’in altı günü", "white" to "Eyyâm-ı biyz (13–15)", "monday" to "Pazartesi", "thursday" to "Perşembe",
+    )
+    override val fastingLogged = "Kaydedilen nafile oruç"
+    override fun fastingShawwal(done: Int) = "Şevval’in altı günü: ${done}/6"
+    override val fastingRemind = "Bir önceki akşam hatırlat"
+    override fun fastingRemindDesc(time: String) = "Nafile oruç gününden bir önceki akşam bildirim (saat ${time})"
+    override fun fastingRemindTitle(what: String) = "Yarın: ${what}"
+    override val fastingRemindBody = "Yarınki nafile oruç için hatırlatma"
+    override val fastingChannel = "Oruç hatırlatmaları"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Hicri Tarih"

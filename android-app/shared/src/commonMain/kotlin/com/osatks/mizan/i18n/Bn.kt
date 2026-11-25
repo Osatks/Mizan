@@ -67,6 +67,7 @@ object Bn : Strings {
         "age" to Named("বয়স ক্যালকুলেটর", "হিজরি ও খ্রিস্টীয় বছরে"),
         "fidya" to Named("ফিদিয়া ও কাফফারা", "ছুটে যাওয়া রোজা ও ভাঙা কসম"),
         "mosques" to Named("কাছের মসজিদ", "পথনির্দেশসহ সবচেয়ে কাছের মসজিদ"),
+        "fasting" to Named("রোজার হিসাব", "রমজান, কাজা ও নফল রোজা"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "যাকাত জাকাত যাকাহ সদকা দান সম্পদ স্বর্ণ সোনা রুপা রৌপ্য নিসাব নেসাব টাকা সঞ্চয় শেয়ার zakat jakat",
@@ -81,6 +82,7 @@ object Bn : Strings {
         "age" to "বয়স জন্মদিন জন্ম জন্মতারিখ বছর",
         "fidya" to "ফিদিয়া ফিদইয়া ফিদয়া কাফফারা কাফ্ফারা কসম শপথ রোজা সিয়াম খাওয়ানো",
         "mosques" to "মসজিদ মসজিদসমূহ জামে কাছে কাছাকাছি মানচিত্র পথ জামাত masjid mosque",
+        "fasting" to "রোজা রোযা সিয়াম সাওম রমজান রমযান কাজা কাযা নফল সুন্নত সাহরি সেহরি ইফতার আরাফা আশুরা শাওয়াল আইয়ামে বীজ সোমবার বৃহস্পতিবার",
     )
     override val toolsTitle = "টুলস"
     override fun nextPrayerIn(city: String) = "পরবর্তী নামাজ · $city"
@@ -417,6 +419,39 @@ object Bn : Strings {
     override val halfSaOption = "অর্ধ সা' — প্রায় 1.5 কেজি (সমকালীন ফতোয়া)"
     override val poorCount = "মিসকিন / বেলার সংখ্যা"
     override val approxValue = "আনুমানিক মূল্য"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "রোজা"
+    override val fastingSubtitle = "রমজান, কাজা ও নফল রোজা"
+    override val fastingNow = "আজ আপনি রোজা রেখেছেন"
+    override val fastingVoluntaryToday = "আজ নফল রোজা"
+    override val fastingTodayHint = "আজ রোজা রাখলে চালু করুন: সাহরির শেষ ও ইফতার পর্যন্ত কাউন্টডাউন দেখাবে এবং দিনটি লিখে রাখবে।"
+    override val fastingForbiddenToday = "আজ ঈদ বা তাশরীকের দিন; এদিনে রোজা রাখা হয় না।"
+    override val fastingFasted = "রোজা রাখা"
+    override val fastingMissed = "ছুটে যাওয়া"
+    override val fastingUnmarked = "চিহ্নিত নয়"
+    override val fastingRamadanHint = "একটি দিনে ছুঁয়ে রোজা চিহ্নিত করুন, আবার ছুঁলে ছুটে যাওয়া, আরেকবার ছুঁলে মুছে যাবে। ছুটে যাওয়া দিন কাজার হিসাবে যোগ হয়।"
+    override val fastingQadaTitle = "কাজা রোজা"
+    override val fastingQadaOwed = "বাকি কাজা রোজা"
+    override val fastingMadeUp = "একটি কাজা রাখলাম"
+    override val fastingHistory = "ইতিহাস"
+    override val fastingNothingYet = "এখনও কিছু লেখা হয়নি"
+    override val fastingLogAdded = "একদিন যোগ"
+    override val fastingLogRemoved = "একদিন বাদ"
+    override val fastingLogMadeUp = "একদিন কাজা আদায়"
+    override val fastingLogMissed = "রমজানে ছুটে যাওয়া"
+    override val fastingSunnahTitle = "নফল রোজা"
+    override val fastingUpcoming = "সামনের দিনগুলো"
+    override val fastingKinds = mapOf(
+        "arafah" to "আরাফার দিন", "tasua" to "তাসুআ", "ashura" to "আশুরা", "shawwal" to "শাওয়ালের ছয় রোজা", "white" to "আইয়ামে বীজ", "monday" to "সোমবার", "thursday" to "বৃহস্পতিবার",
+    )
+    override val fastingLogged = "লেখা নফল রোজা"
+    override fun fastingShawwal(done: Int) = "শাওয়ালের ছয় রোজা: ${done}/6"
+    override val fastingRemind = "আগের সন্ধ্যায় মনে করিয়ে দিন"
+    override fun fastingRemindDesc(time: String) = "নফল রোজার আগের দিন সন্ধ্যা ${time}-এ একটি নোটিফিকেশন"
+    override fun fastingRemindTitle(what: String) = "আগামীকাল: ${what}"
+    override val fastingRemindBody = "আগামীকালের নফল রোজার কথা মনে করিয়ে দেওয়া হলো"
+    override val fastingChannel = "রোজার রিমাইন্ডার"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "হিজরি তারিখ"

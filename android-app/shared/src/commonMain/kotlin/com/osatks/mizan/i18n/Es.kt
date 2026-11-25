@@ -69,6 +69,7 @@ object Es : Strings {
         "age" to Named("Calculadora de edad", "En años hiyri y gregorianos"),
         "fidya" to Named("Fidya y kaffara", "Ayunos perdidos y juramentos rotos"),
         "mosques" to Named("Mezquitas cercanas", "Las mezquitas más cercanas, con indicaciones"),
+        "fasting" to Named("Seguimiento del ayuno", "Ramadán, días a recuperar y ayunos voluntarios"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakat zakah azaque limosna caridad sadaqa riqueza dinero oro plata nisab ahorros acciones",
@@ -83,6 +84,7 @@ object Es : Strings {
         "age" to "cumpleaños cumpleanos nacimiento edad años anos",
         "fidya" to "fidyah kaffara kaffarah expiación expiacion juramento ayuno alimentar",
         "mosques" to "mezquita mezquitas masjid cerca cercana mapa ruta indicaciones",
+        "fasting" to "ayuno ayunar sawm ramadán ramadan recuperar qada sunna voluntario suhur iftar arafa ashura shawwal días blancos lunes jueves",
     )
     override val toolsTitle = "Herramientas"
     override fun nextPrayerIn(city: String) = "Próxima oración · $city"
@@ -419,6 +421,39 @@ object Es : Strings {
     override val halfSaOption = "Medio sa' — unos 1,5 kg (fatwas contemporáneas)"
     override val poorCount = "Pobres / comidas"
     override val approxValue = "Valor aproximado"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Ayuno"
+    override val fastingSubtitle = "Ramadán, días a recuperar y ayunos voluntarios"
+    override val fastingNow = "Hoy estás ayunando"
+    override val fastingVoluntaryToday = "Ayuno voluntario hoy"
+    override val fastingTodayHint = "Actívalo si ayunas hoy para ver la cuenta atrás hasta el fin del suhur y hasta el iftar, y registrar el día."
+    override val fastingForbiddenToday = "Hoy es Eid o uno de los días de Tashriq, en los que no se ayuna."
+    override val fastingFasted = "Ayunado"
+    override val fastingMissed = "Perdido"
+    override val fastingUnmarked = "Sin marcar"
+    override val fastingRamadanHint = "Toca un día para marcarlo como ayunado, otra vez como perdido y una vez más para borrarlo. Los días perdidos se suman a tus días a recuperar."
+    override val fastingQadaTitle = "Días a recuperar (qada)"
+    override val fastingQadaOwed = "Días por recuperar"
+    override val fastingMadeUp = "Recuperé un día"
+    override val fastingHistory = "Historial"
+    override val fastingNothingYet = "Aún no hay registros"
+    override val fastingLogAdded = "Día añadido"
+    override val fastingLogRemoved = "Día quitado"
+    override val fastingLogMadeUp = "Día recuperado"
+    override val fastingLogMissed = "Perdido en Ramadán"
+    override val fastingSunnahTitle = "Ayunos voluntarios"
+    override val fastingUpcoming = "Próximos días"
+    override val fastingKinds = mapOf(
+        "arafah" to "Día de Arafa", "tasua" to "Tasu'a (9 de muharram)", "ashura" to "Ashura (10 de muharram)", "shawwal" to "Seis días de shawwal", "white" to "Días blancos (13–15)", "monday" to "Lunes", "thursday" to "Jueves",
+    )
+    override val fastingLogged = "Ayunos voluntarios registrados"
+    override fun fastingShawwal(done: Int) = "Seis días de shawwal: ${done} de 6"
+    override val fastingRemind = "Recordármelo la noche anterior"
+    override fun fastingRemindDesc(time: String) = "Una notificación a las ${time} la noche antes de un día de ayuno voluntario"
+    override fun fastingRemindTitle(what: String) = "Mañana: ${what}"
+    override val fastingRemindBody = "Recordatorio del ayuno voluntario de mañana"
+    override val fastingChannel = "Recordatorios de ayuno"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Fecha hiyri"

@@ -86,6 +86,7 @@ object Ru : Strings {
         "age" to Named("Калькулятор возраста", "В годах по хиджре и григорианских"),
         "fidya" to Named("Фидья и каффара", "Пропущенный пост и нарушенные клятвы"),
         "mosques" to Named("Мечети поблизости", "Ближайшие мечети и маршрут к ним"),
+        "fasting" to Named("Учёт поста", "Рамадан, возмещение и добровольный пост"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "закят закат зякят закях садака милостыня богатство золото серебро нисаб деньги сбережения акции имущество",
@@ -100,6 +101,7 @@ object Ru : Strings {
         "age" to "возраст день рождения годы лет",
         "fidya" to "фидья фидия каффара каффарат искупление клятва пост кормление",
         "mosques" to "мечеть мечети масджид джума рядом поблизости карта маршрут",
+        "fasting" to "пост ураза саум рамадан рамазан каза возмещение сунна добровольный сухур ифтар арафа ашура шавваль белые дни понедельник четверг",
     )
     override val toolsTitle = "Инструменты"
     override fun nextPrayerIn(city: String) = "Следующий намаз · $city"
@@ -436,6 +438,39 @@ object Ru : Strings {
     override val halfSaOption = "Половина саа — около 1,5 кг (современные фетвы)"
     override val poorCount = "Бедняков / порций"
     override val approxValue = "Примерная стоимость"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Пост"
+    override val fastingSubtitle = "Рамадан, возмещение и добровольный пост"
+    override val fastingNow = "Сегодня вы поститесь"
+    override val fastingVoluntaryToday = "Добровольный пост сегодня"
+    override val fastingTodayHint = "Включите, если сегодня поститесь: появится отсчёт до конца сухура и до ифтара, а день будет записан."
+    override val fastingForbiddenToday = "Сегодня праздник или один из дней ташрика, в которые не постятся."
+    override val fastingFasted = "Пост"
+    override val fastingMissed = "Пропуск"
+    override val fastingUnmarked = "Не отмечено"
+    override val fastingRamadanHint = "Коснитесь дня, чтобы отметить пост, ещё раз — пропуск, и ещё раз — снять отметку. Пропущенные дни добавляются к дням возмещения."
+    override val fastingQadaTitle = "Возмещение постов (каза)"
+    override val fastingQadaOwed = "Дней к возмещению"
+    override val fastingMadeUp = "Один день возмещён"
+    override val fastingHistory = "История"
+    override val fastingNothingYet = "Пока ничего не записано"
+    override val fastingLogAdded = "День добавлен"
+    override val fastingLogRemoved = "День убран"
+    override val fastingLogMadeUp = "День возмещён"
+    override val fastingLogMissed = "Пропуск в Рамадан"
+    override val fastingSunnahTitle = "Добровольный пост"
+    override val fastingUpcoming = "Ближайшие дни"
+    override val fastingKinds = mapOf(
+        "arafah" to "День Арафа", "tasua" to "Тасуа (9 мухаррама)", "ashura" to "Ашура (10 мухаррама)", "shawwal" to "Шесть дней шавваля", "white" to "Белые дни (13–15)", "monday" to "Понедельник", "thursday" to "Четверг",
+    )
+    override val fastingLogged = "Записано добровольных постов"
+    override fun fastingShawwal(done: Int) = "Шесть дней шавваля: ${done} из 6"
+    override val fastingRemind = "Напоминать накануне вечером"
+    override fun fastingRemindDesc(time: String) = "Уведомление в ${time} накануне дня добровольного поста"
+    override fun fastingRemindTitle(what: String) = "Завтра: ${what}"
+    override val fastingRemindBody = "Напоминание о добровольном посте завтра"
+    override val fastingChannel = "Напоминания о посте"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Дата по хиджре"

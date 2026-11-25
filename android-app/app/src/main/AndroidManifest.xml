@@ -61,6 +61,11 @@
             android:name=".notify.AdhanStopReceiver"
             android:exported="false" />
 
+        <!-- تذكير صيام التطوع مساء اليوم السابق (FastReminders) -->
+        <receiver
+            android:name=".notify.FastReminderReceiver"
+            android:exported="false" />
+
         <service
             android:name=".notify.AdhanService"
             android:exported="false"

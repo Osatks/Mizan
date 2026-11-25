@@ -67,6 +67,7 @@ object Fa : Strings {
         "age" to Named("محاسبه‌گر سن", "به سال قمری و میلادی"),
         "fidya" to Named("فدیه و کفاره", "روزه‌های ازدست‌رفته و قسم"),
         "mosques" to Named("مساجد نزدیک", "نزدیک‌ترین مسجدها با مسیریابی"),
+        "fasting" to Named("پیگیری روزه", "رمضان، قضا و روزهٔ مستحب"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "زکات زکوه مال طلا نقره نصاب پول پس‌انداز پسانداز سهام صدقه ثروت",
@@ -81,6 +82,7 @@ object Fa : Strings {
         "age" to "سن عمر تولد سالگرد",
         "fidya" to "فدیه کفاره قسم سوگند یمین روزه اطعام",
         "mosques" to "مسجد مساجد جامع نمازخانه نزدیک نقشه مسیر مسیریابی",
+        "fasting" to "روزه صوم رمضان قضا مستحب سنت سحری افطار عرفه عاشورا تاسوعا شوال ایام البیض دوشنبه پنجشنبه",
     )
     override val toolsTitle = "ابزارها"
     override fun nextPrayerIn(city: String) = "نماز بعدی · $city"
@@ -417,6 +419,39 @@ object Fa : Strings {
     override val halfSaOption = "نیم صاع — حدود 1.5 کیلوگرم (فتواهای معاصر)"
     override val poorCount = "تعداد مساکین / وعده‌ها"
     override val approxValue = "ارزش تقریبی"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "روزه"
+    override val fastingSubtitle = "رمضان، قضا و روزهٔ مستحب"
+    override val fastingNow = "امروز روزه هستید"
+    override val fastingVoluntaryToday = "روزهٔ مستحب امروز"
+    override val fastingTodayHint = "اگر امروز روزه‌اید روشنش کنید تا شمارش معکوس تا پایان سحر و تا افطار نمایش داده شود و روز ثبت شود."
+    override val fastingForbiddenToday = "امروز عید یا از ایام تشریق است و در آن روزه گرفته نمی‌شود."
+    override val fastingFasted = "روزه"
+    override val fastingMissed = "افطار"
+    override val fastingUnmarked = "بدون علامت"
+    override val fastingRamadanHint = "روی روز بزنید تا روزه علامت بخورد، دوباره برای افطار، و بار سوم برای پاک کردن. روزهای افطار به روزهای قضا افزوده می‌شوند."
+    override val fastingQadaTitle = "روزه‌های قضا"
+    override val fastingQadaOwed = "روزهای باقی‌ماندهٔ قضا"
+    override val fastingMadeUp = "یک روز قضا گرفتم"
+    override val fastingHistory = "سابقه"
+    override val fastingNothingYet = "هنوز چیزی ثبت نشده"
+    override val fastingLogAdded = "یک روز افزوده شد"
+    override val fastingLogRemoved = "یک روز حذف شد"
+    override val fastingLogMadeUp = "یک روز قضا شد"
+    override val fastingLogMissed = "افطار در رمضان"
+    override val fastingSunnahTitle = "روزه‌های مستحب"
+    override val fastingUpcoming = "روزهای پیش رو"
+    override val fastingKinds = mapOf(
+        "arafah" to "روز عرفه", "tasua" to "تاسوعا", "ashura" to "عاشورا", "shawwal" to "شش روز شوال", "white" to "ایام البیض", "monday" to "دوشنبه", "thursday" to "پنجشنبه",
+    )
+    override val fastingLogged = "روزه‌های مستحب ثبت‌شده"
+    override fun fastingShawwal(done: Int) = "شش روز شوال: ${done} از 6"
+    override val fastingRemind = "شبِ قبل یادآوری کن"
+    override fun fastingRemindDesc(time: String) = "اعلانی در ساعت ${time} شبِ پیش از روز روزهٔ مستحب"
+    override fun fastingRemindTitle(what: String) = "فردا: ${what}"
+    override val fastingRemindBody = "یادآوری روزهٔ مستحب فردا"
+    override val fastingChannel = "یادآوری روزه"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "تاریخ هجری قمری"

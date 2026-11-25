@@ -67,6 +67,7 @@ object Ms : Strings {
         "age" to Named("Kalkulator Umur", "Dalam tahun Hijrah dan Masihi"),
         "fidya" to Named("Fidyah & Kafarah", "Puasa yang ditinggalkan dan sumpah yang dilanggar"),
         "mosques" to Named("Masjid Berhampiran", "Masjid terdekat berserta arah"),
+        "fasting" to Named("Penjejak Puasa", "Ramadan, qada dan puasa sunat"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakat zakah harta emas perak nisab wang simpanan saham sedekah",
@@ -81,6 +82,7 @@ object Ms : Strings {
         "age" to "umur usia hari jadi lahir tahun",
         "fidya" to "fidyah fidya kafarah kaffarah sumpah puasa qada denda beri makan",
         "mosques" to "masjid surau musolla dekat berhampiran terdekat peta arah laluan",
+        "fasting" to "puasa saum ramadan qada ganti sunat sunnah sahur berbuka iftar arafah asyura tasua syawal hari putih isnin khamis",
     )
     override val toolsTitle = "Alatan"
     override fun nextPrayerIn(city: String) = "Solat seterusnya · $city"
@@ -417,6 +419,39 @@ object Ms : Strings {
     override val halfSaOption = "Setengah gantang — kira-kira 1.5 kg (fatwa semasa)"
     override val poorCount = "Orang miskin / hidangan"
     override val approxValue = "Anggaran nilai"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Puasa"
+    override val fastingSubtitle = "Ramadan, qada dan puasa sunat"
+    override val fastingNow = "Hari ini anda berpuasa"
+    override val fastingVoluntaryToday = "Puasa sunat hari ini"
+    override val fastingTodayHint = "Hidupkan jika anda berpuasa hari ini untuk melihat kiraan detik hingga tamat sahur dan hingga berbuka, serta merekod hari ini."
+    override val fastingForbiddenToday = "Hari ini hari raya atau hari Tasyrik, yang tidak dipuasakan."
+    override val fastingFasted = "Berpuasa"
+    override val fastingMissed = "Tidak berpuasa"
+    override val fastingUnmarked = "Belum ditanda"
+    override val fastingRamadanHint = "Ketik hari untuk menanda berpuasa, ketik lagi untuk tidak berpuasa, dan sekali lagi untuk memadam. Hari tidak berpuasa ditambah ke hari qada."
+    override val fastingQadaTitle = "Puasa qada"
+    override val fastingQadaOwed = "Hari yang perlu diganti"
+    override val fastingMadeUp = "Saya ganti satu hari"
+    override val fastingHistory = "Sejarah"
+    override val fastingNothingYet = "Belum ada rekod"
+    override val fastingLogAdded = "Hari ditambah"
+    override val fastingLogRemoved = "Hari dibuang"
+    override val fastingLogMadeUp = "Hari diganti"
+    override val fastingLogMissed = "Tidak berpuasa pada Ramadan"
+    override val fastingSunnahTitle = "Puasa sunat"
+    override val fastingUpcoming = "Hari akan datang"
+    override val fastingKinds = mapOf(
+        "arafah" to "Hari Arafah", "tasua" to "Tasua (9 Muharram)", "ashura" to "Asyura (10 Muharram)", "shawwal" to "Enam hari Syawal", "white" to "Hari Putih (13–15)", "monday" to "Isnin", "thursday" to "Khamis",
+    )
+    override val fastingLogged = "Puasa sunat direkod"
+    override fun fastingShawwal(done: Int) = "Enam hari Syawal: ${done} daripada 6"
+    override val fastingRemind = "Ingatkan pada malam sebelumnya"
+    override fun fastingRemindDesc(time: String) = "Pemberitahuan pada ${time} malam sebelum hari puasa sunat"
+    override fun fastingRemindTitle(what: String) = "Esok: ${what}"
+    override val fastingRemindBody = "Peringatan puasa sunat esok"
+    override val fastingChannel = "Peringatan puasa"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Tarikh Hijrah"

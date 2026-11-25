@@ -73,6 +73,7 @@ private func toolIcon(_ key: String) -> String {
     // رمز الكعكة من iOS 16، وقبله هدية (الرمز غير الموجود لا يُرسم شيئاً)
     case "age": if #available(iOS 16.0, *) { return "birthday.cake.fill" } else { return "gift.fill" }
     case "fidya": return "hands.sparkles.fill"
+    case "fasting": return "moon.stars.fill"
     default: return "square.grid.2x2.fill"
     }
 }

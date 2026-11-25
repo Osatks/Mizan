@@ -74,6 +74,7 @@ object Fr : Strings {
         "age" to Named("Calcul de l'âge", "En années hégiriennes et grégoriennes"),
         "fidya" to Named("Fidya et kaffara", "Jeûnes manqués et serments rompus"),
         "mosques" to Named("Mosquées à proximité", "Les mosquées les plus proches, avec itinéraire"),
+        "fasting" to Named("Suivi du jeûne", "Ramadan, jours à rattraper et jeûnes surérogatoires"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakah zakât aumône aumone sadaqa richesse argent or épargne epargne économies economies nisab nissab actions",
@@ -88,6 +89,7 @@ object Fr : Strings {
         "age" to "anniversaire naissance âge années annees",
         "fidya" to "fidyah kaffara kaffarah kafara expiation serment jeûne jeune nourrir",
         "mosques" to "mosquée mosquee mosquées mosquees masjid proche près carte itinéraire itineraire",
+        "fasting" to "jeûne jeune sawm siyam ramadan rattrapage qada sunna surérogatoire suhour sahour iftar arafat achoura chawwal jours blancs lundi jeudi",
     )
     override val toolsTitle = "Outils"
     override fun nextPrayerIn(city: String) = "Prochaine prière · $city"
@@ -424,6 +426,39 @@ object Fr : Strings {
     override val halfSaOption = "Un demi-sa' — environ 1,5 kg (fatwas contemporaines)"
     override val poorCount = "Pauvres / repas"
     override val approxValue = "Valeur approximative"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Jeûne"
+    override val fastingSubtitle = "Ramadan, jours à rattraper et jeûnes surérogatoires"
+    override val fastingNow = "Vous jeûnez aujourd’hui"
+    override val fastingVoluntaryToday = "Jeûne surérogatoire aujourd’hui"
+    override val fastingTodayHint = "Activez-le si vous jeûnez aujourd’hui pour voir le compte à rebours jusqu’à la fin du sahour et jusqu’à l’iftar, et enregistrer la journée."
+    override val fastingForbiddenToday = "Aujourd’hui est un jour de l’Aïd ou de Tachriq, où l’on ne jeûne pas."
+    override val fastingFasted = "Jeûné"
+    override val fastingMissed = "Manqué"
+    override val fastingUnmarked = "Non marqué"
+    override val fastingRamadanHint = "Touchez un jour pour le marquer jeûné, encore pour manqué, et une fois de plus pour l’effacer. Les jours manqués s’ajoutent à vos jours à rattraper."
+    override val fastingQadaTitle = "Jours à rattraper (qada)"
+    override val fastingQadaOwed = "Jours à rattraper"
+    override val fastingMadeUp = "J’ai rattrapé un jour"
+    override val fastingHistory = "Historique"
+    override val fastingNothingYet = "Rien d’enregistré pour l’instant"
+    override val fastingLogAdded = "Jour ajouté"
+    override val fastingLogRemoved = "Jour retiré"
+    override val fastingLogMadeUp = "Jour rattrapé"
+    override val fastingLogMissed = "Manqué pendant le Ramadan"
+    override val fastingSunnahTitle = "Jeûnes surérogatoires"
+    override val fastingUpcoming = "Prochains jours"
+    override val fastingKinds = mapOf(
+        "arafah" to "Jour d’Arafat", "tasua" to "Tasu'a (9 mouharram)", "ashura" to "Achoura (10 mouharram)", "shawwal" to "Six jours de chawwal", "white" to "Jours blancs (13–15)", "monday" to "Lundi", "thursday" to "Jeudi",
+    )
+    override val fastingLogged = "Jeûnes surérogatoires enregistrés"
+    override fun fastingShawwal(done: Int) = "Six jours de chawwal : ${done} sur 6"
+    override val fastingRemind = "Me le rappeler la veille au soir"
+    override fun fastingRemindDesc(time: String) = "Une notification à ${time} la veille d’un jour de jeûne surérogatoire"
+    override fun fastingRemindTitle(what: String) = "Demain : ${what}"
+    override val fastingRemindBody = "Rappel du jeûne surérogatoire de demain"
+    override val fastingChannel = "Rappels de jeûne"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Date hégirienne"

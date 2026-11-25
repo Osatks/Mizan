@@ -86,6 +86,7 @@ object Uk : Strings {
         "age" to Named("Калькулятор віку", "У роках за хіджрою та григоріанських"),
         "fidya" to Named("Фідья і каффара", "Пропущений піст і порушені клятви"),
         "mosques" to Named("Мечеті поблизу", "Найближчі мечеті й маршрут до них"),
+        "fasting" to Named("Облік посту", "Рамадан, відшкодування і добровільний піст"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "закят закат зякят садака милостиня багатство майно золото срібло нісаб гроші заощадження акції",
@@ -100,6 +101,7 @@ object Uk : Strings {
         "age" to "вік день народження роки років",
         "fidya" to "фідья фідія каффара кафара спокута клятва піст годування",
         "mosques" to "мечеть мечеті масджид поруч поблизу мапа карта маршрут",
+        "fasting" to "піст пост ураза саум рамадан рамазан каза відшкодування сунна добровільний сухур іфтар арафа ашура шавваль білі дні понеділок четвер",
     )
     override val toolsTitle = "Інструменти"
     override fun nextPrayerIn(city: String) = "Наступний намаз · $city"
@@ -436,6 +438,39 @@ object Uk : Strings {
     override val halfSaOption = "Половина са' — близько 1,5 кг (сучасні фетви)"
     override val poorCount = "Бідняків / порцій"
     override val approxValue = "Орієнтовна вартість"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Піст"
+    override val fastingSubtitle = "Рамадан, відшкодування і добровільний піст"
+    override val fastingNow = "Сьогодні ви поститеся"
+    override val fastingVoluntaryToday = "Добровільний піст сьогодні"
+    override val fastingTodayHint = "Увімкніть, якщо сьогодні поститеся: з’явиться відлік до кінця сухуру й до іфтару, а день буде записано."
+    override val fastingForbiddenToday = "Сьогодні свято або один із днів ташріку, коли не постяться."
+    override val fastingFasted = "Піст"
+    override val fastingMissed = "Пропуск"
+    override val fastingUnmarked = "Не позначено"
+    override val fastingRamadanHint = "Торкніться дня, щоб позначити піст, ще раз — пропуск, і ще раз — зняти позначку. Пропущені дні додаються до днів відшкодування."
+    override val fastingQadaTitle = "Відшкодування постів (каза)"
+    override val fastingQadaOwed = "Днів до відшкодування"
+    override val fastingMadeUp = "Один день відшкодовано"
+    override val fastingHistory = "Історія"
+    override val fastingNothingYet = "Поки нічого не записано"
+    override val fastingLogAdded = "День додано"
+    override val fastingLogRemoved = "День прибрано"
+    override val fastingLogMadeUp = "День відшкодовано"
+    override val fastingLogMissed = "Пропуск у Рамадан"
+    override val fastingSunnahTitle = "Добровільний піст"
+    override val fastingUpcoming = "Найближчі дні"
+    override val fastingKinds = mapOf(
+        "arafah" to "День Арафа", "tasua" to "Тасуа (9 мухаррама)", "ashura" to "Ашура (10 мухаррама)", "shawwal" to "Шість днів шавваля", "white" to "Білі дні (13–15)", "monday" to "Понеділок", "thursday" to "Четвер",
+    )
+    override val fastingLogged = "Записано добровільних постів"
+    override fun fastingShawwal(done: Int) = "Шість днів шавваля: ${done} з 6"
+    override val fastingRemind = "Нагадувати напередодні ввечері"
+    override fun fastingRemindDesc(time: String) = "Сповіщення о ${time} напередодні дня добровільного посту"
+    override fun fastingRemindTitle(what: String) = "Завтра: ${what}"
+    override val fastingRemindBody = "Нагадування про добровільний піст завтра"
+    override val fastingChannel = "Нагадування про піст"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Дата за хіджрою"
