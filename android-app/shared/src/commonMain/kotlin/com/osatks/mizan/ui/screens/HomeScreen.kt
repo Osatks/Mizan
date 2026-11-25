@@ -53,6 +53,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VolunteerActivism
+import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material3.Icon
@@ -107,7 +108,7 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
 /** ترتيب الأدوات وأيقوناتها (تشترك فيها الرئيسية والبحث ورؤوس الصفحات) */
-val TOOL_ORDER = listOf("zakat", "inheritance", "prayer", "qibla", "adhkar", "hijri", "events", "tasbih", "fitr", "age", "fidya")
+val TOOL_ORDER = listOf("zakat", "inheritance", "prayer", "qibla", "adhkar", "hijri", "events", "tasbih", "fitr", "age", "fidya", "fasting")
 val TOOL_ICONS: Map<String, ImageVector> = mapOf(
     "zakat" to Icons.Filled.AccountBalanceWallet,
     "inheritance" to Icons.Filled.Groups,
@@ -120,6 +121,7 @@ val TOOL_ICONS: Map<String, ImageVector> = mapOf(
     "fitr" to Icons.Filled.Eco,
     "age" to Icons.Filled.Cake,
     "fidya" to Icons.Filled.VolunteerActivism,
+    "fasting" to Icons.Filled.NightsStay,
 )
 
 @Composable

@@ -73,6 +73,7 @@ object Ar : Strings {
         "fitr" to Named("زكاة الفطر", "بالصاع أو بالقيمة"),
         "age" to Named("حاسبة العمر", "بالهجري والميلادي"),
         "fidya" to Named("الفدية والكفارة", "الصيام واليمين"),
+        "fasting" to Named("متابعة الصيام", "رمضان والقضاء وصيام التطوع"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "زكاة مال ذهب فضة نصاب أسهم ثروة صدقة",
@@ -86,6 +87,7 @@ object Ar : Strings {
         "fitr" to "فطرة فطر صاع عيد",
         "age" to "عمر ميلاد سن",
         "fidya" to "فدية كفارة يمين صيام إطعام",
+        "fasting" to "صيام صوم رمضان قضاء تطوع سحور إفطار عرفة عاشوراء تاسوعاء شوال البيض الاثنين الخميس",
     )
     override val toolsTitle = "الأدوات"
     override fun nextPrayerIn(city: String) = "الصلاة القادمة · $city"
@@ -390,6 +392,39 @@ object Ar : Strings {
     override val halfSaOption = "نصف صاع — نحو 1.5 كغ (فتاوى معاصرة)"
     override val poorCount = "عدد المساكين / الوجبات"
     override val approxValue = "القيمة التقريبية"
+
+    // ---------- متابعة الصيام ----------
+    override val fastingTitle = "الصيام"
+    override val fastingSubtitle = "رمضان والقضاء وصيام التطوع"
+    override val fastingNow = "أنت صائم اليوم"
+    override val fastingVoluntaryToday = "صيام تطوع اليوم"
+    override val fastingTodayHint = "فعّله إن صمت اليوم، فيظهر العدّ إلى نهاية السحور وإلى الإفطار ويُسجَّل اليوم."
+    override val fastingForbiddenToday = "اليوم يوم عيد أو من أيام التشريق، ولا يُصام."
+    override val fastingFasted = "صيام"
+    override val fastingMissed = "إفطار"
+    override val fastingUnmarked = "بلا تحديد"
+    override val fastingRamadanHint = "المس اليوم ليُعلَّم صياماً، ومرة ثانية ليُعلَّم إفطاراً، وثالثة ليُمحى. أيام الإفطار تُضاف إلى أيام القضاء."
+    override val fastingQadaTitle = "أيام القضاء"
+    override val fastingQadaOwed = "أيام عليك قضاؤها"
+    override val fastingMadeUp = "قضيت يوماً"
+    override val fastingHistory = "السجل"
+    override val fastingNothingYet = "لا شيء مسجل بعد"
+    override val fastingLogAdded = "أُضيف يوم"
+    override val fastingLogRemoved = "حُذف يوم"
+    override val fastingLogMadeUp = "قُضي يوم"
+    override val fastingLogMissed = "إفطار في رمضان"
+    override val fastingSunnahTitle = "صيام التطوع"
+    override val fastingUpcoming = "الأيام القادمة"
+    override val fastingKinds = mapOf(
+        "arafah" to "يوم عرفة", "tasua" to "تاسوعاء", "ashura" to "عاشوراء", "shawwal" to "ست من شوال", "white" to "الأيام البيض", "monday" to "الاثنين", "thursday" to "الخميس",
+    )
+    override val fastingLogged = "صيام تطوع مسجل"
+    override fun fastingShawwal(done: Int) = "ست من شوال: ${done} من 6"
+    override val fastingRemind = "ذكّرني مساء اليوم السابق"
+    override fun fastingRemindDesc(time: String) = "إشعار عند ${time} مساء اليوم الذي يسبق يوم صيام تطوع"
+    override fun fastingRemindTitle(what: String) = "غداً: ${what}"
+    override val fastingRemindBody = "تذكير بصيام التطوع غداً"
+    override val fastingChannel = "تذكير الصيام"
 
     // ---------- التاريخ الهجري ----------
     override val hijriTitle = "التاريخ الهجري"

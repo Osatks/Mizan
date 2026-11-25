@@ -297,6 +297,38 @@ interface Strings {
     val poorCount: String
     val approxValue: String
 
+    // ---------- Fasting tracker ----------
+    val fastingTitle: String                     // tool page title: "Fasting"
+    val fastingSubtitle: String                  // Ramadan, make-up days and voluntary fasts
+    val fastingNow: String                       // badge on today's card: "You're fasting today"
+    val fastingVoluntaryToday: String            // switch: "Voluntary fast today" (logs today)
+    val fastingTodayHint: String                 // under the switch: turn it on to see the suhoor and iftar countdowns
+    val fastingForbiddenToday: String            // today is Eid or a day of Tashreeq: no fasting (factual)
+    val fastingFasted: String                    // Ramadan day state and tile label: "Fasted"
+    val fastingMissed: String                    // "Missed" (added to the make-up days)
+    val fastingUnmarked: String                  // "Not marked"
+    val fastingRamadanHint: String               // tap: fasted, again: missed, again: clear; missed days add to make-up days
+    val fastingQadaTitle: String                 // section title: "Make-up days (qada)"
+    val fastingQadaOwed: String                  // big number label: "Days to make up"
+    val fastingMadeUp: String                    // button: "I made up a day"
+    val fastingHistory: String                   // "History"
+    val fastingNothingYet: String                // empty history: "Nothing recorded yet"
+    val fastingLogAdded: String                  // history line: "Day added"
+    val fastingLogRemoved: String                // history line: "Day removed"
+    val fastingLogMadeUp: String                 // history line: "Day made up"
+    val fastingLogMissed: String                 // history line: "Missed in Ramadan"
+    val fastingSunnahTitle: String               // section title: "Voluntary fasts"
+    val fastingUpcoming: String                  // "Coming days" (voluntary fast days)
+    /** reasons for a voluntary fast day, keys: arafah tasua ashura shawwal white monday thursday */
+    val fastingKinds: Map<String, String>
+    val fastingLogged: String                    // label of the number of logged voluntary fasts
+    fun fastingShawwal(done: Int): String        // "Six days of Shawwal: 2 of 6"
+    val fastingRemind: String                    // switch: "Remind me the evening before"
+    fun fastingRemindDesc(time: String): String  // time is formatted: a notification at 9:00 PM before a voluntary fast day
+    fun fastingRemindTitle(what: String): String // notification title: "Tomorrow: Monday · White Days"
+    val fastingRemindBody: String                // notification text
+    val fastingChannel: String                   // Android notification channel: "Fasting reminders"
+
     // ---------- Hijri converter ----------
     val hijriTitle: String
     val hijriSubtitle: String

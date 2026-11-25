@@ -323,6 +323,35 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val halfSaOption: String by lazy { s("halfSaOption") ?: En.halfSaOption }
     override val poorCount: String by lazy { s("poorCount") ?: En.poorCount }
     override val approxValue: String by lazy { s("approxValue") ?: En.approxValue }
+    override val fastingTitle: String by lazy { s("fastingTitle") ?: En.fastingTitle }
+    override val fastingSubtitle: String by lazy { s("fastingSubtitle") ?: En.fastingSubtitle }
+    override val fastingNow: String by lazy { s("fastingNow") ?: En.fastingNow }
+    override val fastingVoluntaryToday: String by lazy { s("fastingVoluntaryToday") ?: En.fastingVoluntaryToday }
+    override val fastingTodayHint: String by lazy { s("fastingTodayHint") ?: En.fastingTodayHint }
+    override val fastingForbiddenToday: String by lazy { s("fastingForbiddenToday") ?: En.fastingForbiddenToday }
+    override val fastingFasted: String by lazy { s("fastingFasted") ?: En.fastingFasted }
+    override val fastingMissed: String by lazy { s("fastingMissed") ?: En.fastingMissed }
+    override val fastingUnmarked: String by lazy { s("fastingUnmarked") ?: En.fastingUnmarked }
+    override val fastingRamadanHint: String by lazy { s("fastingRamadanHint") ?: En.fastingRamadanHint }
+    override val fastingQadaTitle: String by lazy { s("fastingQadaTitle") ?: En.fastingQadaTitle }
+    override val fastingQadaOwed: String by lazy { s("fastingQadaOwed") ?: En.fastingQadaOwed }
+    override val fastingMadeUp: String by lazy { s("fastingMadeUp") ?: En.fastingMadeUp }
+    override val fastingHistory: String by lazy { s("fastingHistory") ?: En.fastingHistory }
+    override val fastingNothingYet: String by lazy { s("fastingNothingYet") ?: En.fastingNothingYet }
+    override val fastingLogAdded: String by lazy { s("fastingLogAdded") ?: En.fastingLogAdded }
+    override val fastingLogRemoved: String by lazy { s("fastingLogRemoved") ?: En.fastingLogRemoved }
+    override val fastingLogMadeUp: String by lazy { s("fastingLogMadeUp") ?: En.fastingLogMadeUp }
+    override val fastingLogMissed: String by lazy { s("fastingLogMissed") ?: En.fastingLogMissed }
+    override val fastingSunnahTitle: String by lazy { s("fastingSunnahTitle") ?: En.fastingSunnahTitle }
+    override val fastingUpcoming: String by lazy { s("fastingUpcoming") ?: En.fastingUpcoming }
+    override val fastingKinds: Map<String, String> by lazy { map("fastingKinds", En.fastingKinds) }
+    override val fastingLogged: String by lazy { s("fastingLogged") ?: En.fastingLogged }
+    override fun fastingShawwal(done: Int): String = f("fastingShawwal", "done" to done) ?: En.fastingShawwal(done)
+    override val fastingRemind: String by lazy { s("fastingRemind") ?: En.fastingRemind }
+    override fun fastingRemindDesc(time: String): String = f("fastingRemindDesc", "time" to time) ?: En.fastingRemindDesc(time)
+    override fun fastingRemindTitle(what: String): String = f("fastingRemindTitle", "what" to what) ?: En.fastingRemindTitle(what)
+    override val fastingRemindBody: String by lazy { s("fastingRemindBody") ?: En.fastingRemindBody }
+    override val fastingChannel: String by lazy { s("fastingChannel") ?: En.fastingChannel }
     override val hijriTitle: String by lazy { s("hijriTitle") ?: En.hijriTitle }
     override val hijriSubtitle: String by lazy { s("hijriSubtitle") ?: En.hijriSubtitle }
     override val correspondingHijri: String by lazy { s("correspondingHijri") ?: En.correspondingHijri }

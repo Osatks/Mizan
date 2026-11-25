@@ -65,6 +65,7 @@ object De : Strings {
         "fitr" to Named("Zakat al-Fitr", "Nach Sa' oder als Geldwert"),
         "age" to Named("Altersrechner", "In Hidschra- und gregorianischen Jahren"),
         "fidya" to Named("Fidya & Kaffara", "Versäumtes Fasten und gebrochene Schwüre"),
+        "fasting" to Named("Fasten-Tracker", "Ramadan, Nachholtage und freiwilliges Fasten"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakat zakah sakat almosen spende vermögen gold silber nisab geld ersparnisse aktien",
@@ -78,6 +79,7 @@ object De : Strings {
         "fitr" to "fitra fitrah fitr sa eid fastenbrechen",
         "age" to "alter geburtstag geburt jahre",
         "fidya" to "fidyah kaffara kaffarah sühne schwur eid fasten speisung",
+        "fasting" to "fasten sawm siyam ramadan nachholen qada sunna freiwillig suhur iftar arafa aschura schawwal weiße tage montag donnerstag",
     )
     override val toolsTitle = "Tools"
     override fun nextPrayerIn(city: String) = "Nächstes Gebet · $city"
@@ -387,6 +389,39 @@ object De : Strings {
     override val halfSaOption = "Ein halbes Sa' – etwa 1,5 kg (heutige Fatwas)"
     override val poorCount = "Bedürftige / Mahlzeiten"
     override val approxValue = "Ungefährer Wert"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Fasten"
+    override val fastingSubtitle = "Ramadan, Nachholtage und freiwilliges Fasten"
+    override val fastingNow = "Du fastest heute"
+    override val fastingVoluntaryToday = "Freiwilliges Fasten heute"
+    override val fastingTodayHint = "Schalte es ein, wenn du heute fastest: Dann siehst du den Countdown bis zum Ende des Suhur und bis zum Iftar, und der Tag wird eingetragen."
+    override val fastingForbiddenToday = "Heute ist Eid oder einer der Taschriq-Tage, an denen nicht gefastet wird."
+    override val fastingFasted = "Gefastet"
+    override val fastingMissed = "Ausgelassen"
+    override val fastingUnmarked = "Nicht markiert"
+    override val fastingRamadanHint = "Tippe auf einen Tag, um ihn als gefastet zu markieren, erneut für ausgelassen und noch einmal zum Löschen. Ausgelassene Tage kommen zu deinen Nachholtagen hinzu."
+    override val fastingQadaTitle = "Nachholtage (Qada)"
+    override val fastingQadaOwed = "Nachzuholende Tage"
+    override val fastingMadeUp = "Einen Tag nachgeholt"
+    override val fastingHistory = "Verlauf"
+    override val fastingNothingYet = "Noch nichts eingetragen"
+    override val fastingLogAdded = "Tag hinzugefügt"
+    override val fastingLogRemoved = "Tag entfernt"
+    override val fastingLogMadeUp = "Tag nachgeholt"
+    override val fastingLogMissed = "Im Ramadan ausgelassen"
+    override val fastingSunnahTitle = "Freiwilliges Fasten"
+    override val fastingUpcoming = "Kommende Tage"
+    override val fastingKinds = mapOf(
+        "arafah" to "Tag von Arafa", "tasua" to "Tasu'a (9. Muharram)", "ashura" to "Aschura (10. Muharram)", "shawwal" to "Sechs Tage im Schawwal", "white" to "Weiße Tage (13.–15.)", "monday" to "Montag", "thursday" to "Donnerstag",
+    )
+    override val fastingLogged = "Eingetragenes freiwilliges Fasten"
+    override fun fastingShawwal(done: Int) = "Sechs Tage im Schawwal: ${done} von 6"
+    override val fastingRemind = "Am Vorabend erinnern"
+    override fun fastingRemindDesc(time: String) = "Eine Mitteilung um ${time} am Abend vor einem freiwilligen Fastentag"
+    override fun fastingRemindTitle(what: String) = "Morgen: ${what}"
+    override val fastingRemindBody = "Erinnerung an das freiwillige Fasten morgen"
+    override val fastingChannel = "Fasten-Erinnerungen"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Hidschra-Datum"

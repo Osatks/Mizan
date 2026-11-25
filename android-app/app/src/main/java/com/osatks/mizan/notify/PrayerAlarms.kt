@@ -96,6 +96,8 @@ object PrayerAlarms {
 
     fun scheduleNext(ctx: Context) {
         AppSettings.init(ctx)
+        // تذكير صيام التطوع بمنبّهه الخاص، ولو كانت تنبيهات الأذان مطفأة
+        runCatching { FastReminders.schedule(ctx) }
         cancel(ctx)
         if (!AppSettings.notify || ALERT_PRAYERS.all { AppSettings.alertMode(it) == AlertMode.OFF }) return
         val p = AppSettings.place

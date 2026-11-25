@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import com.osatks.mizan.core.ALERT_PRAYERS
 import com.osatks.mizan.core.AlertMode
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.Fasting
 import com.osatks.mizan.core.Muezzins
 import kotlinx.datetime.LocalDate
 import com.osatks.mizan.core.LocationHelper
@@ -57,12 +58,26 @@ actual object PrayerAlerts {
     private const val DAYS = 7
     const val VIBRATE_SOUND = "mizan_vibrate.caf"
 
+    /** أقصى عدد للإشعارات المجدولة في iOS (ما زاد يُهمل بصمت) */
+    private const val IOS_LIMIT = 64
+
+    /** تذكيرات صيام التطوع: قليلة، وبعد الأذان دائماً، ويبقى بعدها متسع لغيرها */
+    private const val FAST_MAX = 3
+    private const val FAST_RESERVE = 8
+
     actual fun reschedule() {
         val center = UNUserNotificationCenter.currentNotificationCenter()
         // التطبيق مفتوح عند دخول الوقت: الأذان كاملاً أو نمط الاهتزاز المختار بدل صوت الإشعار
         if (center.delegate == null) center.delegate = alertPresenter
         center.removeAllPendingNotificationRequests()
-        if (!AppSettings.notify) return
+        // الأذان أولاً بحصته كاملة، ثم تذكير الصيام فيما بقي (لا يزاحم الأذان أبداً)
+        val adhan = if (AppSettings.notify) scheduleAdhan(center) else 0
+        scheduleFasting(center, minOf(FAST_MAX, IOS_LIMIT - FAST_RESERVE - adhan))
+    }
+
+    /** إشعارات الأذان لأيام [DAYS] القادمة؛ يعيد عددها */
+    private fun scheduleAdhan(center: UNUserNotificationCenter): Int {
+        var count = 0
         val s = Lang.current.strings
         val p = AppSettings.place
         val today = LocalDate.now()
@@ -93,7 +108,30 @@ actual object PrayerAlerts {
                 }
                 val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
                 center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("adhan-$day-$key", content, trigger), null)
+                count++
             }
+        }
+        return count
+    }
+
+    /** تذكير صيام التطوع (مطفأ افتراضياً): مساء اليوم السابق لأقرب [budget] يوماً، بوقت الموقع كإشعارات الأذان */
+    private fun scheduleFasting(center: UNUserNotificationCenter, budget: Int) {
+        if (budget <= 0) return
+        Fasting.ensure()
+        if (!Fasting.state.remind) return
+        val s = Lang.current.strings
+        for ((at, day) in Fasting.reminders(budget)) {
+            val comps = NSDateComponents().apply {
+                year = at.year.toLong(); month = at.monthNumber.toLong(); this.day = at.dayOfMonth.toLong()
+                hour = at.hour.toLong(); minute = at.minute.toLong()
+            }
+            val content = UNMutableNotificationContent().apply {
+                setTitle(s.fastingRemindTitle(day.kinds.joinToString(" · ") { s.fastingKinds[it.key] ?: it.key }))
+                setBody(s.fastingRemindBody)
+                setSound(UNNotificationSound.defaultSound)
+            }
+            val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
+            center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("fast-${day.date}", content, trigger), null)
         }
     }
 

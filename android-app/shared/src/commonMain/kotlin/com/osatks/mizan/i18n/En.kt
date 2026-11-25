@@ -65,6 +65,7 @@ object En : Strings {
         "fitr" to Named("Zakat al-Fitr", "By the sa' or by value"),
         "age" to Named("Age Calculator", "In Hijri and Gregorian years"),
         "fidya" to Named("Fidya & Kaffarah", "Missed fasts and broken oaths"),
+        "fasting" to Named("Fasting tracker", "Ramadan, make-up days and voluntary fasts"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakah charity wealth gold silver nisab money savings shares",
@@ -78,6 +79,7 @@ object En : Strings {
         "fitr" to "fitrah fitra sa eid",
         "age" to "birthday birth years",
         "fidya" to "fidyah kaffara expiation oath fasting feeding",
+        "fasting" to "fasting fast sawm siyam ramadan qada makeup make-up sunnah voluntary suhoor iftar arafah ashura shawwal white days monday thursday",
     )
     override val toolsTitle = "Tools"
     override fun nextPrayerIn(city: String) = "Next prayer · $city"
@@ -387,6 +389,39 @@ object En : Strings {
     override val halfSaOption = "Half a sa' — about 1.5 kg (contemporary fatwas)"
     override val poorCount = "Poor people / meals"
     override val approxValue = "Approximate value"
+
+    // ---------- Fasting tracker ----------
+    override val fastingTitle = "Fasting"
+    override val fastingSubtitle = "Ramadan, make-up days and voluntary fasts"
+    override val fastingNow = "You're fasting today"
+    override val fastingVoluntaryToday = "Voluntary fast today"
+    override val fastingTodayHint = "Turn it on if you fast today to see the countdowns to the end of suhoor and to iftar, and to log the day."
+    override val fastingForbiddenToday = "Today is Eid or one of the days of Tashreeq, on which there is no fasting."
+    override val fastingFasted = "Fasted"
+    override val fastingMissed = "Missed"
+    override val fastingUnmarked = "Not marked"
+    override val fastingRamadanHint = "Tap a day to mark it fasted, again to mark it missed, and once more to clear it. Missed days are added to your make-up days."
+    override val fastingQadaTitle = "Make-up days (qada)"
+    override val fastingQadaOwed = "Days to make up"
+    override val fastingMadeUp = "I made up a day"
+    override val fastingHistory = "History"
+    override val fastingNothingYet = "Nothing recorded yet"
+    override val fastingLogAdded = "Day added"
+    override val fastingLogRemoved = "Day removed"
+    override val fastingLogMadeUp = "Day made up"
+    override val fastingLogMissed = "Missed in Ramadan"
+    override val fastingSunnahTitle = "Voluntary fasts"
+    override val fastingUpcoming = "Coming days"
+    override val fastingKinds = mapOf(
+        "arafah" to "Day of Arafah", "tasua" to "Tasu'a (9 Muharram)", "ashura" to "Ashura (10 Muharram)", "shawwal" to "Six days of Shawwal", "white" to "White Days (13–15)", "monday" to "Monday", "thursday" to "Thursday",
+    )
+    override val fastingLogged = "Voluntary fasts logged"
+    override fun fastingShawwal(done: Int) = "Six days of Shawwal: ${done} of 6"
+    override val fastingRemind = "Remind me the evening before"
+    override fun fastingRemindDesc(time: String) = "A notification at ${time} on the evening before a voluntary fast day"
+    override fun fastingRemindTitle(what: String) = "Tomorrow: ${what}"
+    override val fastingRemindBody = "A reminder of tomorrow's voluntary fast"
+    override val fastingChannel = "Fasting reminders"
 
     // ---------- Hijri converter ----------
     override val hijriTitle = "Hijri Date"

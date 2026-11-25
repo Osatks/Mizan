@@ -7,6 +7,7 @@ import com.osatks.mizan.ui.screens.AdhanScreen
 import com.osatks.mizan.ui.screens.AdhkarScreen
 import com.osatks.mizan.ui.screens.AgeScreen
 import com.osatks.mizan.ui.screens.EventsScreen
+import com.osatks.mizan.ui.screens.FastingScreen
 import com.osatks.mizan.ui.screens.FidyaScreen
 import com.osatks.mizan.ui.screens.FitrScreen
 import com.osatks.mizan.ui.screens.HadithScreen
@@ -47,6 +48,7 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "age" -> AgeScreen(back)
         "events" -> EventsScreen(back)
         "fidya" -> FidyaScreen(back)
+        "fasting" -> FastingScreen(back)
         "search" -> SearchScreen(back) { r -> app.searchResult(r) }
     }
 }
