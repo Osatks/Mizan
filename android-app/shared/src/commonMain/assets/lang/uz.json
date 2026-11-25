@@ -967,6 +967,7 @@
    "fitr": "fitr fitra sadaqa soʻ hayit",
    "age": "tugʻilgan kun yosh yillar",
    "fidya": "fidya kafforat qasam roʻza taom toʻydirish",
+   "kids": "bolalar bola yodlash hofiz amma pora qisqa suralar alloh ismlari asmo duo yulduz oʻrganish",
    "adhkar": "zikr zikrlar duo hisnul muslim tong kech uyqu ramazon azkor"
   },
   "tools": {
@@ -1010,6 +1011,7 @@
     "name": "Fidya va kafforat",
     "desc": "Qoldirilgan roʻzalar va buzilgan qasamlar"
    },
+   "kids": {"name": "Bolalar burchagi", "desc": "Qisqa suralar, Alloh ismlari, duolar va yulduzlar"},
    "adhkar": {
     "name": "Zikrlar",
     "desc": "«Musulmon qoʻrgʻoni» va kundalik zikrlar, dalillari bilan"
@@ -1116,6 +1118,24 @@
   "close": "Yopish",
   "liveCountdown": "Qulf ekranida jonli teskari sanoq",
   "liveCountdownDesc": "Namozdan 3 soatdan kamroq oldin Mizan’dan chiqsangiz, uning teskari sanogʻi qulf ekranida va Dynamic Island’da koʻrinadi.",
+  "kidsSurahs": "Qisqa suralar",
+  "kidsSurahsSub": "Oʻqing, tinglang va qoriga ergashib takrorlang",
+  "kidsNames": "Allohning goʻzal ismlari",
+  "kidsNamesSub": "Har bir ism bilan tanishish uchun suring, u kelgan oyat bilan birga",
+  "kidsDuas": "Kundalik duolar",
+  "kidsDuasSub": "Ovqat, uyqu, uydan chiqish va boshqa holatlar uchun qisqa duolar",
+  "kidsStars": "Yulduzlar jadvali",
+  "kidsStarsSub": "Bola surani yod olgach, ota-onasi uni belgilaydi",
+  "kidsStarCount": "{n, plural, one {# yulduz} other {# yulduz}}",
+  "kidsMarkMemorized": "Yod oldimi? Yulduz bering",
+  "kidsMemorized": "Yod olindi",
+  "kidsRepeatAfterMe": "Men bilan takrorlang",
+  "kidsListen": "Tinglang…",
+  "kidsYourTurn": "Navbat sizda! Oyatni ayting",
+  "kidsWellDone": "Barakalla! Mashaalloh",
+  "kidsTapAyah": "Boshlash uchun oyatga bosing",
+  "kidsPrevName": "Oldingi ism",
+  "kidsNextName": "Keyingi ism",
   "liveActivitiesOff": "Mizan uchun Live Activities oʻchirilgan. Ularni Settings › Mizan boʻlimida yoqing."
  },
  "evidence": {

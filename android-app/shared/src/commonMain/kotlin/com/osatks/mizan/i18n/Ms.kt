@@ -66,6 +66,7 @@ object Ms : Strings {
         "fitr" to Named("Zakat Fitrah", "Mengikut gantang (sa') atau nilai wang"),
         "age" to Named("Kalkulator Umur", "Dalam tahun Hijrah dan Masihi"),
         "fidya" to Named("Fidyah & Kafarah", "Puasa yang ditinggalkan dan sumpah yang dilanggar"),
+        "kids" to Named("Sudut Kanak-kanak", "Surah pendek, Asmaul Husna, doa dan carta bintang"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakat zakah harta emas perak nisab wang simpanan saham sedekah",
@@ -79,6 +80,7 @@ object Ms : Strings {
         "fitr" to "fitrah fitri gantang beras raya",
         "age" to "umur usia hari jadi lahir tahun",
         "fidya" to "fidyah fidya kafarah kaffarah sumpah puasa qada denda beri makan",
+        "kids" to "kanak-kanak anak hafazan menghafal juz amma surah pendek asmaul husna nama allah doa bintang belajar",
     )
     override val toolsTitle = "Alatan"
     override fun nextPrayerIn(city: String) = "Solat seterusnya · $city"
@@ -753,6 +755,25 @@ object Ms : Strings {
     override val dhikrTapHint = "Ketik zikir untuk mengira, dan “Dalil” untuk melihat sumber dan darjatnya"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, other {# kali}}", mapOf("n" to n), "ms")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, other {# zikir}}", mapOf("n" to n), "ms")
+    // ---------- ركن الأطفال ----------
+    override val kidsSurahs = "Surah pendek"
+    override val kidsSurahsSub = "Baca, dengar dan ikut bacaan qari"
+    override val kidsNames = "Asmaul Husna"
+    override val kidsNamesSub = "Leret untuk mengenali setiap nama, bersama ayat yang menyebutnya"
+    override val kidsDuas = "Doa harian"
+    override val kidsDuasSub = "Doa pendek untuk makan, tidur, keluar rumah dan lain-lain"
+    override val kidsStars = "Carta bintang"
+    override val kidsStarsSub = "Ibu bapa mengetik surah setelah anak menghafalnya"
+    override fun kidsStarCount(n: Int) = Template.format("{n, plural, other {# bintang}}", mapOf("n" to n), "ms")
+    override val kidsMarkMemorized = "Sudah hafal? Beri bintang"
+    override val kidsMemorized = "Sudah hafal"
+    override val kidsRepeatAfterMe = "Ikut saya"
+    override val kidsListen = "Dengar…"
+    override val kidsYourTurn = "Giliran kamu! Sebut ayat itu"
+    override val kidsWellDone = "Syabas! Masya-Allah"
+    override val kidsTapAyah = "Ketik ayat untuk mula dari situ"
+    override val kidsPrevName = "Nama sebelumnya"
+    override val kidsNextName = "Nama seterusnya"
     override val moreLanguages = "Muat turun bahasa lain"
     override val langPackHint = "Bahasa dimuat turun dari laman web Mizan bersama terjemahan al-Quran, kemudian berfungsi tanpa internet."
     override val update = "Kemas kini"

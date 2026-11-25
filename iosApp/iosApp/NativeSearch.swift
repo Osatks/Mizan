@@ -87,6 +87,7 @@ private func searchPageSymbol(_ key: String) -> String {
     case "age":
         if #available(iOS 16.0, *) { return "birthday.cake.fill" } else { return "gift.fill" }
     case "fidya": return "hands.sparkles.fill"
+    case "kids": return kidsSymbol()
     case "quran": return "book.fill"
     case "time": return "clock"
     case "city": return "building.2.fill"

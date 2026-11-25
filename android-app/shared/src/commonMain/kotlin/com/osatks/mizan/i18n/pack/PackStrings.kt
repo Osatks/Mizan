@@ -589,6 +589,24 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val dhikrTapHint: String by lazy { s("dhikrTapHint") ?: En.dhikrTapHint }
     override fun dhikrTimes(n: Int): String = f("dhikrTimes", "n" to n) ?: En.dhikrTimes(n)
     override fun dhikrItems(n: Int): String = f("dhikrItems", "n" to n) ?: En.dhikrItems(n)
+    override val kidsSurahs: String by lazy { s("kidsSurahs") ?: En.kidsSurahs }
+    override val kidsSurahsSub: String by lazy { s("kidsSurahsSub") ?: En.kidsSurahsSub }
+    override val kidsNames: String by lazy { s("kidsNames") ?: En.kidsNames }
+    override val kidsNamesSub: String by lazy { s("kidsNamesSub") ?: En.kidsNamesSub }
+    override val kidsDuas: String by lazy { s("kidsDuas") ?: En.kidsDuas }
+    override val kidsDuasSub: String by lazy { s("kidsDuasSub") ?: En.kidsDuasSub }
+    override val kidsStars: String by lazy { s("kidsStars") ?: En.kidsStars }
+    override val kidsStarsSub: String by lazy { s("kidsStarsSub") ?: En.kidsStarsSub }
+    override fun kidsStarCount(n: Int): String = f("kidsStarCount", "n" to n) ?: En.kidsStarCount(n)
+    override val kidsMarkMemorized: String by lazy { s("kidsMarkMemorized") ?: En.kidsMarkMemorized }
+    override val kidsMemorized: String by lazy { s("kidsMemorized") ?: En.kidsMemorized }
+    override val kidsRepeatAfterMe: String by lazy { s("kidsRepeatAfterMe") ?: En.kidsRepeatAfterMe }
+    override val kidsListen: String by lazy { s("kidsListen") ?: En.kidsListen }
+    override val kidsYourTurn: String by lazy { s("kidsYourTurn") ?: En.kidsYourTurn }
+    override val kidsWellDone: String by lazy { s("kidsWellDone") ?: En.kidsWellDone }
+    override val kidsTapAyah: String by lazy { s("kidsTapAyah") ?: En.kidsTapAyah }
+    override val kidsPrevName: String by lazy { s("kidsPrevName") ?: En.kidsPrevName }
+    override val kidsNextName: String by lazy { s("kidsNextName") ?: En.kidsNextName }
     override val moreLanguages: String by lazy { s("moreLanguages") ?: En.moreLanguages }
     override val langPackHint: String by lazy { s("langPackHint") ?: En.langPackHint }
     override val update: String by lazy { s("update") ?: En.update }

@@ -68,6 +68,7 @@ object Es : Strings {
         "fitr" to Named("Zakat al-Fitr", "Por sa' o en dinero"),
         "age" to Named("Calculadora de edad", "En años hiyri y gregorianos"),
         "fidya" to Named("Fidya y kaffara", "Ayunos perdidos y juramentos rotos"),
+        "kids" to Named("Rincón infantil", "Suras cortas, nombres de Allah, súplicas y estrellas"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakat zakah azaque limosna caridad sadaqa riqueza dinero oro plata nisab ahorros acciones",
@@ -81,6 +82,7 @@ object Es : Strings {
         "fitr" to "fitra fitrah fitr sa eid limosna",
         "age" to "cumpleaños cumpleanos nacimiento edad años anos",
         "fidya" to "fidyah kaffara kaffarah expiación expiacion juramento ayuno alimentar",
+        "kids" to "niños niño infantil memorizar hifz juz amma suras cortas nombres de allah asma husna súplicas duas estrellas aprender",
     )
     override val toolsTitle = "Herramientas"
     override fun nextPrayerIn(city: String) = "Próxima oración · $city"
@@ -755,6 +757,25 @@ object Es : Strings {
     override val dhikrTapHint = "Toca un dhikr para contarlo y «Prueba» para ver su fuente y grado"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {una vez} other {# veces}}", mapOf("n" to n), "es")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, one {# invocación} other {# invocaciones}}", mapOf("n" to n), "es")
+    // ---------- ركن الأطفال ----------
+    override val kidsSurahs = "Suras cortas"
+    override val kidsSurahsSub = "Lee, escucha y repite tras el recitador"
+    override val kidsNames = "Los nombres de Allah"
+    override val kidsNamesSub = "Desliza para conocer cada nombre, con una aleya donde aparece"
+    override val kidsDuas = "Súplicas de cada día"
+    override val kidsDuasSub = "Súplicas breves para comer, dormir, salir y más"
+    override val kidsStars = "Tabla de estrellas"
+    override val kidsStarsSub = "Un padre o una madre toca la sura cuando el niño la memoriza"
+    override fun kidsStarCount(n: Int) = Template.format("{n, plural, one {# estrella} other {# estrellas}}", mapOf("n" to n), "es")
+    override val kidsMarkMemorized = "¿Memorizada? Da una estrella"
+    override val kidsMemorized = "Memorizada"
+    override val kidsRepeatAfterMe = "Repite conmigo"
+    override val kidsListen = "Escucha…"
+    override val kidsYourTurn = "¡Tu turno! Di la aleya"
+    override val kidsWellDone = "¡Muy bien! Masha’Allah"
+    override val kidsTapAyah = "Toca una aleya para empezar desde ella"
+    override val kidsPrevName = "Nombre anterior"
+    override val kidsNextName = "Nombre siguiente"
     override val moreLanguages = "Descargar más idiomas"
     override val langPackHint = "Los idiomas se descargan del sitio de Mizan junto con su traducción del Corán y luego funcionan sin conexión."
     override val update = "Actualizar"

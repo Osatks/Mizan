@@ -66,6 +66,7 @@ object Ur : Strings {
         "fitr" to Named("صدقۂ فطر", "صاع کے حساب سے یا قیمت سے"),
         "age" to Named("عمر کیلکولیٹر", "ہجری اور عیسوی سالوں میں"),
         "fidya" to Named("فدیہ و کفارہ", "چھوٹے روزے اور ٹوٹی قسمیں"),
+        "kids" to Named("بچوں کا گوشہ", "چھوٹی سورتیں، اللہ کے نام، دعائیں اور ستاروں کا چارٹ"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "زکوۃ زکاۃ زکات مال سونا چاندی نصاب رقم بچت شیئرز حصص صدقہ خیرات zakat zakaat",
@@ -79,6 +80,7 @@ object Ur : Strings {
         "fitr" to "فطرہ فطرانہ صدقہ فطر صاع عید fitrana",
         "age" to "عمر سالگرہ پیدائش سال umar",
         "fidya" to "فدیہ کفارہ قسم روزہ روزے کھانا مسکین fidya kaffara",
+        "kids" to "بچے بچہ بچوں حفظ پارہ عم چھوٹی سورتیں اسماء الحسنیٰ اللہ کے نام دعائیں ستارے سیکھنا kids",
     )
     override val toolsTitle = "ٹولز"
     override fun nextPrayerIn(city: String) = "اگلی نماز · $city"
@@ -753,6 +755,25 @@ object Ur : Strings {
     override val dhikrTapHint = "گننے کے لیے ذکر پر، اور ماخذ و درجہ دیکھنے کے لیے «دلیل» پر ٹیپ کریں"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {ایک بار} other {# بار}}", mapOf("n" to n), "ur")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, other {# اذکار}}", mapOf("n" to n), "ur")
+    // ---------- ركن الأطفال ----------
+    override val kidsSurahs = "چھوٹی سورتیں"
+    override val kidsSurahsSub = "پڑھو، سنو اور قاری کے بعد دہراؤ"
+    override val kidsNames = "اللہ کے پیارے نام"
+    override val kidsNamesSub = "ہر نام کو جاننے کے لیے سوائپ کرو، اس آیت کے ساتھ جس میں وہ آیا ہے"
+    override val kidsDuas = "روزمرہ کی دعائیں"
+    override val kidsDuasSub = "کھانے، سونے، باہر جانے اور دوسرے کاموں کی چھوٹی دعائیں"
+    override val kidsStars = "ستاروں کا چارٹ"
+    override val kidsStarsSub = "بچہ سورت یاد کر لے تو والدین اس پر ٹیپ کریں"
+    override fun kidsStarCount(n: Int) = Template.format("{n, plural, one {# ستارہ} other {# ستارے}}", mapOf("n" to n), "ur")
+    override val kidsMarkMemorized = "یاد ہو گئی؟ ستارہ دیں"
+    override val kidsMemorized = "یاد ہو گئی"
+    override val kidsRepeatAfterMe = "میرے ساتھ دہراؤ"
+    override val kidsListen = "سنو…"
+    override val kidsYourTurn = "اب تمہاری باری! آیت پڑھو"
+    override val kidsWellDone = "شاباش! ماشاءاللہ"
+    override val kidsTapAyah = "جس آیت سے شروع کرنا ہو اس پر ٹیپ کرو"
+    override val kidsPrevName = "پچھلا نام"
+    override val kidsNextName = "اگلا نام"
     override val moreLanguages = "مزید زبانیں ڈاؤن لوڈ کریں"
     override val langPackHint = "زبانیں قرآن کے ترجمے سمیت میزان کی ویب سائٹ سے ڈاؤن لوڈ ہوتی ہیں، پھر انٹرنیٹ کے بغیر چلتی ہیں۔"
     override val update = "اپ ڈیٹ"

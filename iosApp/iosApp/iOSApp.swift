@@ -40,6 +40,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeInheritanceScreen.install()
         NativeDatesScreen.install()
         NativeFitrFidyaScreen.install()
+        // وركن الأطفال (NativeKids.swift)
+        NativeKidsScreen.install()
         // والحديث والبحث ومكتبة التفاسير والأذان والدليل والتراخيص، وأوراق اللغة والمدينة
         NativeHadithScreen.install()
         NativeSearchScreen.install()

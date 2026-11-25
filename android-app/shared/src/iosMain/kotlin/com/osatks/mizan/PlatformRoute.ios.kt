@@ -20,6 +20,7 @@ import com.osatks.mizan.ui.screens.IosPrayerScreen
 import com.osatks.mizan.ui.screens.IosSearchScreen
 import com.osatks.mizan.ui.screens.IosSettingsScreen
 import com.osatks.mizan.ui.screens.IosZakatScreen
+import com.osatks.mizan.ui.screens.NativeKidsView
 import com.osatks.mizan.ui.screens.NativeLicensesView
 import com.osatks.mizan.ui.screens.NativeQiblaView
 import com.osatks.mizan.ui.screens.NativeTasbihView
@@ -54,6 +55,8 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "age" -> IosAgeScreen(back)
         "events" -> IosEventsScreen(back)
         "fidya" -> IosFidyaScreen(back)
+        // ركن الأطفال: «ردّد معي» في Kotlin (KidsRecite)، والواجهة في Swift
+        "kids" -> NativeKidsView(back, Modifier.fillMaxSize())
         "search" -> IosSearchScreen(back) { r -> app.searchResult(r) }
     }
 }

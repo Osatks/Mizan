@@ -33,7 +33,7 @@ internal fun guideDone() {
 /** مسار يُفتح من رابط (أداة، اختصار، إشعار، وسيط تشغيل) */
 internal fun isRoute(route: String): Boolean = route in ROUTES || route.startsWith("surah/")
 
-internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses", "hadith", "tools")
+internal val ROUTES = setOf("home", "prayer", "qibla", "tasbih", "settings", "zakat", "fitr", "inheritance", "hijri", "age", "events", "fidya", "search", "quran", "tafsirs", "guide", "adhkar", "adhan", "licenses", "hadith", "tools", "kids")
 internal val TAB_ROUTES = TABS.map { it.route }.toSet()
 
 /**

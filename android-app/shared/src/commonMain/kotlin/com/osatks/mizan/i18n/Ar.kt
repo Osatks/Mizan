@@ -73,6 +73,7 @@ object Ar : Strings {
         "fitr" to Named("زكاة الفطر", "بالصاع أو بالقيمة"),
         "age" to Named("حاسبة العمر", "بالهجري والميلادي"),
         "fidya" to Named("الفدية والكفارة", "الصيام واليمين"),
+        "kids" to Named("ركن الأطفال", "سور قصيرة وأسماء الله وأدعية ولوحة نجوم"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "زكاة مال ذهب فضة نصاب أسهم ثروة صدقة",
@@ -86,6 +87,7 @@ object Ar : Strings {
         "fitr" to "فطرة فطر صاع عيد",
         "age" to "عمر ميلاد سن",
         "fidya" to "فدية كفارة يمين صيام إطعام",
+        "kids" to "أطفال طفل حفظ جزء عم قصار السور أسماء الله الحسنى أدعية نجوم تعليم",
     )
     override val toolsTitle = "الأدوات"
     override fun nextPrayerIn(city: String) = "الصلاة القادمة · $city"
@@ -735,6 +737,25 @@ object Ar : Strings {
     override val dhikrTapHint = "اضغط على الذكر لتعدّ، وعلى «الدليل» لترى مصدره ودرجته"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, =1 {مرة واحدة} =2 {مرتان} few {# مرات} other {# مرة}}", mapOf("n" to n), "ar")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, =1 {ذكر واحد} =2 {ذكران} few {# أذكار} other {# ذكرًا}}", mapOf("n" to n), "ar")
+    // ---------- ركن الأطفال ----------
+    override val kidsSurahs = "سور قصيرة"
+    override val kidsSurahsSub = "اقرأ واستمع وردّد خلف القارئ"
+    override val kidsNames = "أسماء الله الحسنى"
+    override val kidsNamesSub = "اسحب لتتعرّف على كل اسم، مع آية ورد فيها"
+    override val kidsDuas = "أدعية كل يوم"
+    override val kidsDuasSub = "أدعية قصيرة للطعام والنوم والخروج وغيرها"
+    override val kidsStars = "لوحة النجوم"
+    override val kidsStarsSub = "يلمس أحد الوالدين السورة حين يحفظها الطفل"
+    override fun kidsStarCount(n: Int) = Template.format("{n, plural, =1 {نجمة واحدة} =2 {نجمتان} few {# نجوم} other {# نجمة}}", mapOf("n" to n), "ar")
+    override val kidsMarkMemorized = "حفِظها؟ أعطِ نجمة"
+    override val kidsMemorized = "محفوظة"
+    override val kidsRepeatAfterMe = "ردِّد معي"
+    override val kidsListen = "استمع…"
+    override val kidsYourTurn = "دورك! ردِّد الآية"
+    override val kidsWellDone = "أحسنت! ما شاء الله"
+    override val kidsTapAyah = "المس آية لتبدأ منها"
+    override val kidsPrevName = "الاسم السابق"
+    override val kidsNextName = "الاسم التالي"
     override val moreLanguages = "تنزيل لغات أخرى"
     override val langPackHint = "تُنزَّل اللغات من موقع ميزان مع ترجمة معاني القرآن، ثم تعمل دون إنترنت."
     override val update = "تحديث"

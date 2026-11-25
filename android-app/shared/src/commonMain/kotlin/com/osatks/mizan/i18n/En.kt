@@ -65,6 +65,7 @@ object En : Strings {
         "fitr" to Named("Zakat al-Fitr", "By the sa' or by value"),
         "age" to Named("Age Calculator", "In Hijri and Gregorian years"),
         "fidya" to Named("Fidya & Kaffarah", "Missed fasts and broken oaths"),
+        "kids" to Named("Kids’ Corner", "Short surahs, Allah’s names, duas and a star chart"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakah charity wealth gold silver nisab money savings shares",
@@ -78,6 +79,7 @@ object En : Strings {
         "fitr" to "fitrah fitra sa eid",
         "age" to "birthday birth years",
         "fidya" to "fidyah kaffara expiation oath fasting feeding",
+        "kids" to "kids children child memorize hifz juz amma short surahs names of allah asma husna duas stars learn",
     )
     override val toolsTitle = "Tools"
     override fun nextPrayerIn(city: String) = "Next prayer · $city"
@@ -752,6 +754,25 @@ object En : Strings {
     override val dhikrTapHint = "Tap a dhikr to count it, and Evidence to see its source and grade"
     override fun dhikrTimes(n: Int) = Template.format("{n, plural, one {once} other {# times}}", mapOf("n" to n), "en")
     override fun dhikrItems(n: Int) = Template.format("{n, plural, one {# dhikr} other {# adhkar}}", mapOf("n" to n), "en")
+    // ---------- ركن الأطفال ----------
+    override val kidsSurahs = "Short surahs"
+    override val kidsSurahsSub = "Read, listen and repeat after the reciter"
+    override val kidsNames = "Names of Allah"
+    override val kidsNamesSub = "Swipe to meet each name, with an ayah where it appears"
+    override val kidsDuas = "Everyday duas"
+    override val kidsDuasSub = "Short duas for eating, sleeping, going out and more"
+    override val kidsStars = "Star chart"
+    override val kidsStarsSub = "A parent taps a surah once the child has memorized it"
+    override fun kidsStarCount(n: Int) = Template.format("{n, plural, one {# star} other {# stars}}", mapOf("n" to n), "en")
+    override val kidsMarkMemorized = "Memorized? Give a star"
+    override val kidsMemorized = "Memorized"
+    override val kidsRepeatAfterMe = "Repeat after me"
+    override val kidsListen = "Listen…"
+    override val kidsYourTurn = "Your turn! Say the ayah"
+    override val kidsWellDone = "Well done! Masha’Allah"
+    override val kidsTapAyah = "Tap an ayah to start from it"
+    override val kidsPrevName = "Previous name"
+    override val kidsNextName = "Next name"
     override val moreLanguages = "Download more languages"
     override val langPackHint = "Languages are downloaded from the Mizan website together with their Quran translation, then work offline."
     override val update = "Update"
