@@ -109,7 +109,9 @@ class StringsTest {
     fun noOtherPlatformInIosText() {
         val androidOnly = setOf("silenceBody", "silenceTitle", "adhanStopHint", "exactAlarm", "exactAlarmDesc",
             // النسخ التلقائي إلى حساب Google: ملاحظة قسم النسخ الاحتياطي في أندرويد وحده (backupNote)
-            "backupAutoNote")
+            "backupAutoNote",
+            // اسم تطبيق «خرائط Google» نفسه (يُعرض في iOS حين يكون مثبتاً، للاتجاهات إلى المسجد) لا ذكر للمنصة
+            "googleMaps")
         val banned = Regex("(?i)android|google|play store|\\bapk\\b|أندرويد|اندرويد|андроид|андроїд")
         for (l in Lang.entries) {
             val s = l.strings
