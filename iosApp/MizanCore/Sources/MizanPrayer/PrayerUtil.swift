@@ -11,15 +11,37 @@ extension PrayTimes {
     }
 }
 
-/// يحوّل إحداثيات الجهاز إلى موقع: أقرب مدينة معروفة إن كانت قريبة، وإلا «موقعي الحالي» (key = nil).
+/// يحوّل إحداثيات الجهاز إلى موقع (core/LocationHelper.kt): المدينة المعروفة إن كان فيها أو على [nearKm] كم منها،
+/// وإلا key = nil (اسمه من محدد المواقع في النظام، أو «موقعي الحالي»). أقرب مدينة مهما بعدت تختار الطريقة فقط.
 /// يُبنى منه Place في MizanContent مع gps = true ومنطقة الجهاز الزمنية.
 public enum LocationHelper {
+    /// أبعد مسافة (كم) يُسمّى فيها موقع GPS باسم مدينة معروفة (NEAR_KM)
+    public static let nearKm = 25.0
+
     public static func placeFrom(_ latitude: Double, _ longitude: Double) -> (key: String?, lat: Double, lng: Double, method: String, elev: Int) {
         let lat = (latitude * 10000).rounded(.toNearestOrEven) / 10000.0
         let lng = (longitude * 10000).rounded(.toNearestOrEven) / 10000.0
-        let (city, dist) = PrayTimes.nearestCity(lat, lng)
-        let near = dist < 1.5
-        return (near ? city.key : nil, lat, lng, city.method, PrayTimes.elevationNear(lat, lng))
+        let (city, _) = PrayTimes.nearestCity(lat, lng)
+        return (nearCity(lat, lng)?.key, lat, lng, city.method, PrayTimes.elevationNear(lat, lng))
+    }
+
+    /// المدينة المعروفة التي يقع فيها الموقع أو قربها (على [nearKm] كم على الأكثر)، وإلا nil
+    public static func nearCity(_ lat: Double, _ lng: Double) -> City? {
+        var best: (City, Double)?
+        for c in PrayTimes.CITIES {
+            let d = distanceKm(lat, lng, c.lat, c.lng)
+            if best == nil || d < best!.1 { best = (c, d) }
+        }
+        guard let b = best, b.1 <= nearKm else { return nil }
+        return b.0
+    }
+
+    /// المسافة بين نقطتين على سطح الأرض بالكيلومترات (هافرسين)
+    public static func distanceKm(_ lat1: Double, _ lng1: Double, _ lat2: Double, _ lng2: Double) -> Double {
+        let r = 6371.0, rad = Double.pi / 180.0
+        let dLat = (lat2 - lat1) * rad, dLng = (lng2 - lng1) * rad
+        let a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1 * rad) * cos(lat2 * rad) * sin(dLng / 2) * sin(dLng / 2)
+        return 2 * r * asin(sqrt(min(1.0, a)))
     }
 }
 

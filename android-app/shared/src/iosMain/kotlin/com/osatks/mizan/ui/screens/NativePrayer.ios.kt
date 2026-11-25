@@ -33,10 +33,10 @@ import com.osatks.mizan.core.plusDays
 import com.osatks.mizan.i18n.HomeText
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
-import com.osatks.mizan.i18n.country
 import com.osatks.mizan.i18n.greg
 import com.osatks.mizan.i18n.hijri
 import com.osatks.mizan.i18n.pack.Json
+import com.osatks.mizan.i18n.placeLine
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.i18n.time
@@ -253,7 +253,6 @@ internal fun NativePrayerView(
         }
         val qibla = PrayTimes.qibla(place.lat, place.lng)
         val dirs = s.directions[(kotlin.math.round(qibla / 45.0).toInt()) % 8]
-        val city = place.city
         val json = Json.write(
             linkedMapOf<String, Any?>(
                 "rtl" to lang.rtl, "lang" to lang.code, "dark" to dark,
@@ -261,7 +260,7 @@ internal fun NativePrayerView(
                 "start" to g.start.value.toDouble(), "end" to g.end.value.toDouble(),
                 "columns" to if (twoColumns) 2 else 1,
                 "title" to s.prayerTitle,
-                "subtitle" to s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: ""),
+                "subtitle" to s.placeLine(place, lang),
                 "next" to linkedMapOf(
                     "key" to next.key, "label" to s.nextPrayerLabel(s.prayer(next.key)),
                     "at" to nextEpoch,

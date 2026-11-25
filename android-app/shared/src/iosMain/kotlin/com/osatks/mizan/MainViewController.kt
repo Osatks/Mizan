@@ -1,6 +1,7 @@
 package com.osatks.mizan
 
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.PlaceNames
 import com.osatks.mizan.core.ReviewPrompt
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.ui.IosStatusBar
@@ -30,6 +31,8 @@ fun MainViewController(): UIViewController {
     // ولقطة أدوات الشاشة الرئيسية في حاوية App Group (وتُحدَّث أيضاً عند الخروج منه)؛
     // بعد أن تظهر الواجهة: حساب أسبوع من المواقيت وطلبات الإشعار لا ينتظرها أول إطار
     MainScope().launch { delay(1200); PrayerAlerts.reschedule(); IosWidgets.refresh() }
+    // اسم موقع GPS وصل من محدد المواقع: لقطة الأدوات والساعة به (والإشعارات تُعاد جدولتها في PlaceNames)
+    PlaceNames.onNamed = { IosWidgets.refresh() }
     // طلب التقييم بلطف بعد استعمال حقيقي (IosNav.shown)
     ReviewPrompt.onLaunch()
     // الأذكار من أكثر ما يُفتح من الرئيسية: تُقرأ أقسامها مسبقاً، فتظهر كاملة من أول فتح

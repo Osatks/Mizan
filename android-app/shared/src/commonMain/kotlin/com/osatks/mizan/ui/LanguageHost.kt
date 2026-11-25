@@ -30,7 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.PlaceNames
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
@@ -70,6 +72,8 @@ fun LanguageHost(animate: () -> Boolean = { true }, content: @Composable () -> U
         if (veil.value > 0f) veil.animateTo(0f, tween(520, easing = Motion.Decelerate))
     }
 
+    PlaceNameSync(target.code)
+
     Box(Modifier.fillMaxSize()) {
         CompositionLocalProvider(
             LocalStrings provides shown.strings,
@@ -94,6 +98,21 @@ fun LanguageHost(animate: () -> Boolean = { true }, content: @Composable () -> U
                     Text(target.strings.appName, color = Gold, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
+        }
+    }
+}
+
+/**
+ * اسم موقع GPS بلغة الواجهة ([PlaceNames]): يُطلب عند البدء وعند تبدّل اللغة أو الموقع، ومرتين بعدهما إن تعذّر
+ * (لا شبكة). في iOS لكل صفحة مضيفها، والطلب الجاري لا يتكرر. قراءة المكان هنا وحدها فلا يُعاد بناء المضيف كله معه
+ */
+@Composable
+private fun PlaceNameSync(lang: String) {
+    val p = AppSettings.place
+    LaunchedEffect(lang, p.lat, p.lng, p.gps) {
+        for (wait in longArrayOf(0L, 30_000L, 180_000L)) {
+            delay(wait)
+            PlaceNames.ensure(lang)
         }
     }
 }

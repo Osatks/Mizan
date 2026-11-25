@@ -10,12 +10,16 @@ import com.osatks.mizan.platform.Prefs
 import com.osatks.mizan.platform.edit
 
 /**
- * موقع المستخدم. key مفتاح مدينة معروفة (يُترجم اسمها حسب اللغة)، أو null لموقع GPS بعيد عن أي مدينة.
- * [elev]: ارتفاعه عن البحر بالأمتار (من المدينة المعروفة)، للطرق التي تحسب به الشروق والغروب
+ * موقع المستخدم. key مفتاح مدينة معروفة (يُترجم اسمها حسب اللغة): المدينة التي اختارها من القائمة، أو لموقع GPS
+ * المدينة التي هو فيها أو على بعد [LocationHelper.NEAR_KM] كم منها، وإلا null.
+ * [elev]: ارتفاعه عن البحر بالأمتار (من المدينة المعروفة)، للطرق التي تحسب به الشروق والغروب.
+ * [name]: اسم موقع GPS من محدد المواقع في النظام (المدينة أو البلدة)، و[nameLang] اللغة التي جاء بها،
+ * و[cc] رمز دولته؛ null قبل أن يصل (أو لموقع حُفظ قبل إضافتها)
  */
 data class Place(
     val key: String?, val lat: Double, val lng: Double,
     val tz: String, val method: String, val gps: Boolean = false, val elev: Int = 0,
+    val name: String? = null, val nameLang: String? = null, val cc: String? = null,
 ) {
     val city: City? get() = PrayTimes.city(key)
 
@@ -79,17 +83,7 @@ object AppSettings {
         sp = Prefs("mizan")
         migrate()
         placeSet = sp.contains("place_lat")
-        if (placeSet) {
-            place = Place(
-                sp.getString("place_key")?.takeIf { it.isNotEmpty() },
-                (sp.getString("place_lat") ?: "0").toDouble(), (sp.getString("place_lng") ?: "0").toDouble(),
-                (sp.getString("place_tz") ?: systemTimeZoneId()), (sp.getString("place_method") ?: "mwl"),
-                sp.getBool("place_gps", false),
-                // ما حُفظ قبل حساب الارتفاع: من المدينة المعروفة القريبة
-                sp.getString("place_elev")?.toIntOrNull()
-                    ?: PrayTimes.elevationNear((sp.getString("place_lat") ?: "0").toDouble(), (sp.getString("place_lng") ?: "0").toDouble()),
-            )
-        }
+        readPlace(sp)?.let { place = it }
         method = (sp.getString("method") ?: place.method)
         if (sp.getInt("rules_v", 1) < RULES_VERSION) {
             if (placeSet) {
@@ -133,17 +127,66 @@ object AppSettings {
     /** الطريقة الافتراضية لمكان: طريقة مدينته المعروفة، أو أقرب مدينة لموقع GPS بعيد */
     fun defaultMethod(p: Place): String = p.city?.method ?: PrayTimes.nearestCity(p.lat, p.lng).first.method
 
-    fun updatePlace(p: Place) {
-        place = p
-        placeSet = true
-        method = p.method
+    // اسم موقع GPS من محدد المواقع ولغته ودولته. لا يُستعمل «place_name»: هو اسم المدينة العربي في الإصدارات الأولى (migrate)
+    private const val K_NAME = "place_geo_name"
+    private const val K_NAME_LANG = "place_geo_lang"
+    private const val K_CC = "place_geo_cc"
+
+    /** المكان المحفوظ، أو null إن لم يُختر بعد. ما حُفظ قبل إضافة الاسم يُقرأ بلا اسم (يُطلب في الخلفية) */
+    internal fun readPlace(sp: Prefs): Place? {
+        if (!sp.contains("place_lat")) return null
+        val lat = (sp.getString("place_lat") ?: "0").toDouble()
+        val lng = (sp.getString("place_lng") ?: "0").toDouble()
+        return Place(
+            sp.getString("place_key")?.takeIf { it.isNotEmpty() },
+            lat, lng,
+            (sp.getString("place_tz") ?: systemTimeZoneId()), (sp.getString("place_method") ?: "mwl"),
+            sp.getBool("place_gps", false),
+            // ما حُفظ قبل حساب الارتفاع: من المدينة المعروفة القريبة
+            sp.getString("place_elev")?.toIntOrNull() ?: PrayTimes.elevationNear(lat, lng),
+            name = sp.getString(K_NAME)?.takeIf { it.isNotBlank() },
+            nameLang = sp.getString(K_NAME_LANG)?.takeIf { it.isNotEmpty() },
+            cc = sp.getString(K_CC)?.takeIf { it.isNotEmpty() },
+        )
+    }
+
+    /** يحفظ المكان؛ مفاتيح الاسم تُكتب إن وُجد وتُحذف إن لم يوجد (فلا يبقى اسم مكان سابق) */
+    internal fun writePlace(sp: Prefs, p: Place) {
+        val named = !p.name.isNullOrBlank()
         sp.edit()
             .putString("place_key", p.key ?: "")
             .putString("place_lat", p.lat.toString()).putString("place_lng", p.lng.toString())
             .putString("place_tz", p.tz).putString("place_method", p.method).putBoolean("place_gps", p.gps)
             .putString("place_elev", p.elev.toString())
-            .putString("method", p.method)
+            .putString(K_NAME, p.name?.takeIf { named })
+            .putString(K_NAME_LANG, p.nameLang?.takeIf { named && it.isNotEmpty() })
+            .putString(K_CC, p.cc?.takeIf { named && it.isNotEmpty() })
             .apply()
+    }
+
+    fun updatePlace(p: Place) {
+        // موقع GPS جديد بلا اسم بعد في المكان نفسه تقريباً (أقل من كيلومتر): يبقى الاسم السابق بدل أن يومض غيره
+        val prev = place
+        val q = if (placeSet && p.gps && p.name == null && prev.gps && prev.name != null &&
+            LocationHelper.distanceKm(p.lat, p.lng, prev.lat, prev.lng) < 1.0
+        ) p.copy(name = prev.name, nameLang = prev.nameLang, cc = prev.cc) else p
+        place = q
+        placeSet = true
+        method = q.method
+        writePlace(sp, q)
+        sp.edit().putString("method", q.method).apply()
+    }
+
+    /**
+     * اسم موقع GPS وصل من محدد المواقع (بعد حفظ الموقع، فلا ينتظره): يُحفظ مع لغته ودولته.
+     * يُهمل إن تغيّر الموقع منذ طُلب ([lat] و[lng] إحداثيات الطلب) أو صار مدينة مختارة من القائمة
+     */
+    fun updatePlaceName(lat: Double, lng: Double, name: String, lang: String, cc: String?): Boolean {
+        val p = place
+        if (!placeSet || !p.gps || p.lat != lat || p.lng != lng || name.isBlank()) return false
+        place = p.copy(name = name.trim(), nameLang = lang, cc = cc?.trim()?.uppercase()?.takeIf { it.length == 2 })
+        writePlace(sp, place)
+        return true
     }
 
     fun updateMethod(v: String) { method = v; sp.edit().putString("method", v).apply() }

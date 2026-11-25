@@ -87,6 +87,8 @@ class MainActivity : ComponentActivity() {
         // الكود المشترك يطلب جدولة التنبيهات وتحديث قناتها عبر هذين
         PrayerAlerts.onReschedule = { PrayerAlarms.scheduleNext(it) }
         PrayerAlerts.onLanguageChanged = { PrayerAlarms.ensureChannel(it) }
+        // اسم موقع GPS وصل من محدد المواقع: تُحدَّث أدوات الشاشة الرئيسية به
+        com.osatks.mizan.core.PlaceNames.onNamed = { com.osatks.mizan.widget.Widgets.updateAll(applicationContext) }
         // إن أُغلق التطبيق أثناء القراءة في وضع التركيز يُعاد «عدم الإزعاج» كما كان
         com.osatks.mizan.ui.quran.QuietReading.restore()
         Motion.reduced = !ValueAnimator.areAnimatorsEnabled()
