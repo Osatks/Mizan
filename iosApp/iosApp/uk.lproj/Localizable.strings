@@ -32,3 +32,11 @@
 "Counts one tasbih without opening Mizan" = "Зараховує тасбіх, не відкриваючи Mizan";
 "Shows the countdown to the next prayer on the Lock Screen" = "Показує відлік до наступного намазу на екрані блокування";
 "Counts the morning or evening adhkar on the Lock Screen" = "Рахує ранкові чи вечірні азкари на екрані блокування";
+/* بحث iPhone: كيانا السورة والآية، ونيّتا فتحهما، واختصار الأذكار بمعامل (MizanSearch.swift) */
+"Surah" = "Сура";
+"Ayah" = "Аят";
+"Open surah" = "Відкрити суру";
+"Open ayah" = "Відкрити аят";
+"Opens a surah in the Quran" = "Відкриває суру Корану";
+"Opens an ayah in the Quran" = "Відкриває аят Корану";
+"Adhkar" = "Азкари";

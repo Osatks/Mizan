@@ -464,6 +464,7 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val searchQuranHint: String by lazy { s("searchQuranHint") ?: En.searchQuranHint }
     override val searchQuranGroup: String by lazy { s("searchQuranGroup") ?: En.searchQuranGroup }
     override val searchAyahsGroup: String by lazy { s("searchAyahsGroup") ?: En.searchAyahsGroup }
+    override val searchTheQuran: String by lazy { s("searchTheQuran") ?: En.searchTheQuran }
     override val mushafView: String by lazy { s("mushafView") ?: En.mushafView }
     override val ayahView: String by lazy { s("ayahView") ?: En.ayahView }
     override val textLarger: String by lazy { s("textLarger") ?: En.textLarger }

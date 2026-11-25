@@ -101,7 +101,7 @@ struct Wallpaper: View {
 enum UsedSymbols {
     static let names = [
         "circle.dotted.circle", "hourglass", "sun.and.horizon.fill", "moon.stars.fill", "text.book.closed.fill",
-        "calendar.badge.clock", "location.north.line.fill", "bookmark.fill", "sunrise.fill", "sunset.fill",
+        "calendar.badge.clock", "location.north.line.fill", "bookmark.fill", "sunrise.fill", "sunset.fill", "book.closed.fill",
     ]
     static var missing: [String] { names.filter { UIImage(systemName: $0) == nil }.map { "missing SF Symbol: \($0)" } }
 }

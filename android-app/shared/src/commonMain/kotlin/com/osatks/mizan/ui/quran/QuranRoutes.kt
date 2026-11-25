@@ -2,6 +2,7 @@ package com.osatks.mizan.ui.quran
 
 import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.quran.QuranMeta
+import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.quran.QuranProgress
 
 /**
@@ -11,6 +12,16 @@ import com.osatks.mizan.quran.QuranProgress
 fun surahRoute(surah: Int, ayah: Int = 0, from: String = "row") = "surah/$surah?ayah=$ayah&from=$from"
 
 const val SURAH_ROUTE = "surah/{surah}?ayah={ayah}&from={from}"
+
+/** رابط «تابع القراءة» في الاختصارات (Siri، واختصارات أيقونة أندرويد): يصير عند فتحه صفحة آخر آية قرأها المستخدم */
+const val CONTINUE_ROUTE = "quran/continue"
+
+/** صفحة آخر آية قرأها المستخدم، أو تبويب القرآن إن لم يقرأ بعد */
+fun continueRoute(): String {
+    QuranPrefs.ensure()
+    val last = QuranPrefs.last
+    return if (last >= 0) QuranMeta.locate(last).let { (surah, ayah) -> surahRoute(surah, ayah, "widget") } else "quran"
+}
 
 /** اسم السورة بلغة الواجهة (أو بالعربية إن نقص) */
 fun Strings.surahName(surah: Int): String = surahNames.getOrNull(surah - 1) ?: QuranMeta.NAMES_AR[surah - 1]

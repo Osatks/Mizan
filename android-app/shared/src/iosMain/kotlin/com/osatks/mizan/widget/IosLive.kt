@@ -13,11 +13,11 @@ import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.platform.LiveCountdown
-import com.osatks.mizan.platform.QuranSpotlight
-import com.osatks.mizan.quran.QuranMeta
-import com.osatks.mizan.quran.QuranPrefs
+import com.osatks.mizan.platform.SystemSpotlight
 import com.osatks.mizan.quran.RecitationLive
-import com.osatks.mizan.ui.quran.surahRoute
+import com.osatks.mizan.ui.quran.CONTINUE_ROUTE
+import com.osatks.mizan.ui.quran.continueRoute
+import com.osatks.mizan.ui.screens.SearchLinks
 import com.osatks.mizan.ui.screens.PrayerUtil
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toInstant
@@ -42,7 +42,7 @@ object IosLive {
     /** أقصى مدة قبل الصلاة يبدأ فيها العدّ التنازلي الحي */
     private const val WINDOW_SEC = 3 * 3600L
     /** مسار «تابع القراءة»: آخر موضع قرأه المستخدم */
-    const val CONTINUE = "quran/continue"
+    const val CONTINUE = CONTINUE_ROUTE
 
     private var started = false
     private val observers = ArrayList<NSObjectProtocol>()
@@ -73,9 +73,11 @@ object IosLive {
             com.osatks.mizan.core.AdhanResume.onAppActive()
             // مواقيت الأيام القادمة في التقويم بعد أن تستقر الواجهة (لا تُكتب إلا إن تغيّرت)
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3_000_000_000L), dispatch_get_main_queue()) { IosCalendar.refresh() }
+            // بحث iPhone: يُعاد ما تغيّر (اللغة، أو ترجمة صارت على الجهاز)، أو تكمل فهرسة الآيات إن انقطعت
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 8_000_000_000L), dispatch_get_main_queue()) { SystemSpotlight.refresh() }
         }
-        // فهرسة السور في Spotlight بعد أن تستقر الواجهة
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6_000_000_000L), dispatch_get_main_queue()) { QuranSpotlight.index() }
+        // فهرسة السور والآيات ومحتوى التطبيق في Spotlight بعد أن تستقر الواجهة (في الخلفية بأولوية منخفضة)
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6_000_000_000L), dispatch_get_main_queue()) { SystemSpotlight.refresh() }
     }
 
     /**
@@ -176,15 +178,11 @@ object IosLive {
 
     /**
      * يفتح شاشة في التطبيق من اختصار أو زر في مركز التحكم أو نتيجة في Spotlight (مسار من مسارات MizanApp).
-     * «تابع القراءة» يصير صفحة آخر آية قرأها المستخدم.
+     * «تابع القراءة» يصير صفحة آخر آية قرأها المستخدم، ورابط بمعامل (مناسبة أو حديث أو قسم أذكار) يضعه حيث تقرؤه صفحته.
      */
     fun open(route: String, section: String?) {
         AppSettings.init()
-        val target = if (route == CONTINUE) {
-            QuranPrefs.ensure()
-            val last = QuranPrefs.last
-            if (last >= 0) QuranMeta.locate(last).let { (surah, ayah) -> surahRoute(surah, ayah, "widget") } else "quran"
-        } else route
+        val target = if (route == CONTINUE) continueRoute() else SearchLinks.apply(route)
         IosWidgets.open(target, section)
     }
 

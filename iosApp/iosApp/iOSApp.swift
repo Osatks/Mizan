@@ -17,6 +17,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         WatchSync.shared.start()
         // الأنشطة الحية و«يُشغَّل الآن» والاختصارات و Spotlight (LiveActivities.swift)
         LiveActivities.shared.start()
+        // عبارات Siri بأسماء السور بلغة التطبيق، تُحدَّث حين تتغير (MizanSearch.swift)
+        SearchIndexSync.start()
         // التنقل من النظام: التبويبات وصفحاتها (MizanNavigation.swift)، قبل إنشاء MainViewController
         MizanNavigation.install()
         // صفحات مصحف المدينة يقلّبها ويرسمها النظام (UICollectionView و Core Text) بدل Compose (NativeMushaf.swift)
@@ -65,7 +67,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    // نتيجة من بحث iPhone (سورة في Spotlight)
+    // نتيجة من بحث iPhone (سورة أو آية أو أداة في Spotlight)
     func application(_ application: UIApplication, continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         SpotlightLink.open(userActivity)
@@ -116,7 +118,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let activity = connectionOptions.userActivities.first { SpotlightLink.open(activity) }
     }
 
-    // نتيجة من بحث iPhone (سورة في Spotlight) والتطبيق يعمل
+    // نتيجة من بحث iPhone (سورة أو آية أو أداة في Spotlight) والتطبيق يعمل
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         SpotlightLink.open(userActivity)
     }

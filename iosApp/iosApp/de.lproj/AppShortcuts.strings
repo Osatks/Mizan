@@ -9,8 +9,6 @@
 "Continue reading in ${applicationName}" = "Weiterlesen in ${applicationName}";
 "Continue reading the Quran in ${applicationName}" = "Koran weiterlesen in ${applicationName}";
 "Tasbih in ${applicationName}" = "Tasbih in ${applicationName}";
-"Morning adhkar in ${applicationName}" = "Adhkar am Morgen in ${applicationName}";
-"Evening adhkar in ${applicationName}" = "Adhkar am Abend in ${applicationName}";
 /* عبارات Siri للمسبحة والأذكار والعدّ التنازلي وآية اليوم */
 "Count tasbih in ${applicationName}" = "Tasbih zählen in ${applicationName}";
 "Prayer countdown in ${applicationName}" = "Gebets-Countdown in ${applicationName}";
@@ -19,3 +17,8 @@
 "Adhkar counter in ${applicationName}" = "Adhkar-Zähler in ${applicationName}";
 "Ayah of the day in ${applicationName}" = "Vers des Tages in ${applicationName}";
 "Read me the ayah of the day in ${applicationName}" = "Lies mir den Vers des Tages in ${applicationName} vor";
+/* أذكار الصباح أو المساء (${time} عنوانها)، وفتح سورة باسمها (${target}) */
+"${time} in ${applicationName}" = "${time} in ${applicationName}";
+"Open ${target} in ${applicationName}" = "Öffne ${target} in ${applicationName}";
+"Read ${target} in ${applicationName}" = "Lies ${target} in ${applicationName}";
+"Open a surah in ${applicationName}" = "Öffne eine Sure in ${applicationName}";

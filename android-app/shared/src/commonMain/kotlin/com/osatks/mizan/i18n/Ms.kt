@@ -631,6 +631,7 @@ object Ms : Strings {
     override val searchQuranHint = "Cari surah atau perkataan dalam ayat…"
     override val searchQuranGroup = "Surah"
     override val searchAyahsGroup = "Ayat"
+    override val searchTheQuran = "Cari dalam al-Quran"
     override val mushafView = "Paparan Mushaf"
     override val ayahView = "Ayat demi ayat"
     override val textLarger = "Besarkan teks"
