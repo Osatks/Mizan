@@ -1,6 +1,6 @@
 /* نصوص Info.plist المترجمة (اسم التطبيق تحت الأيقونة وسبب طلب الموقع) */
 "CFBundleDisplayName" = "Mizan";
-"NSLocationWhenInUseUsageDescription" = "Tu ubicación se usa solo en tu dispositivo para calcular los horarios de oración y la dirección de la qibla, y nunca se envía a ningún sitio. También puedes elegir tu ciudad manualmente.";
+"NSLocationWhenInUseUsageDescription" = "Tu ubicación se usa en tu dispositivo para calcular los horarios de oración y la dirección de la qibla, y no se envía a ningún sitio para ello. Al abrir Mezquitas cercanas, se envía a Mapas de Apple solo para buscarlas. También puedes elegir tu ciudad manualmente.";
 /* مشاركة الآية صورة (حفظها في الصور)، ومواقيت الصلاة في التقويم، والقبلة بالكاميرا */
 "NSPhotoLibraryAddUsageDescription" = "Para guardar en Fotos la imagen de la aleya que compartes.";
 "NSCalendarsFullAccessUsageDescription" = "Para añadir los horarios de oración a su propio calendario en tu dispositivo y mantenerlos al día. No se lee nada más ni se envía nada.";

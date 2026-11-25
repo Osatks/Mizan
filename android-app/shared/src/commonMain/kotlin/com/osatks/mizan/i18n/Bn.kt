@@ -66,6 +66,7 @@ object Bn : Strings {
         "fitr" to Named("সদকাতুল ফিতর", "সা' অথবা মূল্য হিসেবে"),
         "age" to Named("বয়স ক্যালকুলেটর", "হিজরি ও খ্রিস্টীয় বছরে"),
         "fidya" to Named("ফিদিয়া ও কাফফারা", "ছুটে যাওয়া রোজা ও ভাঙা কসম"),
+        "mosques" to Named("কাছের মসজিদ", "পথনির্দেশসহ সবচেয়ে কাছের মসজিদ"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "যাকাত জাকাত যাকাহ সদকা দান সম্পদ স্বর্ণ সোনা রুপা রৌপ্য নিসাব নেসাব টাকা সঞ্চয় শেয়ার zakat jakat",
@@ -79,6 +80,7 @@ object Bn : Strings {
         "fitr" to "ফিতরা ফেতরা ফিতর সদকাতুল সদকা যাকাতুল সা ঈদ",
         "age" to "বয়স জন্মদিন জন্ম জন্মতারিখ বছর",
         "fidya" to "ফিদিয়া ফিদইয়া ফিদয়া কাফফারা কাফ্ফারা কসম শপথ রোজা সিয়াম খাওয়ানো",
+        "mosques" to "মসজিদ মসজিদসমূহ জামে কাছে কাছাকাছি মানচিত্র পথ জামাত masjid mosque",
     )
     override val toolsTitle = "টুলস"
     override fun nextPrayerIn(city: String) = "পরবর্তী নামাজ · $city"
@@ -254,6 +256,28 @@ object Bn : Strings {
     override val phoneHeading = "ফোনের দিক"
     override val compassLowAccuracy = "কম্পাসের নির্ভুলতা কম: ক্যালিব্রেট করতে ফোনটি 8-এর আকারে ঘোরান, ধাতু ও ইলেকট্রনিক যন্ত্র থেকে দূরে রাখুন।"
     override val qiblaTip = "অবস্থান বদলাতে নামাজের সময়সূচি পাতাটি ব্যবহার করুন। সঠিক রিডিং পেতে ফোনটি সমতলে ও ধাতু থেকে দূরে ধরে রাখুন।"
+
+    // ---------- Nearby mosques ----------
+    override val mosquesTitle = "কাছের মসজিদ"
+    override val mosquesSubtitle = "আপনার সবচেয়ে কাছের মসজিদগুলো"
+    override val mosque = "মসজিদ"
+    override val unitM = "মি"
+    override val mosquesLoading = "কাছের মসজিদ খোঁজা হচ্ছে…"
+    override val mosquesEmpty = "কাছাকাছি কোনো মসজিদ পাওয়া যায়নি"
+    override val mosquesEmptyHint = "আপনার এলাকার মসজিদগুলো হয়তো এখনো মানচিত্রে যুক্ত হয়নি। মানচিত্র অ্যাপে খুঁজে দেখুন।"
+    override val mosquesError = "মসজিদের তালিকা আনা যায়নি"
+    override val mosquesErrorHint = "ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+    override val mosquesLocationFailed = "আপনার অবস্থান নির্ণয় করা যায়নি। লোকেশন সার্ভিস চালু আছে কি না দেখে আবার চেষ্টা করুন।"
+    override val mosquesNeedLocation = "কাছের মসজিদ দেখতে মিজানকে আপনার লোকেশন ব্যবহারের অনুমতি দিন, অথবা নামাজের সময়সূচি পাতায় আপনার শহর বেছে নিন।"
+    override fun mosquesNearSaved(place: String) = "অ্যাপে সংরক্ষিত অবস্থান ${place}-এর কাছের মসজিদ দেখানো হচ্ছে।"
+    override val openInMaps = "মানচিত্রে খুঁজুন"
+    override val mosqueDirections = "মসজিদে যাওয়ার পথনির্দেশ"
+    override val appleMaps = "Apple Maps"
+    override val googleMaps = "Google Maps"
+    override val osmAttribution = "© OpenStreetMap অবদানকারীরা"
+    override val mosquesPrivacyOsm = "খোঁজার জন্য আপনার আনুমানিক অবস্থান (প্রায় 100 মিটার পর্যন্ত) OpenStreetMap পরিষেবায় পাঠানো হয়, আপনাকে বা আপনার ডিভাইসকে শনাক্ত করার মতো কিছু ছাড়াই। মিজান তা সংরক্ষণ করে না।"
+    override val mosquesPrivacyApple = "খোঁজার জন্য আপনার অবস্থান Apple Maps-এ পাঠানো হয়, যেমন Maps অ্যাপে হয়। মিজান তা সংরক্ষণ করে না।"
+    override val mosquesMap = "কাছের মসজিদের মানচিত্র"
 
     // ---------- Tasbih ----------
     override val tasbihTitle = "ডিজিটাল তাসবিহ"

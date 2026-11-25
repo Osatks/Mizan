@@ -589,6 +589,26 @@
   "monthTableTitle": "{month} {y} jadvali",
   "moonNote": "Oy koʻrinishi sababli baʼzi mamlakatlarda sana bir kunga farq qilishi mumkin.",
   "moreLanguages": "Boshqa tillarni yuklab olish",
+  "mosquesTitle": "Yaqin atrofdagi masjidlar",
+  "mosquesSubtitle": "Sizga eng yaqin masjidlar",
+  "mosque": "Masjid",
+  "unitM": "m",
+  "mosquesLoading": "Yaqin atrofdagi masjidlar qidirilmoqda…",
+  "mosquesEmpty": "Yaqin atrofda masjid topilmadi",
+  "mosquesEmptyHint": "Hududingizdagi masjidlar hali xaritaga kiritilmagan boʻlishi mumkin. Xarita ilovasida qidirib koʻring.",
+  "mosquesError": "Masjidlarni yuklab boʻlmadi",
+  "mosquesErrorHint": "Internet aloqasini tekshirib, qaytadan urinib koʻring.",
+  "mosquesLocationFailed": "Joylashuvingizni aniqlab boʻlmadi. Joylashuv xizmati yoqilganini tekshirib, qaytadan urinib koʻring.",
+  "mosquesNeedLocation": "Yaqin atrofdagi masjidlarni koʻrish uchun Mizanga joylashuvingizdan foydalanishga ruxsat bering yoki Namoz vaqtlari sahifasida shahringizni tanlang.",
+  "mosquesNearSaved": "Ilovada saqlangan {place} yaqinidagi masjidlar koʻrsatilmoqda.",
+  "openInMaps": "Xaritada qidirish",
+  "mosqueDirections": "Masjidga yoʻnalish",
+  "appleMaps": "Apple Maps",
+  "googleMaps": "Google Maps",
+  "osmAttribution": "© OpenStreetMap hissadorlari",
+  "mosquesPrivacyOsm": "Qidirish uchun taxminiy joylashuvingiz (taxminan 100 m aniqlikda) sizni yoki qurilmangizni aniqlaydigan hech narsasiz OpenStreetMap xizmatiga yuboriladi. Mizan uni saqlamaydi.",
+  "mosquesPrivacyApple": "Qidirish uchun joylashuvingiz Xaritalar ilovasidagi kabi Apple Maps xizmatiga yuboriladi. Mizan uni saqlamaydi.",
+  "mosquesMap": "Yaqin atrofdagi masjidlar xaritasi",
   "moreTafsirs": "Boshqa tafsirlar",
   "muddOption": "Bir mudd — taxminan 0,75 kg (molikiy va shofeʼiy)",
   "muezzinNames": {
@@ -962,6 +982,7 @@
   "toneNight": "Tun",
   "toneSepia": "Sepiya",
   "toolKeywords": {
+   "mosques": "masjid masjidlar machit jome yaqin atrof xarita yoʻnalish yoʻl mosque",
    "zakat": "zakot zakat sadaqa mol oltin kumush nisob pul jamgʻarma aksiya",
    "inheritance": "meros merosxoʻr faroiz vasiyat taqsimot tarika",
    "prayer": "namoz salot azon bomdod peshin asr shom xufton vaqt",
@@ -975,6 +996,7 @@
    "adhkar": "zikr zikrlar duo hisnul muslim tong kech uyqu ramazon azkor"
   },
   "tools": {
+   "mosques": {"name": "Yaqin masjidlar", "desc": "Eng yaqin masjidlar va yoʻnalish"},
    "zakat": {
     "name": "Zakot kalkulyatori",
     "desc": "Pul, oltin va aksiyalar nisob bilan"

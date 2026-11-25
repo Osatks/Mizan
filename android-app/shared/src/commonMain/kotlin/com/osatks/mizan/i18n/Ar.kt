@@ -73,6 +73,7 @@ object Ar : Strings {
         "fitr" to Named("زكاة الفطر", "بالصاع أو بالقيمة"),
         "age" to Named("حاسبة العمر", "بالهجري والميلادي"),
         "fidya" to Named("الفدية والكفارة", "الصيام واليمين"),
+        "mosques" to Named("المساجد القريبة", "أقرب المساجد إليك مع الاتجاهات"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "زكاة مال ذهب فضة نصاب أسهم ثروة صدقة",
@@ -86,6 +87,7 @@ object Ar : Strings {
         "fitr" to "فطرة فطر صاع عيد",
         "age" to "عمر ميلاد سن",
         "fidya" to "فدية كفارة يمين صيام إطعام",
+        "mosques" to "مسجد مساجد جامع جوامع مصلى مصليات قريب خريطة اتجاهات صلاة الجماعة",
     )
     override val toolsTitle = "الأدوات"
     override fun nextPrayerIn(city: String) = "الصلاة القادمة · $city"
@@ -261,6 +263,28 @@ object Ar : Strings {
     override val phoneHeading = "اتجاه الهاتف"
     override val compassLowAccuracy = "دقة البوصلة منخفضة: حرّك الهاتف على شكل الرقم 8 لمعايرتها، وأبعده عن المعادن والأجهزة."
     override val qiblaTip = "لتغيير الموقع استخدم صفحة مواقيت الصلاة. أمسك الهاتف أفقياً وبعيداً عن المعادن للحصول على قراءة دقيقة."
+
+    // ---------- المساجد القريبة ----------
+    override val mosquesTitle = "المساجد القريبة"
+    override val mosquesSubtitle = "أقرب المساجد إلى موقعك"
+    override val mosque = "مسجد"
+    override val unitM = "م"
+    override val mosquesLoading = "جارٍ البحث عن المساجد القريبة…"
+    override val mosquesEmpty = "لم يُعثر على مساجد قريبة"
+    override val mosquesEmptyHint = "قد لا تكون مساجد منطقتك مسجّلة في الخريطة بعد. جرّب البحث في تطبيق الخرائط."
+    override val mosquesError = "تعذّر تحميل المساجد"
+    override val mosquesErrorHint = "تحقق من اتصالك بالإنترنت ثم حاول مجدداً."
+    override val mosquesLocationFailed = "تعذّر تحديد موقعك. تأكد من تشغيل خدمة الموقع ثم حاول مجدداً."
+    override val mosquesNeedLocation = "اسمح لميزان باستعمال موقعك ليعرض المساجد القريبة منك، أو اختر مدينتك من صفحة مواقيت الصلاة."
+    override fun mosquesNearSaved(place: String) = "تُعرض المساجد القريبة من ${place}، الموقع المحفوظ في التطبيق."
+    override val openInMaps = "البحث في الخرائط"
+    override val mosqueDirections = "الاتجاهات إلى المسجد"
+    override val appleMaps = "خرائط Apple"
+    override val googleMaps = "خرائط Google"
+    override val osmAttribution = "© مساهمو OpenStreetMap"
+    override val mosquesPrivacyOsm = "للبحث يُرسَل موقعك التقريبي (بدقة نحو 100 متر) إلى خدمة OpenStreetMap دون أي معرّف لك أو لجهازك، ولا يحفظه ميزان."
+    override val mosquesPrivacyApple = "للبحث يُرسَل موقعك إلى خرائط Apple كما في تطبيق الخرائط، ولا يحفظه ميزان."
+    override val mosquesMap = "خريطة المساجد القريبة"
 
     // ---------- المسبحة ----------
     override val tasbihTitle = "المسبحة الإلكترونية"

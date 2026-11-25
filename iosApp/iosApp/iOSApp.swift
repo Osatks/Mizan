@@ -35,6 +35,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeQuranScreen.install()
         NativeSettingsScreen.install()
         NativeQiblaScreen.install()
+        // والمساجد القريبة: البحث والخريطة من MapKit (NativeMosques.swift)
+        NativeMosquesScreen.install()
         NativeTasbihScreen.install()
         NativeZakatScreen.install()
         NativeInheritanceScreen.install()
