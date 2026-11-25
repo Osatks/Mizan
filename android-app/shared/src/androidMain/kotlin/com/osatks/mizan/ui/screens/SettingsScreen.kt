@@ -31,6 +31,7 @@ import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Explore
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.PanTool
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Translate
@@ -92,6 +94,8 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
     val lang = LocalLang.current
     var showLang by remember { mutableStateOf(false) }
     val toggleNotify = rememberAlertsToggle()
+    // النسخ الاحتياطي: منتقي الملفات ونوافذ التأكيد في الشاشة نفسها لا في عنصر القائمة
+    val backup = rememberBackupUi()
 
     val system = Lang.fromTag(systemLanguageTag())
 
@@ -150,6 +154,19 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
             }
         }
         item {
+            // النسخ الاحتياطي: ملف يُحفظ ويُستعاد على هذا الجهاز أو غيره (و iPhone)، والنسخ التلقائي من النظام
+            SettingsGroup(s.backupTitle) {
+                SettingsRow(Icons.Filled.Backup, s.backupSave, s.backupSaveSub, onClick = { backup.save() }) { SettingsChevron() }
+                SettingsDivider()
+                SettingsRow(Icons.Filled.Restore, s.backupRestore, s.backupRestoreSub, onClick = { backup.restore() }) { SettingsChevron() }
+                SettingsDivider(inset = 16.dp)
+                Text(
+                    backupNote(s), Modifier.fillMaxWidth().padding(16.dp),
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp), color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        item {
             // التقييم والمشاركة: كل نظام إلى متجره (Google Play أو App Store)
             SettingsGroup {
                 SettingsRow(Icons.Filled.Star, s.rateApp, s.rateAppSub, onClick = { AppStore.openRating() }) { SettingsChevron() }
@@ -189,6 +206,7 @@ fun SettingsScreen(open: (String) -> Unit = {}) {
     }
 
     if (showLang) LanguageSheet { showLang = false }
+    BackupDialogs(backup)
 }
 
 // ---------- المجموعات والصفوف (كما في NativeSettings.swift) ----------

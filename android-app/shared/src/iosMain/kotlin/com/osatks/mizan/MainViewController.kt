@@ -19,6 +19,8 @@ import platform.UIKit.UIViewController
  */
 fun MainViewController(): UIViewController {
     AppSettings.init()
+    // مزامنة iCloud (مطفأة افتراضياً): تتبع التغييرات، وتقرأ نسخة iCloud بعد أن تستقر الواجهة إن كانت مفعّلة
+    com.osatks.mizan.platform.IosCloudSync.start()
     // يفتح شاشة عند التشغيل بوسيط «-mizan.open_route <المسار>» (لقطات المتجر من المحاكي، fastlane/screenshots.sh):
     // بلا رابط mizan:// يسأل النظام قبل فتحه. وسائط التشغيل لا تُحفظ في الجهاز. يُفتح بعد أن تستقر الواجهة
     platform.Foundation.NSUserDefaults.standardUserDefaults.stringForKey("mizan.open_route")

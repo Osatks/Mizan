@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRectMake
 import kotlinx.cinterop.usePinned
@@ -18,6 +19,7 @@ import platform.Foundation.NSLocale
 import platform.Foundation.NSLocaleCountryCode
 import platform.Foundation.NSLocaleCurrencyCode
 import platform.Foundation.NSLocaleLanguageCode
+import platform.Foundation.NSNumber
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSCachesDirectory
@@ -66,6 +68,45 @@ actual class Prefs actual constructor(name: String) {
     actual fun contains(k: String): Boolean = d.objectForKey(p + k) != null
     actual fun remove(k: String) = d.removeObjectForKey(p + k)
     actual fun isEmpty(): Boolean = d.dictionaryRepresentation().keys.none { (it as? String)?.startsWith(p) == true }
+
+    /** مفاتيح هذا المخزن بلا بادئته؛ NSNumber يُفرَّق فيه صح/خطأ (نوعه c) من العدد الصحيح والكسري */
+    actual fun snapshot(): Map<String, Any> {
+        val out = LinkedHashMap<String, Any>()
+        for ((key, v) in d.dictionaryRepresentation()) {
+            val k = (key as? String)?.takeIf { it.startsWith(p) }?.removePrefix(p) ?: continue
+            prefValue(v)?.let { out[k] = it }
+        }
+        return out
+    }
+
+    actual fun putValue(k: String, v: Any) {
+        when (v) {
+            is String -> d.setObject(v, p + k)
+            is Boolean -> d.setBool(v, p + k)
+            is Long -> d.setInteger(v, p + k)
+            is Int -> d.setInteger(v.toLong(), p + k)
+            is Double -> d.setDouble(v, p + k)
+            is Float -> d.setDouble(v.toDouble(), p + k)
+            is Set<*> -> d.setObject(v.filterIsInstance<String>(), p + k)
+        }
+    }
+}
+
+/** قيمة من NSUserDefaults بأنواع [Prefs.snapshot] الموحّدة، أو null لما لا يُنقل بين الأنظمة (NSData، NSDate…) */
+private fun prefValue(v: Any?): Any? = when (v) {
+    is String -> v
+    is NSNumber -> when (v.objCType?.toKString()) {
+        "c", "B" -> v.boolValue
+        "f", "d" -> v.doubleValue
+        else -> v.longLongValue
+    }
+    is Boolean -> v
+    is Int -> v.toLong()
+    is Long -> v
+    is Double -> v
+    is Float -> v.toDouble()
+    is List<*> -> if (v.all { it is String }) v.filterIsInstance<String>().toSet() else null
+    else -> null
 }
 
 /** رسالة قصيرة تُعرض فوق الواجهة (لا يوجد Toast في iOS)؛ يرسمها IosToastView فوق المتحكم الجذر */

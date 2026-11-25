@@ -30,6 +30,7 @@ import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.platform.AppStore
+import com.osatks.mizan.platform.CloudSync
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
 import com.osatks.mizan.platform.StoreLinks
@@ -77,6 +78,8 @@ class NativeSettingsSession internal constructor() {
     internal var onNotify: (Boolean) -> Unit = {}
     internal var onShare: () -> Unit = {}
     internal var onFeedback: () -> Unit = {}
+    internal var onBackupSave: () -> Unit = {}
+    internal var onBackupRestore: () -> Unit = {}
 
     internal fun prime(json: String) {
         if (state.isEmpty()) state = json
@@ -103,6 +106,13 @@ class NativeSettingsSession internal constructor() {
     fun rate() = AppStore.openRating()
     fun share() = onShare()
     fun feedback() = onFeedback()
+
+    /** النسخ الاحتياطي: الحفظ في ملف، والاستعادة منه (المنتقي والتأكيد في Compose فوق الشاشة: [BackupUi]) */
+    fun backupSave() = onBackupSave()
+    fun backupRestore() = onBackupRestore()
+
+    /** مفتاح «المزامنة مع iCloud» */
+    fun icloud(on: Boolean) = CloudSync.update(on)
 }
 
 private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0')
@@ -131,11 +141,12 @@ private fun sourcesMarkdown(text: String): String {
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal fun NativeSettingsView(open: (String) -> Unit, onLanguage: () -> Unit, onNotify: (Boolean) -> Unit, modifier: Modifier) {
+internal fun NativeSettingsView(open: (String) -> Unit, onLanguage: () -> Unit, onNotify: (Boolean) -> Unit, backup: BackupUi, modifier: Modifier) {
     val session = remember { NativeSettingsSession() }
     val openS by rememberUpdatedState(open)
     val languageS by rememberUpdatedState(onLanguage)
     val notifyS by rememberUpdatedState(onNotify)
+    val backupS by rememberUpdatedState(backup)
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ht = HomeText.of(lang.code)
@@ -155,7 +166,12 @@ internal fun NativeSettingsView(open: (String) -> Unit, onLanguage: () -> Unit, 
         session.onNotify = { notifyS(it) }
         session.onShare = { shareS() }
         session.onFeedback = { feedbackS() }
-        onDispose { session.onOpen = {}; session.onLanguage = {}; session.onNotify = {}; session.onShare = {}; session.onFeedback = {} }
+        session.onBackupSave = { backupS.save() }
+        session.onBackupRestore = { backupS.restore() }
+        onDispose {
+            session.onOpen = {}; session.onLanguage = {}; session.onNotify = {}; session.onShare = {}; session.onFeedback = {}
+            session.onBackupSave = {}; session.onBackupRestore = {}
+        }
     }
     val dark = LocalDark.current
     StatusBarStyle(lightContent = dark)
@@ -198,6 +214,16 @@ internal fun NativeSettingsView(open: (String) -> Unit, onLanguage: () -> Unit, 
                 "use24h" to AppSettings.use24h,
                 "clock" to row(s.use24h, s.use24hDesc),
                 "exactAlarm" to if (PrayerAlerts.hasExactAlarmSettings) row(s.exactAlarm, s.exactAlarmDesc) else null,
+                // النسخ الاحتياطي والمزامنة (icloud: null حين لا يدعمها الجهاز)
+                "backup" to linkedMapOf<String, Any?>(
+                    "title" to s.backupTitle,
+                    "save" to row(s.backupSave, s.backupSaveSub),
+                    "restore" to row(s.backupRestore, s.backupRestoreSub),
+                    "icloud" to if (CloudSync.supported) linkedMapOf<String, Any?>(
+                        "on" to CloudSync.enabled, "row" to row(s.icloudSync, icloudSubtitle(s)),
+                    ) else null,
+                    "note" to backupNote(s),
+                ),
                 "rate" to row(s.rateApp, s.rateAppSub),
                 "shareApp" to row(s.shareApp, s.shareAppSub),
                 "feedback" to row(ht.feedback, ht.feedbackSub),

@@ -241,6 +241,12 @@ object QuranPrefs {
         bookmarks += AppSettings.getString("q_marks").split(',').mapNotNull { it.toIntOrNull() }.filter { it in 0 until QuranMeta.AYAHS }
     }
 
+    /** يعيد القراءة من الإعدادات بعد الاستعادة من نسخة احتياطية (العلامات والموضع والخط والقارئ…) */
+    fun reload() {
+        loaded = false
+        ensure()
+    }
+
     fun modeFor(lang: Lang) = mode.ifEmpty { if (lang == Lang.AR) "mushaf" else "list" }
     fun sourceFor(lang: Lang) = Sources.byId(source)?.takeIf { !isHidden(it.id) } ?: Sources.defaultFor(lang)
 

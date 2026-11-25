@@ -600,6 +600,31 @@ interface Strings {
     val privacy: String
     val privacyText: String
     val disclaimer: String
+    // ---------- Backup & sync (Settings) ----------
+    val backupTitle: String            // Settings group: "Backup & Sync"
+    val backupSave: String             // row: "Save backup"
+    val backupSaveSub: String          // a file with your settings, saved ayahs, khatma and tasbih
+    val backupRestore: String          // row: "Restore from backup"
+    val backupRestoreSub: String       // from a file Mizan saved on this or another device
+    val backupConfirmTitle: String     // dialog title: "Restore this backup?"
+    fun backupConfirmBody(date: String): String // the backup from {date} replaces the current data on this device
+    val backupRestoreAction: String    // dialog button: "Restore"
+    val backupSaved: String            // message: "Backup saved"
+    val backupSaveFailed: String       // message: the backup could not be saved
+    val backupRestored: String         // message: your data has been restored
+    val backupRestoreFailed: String    // message: restoring failed, try again
+    val backupReadFailed: String       // message: the chosen file could not be opened
+    val backupInvalid: String          // message: the file is not a Mizan backup
+    val backupTooNew: String           // message: the backup is from a newer Mizan; update the app
+    val backupAutoNote: String         // Android only: Android also backs up to the Google account and restores on a new phone
+    val backupPrivacyNote: String      // the backup is the user's own file: no passwords, never sent to our servers
+    val icloudSync: String             // iPhone switch: "Sync with iCloud"
+    val icloudSyncSub: String          // the same data on devices signed in to the same Apple Account
+    fun icloudLastSync(time: String): String // "Last synced: {time}"
+    val icloudUnavailable: String      // message: iCloud could not be reached
+    val icloudOfferTitle: String       // dialog title: iCloud has data from another device
+    fun icloudOfferBody(date: String): String // saved on {date}: restore it here, or keep this device's data and save it to iCloud?
+    val icloudKeepLocal: String        // dialog button: keep this device's data
     // ---------- Store, sharing, permissions ----------
     val rateApp: String                // Settings row: "Rate Mizan"
     val rateAppSub: String             // a review helps others find the app

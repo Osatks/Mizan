@@ -117,6 +117,13 @@ object Tasbih {
         if (state.day != today) set(state.on(today), notify = false)
     }
 
+    /** يعيد القراءة من الإعدادات بعد الاستعادة من نسخة احتياطية، ويُبلغ الأداة والنشاط الحي في iOS */
+    fun reload() {
+        loaded = false
+        ensure()
+        if (!muted) onChange?.invoke()
+    }
+
     private fun set(s: TasbihState, notify: Boolean = true) {
         state = s
         AppSettings.putString("ts_mode", s.mode); AppSettings.putInt("ts_idx", s.idx); AppSettings.putInt("ts_step", s.step)

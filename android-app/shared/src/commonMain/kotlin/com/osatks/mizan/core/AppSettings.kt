@@ -77,17 +77,42 @@ object AppSettings {
     fun init() {
         if (::sp.isInitialized) return
         sp = Prefs("mizan")
+        load()
+    }
+
+    /**
+     * يعيد قراءة كل الإعدادات من المخزن بعد أن تغيّر من خارجها (الاستعادة من نسخة احتياطية أو من iCloud):
+     * حالة Compose تتحدث فتتبدل الواجهة (اللغة واللون والموقع) دون إعادة تشغيل التطبيق
+     */
+    fun reload() {
+        if (!::sp.isInitialized) return init()
+        load()
+    }
+
+    /** المخزن كله للنسخ الاحتياطي ([Backup]): يُقرأ ويُكتب بلا المرور بـ [PrefsEditor] فلا يُعدّ تغييراً محلياً */
+    internal val backupStore: BackupStore
+        get() = object : BackupStore {
+            override fun snapshot(): Map<String, Any> = sp.snapshot()
+            override fun put(k: String, v: Any) = sp.putValue(k, v)
+            override fun remove(k: String) = sp.remove(k)
+        }
+
+    private fun load() {
         migrate()
         placeSet = sp.contains("place_lat")
+        // نسخة احتياطية بلا موقع: يعود الافتراضي (ويُطلب الموقع كما في أول تشغيل)
+        place = Place.of(PrayTimes.CITIES[0])
         if (placeSet) {
+            // نص غير صالح (نسخة احتياطية معدّلة يدوياً) يُقرأ صفراً بدل أن ينهار التطبيق عند كل تشغيل
+            val lat = sp.getString("place_lat")?.toDoubleOrNull() ?: 0.0
+            val lng = sp.getString("place_lng")?.toDoubleOrNull() ?: 0.0
             place = Place(
                 sp.getString("place_key")?.takeIf { it.isNotEmpty() },
-                (sp.getString("place_lat") ?: "0").toDouble(), (sp.getString("place_lng") ?: "0").toDouble(),
+                lat, lng,
                 (sp.getString("place_tz") ?: systemTimeZoneId()), (sp.getString("place_method") ?: "mwl"),
                 sp.getBool("place_gps", false),
                 // ما حُفظ قبل حساب الارتفاع: من المدينة المعروفة القريبة
-                sp.getString("place_elev")?.toIntOrNull()
-                    ?: PrayTimes.elevationNear((sp.getString("place_lat") ?: "0").toDouble(), (sp.getString("place_lng") ?: "0").toDouble()),
+                sp.getString("place_elev")?.toIntOrNull() ?: PrayTimes.elevationNear(lat, lng),
             )
         }
         method = (sp.getString("method") ?: place.method)
