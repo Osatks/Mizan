@@ -220,7 +220,7 @@ internal fun NativeAyahShare(index: Int, text: Array<String>, onDone: () -> Unit
     val source = remember(lang) { if (lang == Lang.AR) null else Sources.translationFor(lang) }
     var meaning by remember(index, source) { mutableStateOf<String?>(null) }
     LaunchedEffect(index, source) {
-        meaning = source?.let { runCatching { QuranData.source(it.id) }.getOrNull()?.getOrNull(index)?.trim()?.takeIf { m -> m.isNotEmpty() } }
+        meaning = source?.let { QuranData.sourceOrNull(it.id)?.getOrNull(index)?.trim()?.takeIf { m -> m.isNotEmpty() } }
     }
     val plain = "﴿$ayahText﴾\n[$ref]"
     NativeShareCard(

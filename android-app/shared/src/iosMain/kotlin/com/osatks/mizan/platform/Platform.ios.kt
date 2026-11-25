@@ -14,6 +14,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSBundle
 import platform.Foundation.NSData
 import platform.Foundation.NSFileManager
+import platform.Foundation.NSFileSize
 import platform.Foundation.NSHTTPURLResponse
 import platform.Foundation.NSLocale
 import platform.Foundation.NSLocaleCountryCode
@@ -25,6 +26,7 @@ import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSString
 import platform.Foundation.NSURL
+import platform.Foundation.NSURLIsExcludedFromBackupKey
 import platform.Foundation.NSURLSession
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.NSUserDomainMask
@@ -179,9 +181,16 @@ actual object Fs {
     @Suppress("UNCHECKED_CAST")
     actual fun list(dir: String): List<String> = (fm.contentsOfDirectoryAtPath(dir, null) as? List<String>).orEmpty()
     actual fun mkdirs(dir: String) { fm.createDirectoryAtPath(dir, true, null, null) }
+    actual fun size(path: String): Long = (fm.attributesOfItemAtPath(path, null)?.get(NSFileSize) as? NSNumber)?.longLongValue ?: 0L
     // التفاسير المنزَّلة تُحفظ في iOS بلا ضغط (المساحة صغيرة، والملفات لا تنتقل بين الأنظمة)
     actual fun gzip(bytes: ByteArray): ByteArray = bytes
     actual fun gunzip(bytes: ByteArray): ByteArray = bytes
+}
+
+/** المجلد يبقى في Application Support (لا تحذفه iOS كالذاكرة المؤقتة) ولا يُنسخ إلى iCloud: يُنزَّل من جديد عند الحاجة */
+actual fun excludeFromBackup(path: String) {
+    if (!NSFileManager.defaultManager.fileExistsAtPath(path)) return
+    NSURL.fileURLWithPath(path).setResourceValue(NSNumber(bool = true), forKey = NSURLIsExcludedFromBackupKey, error = null)
 }
 
 actual suspend fun httpGet(url: String, onProgress: (Int) -> Unit): ByteArray = suspendCancellableCoroutine { cont ->

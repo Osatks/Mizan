@@ -8,6 +8,8 @@ let pkg: String = CommandLine.arguments.count > 1 ? CommandLine.arguments[1]
     : URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().path
 let fixtures = pkg + "/Fixtures/quran/"
 Assets.root = pkg + "/../../android-app/shared/src/commonMain/assets"
+// ما لم يعد مضمّناً في التطبيق (يُنزَّل من الموقع): ترجمات المعاني وأحاديث اليوم والأذكار بغير العربية والإنجليزية
+Assets.extraRoots = [pkg + "/../../src/content"]
 QuranData.open = { Assets.data($0) }
 QuranData.filesDir = NSTemporaryDirectory() + "/mizan-checkquran-\(getpid())"
 

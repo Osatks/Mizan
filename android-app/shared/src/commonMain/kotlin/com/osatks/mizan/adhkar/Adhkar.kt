@@ -1,5 +1,6 @@
 package com.osatks.mizan.adhkar
 
+import com.osatks.mizan.content.ContentStore
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.platform.Lock
@@ -73,10 +74,13 @@ class AdhkarTr(
     }
 }
 
-/** الأذكار: تُقرأ من assets/adhkar عند أول طلب وتبقى في الذاكرة */
+/**
+ * الأذكار: تُقرأ من assets/adhkar عند أول طلب وتبقى في الذاكرة. الأذكار وترجمتاها العربية والإنجليزية مضمّنة،
+ * وترجمات بقية اللغات تُنزَّل من موقع ميزان ([ContentStore])، وما لم يُنزَّل بعد يُعرض بالإنجليزية.
+ */
 object Adhkar {
-    /** يُضبط عند بدء التطبيق؛ والاختبارات تقرأ الملفات من القرص */
-    var open: (String) -> ByteArray? = { Platform.asset(it) }
+    /** المضمّن في التطبيق ثم المنزَّل من الموقع؛ والاختبارات تقرأ الملفات من القرص */
+    var open: (String) -> ByteArray? = { Platform.asset(it) ?: ContentStore.read(it) }
 
     private var cached: List<AdhkarSection>? = null
     private val lock = Lock()

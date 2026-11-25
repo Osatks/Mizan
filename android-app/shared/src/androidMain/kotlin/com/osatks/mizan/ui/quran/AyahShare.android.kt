@@ -80,7 +80,7 @@ internal actual fun AyahShareContent(index: Int, text: Array<String>, onDone: ()
     val source = remember(lang) { if (lang == Lang.AR) null else Sources.translationFor(lang) }
     var meaning by remember(index, source) { mutableStateOf<String?>(null) }
     LaunchedEffect(index, source) {
-        meaning = source?.let { runCatching { QuranData.source(it.id) }.getOrNull()?.getOrNull(index)?.trim()?.takeIf { m -> m.isNotEmpty() } }
+        meaning = source?.let { QuranData.sourceOrNull(it.id)?.getOrNull(index)?.trim()?.takeIf { m -> m.isNotEmpty() } }
     }
     var withMeaning by rememberSaveable { mutableStateOf(true) }
     var style by rememberSaveable { mutableStateOf(CardStyle.EMERALD) }

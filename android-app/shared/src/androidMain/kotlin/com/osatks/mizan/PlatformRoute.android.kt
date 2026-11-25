@@ -1,6 +1,7 @@
 package com.osatks.mizan
 
 import androidx.compose.runtime.Composable
+import com.osatks.mizan.ui.quran.DownloadsScreen
 import com.osatks.mizan.ui.quran.QuranScreen
 import com.osatks.mizan.ui.quran.TafsirLibraryScreen
 import com.osatks.mizan.ui.screens.AdhanScreen
@@ -40,6 +41,7 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "adhkar" -> AdhkarScreen(back)
         "settings" -> SettingsScreen(open = open)
         "tafsirs" -> TafsirLibraryScreen(back)
+        "downloads" -> DownloadsScreen(back)
         "guide" -> Onboarding(back)
         "adhan" -> AdhanScreen(back)
         "licenses" -> LicensesScreen(back)

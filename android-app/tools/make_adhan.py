@@ -37,9 +37,9 @@ SITE = REPO / "src/adhan"
 # id, source file (as downloaded from the source URL in the licences file), start s, end s, bundled
 RECORDINGS = [
     # archive.org …asim-javed/ICR_Friday_Prayer_1st_Adhan_17th_May_2024_9th_Dhul_Qadah_1445_by_Asim_Javed.flac
-    ("asim", "ia_icr_asim.flac", 0.0, 195.5, True),
+    ("asim", "ia_icr_asim.flac", 0.0, 195.5, False),
     # archive.org aporee_58326_66906/915cABKALKANMuezzincallat545220922674.mp3
-    ("kalkan_fajr", "ap_kalkan_915c.mp3", 25.0, 304.0, True),
+    ("kalkan_fajr", "ap_kalkan_915c.mp3", 25.0, 304.0, False),
     # archive.org AzanZhurMasjidKlcc/CallToPrayer.mp3
     ("klcc", "ia_klcc.mp3", 11.0, 181.5, False),
     # archive.org IshaAzanByMoazzambegMirza07092013/Isha Azan by Moazzambeg Mirza (07-09-2013).mp3

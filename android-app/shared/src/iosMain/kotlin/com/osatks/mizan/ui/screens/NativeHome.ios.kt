@@ -176,7 +176,7 @@ internal fun NativeHomeView(open: (String) -> Unit, onLanguage: () -> Unit, modi
     }
     val times = remember(today, AppSettings.place, AppSettings.method, AppSettings.hanafi) { PrayerUtil.times(today) }
     val quran by produceState<Array<String>?>(null) { value = runCatching { QuranData.uthmani() }.getOrNull() }
-    val hadith by produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang) {
+    val hadith by produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang, com.osatks.mizan.content.ContentStore.version) {
         value = withContext(Dispatchers.Default) { runCatching { Hadiths.forDay(today, lang.code) }.getOrNull() }
     }
 

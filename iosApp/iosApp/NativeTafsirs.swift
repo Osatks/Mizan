@@ -7,6 +7,7 @@ import Shared
 /// بشارة لغتها وحجمها وشريط تقدم تنزيلها، ومفتاح إظهار كل مصدر في ورقة التفسير وحذف المنزَّل — كما في TafsirLibraryScreen.kt.
 /// الحالة كلها من Kotlin (NativeTafsirs.ios.kt) مع الإشعار MizanTafsirsState، وتتجدد مع تقدم كل تنزيل؛ التنزيل والحذف
 /// والحفظ هناك، وهنا الرسم فقط واللمس يعود إليه (وتأكيد الحذف تنبيه النظام من Kotlin).
+/// والشاشة نفسها تعرض «التنزيلات» من الإعدادات (IosDownloadsScreen.kt): أيقونة أخرى، وصفوف بلا مفتاح إظهار، وملاحظة حين لا شيء.
 enum NativeTafsirsScreen {
     static func install() {
         NativeTafsirs.shared.attach { session in TafsirLibHostController(session: session) }
@@ -37,11 +38,11 @@ struct TafsirLibState: Decodable {
         let progress: Double
         var id: String { slug }
     }
-    /// مصدر على الجهاز؛ slug للمنزَّل وحده (يُحذف)
+    /// مصدر على الجهاز؛ slug للمنزَّل وحده (يُحذف)، و shown مفتاح إظهاره في ورقة التفسير (nil: بلا مفتاح، في التنزيلات)
     struct Installed: Decodable, Identifiable {
         let id, badge, name, sub: String
         let slug: String?
-        let shown: Bool
+        let shown: Bool?
     }
 
     let rtl, dark: Bool
@@ -52,6 +53,9 @@ struct TafsirLibState: Decodable {
     let download, retry, cancel, delete, failed, onDevice: String
     let downloads: [Download]
     let installed: [Installed]
+    /// أيقونة الترويسة (SF Symbol؛ nil: المكتبة)، وملاحظة «على الجهاز» حين تكون القائمة فارغة
+    let icon: String?
+    let empty: String?
     let error: String
     let c: HomeState.Colors
 
@@ -156,6 +160,7 @@ struct TafsirLibView: View {
                 TafsirLibNote(text: s.note, p: p).padding(.top, 4)
             } else {
                 TafsirLibSectionTitle(text: s.deviceTitle, p: p)
+                if s.installed.isEmpty, let empty = s.empty { TafsirLibNote(text: empty, p: p) }
                 ForEach(s.installed) { src in TafsirLibInstalledCard(src: src, s: s, p: p, model: model) }
             }
         }
@@ -210,7 +215,7 @@ private struct TafsirLibHeader: View {
     let p: HomePalette
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "books.vertical.fill")
+            Image(systemName: s.icon ?? "books.vertical.fill")
                 .font(.system(size: 20, weight: .semibold)).foregroundColor(p.primary)
                 .frame(width: 46, height: 46)
                 .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(p.gold.opacity(0.18)))
@@ -415,9 +420,11 @@ private struct TafsirLibInstalledCard: View {
                     .accessibilityLabel(s.delete)
                     .accessibilityHint(src.name)
                 }
-                Toggle(src.name, isOn: Binding(get: { src.shown }, set: { model.visible(src.id, $0) }))
-                    .labelsHidden()
-                    .tint(p.primary)
+                if let shown = src.shown {
+                    Toggle(src.name, isOn: Binding(get: { shown }, set: { model.visible(src.id, $0) }))
+                        .labelsHidden()
+                        .tint(p.primary)
+                }
             }
         }
     }

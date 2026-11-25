@@ -176,8 +176,8 @@ internal fun NativeKidsView(onBack: (() -> Unit)?, modifier: Modifier) {
         if (value == null) value = runCatching { QuranData.uthmani() }.getOrNull()
     }
     val meaningId = remember(lang) { kidsMeaningSource(lang) }
-    val meanings by produceState(meaningId?.let { QuranData.cached("tafsir/$it.txt") }, meaningId) {
-        value = meaningId?.let { runCatching { QuranData.source(it) }.getOrNull() }
+    val meanings by produceState(meaningId?.let { QuranData.cached("tafsir/$it.txt") }, meaningId, com.osatks.mizan.content.ContentStore.version) {
+        value = meaningId?.let { QuranData.sourceOrNull(it) }
     }
     val duas by produceState<List<KidsDua>?>(null, lang) {
         value = withContext(Dispatchers.IO) { runCatching { kidsDuas(lang) }.getOrNull() }

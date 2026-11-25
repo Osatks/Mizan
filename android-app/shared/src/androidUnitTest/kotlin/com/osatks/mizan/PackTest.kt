@@ -78,7 +78,8 @@ class PackTest {
             assertTrue("$where: unknown evidence ${(p.evidence.keys - evidence).take(3)}", (p.evidence.keys - evidence).isEmpty())
             assertTrue("$where: untranslated evidence ${(evidence - p.evidence.keys).take(3)}", (evidence - p.evidence.keys).isEmpty())
             for ((k, v) in p.evidence) assertFalse("$where evidence blank: $k", v.isBlank())
-            p.quran?.let { q -> assertTrue("$where quran file", File("src/commonMain/assets/tafsir/${q.id}.txt").exists()) }
+            // ترجمة المعاني: مضمّنة أو منشورة في محتوى الموقع (src/content/tafsir) ينزّلها التطبيق
+            p.quran?.let { q -> assertTrue("$where quran file", TestAssets.file("tafsir/${q.id}.txt").exists()) }
             // كل النصوص تعمل بلا أخطاء عبر Lang
             val s = Lang.fromPack(p).strings
             assertEquals(114, s.surahNames.size)

@@ -8,6 +8,8 @@ import MizanContent
 let pkg = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : FileManager.default.currentDirectoryPath
 let fixtures = pkg + "/Fixtures/content"
 Assets.root = pkg + "/../../android-app/shared/src/commonMain/assets"
+// ما لم يعد مضمّناً في التطبيق (يُنزَّل من الموقع): ترجمات المعاني وأحاديث اليوم والأذكار بغير العربية والإنجليزية
+Assets.extraRoots = [pkg + "/../../src/content"]
 
 var checked = 0
 var failures = 0

@@ -1,0 +1,199 @@
+{
+ "_": "عناوين محتوى التطبيق المنزَّل وإصداراته (build.py: publish_content). ارفع version عند تعديل ملف وحدّث بصمته في ContentCatalog.kt",
+ "tafsir": {
+  "id.jalalayn": {
+   "language": "id",
+   "title": "Tafsir Jalalayn (Bahasa Indonesia)",
+   "version": 1
+  },
+  "fr.hamidullah": {
+   "language": "fr",
+   "title": "Muhammad Hamidullah",
+   "version": 1
+  },
+  "tr.diyanet": {
+   "language": "tr",
+   "title": "Diyanet İşleri",
+   "version": 1
+  },
+  "ur.jalandhry": {
+   "language": "ur",
+   "title": "فتح محمد جالندھری",
+   "version": 1
+  },
+  "ms.basmeih": {
+   "language": "ms",
+   "title": "Abdullah Muhammad Basmeih",
+   "version": 1
+  },
+  "fa.fooladvand": {
+   "language": "fa",
+   "title": "محمدمهدی فولادوند",
+   "version": 1
+  },
+  "bn.bengali": {
+   "language": "bn",
+   "title": "মুহিউদ্দীন খান",
+   "version": 1
+  },
+  "ru.kuliev": {
+   "language": "ru",
+   "title": "Эльмир Кулиев",
+   "version": 1
+  },
+  "de.bubenheim": {
+   "language": "de",
+   "title": "Bubenheim & Elyas",
+   "version": 1
+  },
+  "es.garcia": {
+   "language": "es",
+   "title": "Muhammad Isa García",
+   "version": 1
+  },
+  "uk.yakubovych": {
+   "language": "uk",
+   "title": "Михайло Якубович",
+   "version": 1
+  },
+  "kk.altai": {
+   "language": "kk",
+   "title": "Халифа Алтай",
+   "version": 1
+  },
+  "uz.sodik": {
+   "language": "uz",
+   "title": "Muhammad Sodiq Muhammad Yusuf",
+   "version": 1
+  }
+ },
+ "hadith": {
+  "bn": {
+   "language": "bn",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "de": {
+   "language": "de",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "es": {
+   "language": "es",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "fa": {
+   "language": "fa",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "fr": {
+   "language": "fr",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "id": {
+   "language": "id",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "ms": {
+   "language": "ms",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "ru": {
+   "language": "ru",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "tr": {
+   "language": "tr",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "uk": {
+   "language": "uk",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "ur": {
+   "language": "ur",
+   "title": "HadeethEnc.com",
+   "version": 1
+  },
+  "uz": {
+   "language": "uz",
+   "title": "HadeethEnc.com",
+   "version": 1
+  }
+ },
+ "adhkar": {
+  "bn": {
+   "language": "bn",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "de": {
+   "language": "de",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "es": {
+   "language": "es",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "fa": {
+   "language": "fa",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "fr": {
+   "language": "fr",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "id": {
+   "language": "id",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "kk": {
+   "language": "kk",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "ms": {
+   "language": "ms",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "ru": {
+   "language": "ru",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "tr": {
+   "language": "tr",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "uk": {
+   "language": "uk",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "ur": {
+   "language": "ur",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  },
+  "uz": {
+   "language": "uz",
+   "title": "Hisn al-Muslim",
+   "version": 1
+  }
+ }
+}

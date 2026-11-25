@@ -2,7 +2,7 @@
 <!--
   النسخ الاحتياطي التلقائي من النظام (أندرويد 12 فما بعد): إلى حساب Google، وعند النقل المباشر إلى هاتف جديد.
   تُنسخ الإعدادات (mizan.xml: الإعدادات والعلامات والختمة والمسبحة)، ويُستثنى ما يُنزَّل من جديد عند الحاجة:
-  خطوط مصحف المدينة، والتفاسير، وتسجيلات الأذان، وحزم اللغات؛ وحال أدوات الشاشة الرئيسية (معرّفاتها تخص الجهاز).
+  خطوط مصحف المدينة، والتفاسير، وتسجيلات الأذان، وحزم اللغات، ومحتوى الموقع (content: الترجمات والأحاديث والأذكار)؛ وحال أدوات الشاشة الرئيسية (معرّفاتها تخص الجهاز).
   الذاكرة المؤقتة (التلاوات) لا تُنسخ أصلاً. أندرويد 11 فما قبل: backup_rules.xml بالقواعد نفسها.
 -->
 <data-extraction-rules>
@@ -11,6 +11,7 @@
         <exclude domain="file" path="tafsir" />
         <exclude domain="file" path="adhan" />
         <exclude domain="file" path="lang" />
+        <exclude domain="file" path="content" />
         <exclude domain="sharedpref" path="mizan_widgets.xml" />
     </cloud-backup>
     <device-transfer>
@@ -18,6 +19,7 @@
         <exclude domain="file" path="tafsir" />
         <exclude domain="file" path="adhan" />
         <exclude domain="file" path="lang" />
+        <exclude domain="file" path="content" />
         <exclude domain="sharedpref" path="mizan_widgets.xml" />
     </device-transfer>
 </data-extraction-rules>

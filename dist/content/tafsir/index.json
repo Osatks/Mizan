@@ -1,0 +1,123 @@
+{
+ "format": 1,
+ "kind": "tafsir",
+ "items": [
+  {
+   "id": "bn.bengali",
+   "language": "bn",
+   "title": "মুহিউদ্দীন খান",
+   "bytes": 2157584,
+   "sha256": "db537a009464183323fb944f7a75d62c898568f35c6f09394b4d8529b1a43559",
+   "version": 1,
+   "file": "bn.bengali.txt"
+  },
+  {
+   "id": "de.bubenheim",
+   "language": "de",
+   "title": "Bubenheim & Elyas",
+   "bytes": 982295,
+   "sha256": "3c3c12c0189280e83eb52a2bbfd9d685bef16ffa9f4a307037367fe6dd00b958",
+   "version": 1,
+   "file": "de.bubenheim.txt"
+  },
+  {
+   "id": "es.garcia",
+   "language": "es",
+   "title": "Muhammad Isa García",
+   "bytes": 926005,
+   "sha256": "cac86dd7d24376e565821ddf8bfdc0db9a286aa2770a0521a06ad08d8eb7e2d2",
+   "version": 1,
+   "file": "es.garcia.txt"
+  },
+  {
+   "id": "fa.fooladvand",
+   "language": "fa",
+   "title": "محمدمهدی فولادوند",
+   "bytes": 1339156,
+   "sha256": "4d8cead0c9c7397e59adc4e773dd56b2da4c5700cda82d9ed648660fb190aa45",
+   "version": 1,
+   "file": "fa.fooladvand.txt"
+  },
+  {
+   "id": "fr.hamidullah",
+   "language": "fr",
+   "title": "Muhammad Hamidullah",
+   "bytes": 948096,
+   "sha256": "9834cfcd14b506a6c0223d86ac259e896f2bfb44c0823d83d827c27ffea57f03",
+   "version": 1,
+   "file": "fr.hamidullah.txt"
+  },
+  {
+   "id": "id.jalalayn",
+   "language": "id",
+   "title": "Tafsir Jalalayn (Bahasa Indonesia)",
+   "bytes": 2753922,
+   "sha256": "62712bcbde9cc13cf2b8de1b072e127fd25af17fc1d6b5e7e3238328ee6d3350",
+   "version": 1,
+   "file": "id.jalalayn.txt"
+  },
+  {
+   "id": "kk.altai",
+   "language": "kk",
+   "title": "Халифа Алтай",
+   "bytes": 1444221,
+   "sha256": "f66128a4779d25454eb2f96373929404886a0f3438a5a58c5b3b0ac203c36d89",
+   "version": 1,
+   "file": "kk.altai.txt"
+  },
+  {
+   "id": "ms.basmeih",
+   "language": "ms",
+   "title": "Abdullah Muhammad Basmeih",
+   "bytes": 1488713,
+   "sha256": "51548b7d7c65f36c4b26b58d81c9c994d96869d06577efb350968968b4ab01b6",
+   "version": 1,
+   "file": "ms.basmeih.txt"
+  },
+  {
+   "id": "ru.kuliev",
+   "language": "ru",
+   "title": "Эльмир Кулиев",
+   "bytes": 1454333,
+   "sha256": "f2d328a28559e219733fb9287df060a643964b6ae9a59256431b786beca76449",
+   "version": 1,
+   "file": "ru.kuliev.txt"
+  },
+  {
+   "id": "tr.diyanet",
+   "language": "tr",
+   "title": "Diyanet İşleri",
+   "bytes": 1013354,
+   "sha256": "a9be7b4f291d8cf6f72dbd22dbc4b58f4716c137e56dbdc562aee3fc8c4bc4af",
+   "version": 1,
+   "file": "tr.diyanet.txt"
+  },
+  {
+   "id": "uk.yakubovych",
+   "language": "uk",
+   "title": "Михайло Якубович",
+   "bytes": 1321832,
+   "sha256": "3b58a9eb538ab36a1a05bf1a617fece5cf18b76d8bb8631489cf60f6f37b333a",
+   "version": 1,
+   "file": "uk.yakubovych.txt"
+  },
+  {
+   "id": "ur.jalandhry",
+   "language": "ur",
+   "title": "فتح محمد جالندھری",
+   "bytes": 1450376,
+   "sha256": "c7e982b49b5e6f275559985caaf24f5e0136950f73f50f1a6c6f6a5281617c6a",
+   "version": 1,
+   "file": "ur.jalandhry.txt"
+  },
+  {
+   "id": "uz.sodik",
+   "language": "uz",
+   "title": "Muhammad Sodiq Muhammad Yusuf",
+   "bytes": 2528482,
+   "sha256": "6f065883151ef7da3ffff8ab804074e1a219f223397ac788453f5ae62c240d5c",
+   "version": 1,
+   "file": "uz.sodik.txt"
+  }
+ ]
+}

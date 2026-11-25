@@ -3,6 +3,7 @@ package com.osatks.mizan
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.osatks.mizan.ui.quran.IosDownloadsScreen
 import com.osatks.mizan.ui.quran.IosTafsirLibraryScreen
 import com.osatks.mizan.ui.quran.NativeQuranView
 import com.osatks.mizan.ui.screens.IosAdhanScreen
@@ -48,6 +49,8 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "adhkar" -> IosAdhkarScreen(back)
         "settings" -> IosSettingsScreen(open)
         "tafsirs" -> IosTafsirLibraryScreen(back)
+        // التنزيلات: شاشة مكتبة التفاسير نفسها ببيانات ما نُزّل وما يُنزَّل
+        "downloads" -> IosDownloadsScreen(back)
         "guide" -> IosOnboarding(back)
         "adhan" -> IosAdhanScreen(back)
         "licenses" -> NativeLicensesView(back, Modifier.fillMaxSize())

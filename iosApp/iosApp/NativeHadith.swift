@@ -38,11 +38,17 @@ struct HadithPageState: Decodable {
         let benefits: [String]
         let sourceSub: String
     }
+    /// ترجمة الأحاديث بلغة الواجهة لم تُنزَّل بعد من موقع ميزان؛ state: ‏idle أو running أو failed
+    struct Download: Decodable {
+        let text, button, state, pct, failed: String
+        let progress: Double
+    }
 
     let rtl, dark, canNext: Bool
     let top, bottom, start, end: Double
     let back, title, subtitle, explanation, benefits, share, source, prev, next: String
     let hadith: Item?
+    let download: Download?
     let c: HomeState.Colors
 
     static func decode(_ json: String) -> HadithPageState? {
@@ -73,6 +79,7 @@ final class HadithPageModel: ObservableObject {
     func share() { session.share() }
     func openSource() { session.openSource() }
     func back() { session.back() }
+    func download() { UIImpactFeedbackGenerator(style: .light).impactOccurred(); session.download() }
 }
 
 // MARK: - الشاشة
@@ -154,6 +161,7 @@ private struct HadithPageContent: View {
     let model: HadithPageModel
     var body: some View {
         VStack(spacing: 14) {
+            if let d = s.download { HadithPageDownload(d: d, p: p, model: model) }
             HadithPageHero(h: h, p: p)
             if let tr = h.tr {
                 HadithPageCard(title: nil, p: p) { HadithPageBody(text: tr, arabic: false, p: p) }
@@ -297,6 +305,60 @@ private struct HadithPageHero: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(p.gold.opacity(0.45), lineWidth: 1))
+    }
+}
+
+/// ترجمة لغة الواجهة لم تُنزَّل بعد: سطر يشرح ذلك، وزر «تنزيل (الحجم)» أو إعادة المحاولة، وشريط التقدم أثناء التنزيل
+private struct HadithPageDownload: View {
+    let d: HadithPageState.Download
+    let p: HomePalette
+    let model: HadithPageModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "arrow.down.circle.fill").font(.system(size: 18)).foregroundColor(p.primary)
+                    .accessibilityHidden(true)
+                Text(d.text).font(sys(14)).foregroundColor(p.onPrimaryContainer)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if d.state == "running" {
+                VStack(alignment: .leading, spacing: 4) {
+                    GeometryReader { g in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(p.surface)
+                            Capsule().fill(p.primary).frame(width: max(6, g.size.width * CGFloat(min(max(d.progress, 0), 1))))
+                        }
+                    }
+                    .frame(height: 6)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.4), value: d.progress)
+                    Text(d.pct).font(sys(11, .medium)).foregroundColor(p.onSurfaceVariant)
+                }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(d.pct)
+            } else {
+                if d.state == "failed" {
+                    Text(d.failed).font(sys(12, .medium)).foregroundColor(p.onSurfaceVariant)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Button(action: model.download) {
+                    HStack(spacing: 6) {
+                        Image(systemName: d.state == "failed" ? "arrow.clockwise" : "arrow.down.circle.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text(d.button).font(sys(14, .semibold)).lineLimit(1)
+                    }
+                    .foregroundColor(p.onPrimaryContainer)
+                    .padding(.horizontal, 14).padding(.vertical, 9)
+                    .background(Capsule().fill(p.surface))
+                }
+                .buttonStyle(PressScale(scale: 0.94))
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.primaryContainer))
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: d.state)
     }
 }
 

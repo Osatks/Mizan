@@ -520,6 +520,22 @@ interface Strings {
     val retry: String                   // "Try again"
     val moreTafsirs: String             // "More tafsirs" (chip in the tafsir sheet)
     val tafsirLibraryNote: String       // source credit + internet only for downloads
+    // ---------- Downloads (Settings): content downloaded from the Mizan website ----------
+    val downloadsTitle: String         // Settings row and screen title: "Downloads"
+    val downloadsSub: String           // translations, hadith and adhkar in other languages, adhan recordings and Mushaf pages
+    fun downloadsUsed(size: String): String // "{size} downloaded on this device" (size like "12.3 MB")
+    val downloadsNone: String          // "Nothing downloaded yet"
+    val downloadsNote: String          // downloaded from the Mizan website, then offline; the app language's content downloads by itself; deleted items stay deleted
+    val dlTranslations: String         // Downloads section: "Quran translations and tafsirs"
+    val dlHadith: String               // Downloads section: "Hadith of the day translations"
+    val dlAdhkar: String               // Downloads section: "Adhkar translations"
+    val dlAdhan: String                // Downloads section: "Adhan recordings"
+    val dlMushaf: String               // Downloads row: "Mushaf pages" (downloaded page fonts)
+    val deletePages: String            // button: "Delete downloaded pages"
+    val deletePagesQ: String           // dialog: delete the downloaded Mushaf pages? They download again when opened
+    fun downloadSized(mb: String): String // button: "Download (1.4 MB)"
+    val translationMissing: String     // the translation of the meanings in your language is not on this device yet
+    val hadithMissing: String          // the hadith translation in your language is not on this device yet
     fun ayahRange(from: Int, to: Int): String // "Commentary on ayahs 8–10"
     val recitation: String              // "Recitation" (audio sheet title)
     val reciter: String                 // "Reciter"

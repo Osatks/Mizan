@@ -482,7 +482,7 @@ private fun HadithOfDayCard(today: LocalDate, modifier: Modifier, open: (String)
     val lang = LocalLang.current
     val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
     val cs = MaterialTheme.colorScheme
-    val h by androidx.compose.runtime.produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang) {
+    val h by androidx.compose.runtime.produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang, com.osatks.mizan.content.ContentStore.version) {
         value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
             runCatching { com.osatks.mizan.hadith.Hadiths.forDay(today, lang.code) }.getOrNull()
         }

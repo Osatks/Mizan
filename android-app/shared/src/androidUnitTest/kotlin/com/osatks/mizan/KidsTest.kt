@@ -20,8 +20,8 @@ import java.io.File
 class KidsTest {
     init {
         TestPacks.load()
-        QuranData.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
-        Adhkar.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        QuranData.open = { TestAssets.read(it) }
+        Adhkar.open = { TestAssets.read(it) }
         Adhkar.clearTranslations()
     }
 
