@@ -85,6 +85,8 @@ class StringsTest {
             assertTrue(s.juzName(30).contains("30") && s.pageName(604).contains("604"))
             assertTrue(s.surahAyah("X", 255).contains("255"))
             assertTrue("${l.code} sources keep the links", s.quranSources.contains("tanzil.net") && s.quranSources.contains("tanzil.net/trans"))
+            // تقدّم إعداد أول تشغيل يقرؤه قارئ الشاشة: رقم الخطوة وعددها
+            assertTrue("${l.code} obStep", s.obStep(2, 6).contains("2") && s.obStep(2, 6).contains("6"))
         }
     }
 

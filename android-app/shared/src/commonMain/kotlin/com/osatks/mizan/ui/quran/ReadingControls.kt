@@ -533,10 +533,11 @@ private fun ScriptOptions() {
 
 /**
  * لون الصفحة صفحةً مصغّرة كما تظهر في القراءة: ورقها بتدرّجه وإطارها المذهّب والبسملة بحبرها. المختار بحافة بلون التطبيق
- * وعلامة، ويكبر قليلاً؛ وثلاثيا الأبعاد بشارة «3D» وحروفهما فوق غباشهما (ظل في الفاتح، وهج ذهبي في الليلي)
+ * وعلامة، ويكبر قليلاً؛ وثلاثيا الأبعاد بشارة «3D» وحروفهما فوق غباشهما (ظل في الفاتح، وهج ذهبي في الليلي).
+ * وتُعرض أيضاً في خطوة المظهر من إعداد أول تشغيل (Welcome)
  */
 @Composable
-private fun ToneCard(tone: String, label: String) {
+internal fun ToneCard(tone: String, label: String) {
     val selected = QuranPrefs.tone == tone
     val pal = readingPalette(tone) ?: mushafPalette()
     val depth = isDepthTone(tone)

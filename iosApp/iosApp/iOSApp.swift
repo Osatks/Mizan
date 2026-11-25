@@ -52,6 +52,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         NativeTafsirsScreen.install()
         NativeAdhanScreen.install()
         NativeGuideScreen.install()
+        // وإعداد أول تشغيل التفاعلي (NativeWelcome.swift)
+        NativeWelcomeScreen.install()
         NativeLicensesScreen.install()
         NativeSheetsUI.install()
         if !AppDelegate.usesScenes {

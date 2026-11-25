@@ -155,10 +155,10 @@ fun MizanApp(startRoute: String? = null) {
         AnimatedVisibility(firstRun, enter = fadeIn(), exit = fadeOut(tween(Motion.MEDIUM))) {
             // لا يصل لمس الأماكن الفارغة من الجولة إلى الرئيسية تحتها
             Box(Modifier.fillMaxSize().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } } }) {
-                com.osatks.mizan.ui.screens.Onboarding(
-                    onDone = { firstRun = false; AppSettings.putBool("onboarded", true); AppSettings.putInt("guideSeen", GUIDE_VERSION) },
-                    from = guideFrom,
-                )
+                val done: () -> Unit = { firstRun = false; guideDone() }
+                // أول تشغيل: إعداد تفاعلي (اللغة، الموقع، الأذان، المظهر)؛ وبعد التحديث: صفحات الدليل الجديدة وحدها
+                if (guideFrom == 0) com.osatks.mizan.ui.screens.Welcome(onDone = done)
+                else com.osatks.mizan.ui.screens.Onboarding(onDone = done, from = guideFrom)
             }
         }
         // الشريط لا يظهر فوق جولة أول تشغيل (كان يغطي أزرارها السفلية)، ولا مع القائمة الجانبية
