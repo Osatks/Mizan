@@ -40,6 +40,10 @@ struct AdhanSetState: Decodable {
         let progress: Double
     }
     struct Same: Decodable { let title, sub: String; let on: Bool }
+    /// «قبل خروج الوقت» لصلاة: sub نهاية وقتها اليوم (فارغ إن تعذّر الحساب)
+    struct EndPrayer: Decodable, Identifiable { let key, title, sub: String; let on: Bool; var id: String { key } }
+    /// خيار «كم دقيقة قبل النهاية»
+    struct EndMinute: Decodable, Identifiable { let value: Int; let label: String; var id: Int { value } }
     /// نمط اهتزاز؛ pulses: لكل مقطع [البداية، العرض، الارتفاع] نسباً من 0 إلى 1
     struct Vibe: Decodable, Identifiable {
         let key, name: String
@@ -57,6 +61,10 @@ struct AdhanSetState: Decodable {
     let perPrayerTitle, modesHint: String
     let modes: [Mode]
     let prayers: [Prayer]
+    let endTitle, endHint, endBefore: String
+    let endPrayers: [EndPrayer]
+    let endMinutes: [EndMinute]
+    let endMinute: Int
     let muezzinTitle: String
     let muezzins: [Muezzin]
     let fajrTitle, fajrHint: String
@@ -104,6 +112,8 @@ final class AdhanSetModel: ObservableObject {
     func play(_ id: String) { session.play(id: id) }
     func vibe(_ key: String) { session.vibe(key: key) }
     func tryVibe(_ key: String) { session.tryVibe(key: key) }
+    func endAlert(_ prayer: String, _ on: Bool) { session.endAlert(prayer: prayer, on: on) }
+    func endMinutes(_ value: Int) { session.endMinutes(value: String(value)) }
     func back() { session.back() }
 }
 
@@ -193,6 +203,20 @@ struct AdhanSetView: View {
                     AdhanSetPrayerRow(pr: pr, modes: s.modes, p: p, model: model)
                 }
                 AdhanSetFootnote(text: s.modesHint, p: p)
+            }
+            // قبل خروج الوقت: مفتاح لكل صلاة وتحته نهاية وقتها اليوم، ثم «كم دقيقة قبل النهاية»
+            AdhanSetGroup(title: s.endTitle, p: p) {
+                ForEach(Array(s.endPrayers.enumerated()), id: \.element.id) { i, e in
+                    if i > 0 { AdhanSetDivider(p: p) }
+                    AdhanSetToggleRow(
+                        symbol: prayerSymbol(e.key),
+                        row: AdhanSetState.Switch(title: e.title, sub: e.sub, on: e.on, busy: nil),
+                        p: p
+                    ) { model.endAlert(e.key, $0) }
+                }
+                AdhanSetDivider(p: p, inset: 16)
+                AdhanSetEndMinutes(s: s, p: p, model: model)
+                AdhanSetFootnote(text: s.endHint, p: p)
             }
             AdhanSetGroup(title: s.muezzinTitle, p: p) {
                 ForEach(Array(s.muezzins.enumerated()), id: \.element.id) { i, m in
@@ -501,6 +525,46 @@ private struct AdhanSetPrayerRow: View {
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
         .frame(minHeight: 56)
+    }
+}
+
+// MARK: قبل خروج الوقت
+
+/// «كم دقيقة قبل النهاية»: أربعة اختيارات متجاورة (10، 15، 20، 30)، والمختار بلون التطبيق
+private struct AdhanSetEndMinutes: View {
+    let s: AdhanSetState
+    let p: HomePalette
+    let model: AdhanSetModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(s.endBefore).font(sys(16, .semibold)).foregroundColor(p.onSurface)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+            HStack(spacing: 8) {
+                ForEach(s.endMinutes) { m in
+                    let on = m.value == s.endMinute
+                    Button {
+                        if !on {
+                            UISelectionFeedbackGenerator().selectionChanged()
+                            model.endMinutes(m.value)
+                        }
+                    } label: {
+                        Text(m.label).font(sys(14, .semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                            .foregroundColor(on ? .white : p.onSurface)
+                            .frame(maxWidth: .infinity, minHeight: 40)
+                            .background(Capsule().fill(on ? p.primary : p.onSurfaceVariant.opacity(0.1)))
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(PressScale(scale: 0.95))
+                    .accessibilityLabel(m.label)
+                    .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: on)
+                }
+            }
+        }
+        .padding(.horizontal, 16).padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

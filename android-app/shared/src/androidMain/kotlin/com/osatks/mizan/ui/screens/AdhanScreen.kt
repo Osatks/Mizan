@@ -86,6 +86,7 @@ import com.osatks.mizan.core.ALERT_PRAYERS
 import com.osatks.mizan.core.AdhanSounds
 import com.osatks.mizan.core.AlertMode
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.EndAlerts
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Muezzin
 import com.osatks.mizan.core.Muezzins
@@ -94,6 +95,7 @@ import com.osatks.mizan.i18n.FeatureText
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.prayer
+import com.osatks.mizan.i18n.time
 import com.osatks.mizan.platform.AdhanAudio
 import com.osatks.mizan.platform.AdhanPreview
 import com.osatks.mizan.platform.AppStore
@@ -158,6 +160,7 @@ fun AdhanScreen(onBack: () -> Unit) {
                 AdhanFootnote(s.alertModesHint)
             }
         }
+        item { EndAlertGroup() }
         item {
             AdhanGroup(s.muezzinTitle) {
                 Column(Modifier.selectableGroup()) {
@@ -348,6 +351,65 @@ private fun PrayerModeRow(prayer: String) {
                 },
                 title = s.prayer(prayer),
             )
+        }
+    }
+}
+
+// ---------- قبل خروج الوقت ----------
+
+/**
+ * قبل خروج الوقت: مفتاح لكل صلاة وتحت اسمها نهاية وقتها اليوم (كما في صفحة المواقيت)، ثم «كم دقيقة قبل النهاية»
+ * (10 أو 15 أو 20 أو 30)، وشرح قصير. التذكير بصوت الإشعار المعتاد لا بالأذان.
+ */
+@Composable
+private fun EndAlertGroup() {
+    val s = LocalStrings.current
+    val setEnd = rememberEndAlertToggle()
+    val place = AppSettings.place
+    val t = remember(place, AppSettings.method, AppSettings.hanafi) { endAlertTimesToday() }
+    AdhanGroup(s.endAlertTitle) {
+        ALERT_PRAYERS.forEachIndexed { i, k ->
+            if (i > 0) AdhanDivider()
+            val end = EndAlerts.end(t, k)
+            AdhanToggleRow(
+                ADHAN_PRAYER_ICONS[k] ?: Icons.Outlined.WbSunny, s.prayer(k),
+                if (end.isNaN()) null else s.endsAt(s.time(end)), AppSettings.endAlert(k),
+            ) { on -> setEnd(k, on) }
+        }
+        AdhanDivider(16.dp)
+        EndMinutesRow()
+        AdhanFootnote(s.endAlertHint)
+    }
+}
+
+/** «كم دقيقة قبل النهاية»: أربعة اختيارات متجاورة، والمختار بلون التطبيق */
+@Composable
+private fun EndMinutesRow() {
+    val s = LocalStrings.current
+    val cs = MaterialTheme.colorScheme
+    val haptic = LocalHapticFeedback.current
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(s.endAlertBefore, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = cs.onSurface)
+        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            EndAlerts.MINUTES.forEach { m ->
+                val on = AppSettings.endAlertMinutes == m
+                val bg by animateColorAsState(if (on) cs.primary else cs.onSurfaceVariant.copy(alpha = .1f), tween(180), label = "endMin")
+                Box(
+                    Modifier.weight(1f).height(40.dp).clip(CircleShape).background(bg)
+                        .selectable(on, role = Role.RadioButton) {
+                            if (!on) {
+                                haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                                setEndAlertMinutes(m)
+                            }
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        s.minutes(m), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                        color = if (on) cs.onPrimary else cs.onSurface, maxLines = 1,
+                    )
+                }
+            }
         }
     }
 }

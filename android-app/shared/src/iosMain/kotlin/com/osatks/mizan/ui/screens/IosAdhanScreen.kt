@@ -3,11 +3,14 @@ package com.osatks.mizan.ui.screens
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.osatks.mizan.core.ALERT_PRAYERS
 import com.osatks.mizan.core.AdhanSounds
 import com.osatks.mizan.core.AlertMode
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.EndAlerts
+import com.osatks.mizan.core.PrayerTimes
 import com.osatks.mizan.core.Fmt
 import com.osatks.mizan.core.Muezzin
 import com.osatks.mizan.core.Muezzins
@@ -15,6 +18,7 @@ import com.osatks.mizan.core.VibePattern
 import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.i18n.prayer
+import com.osatks.mizan.i18n.time
 import com.osatks.mizan.platform.AdhanAudio
 import com.osatks.mizan.platform.AdhanPreview
 import com.osatks.mizan.platform.AppStore
@@ -33,12 +37,15 @@ import com.osatks.mizan.platform.PrayerCalendar
 internal fun IosAdhanScreen(onBack: () -> Unit) {
     val s = LocalStrings.current
     val toggleNotify = rememberAlertsToggle()
+    val setEnd = rememberEndAlertToggle()
+    // نهاية كل وقت اليوم تحت مفتاحه في «قبل خروج الوقت»
+    val endTimes = remember(AppSettings.place, AppSettings.method, AppSettings.hanafi) { endAlertTimesToday() }
     // المعاينة لا تستمر بعد مغادرة الصفحة
     DisposableEffect(Unit) { onDispose { AdhanPreview.stop() } }
     val ft = FeatureText.of(LocalLang.current.code)
     NativeAdhanView(
-        content = nativeAdhanContent(s, ft),
-        onAction = { k, x -> nativeAdhanAction(k, x, s, toggleNotify) },
+        content = nativeAdhanContent(s, ft, endTimes),
+        onAction = { k, x -> nativeAdhanAction(k, x, s, toggleNotify, setEnd) },
         onBack = onBack,
         modifier = Modifier.fillMaxSize(),
     )
@@ -67,7 +74,7 @@ private fun nativeMuezzin(m: Muezzin, selected: Boolean, s: Strings): Map<String
 }
 
 /** محتوى الشاشة كله لواجهة النظام (النصوص والحالات منسّقة هنا)، بترتيب بطاقات [AdhanScreen] */
-private fun nativeAdhanContent(s: Strings, ft: FeatureText): Map<String, Any?> = linkedMapOf(
+private fun nativeAdhanContent(s: Strings, ft: FeatureText, endTimes: PrayerTimes): Map<String, Any?> = linkedMapOf(
     "title" to s.adhanSettings, "subtitle" to s.adhanSettingsSub,
     "alert" to nativeSwitch(s.adhanAlert, s.adhanAlertDesc, AppSettings.notify),
     "exactAlarm" to if (PrayerAlerts.hasExactAlarmSettings) linkedMapOf("title" to s.exactAlarm, "sub" to s.exactAlarmDesc) else null,
@@ -86,6 +93,16 @@ private fun nativeAdhanContent(s: Strings, ft: FeatureText): Map<String, Any?> =
             "detail" to if (mode == AlertMode.ADHAN) "${s.alertModeName(mode)} · ${s.muezzinName(Muezzins.forPrayer(k))}" else s.alertModeName(mode),
         )
     },
+    // قبل خروج الوقت: مفتاح لكل صلاة وتحته نهاية وقتها اليوم، و«كم دقيقة قبل النهاية»
+    "endTitle" to s.endAlertTitle, "endHint" to s.endAlertHint, "endBefore" to s.endAlertBefore,
+    "endPrayers" to ALERT_PRAYERS.map { k ->
+        val end = EndAlerts.end(endTimes, k)
+        linkedMapOf(
+            "key" to k, "title" to s.prayer(k), "sub" to (if (end.isNaN()) "" else s.endsAt(s.time(end))), "on" to AppSettings.endAlert(k),
+        )
+    },
+    "endMinutes" to EndAlerts.MINUTES.map { m -> linkedMapOf("value" to m, "label" to s.minutes(m)) },
+    "endMinute" to AppSettings.endAlertMinutes,
     "muezzinTitle" to s.muezzinTitle,
     "muezzins" to Muezzins.ALL.filter { !it.fajr }.map { m -> nativeMuezzin(m, AppSettings.muezzin == m.id, s) },
     "fajrTitle" to s.fajrAdhanTitle, "fajrHint" to s.fajrAdhanHint,
@@ -109,7 +126,7 @@ private fun nativeAdhanContent(s: Strings, ft: FeatureText): Map<String, Any?> =
 )
 
 /** لمسة من واجهة النظام: تُنفَّذ كما في صفوف Compose نفسها */
-private fun nativeAdhanAction(k: String, x: String, s: Strings, toggleNotify: (Boolean) -> Unit) {
+private fun nativeAdhanAction(k: String, x: String, s: Strings, toggleNotify: (Boolean) -> Unit, setEnd: (String, Boolean) -> Unit) {
     fun select(m: Muezzin) {
         if (m.fajr) AppSettings.updateFajrMuezzin(m.id) else AppSettings.updateMuezzin(m.id)
         PrayerAlerts.reschedule()
@@ -141,6 +158,12 @@ private fun nativeAdhanAction(k: String, x: String, s: Strings, toggleNotify: (B
                 AppSettings.updateFajrMuezzin(Muezzins.SAME); PrayerAlerts.reschedule()
             } else Muezzins.of(x)?.takeIf { it.fajr == (k == "pickFajr") }?.let { m -> if (AdhanSounds.available(m)) select(m) else download(m) }
         }
+        k.startsWith("end:") -> {
+            val prayer = k.removePrefix("end:")
+            val on = x == "true"
+            if (prayer in ALERT_PRAYERS && AppSettings.endAlert(prayer) != on) setEnd(prayer, on)
+        }
+        k == "endMinutes" -> x.toIntOrNull()?.let { setEndAlertMinutes(it) }
         k == "download" -> Muezzins.of(x)?.let { download(it) }
         k == "delete" -> Muezzins.of(x)?.let { AdhanPreview.stop(); AdhanSounds.delete(it) }
         k == "play" -> Muezzins.of(x)?.let { if (AdhanSounds.available(it)) AdhanPreview.toggle(it) }

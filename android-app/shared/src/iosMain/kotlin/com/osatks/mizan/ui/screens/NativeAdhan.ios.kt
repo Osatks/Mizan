@@ -107,6 +107,12 @@ class NativeAdhanSession internal constructor() {
     /** يجرّب نمط الاهتزاز دون اختياره */
     fun tryVibe(key: String) = onAction("tryVibe", key)
 
+    /** تذكير «قبل خروج الوقت» لصلاة [prayer] (مع طلب الإذن من Compose عند التشغيل) */
+    fun endAlert(prayer: String, on: Boolean) = onAction("end:$prayer", on.toString())
+
+    /** «كم دقيقة قبل نهاية الوقت»: [value] من 10 و15 و20 و30 (نصاً، ليبقى String في Swift) */
+    fun endMinutes(value: String) = onAction("endMinutes", value)
+
     fun back() = onBack()
 }
 
@@ -117,7 +123,7 @@ private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).
  * والعدّ الحي والتقويم، وطريقة التنبيه لكل صلاة (قائمة النظام)، والمؤذن وأذان الفجر مع الاستماع والتنزيل بتقدمه والحذف،
  * وأنماط الاهتزاز برسمها وتجربتها، ومصادر التسجيلات — كما في [AdhanScreen]. [content] يبنيه Kotlin كله.
  * Swift يردّ باللمس: [onAction] بمفتاح الأمر وقيمته (notify، live، calendar، exactAlarm، mode:<prayer>، pick، pickFajr،
- * download، delete، play، vibe، tryVibe)، و[onBack] للرجوع. التنزيل والتشغيل والحفظ تبقى في Kotlin.
+ * download، delete، play، vibe، tryVibe، end:<prayer>، endMinutes)، و[onBack] للرجوع. التنزيل والتشغيل والحفظ تبقى في Kotlin.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

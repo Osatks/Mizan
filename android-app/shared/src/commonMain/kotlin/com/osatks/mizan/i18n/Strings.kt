@@ -138,6 +138,11 @@ interface Strings {
     val alertModeSilent: String                 // alert mode: "Silent notification"
     val alertModeOff: String                    // alert mode: "No alert"
     val alertModesHint: String                  // explains the four modes
+    val endAlertTitle: String                   // section title and notification channel: "Before the time ends" (a reminder shortly before a prayer's time runs out)
+    val endAlertHint: String                    // gentle reminder with the usual notification sound; end times as on the prayer times page
+    val endAlertBefore: String                  // label above the minute choices (10, 15, 20, 30): "Minutes before the end"
+    fun endAlertNotice(prayer: String, n: Int): String // notification title: "15 minutes left for Dhuhr"
+    fun endAlertBody(t: String): String         // notification text: "Its time ends at 3:12 PM — there is still time to pray." (t is already formatted)
     val muezzinTitle: String                    // section title: "Muezzin"
     val fajrAdhanTitle: String                  // section title: "Fajr adhan"
     val fajrAdhanHint: String                   // the Fajr adhan adds "prayer is better than sleep"

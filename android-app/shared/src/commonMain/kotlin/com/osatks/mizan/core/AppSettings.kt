@@ -69,6 +69,11 @@ object AppSettings {
         private set
     var vibePattern by mutableStateOf(VibePattern.DEFAULT)
         private set
+    /** تنبيه قرب خروج الوقت: الصلوات المفعّل لها (لا شيء افتراضياً)، وكم دقيقة قبل نهاية الوقت ([EndAlerts.MINUTES]) */
+    var endAlerts by mutableStateOf(emptySet<String>())
+        private set
+    var endAlertMinutes by mutableStateOf(EndAlerts.DEFAULT_MINUTES)
+        private set
     /** "system" أو رمز لغة من [Lang] */
     var lang by mutableStateOf(Lang.SYSTEM)
         private set
@@ -113,6 +118,8 @@ object AppSettings {
         muezzin = sp.getString("muezzin") ?: Muezzins.DEFAULT.id
         fajrMuezzin = sp.getString("muezzin_fajr") ?: Muezzins.FAJR_DEFAULT.id
         vibePattern = VibePattern.of(sp.getString("vibe_pattern"))
+        endAlerts = ALERT_PRAYERS.filter { sp.getBool("end_alert_$it", false) }.toSet()
+        endAlertMinutes = EndAlerts.minutesOrDefault(sp.getInt("end_alert_min", EndAlerts.DEFAULT_MINUTES))
         lang = (sp.getString("lang") ?: Lang.SYSTEM)
         LanguagePacks.init()
     }
@@ -164,6 +171,15 @@ object AppSettings {
     fun updateMuezzin(id: String) { muezzin = id; sp.edit().putString("muezzin", id).apply() }
     fun updateFajrMuezzin(id: String) { fajrMuezzin = id; sp.edit().putString("muezzin_fajr", id).apply() }
     fun updateVibePattern(p: VibePattern) { vibePattern = p; sp.edit().putString("vibe_pattern", p.key).apply() }
+    fun updateEndAlert(prayer: String, on: Boolean) {
+        endAlerts = if (on) endAlerts + prayer else endAlerts - prayer
+        sp.edit().putBoolean("end_alert_$prayer", on).apply()
+    }
+    fun endAlert(prayer: String) = prayer in endAlerts
+    fun updateEndAlertMinutes(v: Int) {
+        endAlertMinutes = EndAlerts.minutesOrDefault(v)
+        sp.edit().putInt("end_alert_min", endAlertMinutes).apply()
+    }
     fun updateLang(v: String) { lang = v; sp.edit().putString("lang", v).apply() }
 
     // تخزين عام بسيط للأدوات (المسبحة وغيرها)

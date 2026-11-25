@@ -182,6 +182,11 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val alertModeSilent: String by lazy { s("alertModeSilent") ?: En.alertModeSilent }
     override val alertModeOff: String by lazy { s("alertModeOff") ?: En.alertModeOff }
     override val alertModesHint: String by lazy { s("alertModesHint") ?: En.alertModesHint }
+    override val endAlertTitle: String by lazy { s("endAlertTitle") ?: En.endAlertTitle }
+    override val endAlertHint: String by lazy { s("endAlertHint") ?: En.endAlertHint }
+    override val endAlertBefore: String by lazy { s("endAlertBefore") ?: En.endAlertBefore }
+    override fun endAlertNotice(prayer: String, n: Int): String = f("endAlertNotice", "prayer" to prayer, "n" to n) ?: En.endAlertNotice(prayer, n)
+    override fun endAlertBody(t: String): String = f("endAlertBody", "t" to t) ?: En.endAlertBody(t)
     override val muezzinTitle: String by lazy { s("muezzinTitle") ?: En.muezzinTitle }
     override val fajrAdhanTitle: String by lazy { s("fajrAdhanTitle") ?: En.fajrAdhanTitle }
     override val fajrAdhanHint: String by lazy { s("fajrAdhanHint") ?: En.fajrAdhanHint }
