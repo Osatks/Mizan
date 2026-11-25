@@ -103,8 +103,33 @@ fun Strings.time(hours: Double): String = PrayTimes.format(hours, AppSettings.us
 fun Strings.prayer(key: String): String = prayers[key] ?: key
 fun Strings.city(key: String): String = cities[key] ?: En.cities[key] ?: key
 
-/** اسم الموقع: المدينة المعروفة، أو "موقعي الحالي" */
-fun Strings.placeName(p: Place): String = p.key?.let { city(it) } ?: myLocation
+/**
+ * اسم الموقع، بالترتيب:
+ * ١) مدينة اختارها المستخدم من القائمة: اسمها كما هو.
+ * ٢) موقع GPS: اسمه من محدد المواقع في النظام إن وصل بلغة الواجهة.
+ * ٣) وإلا المدينة المعروفة إن كان فيها أو على بعد [LocationHelper.NEAR_KM] كم منها (لا يُعتمد مفتاح محفوظ قديم
+ *    كان يُضبط حتى بعد نحو ١٥٠ كم).
+ * ٤) وإلا اسمه من محدد المواقع بلغة سابقة (حتى يصل بلغة الواجهة)، وإلا «موقعي الحالي».
+ */
+fun Strings.placeName(p: Place): String {
+    val geo = p.name?.takeIf { it.isNotBlank() }
+    if (!p.gps) return p.key?.let { city(it) } ?: geo ?: myLocation
+    val code = langCode()
+    if (geo != null && (code == null || p.nameLang == null || p.nameLang == code)) return geo
+    LocationHelper.nearCity(p.lat, p.lng)?.let { return city(it.key) }
+    return geo ?: myLocation
+}
+
+/** رمز لغة هذه النصوص (null إن لم تكن لغة معروفة) */
+private fun Strings.langCode(): String? = Lang.entries.firstOrNull { it.strings === this }?.code
+
+/** رمز دولة الموقع: دولة المدينة المختارة، ولموقع GPS دولته من محدد المواقع أو دولة المدينة القريبة */
+fun placeCountryCode(p: Place): String? =
+    if (!p.gps) p.city?.cc else p.cc?.takeIf { it.isNotBlank() } ?: LocationHelper.nearCity(p.lat, p.lng)?.cc
+
+/** سطر الموقع تحت عنوان المواقيت: اسمه ثم دولته إن عُرفت */
+fun Strings.placeLine(p: Place, lang: Lang): String =
+    placeName(p) + (placeCountryCode(p)?.let { " · " + country(it, lang) } ?: "")
 
 /** اسم الدولة من رمزها، بلغة الواجهة */
 fun Strings.country(cc: String, lang: Lang): String =

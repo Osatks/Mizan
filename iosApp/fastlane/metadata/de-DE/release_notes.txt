@@ -1,5 +1,4 @@
-• Der Medina-Mushaf: die Ausgabe des König-Fahd-Komplexes, Zeile für Zeile wie gedruckt, in den eigenen Schriften des Komplexes, mit Amiri als Option.
-• Der Hadith des Tages von HadeethEnc.com mit Erläuterung und Lehren, dazu ein Widget für den Home-Bildschirm.
-• Der Vers des Tages öffnet direkt seinen Tafsir.
-• Teile einen Vers, Hadith oder Dhikr als Bild im Story-Format.
-• Ein ruhigerer Startbildschirm, ein Tab für Werkzeuge, ein Leitfaden zu Funktionen, die man leicht übersieht, und Feedback direkt aus der App.
+• Ein klarerer Mushaf: ein feiner Abstand zwischen den Wörtern, und Anfangsbuchstaben wie «طسٓ» berühren das nächste Wort nicht mehr.
+• Neuer 3D-Mushaf in Hell und Nacht: Die Wörter schweben über der Seite und bewegen sich sanft, wenn du das Telefon neigst.
+• Neu gestaltete Auswahl der Seitenfarbe.
+• Eine schnellere, flüssigere iPhone-App mit nativem Design auf jedem Bildschirm.

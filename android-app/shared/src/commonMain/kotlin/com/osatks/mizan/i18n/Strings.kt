@@ -63,7 +63,7 @@ interface Strings {
     val yearLabel: String
 
     // ---------- Home ----------
-    /** keys: zakat inheritance prayer qibla hijri events tasbih fitr age fidya */
+    /** keys: zakat inheritance prayer qibla mosques hijri events tasbih adhkar fitr age fidya */
     val tools: Map<String, Named>
     /** extra search words per tool (same keys as [tools]), space separated */
     val toolKeywords: Map<String, String>
@@ -138,6 +138,11 @@ interface Strings {
     val alertModeSilent: String                 // alert mode: "Silent notification"
     val alertModeOff: String                    // alert mode: "No alert"
     val alertModesHint: String                  // explains the four modes
+    val endAlertTitle: String                   // section title and notification channel: "Before the time ends" (a reminder shortly before a prayer's time runs out)
+    val endAlertHint: String                    // gentle reminder with the usual notification sound; end times as on the prayer times page
+    val endAlertBefore: String                  // label above the minute choices (10, 15, 20, 30): "Minutes before the end"
+    fun endAlertNotice(prayer: String, n: Int): String // notification title: "15 minutes left for Dhuhr"
+    fun endAlertBody(t: String): String         // notification text: "Its time ends at 3:12 PM — there is still time to pray." (t is already formatted)
     val muezzinTitle: String                    // section title: "Muezzin"
     val fajrAdhanTitle: String                  // section title: "Fajr adhan"
     val fajrAdhanHint: String                   // the Fajr adhan adds "prayer is better than sleep"
@@ -169,6 +174,28 @@ interface Strings {
     val phoneHeading: String
     val compassLowAccuracy: String
     val qiblaTip: String
+
+    // ---------- Nearby mosques ----------
+    val mosquesTitle: String                    // page title: "Nearby Mosques"
+    val mosquesSubtitle: String                 // under the title: "The closest mosques to where you are"
+    val mosque: String                          // a mosque with no name on the map; also the maps search word: "Mosque"
+    val unitM: String                           // metres: "m"
+    val mosquesLoading: String                  // "Looking for mosques near you…"
+    val mosquesEmpty: String                    // "No mosques found nearby"
+    val mosquesEmptyHint: String                // they may not be on the map yet; try your maps app
+    val mosquesError: String                    // "Couldn't load mosques"
+    val mosquesErrorHint: String                // check your internet connection and try again
+    val mosquesLocationFailed: String           // the current location could not be found; check location services
+    val mosquesNeedLocation: String             // allow location to see mosques near you, or choose your city on the Prayer Times page
+    fun mosquesNearSaved(place: String): String // "Showing mosques near Riyadh, the location saved in the app."
+    val openInMaps: String                      // button: search for mosques in the maps app
+    val mosqueDirections: String                // accessibility action on a mosque: "Directions to the mosque"
+    val appleMaps: String                       // "Apple Maps"
+    val googleMaps: String                      // "Google Maps"
+    val osmAttribution: String                  // "© OpenStreetMap contributors" (required by the OSM licence)
+    val mosquesPrivacyOsm: String               // Android: the approximate location (about 100 m) is sent to OpenStreetMap, with no identifier
+    val mosquesPrivacyApple: String             // iPhone: the location is sent to Apple Maps, as in the Maps app; Mizan doesn't keep it
+    val mosquesMap: String                      // accessibility label of the map: "Map of nearby mosques"
 
     // ---------- Tasbih ----------
     val tasbihTitle: String
@@ -297,6 +324,38 @@ interface Strings {
     val poorCount: String
     val approxValue: String
 
+    // ---------- Fasting tracker ----------
+    val fastingTitle: String                     // tool page title: "Fasting"
+    val fastingSubtitle: String                  // Ramadan, make-up days and voluntary fasts
+    val fastingNow: String                       // badge on today's card: "You're fasting today"
+    val fastingVoluntaryToday: String            // switch: "Voluntary fast today" (logs today)
+    val fastingTodayHint: String                 // under the switch: turn it on to see the suhoor and iftar countdowns
+    val fastingForbiddenToday: String            // today is Eid or a day of Tashreeq: no fasting (factual)
+    val fastingFasted: String                    // Ramadan day state and tile label: "Fasted"
+    val fastingMissed: String                    // "Missed" (added to the make-up days)
+    val fastingUnmarked: String                  // "Not marked"
+    val fastingRamadanHint: String               // tap: fasted, again: missed, again: clear; missed days add to make-up days
+    val fastingQadaTitle: String                 // section title: "Make-up days (qada)"
+    val fastingQadaOwed: String                  // big number label: "Days to make up"
+    val fastingMadeUp: String                    // button: "I made up a day"
+    val fastingHistory: String                   // "History"
+    val fastingNothingYet: String                // empty history: "Nothing recorded yet"
+    val fastingLogAdded: String                  // history line: "Day added"
+    val fastingLogRemoved: String                // history line: "Day removed"
+    val fastingLogMadeUp: String                 // history line: "Day made up"
+    val fastingLogMissed: String                 // history line: "Missed in Ramadan"
+    val fastingSunnahTitle: String               // section title: "Voluntary fasts"
+    val fastingUpcoming: String                  // "Coming days" (voluntary fast days)
+    /** reasons for a voluntary fast day, keys: arafah tasua ashura shawwal white monday thursday */
+    val fastingKinds: Map<String, String>
+    val fastingLogged: String                    // label of the number of logged voluntary fasts
+    fun fastingShawwal(done: Int): String        // "Six days of Shawwal: 2 of 6"
+    val fastingRemind: String                    // switch: "Remind me the evening before"
+    fun fastingRemindDesc(time: String): String  // time is formatted: a notification at 9:00 PM before a voluntary fast day
+    fun fastingRemindTitle(what: String): String // notification title: "Tomorrow: Monday · White Days"
+    val fastingRemindBody: String                // notification text
+    val fastingChannel: String                   // Android notification channel: "Fasting reminders"
+
     // ---------- Hijri converter ----------
     val hijriTitle: String
     val hijriSubtitle: String
@@ -406,6 +465,7 @@ interface Strings {
     val searchQuranHint: String         // "Search a surah, or words in the ayahs…"
     val searchQuranGroup: String        // search result group: "Surahs"
     val searchAyahsGroup: String        // search result group: "Ayahs"
+    val searchTheQuran: String          // Android app-icon shortcut (long-press menu, launcher search): "Search the Quran"
     val mushafView: String              // "Mushaf view"
     val ayahView: String                // "Ayah by ayah"
     val textLarger: String              // "Larger text"
@@ -461,6 +521,22 @@ interface Strings {
     val retry: String                   // "Try again"
     val moreTafsirs: String             // "More tafsirs" (chip in the tafsir sheet)
     val tafsirLibraryNote: String       // source credit + internet only for downloads
+    // ---------- Downloads (Settings): content downloaded from the Mizan website ----------
+    val downloadsTitle: String         // Settings row and screen title: "Downloads"
+    val downloadsSub: String           // translations, hadith and adhkar in other languages, adhan recordings and Mushaf pages
+    fun downloadsUsed(size: String): String // "{size} downloaded on this device" (size like "12.3 MB")
+    val downloadsNone: String          // "Nothing downloaded yet"
+    val downloadsNote: String          // downloaded from the Mizan website, then offline; the app language's content downloads by itself; deleted items stay deleted
+    val dlTranslations: String         // Downloads section: "Quran translations and tafsirs"
+    val dlHadith: String               // Downloads section: "Hadith of the day translations"
+    val dlAdhkar: String               // Downloads section: "Adhkar translations"
+    val dlAdhan: String                // Downloads section: "Adhan recordings"
+    val dlMushaf: String               // Downloads row: "Mushaf pages" (downloaded page fonts)
+    val deletePages: String            // button: "Delete downloaded pages"
+    val deletePagesQ: String           // dialog: delete the downloaded Mushaf pages? They download again when opened
+    fun downloadSized(mb: String): String // button: "Download (1.4 MB)"
+    val translationMissing: String     // the translation of the meanings in your language is not on this device yet
+    val hadithMissing: String          // the hadith translation in your language is not on this device yet
     fun ayahRange(from: Int, to: Int): String // "Commentary on ayahs 8–10"
     val recitation: String              // "Recitation" (audio sheet title)
     val reciter: String                 // "Reciter"
@@ -484,6 +560,8 @@ interface Strings {
     val toneAuto: String                // "Auto" (follows app theme)
     val toneSepia: String               // "Sepia"
     val toneNight: String               // "Night"
+    val toneDepth: String               // "3D": الكلمات بارزة فوق الورقة تتحرك مع ميل الجهاز
+    val toneDepthNight: String          // "3D Night": ثلاثي الأبعاد على ورق ليلي
     val brightness: String              // "Brightness"
     val brightnessSystem: String        // "Device brightness" (switch)
     val textSizeLabel: String           // "Text size"
@@ -554,6 +632,25 @@ interface Strings {
     val obStart: String                 // onboarding
     val obLocationTitle: String         // onboarding: last page asks for the location ("Where are you?")
     val obLocationBody: String          // why the location is needed; it stays on the device
+    val obHelloTitle: String            // greeting on the first setup step: "Assalamu alaikum"
+    val obHelloBody: String             // welcome; set Mizan up together in a few quick steps, starting with the language
+    val obTodayTimes: String            // title of the live preview card: "Today's prayer times"
+    val obAdhanTitle: String            // setup step title: "Hear the adhan"
+    val obAdhanBody: String             // an alert as each prayer time begins, in the voice you like
+    val obMoreVoices: String            // more voices are in Settings › Adhan & alerts
+    val obStyleTitle: String            // setup step title and summary row: "Your style"
+    val obStyleBody: String             // choose how Mizan looks; the screen changes as you tap
+    val obTryTitle: String              // setup step title: "Try it" (a tiny tasbih)
+    val obTryBody: String               // tap the bead three times, saying "SubhanAllah" with each tap
+    val obTryDone: String               // after the third tap: well done, the full tasbih is in Tools
+    val obBead: String                  // accessibility label of the bead: "Tasbih bead"
+    val obDoneTitle: String             // last setup step: "You're all set"
+    val obDoneBody: String              // everything is saved; change it or open the app guide from Settings anytime
+    val obCity: String                  // summary row: "City"
+    val obNotSet: String                // summary value when no city was chosen: "Not set yet"
+    val obOn: String                    // summary value: adhan alerts "On"
+    val obOff: String                   // summary value: adhan alerts "Off"
+    fun obStep(n: Int, total: Int): String  // setup progress, read by screen readers: "Step 2 of 6"
     val locationNeeded: String          // banner on Home/Prayer while no location has been chosen
     val appGuide: String                // settings row
     val appGuideSub: String             // settings row subtitle
@@ -590,6 +687,25 @@ interface Strings {
     val dhikrTapHint: String           // tap to count, tap Evidence for the source
     fun dhikrTimes(n: Int): String     // "3 times" (repeat count)
     fun dhikrItems(n: Int): String     // "24 adhkar" (section size)
+    // ---------- Kids' Corner (title and description: tools["kids"]) ----------
+    val kidsSurahs: String             // section: "Short surahs"
+    val kidsSurahsSub: String          // "Read, listen and repeat after the reciter"
+    val kidsNames: String              // section: "Names of Allah"
+    val kidsNamesSub: String           // swipe through the names, each with an ayah where it appears
+    val kidsDuas: String               // section: "Everyday duas"
+    val kidsDuasSub: String            // short duas for eating, sleeping, going out and more
+    val kidsStars: String              // section: "Star chart"
+    val kidsStarsSub: String           // a parent taps a surah once the child has memorized it
+    fun kidsStarCount(n: Int): String  // "7 stars"
+    val kidsMarkMemorized: String      // button for the parent: "Memorized? Give a star"
+    val kidsMemorized: String          // the surah has its star: "Memorized"
+    val kidsRepeatAfterMe: String      // play button and card title: "Repeat after me"
+    val kidsListen: String             // while the reciter recites the ayah: "Listen…"
+    val kidsYourTurn: String           // the pause after it, for the child to repeat: "Your turn! Say the ayah"
+    val kidsWellDone: String           // celebration when a surah is finished or memorized
+    val kidsTapAyah: String            // hint: "Tap an ayah to start from it"
+    val kidsPrevName: String           // accessibility: "Previous name"
+    val kidsNextName: String           // accessibility: "Next name"
     val moreLanguages: String          // section in the language sheet: "Download more languages"
     val langPackHint: String           // languages come from the Mizan website, then work offline with their Quran translation
     val update: String                 // button: "Update"
@@ -598,6 +714,31 @@ interface Strings {
     val privacy: String
     val privacyText: String
     val disclaimer: String
+    // ---------- Backup & sync (Settings) ----------
+    val backupTitle: String            // Settings group: "Backup & Sync"
+    val backupSave: String             // row: "Save backup"
+    val backupSaveSub: String          // a file with your settings, saved ayahs, khatma and tasbih
+    val backupRestore: String          // row: "Restore from backup"
+    val backupRestoreSub: String       // from a file Mizan saved on this or another device
+    val backupConfirmTitle: String     // dialog title: "Restore this backup?"
+    fun backupConfirmBody(date: String): String // the backup from {date} replaces the current data on this device
+    val backupRestoreAction: String    // dialog button: "Restore"
+    val backupSaved: String            // message: "Backup saved"
+    val backupSaveFailed: String       // message: the backup could not be saved
+    val backupRestored: String         // message: your data has been restored
+    val backupRestoreFailed: String    // message: restoring failed, try again
+    val backupReadFailed: String       // message: the chosen file could not be opened
+    val backupInvalid: String          // message: the file is not a Mizan backup
+    val backupTooNew: String           // message: the backup is from a newer Mizan; update the app
+    val backupAutoNote: String         // Android only: Android also backs up to the Google account and restores on a new phone
+    val backupPrivacyNote: String      // the backup is the user's own file: no passwords, never sent to our servers
+    val icloudSync: String             // iPhone switch: "Sync with iCloud"
+    val icloudSyncSub: String          // the same data on devices signed in to the same Apple Account
+    fun icloudLastSync(time: String): String // "Last synced: {time}"
+    val icloudUnavailable: String      // message: iCloud could not be reached
+    val icloudOfferTitle: String       // dialog title: iCloud has data from another device
+    fun icloudOfferBody(date: String): String // saved on {date}: restore it here, or keep this device's data and save it to iCloud?
+    val icloudKeepLocal: String        // dialog button: keep this device's data
     // ---------- Store, sharing, permissions ----------
     val rateApp: String                // Settings row: "Rate Mizan"
     val rateAppSub: String             // a review helps others find the app

@@ -12,7 +12,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * حالة شريط التبويبات من النظام في iOS 26 (NativeTabBar.kt ← LiquidTabBarState.swift): الحقول التي يقرؤها Swift بأسمائها،
+ * حالة شريط التبويبات من النظام في iOS (IosNav.kt ← LiquidTabBarState.swift): الحقول التي يقرؤها Swift بأسمائها،
  * ورموز SF Symbols، والمختار null في صفحة ليست تبويباً (فيبقى اختيار الشريط)، ولون التطبيق #RRGGBB
  */
 class TabBarStateTest {

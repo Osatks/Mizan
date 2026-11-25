@@ -24,8 +24,21 @@ internal fun prepareMadinah(page: Int, w: Float, h: Float): PageLayout? {
     val ref = 100f
     paint.textSize = ref
     val ayahLines = lines.filterIsInstance<MadinahLine.Ayah>()
-    val widths = ayahLines.associateWith { l -> FloatArray(l.glyphs.size) { paint.measure(l.glyphs[it]) } }
-    val natural = { l: MadinahLine.Ayah -> widths.getValue(l).sum() }
+    // عرض الكلمة من رموزها كلاً على حدة إن كان التشكيل يقلّصه: في بعض خطوط المجمع يُعطى رمز الحركة (بلا عرض)
+    // عرضاً سالباً، فتنسحب الكلمة كلها نحو جارتها وتلتصق بها («طسٓ» بـ«تِلۡكَ» في أول النمل)؛ والفرق إزاحة رسمها
+    val shifts = HashMap<String, Float>()
+    fun wordWidth(g: String): Float {
+        val whole = paint.measure(g)
+        if (g.length < 2) return whole
+        val parts = g.sumOf { paint.measure(it.toString()).toDouble() }.toFloat()
+        if (parts > whole + 0.5f) { shifts[g] = parts - whole; return parts }
+        return whole
+    }
+    val widths = ayahLines.associateWith { l -> FloatArray(l.glyphs.size) { wordWidth(l.glyphs[it]) } }
+    // فراغ صغير ثابت بين الكلمات (٠٫٠٦ من المقاس): كلمات خطوط المجمع لا فراغ بينها إلا هوامش الحروف، وأسطر الصفحة
+    // متقاربة العرض، فلو مُلئ أطول سطر بلا فراغ لتقاربت الكلمات في الأسطر كلها حتى تكاد تلتصق
+    val space = ref * 0.06f
+    val natural = { l: MadinahLine.Ayah -> widths.getValue(l).sum() + space * (l.glyphs.size - 1).coerceAtLeast(0) }
     // الفاتحة وأول البقرة: أسطر قليلة أقصر وأكبر في وسط إطار مزخرف
     val special = page <= 2
     val widest = ayahLines.filter { !it.centered || special }.maxOfOrNull(natural) ?: ayahLines.maxOfOrNull(natural) ?: return null
@@ -49,15 +62,17 @@ internal fun prepareMadinah(page: Int, w: Float, h: Float): PageLayout? {
             is MadinahLine.Basmala -> rows += BasmalaRow(top, lineH)
             is MadinahLine.Ayah -> {
                 val ws = widths.getValue(line)
-                val total = ws.sum() * k
+                val inked = ws.sum() * k
                 val centered = line.centered || special || line.glyphs.size == 1
-                val gap = if (centered) 0f else (lineW - total) / (line.glyphs.size - 1)
+                // السطر الموسَّط بالفراغ الثابت، والكامل يملأ العرض (ولا يقل فراغه عنه)
+                val gap = if (centered) space * k else (lineW - inked) / (line.glyphs.size - 1)
+                val total = inked + if (centered) gap * (line.glyphs.size - 1).coerceAtLeast(0) else 0f
                 var right = if (centered) x0 + (lineW + total) / 2 else x0 + lineW
                 val placed = ArrayList<Placed>(line.glyphs.size)
                 for (j in line.glyphs.indices) {
                     val ww = ws[j] * k
                     val word = MWord(line.glyphs[j], if (j in line.ends) END else null, line.ayahs[j])
-                    placed += Placed(word, right - ww, right, ww, 0f, line.glyphs[j])
+                    placed += Placed(word, right - ww, right, ww, 0f, line.glyphs[j], (shifts[line.glyphs[j]] ?: 0f) * k)
                     right -= ww + gap
                 }
                 rows += TextRow(top, lineH, placed)
@@ -120,7 +135,7 @@ internal fun DrawScope.drawMadinah(l: PageLayout, p: MushafPalette, accent: Colo
                             h <= 0f -> ink
                             else -> p.ink.copy(alpha = p.ink.alpha * alpha * (1f - h)).toArgb()
                         }
-                        pp.draw(c, pl.text, pl.left, y)
+                        pp.draw(c, pl.text, pl.left + pl.dx, y)
                     }
                 }
             }

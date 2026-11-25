@@ -32,3 +32,11 @@
 "Counts one tasbih without opening Mizan" = "میزان کھولے بغیر ایک تسبیح گنتا ہے";
 "Shows the countdown to the next prayer on the Lock Screen" = "اگلی نماز کی الٹی گنتی لاک اسکرین پر دکھاتا ہے";
 "Counts the morning or evening adhkar on the Lock Screen" = "صبح یا شام کے اذکار لاک اسکرین پر گنتا ہے";
+/* بحث iPhone: كيانا السورة والآية، ونيّتا فتحهما، واختصار الأذكار بمعامل (MizanSearch.swift) */
+"Surah" = "سورت";
+"Ayah" = "آیت";
+"Open surah" = "سورت کھولیں";
+"Open ayah" = "آیت کھولیں";
+"Opens a surah in the Quran" = "قرآن کی کوئی سورت کھولتا ہے";
+"Opens an ayah in the Quran" = "قرآن کی کوئی آیت کھولتا ہے";
+"Adhkar" = "اذکار";

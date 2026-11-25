@@ -53,7 +53,7 @@ object IosAdhkar {
         val text = QuranData.withoutBismillah(q, idx)
         val ref = s.surahAyah(s.surahName(surah), ayah)
         val meaning = if (lang == Lang.AR) null else Sources.translationFor(lang)?.let { src ->
-            (QuranData.cached("tafsir/${src.id}.txt") ?: runBlocking { QuranData.source(src.id) }).getOrNull(idx)
+            (QuranData.cached("tafsir/${src.id}.txt") ?: runBlocking { QuranData.sourceOrNull(src.id) })?.getOrNull(idx)
         }
         Json.write(
             linkedMapOf<String, Any?>(

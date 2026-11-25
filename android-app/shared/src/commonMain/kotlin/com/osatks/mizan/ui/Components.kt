@@ -48,7 +48,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -58,12 +57,9 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -83,10 +79,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -100,6 +94,11 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -127,31 +126,28 @@ fun PageHeader(
     cardKey: String? = sharedKey?.let { "card-$it" }, actions: @Composable RowScope.() -> Unit = {},
 ) {
     val s = LocalStrings.current
+    val cs = MaterialTheme.colorScheme
     Box(
         Modifier
-            .then(if (cardKey != null) Modifier.sharedCard(cardKey, RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)) else Modifier)
+            .then(if (cardKey != null) Modifier.sharedCard(cardKey, RoundedCornerShape(0.dp)) else Modifier)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-            .background(HeroBrush)
-            .starBackdrop(Color.White.copy(alpha = .07f), 72.dp, Alignment.TopEnd, (-28).dp, 44.dp, 90_000)
+            .background(lightHeaderBrush())
+            .starBackdrop(cs.primary.copy(alpha = .07f), 150.dp, Alignment.TopStart, (-70).dp, (-40).dp, 90_000, stroke = 5f)
     ) {
         Row(
             Modifier.statusBarsPadding().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                .padding(start = 8.dp, end = 20.dp, top = 12.dp, bottom = 22.dp),
+                .padding(start = 8.dp, end = 20.dp, top = 12.dp, bottom = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (onBack != null) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = s.back, tint = Color.White)
+                    Box(Modifier.size(42.dp).shadow(3.dp, CircleShape).clip(CircleShape).background(cs.surface.copy(alpha = .85f)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = s.back, tint = cs.primary)
+                    }
                 }
             } else Spacer(Modifier.width(12.dp))
             if (icon != null) {
-                Box(
-                    Modifier
-                        .then(if (sharedKey != null) Modifier.sharedIcon("icon-$sharedKey") else Modifier)
-                        .size(42.dp).clip(RoundedCornerShape(13.dp)).background(Color.White.copy(alpha = .14f)),
-                    contentAlignment = Alignment.Center
-                ) { Icon(icon, null, tint = Gold) }
+                HeaderIconTile(icon, sharedKey)
                 Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
@@ -163,8 +159,8 @@ fun PageHeader(
                             fadeOut(tween(Motion.SHORT)) using androidx.compose.animation.SizeTransform(clip = false)
                     },
                     label = "title"
-                ) { t -> Text(t, style = MaterialTheme.typography.headlineSmall, color = Color.White) }
-                if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = .85f))
+                ) { t -> Text(t, style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black), color = cs.primary) }
+                if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
             }
             actions()
         }
@@ -222,6 +218,8 @@ fun ToolPage(
     title: String, subtitle: String? = null, onBack: (() -> Unit)? = null,
     sharedKey: String? = null, icon: ImageVector? = null, spacing: Dp = 14.dp,
     columns: Boolean = false,
+    // مربع أيقونة الرأس أبيض بظل خفيف (التبويبات والقبلة والتراخيص في iPhone) بدل الذهبي الفاتح
+    plainIcon: Boolean = false,
     content: PageScope.() -> Unit
 ) {
     val reveal = rememberRevealState()
@@ -249,7 +247,7 @@ fun ToolPage(
                 val g = if (wide) split else narrow
                 item(key = "page-header", contentType = "page-header") {
                     Column {
-                        LargeHeader(title, subtitle, sharedKey, icon, hasBack = onBack != null, g)
+                        LargeHeader(title, subtitle, sharedKey, icon, hasBack = onBack != null, g, plainIcon)
                         Spacer(Modifier.height((16.dp - spacing).coerceAtLeast(0.dp)))
                     }
                 }
@@ -344,31 +342,28 @@ private fun SplitColumns(
     }
 }
 
-/** الرأس الكبير لصفحة الأداة: أيقونة وعنوان كبير وسطر وصف؛ يترك أعلاه مكان الشريط الثابت إن كان فيه زر رجوع */
+/**
+ * الرأس الكبير لصفحة الأداة بطراز الرئيسية (كما في iPhone): تدرج من لون التطبيق الفاتح إلى الخلفية ونجمة باهتة،
+ * وأيقونة في مربع ذهبي فاتح، وعنوان كبير بلون التطبيق وسطر وصف؛ يترك أعلاه مكان الشريط الثابت إن كان فيه زر رجوع
+ */
 @Composable
-private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, icon: ImageVector?, hasBack: Boolean, g: Gutters) {
-    val shape = RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
+private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, icon: ImageVector?, hasBack: Boolean, g: Gutters, plainIcon: Boolean = false) {
+    val cs = MaterialTheme.colorScheme
     Box(
         Modifier
-            .then(if (sharedKey != null) Modifier.sharedCard("card-$sharedKey", shape) else Modifier)
+            .then(if (sharedKey != null) Modifier.sharedCard("card-$sharedKey", RoundedCornerShape(0.dp)) else Modifier)
             .fillMaxWidth()
-            .clip(shape)
-            .background(HeroBrush)
-            .starBackdrop(Color.White.copy(alpha = .07f), 72.dp, Alignment.TopEnd, (-28).dp, 44.dp, 90_000)
+            .background(lightHeaderBrush())
+            .starBackdrop(cs.primary.copy(alpha = .07f), 150.dp, Alignment.TopStart, (-70).dp, (-40).dp, 90_000, stroke = 5f)
     ) {
         // العنوان بمحاذاة المحتوى تحته (في الوسط على الشاشات العريضة، وبعد القائمة الجانبية)
         Row(
-            Modifier.statusBarsPadding().padding(start = g.start + 4.dp, end = g.end + 4.dp, top = if (hasBack) TopBarHeight else 14.dp, bottom = 22.dp),
+            Modifier.statusBarsPadding().padding(start = g.start + 4.dp, end = g.end + 4.dp, top = if (hasBack) TopBarHeight + 6.dp else 18.dp, bottom = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
-                Box(
-                    Modifier
-                        .then(if (sharedKey != null) Modifier.sharedIcon("icon-$sharedKey") else Modifier)
-                        .size(46.dp).clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = .14f)),
-                    contentAlignment = Alignment.Center
-                ) { Icon(icon, null, tint = Gold) }
-                Spacer(Modifier.width(14.dp))
+                HeaderIconTile(icon, sharedKey, plainIcon)
+                Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
                 // العنوان يتبدل بانزلاق لطيف (مثل اسم السورة عند تقليب صفحات المصحف)
@@ -379,11 +374,33 @@ private fun LargeHeader(title: String, subtitle: String?, sharedKey: String?, ic
                             fadeOut(tween(Motion.SHORT)) using androidx.compose.animation.SizeTransform(clip = false)
                     },
                     label = "title"
-                ) { t -> Text(t, style = MaterialTheme.typography.headlineMedium, color = Color.White) }
-                if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = .85f))
+                ) { t -> Text(t, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black), color = cs.primary) }
+                if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
             }
         }
     }
+}
+
+/** تدرج رؤوس الصفحات بطراز الرئيسية: لون التطبيق الفاتح ثم الخلفية */
+@Composable
+fun lightHeaderBrush(): Brush {
+    val cs = MaterialTheme.colorScheme
+    return Brush.verticalGradient(listOf(cs.primaryContainer, cs.primaryContainer.copy(alpha = .55f), cs.background))
+}
+
+/** مربع أيقونة الرأس: خلفية ذهبية فاتحة وأيقونة بلون التطبيق (كما في iPhone) */
+@Composable
+private fun HeaderIconTile(icon: ImageVector, sharedKey: String?, plain: Boolean = false) {
+    val shape = RoundedCornerShape(14.dp)
+    Box(
+        Modifier
+            .then(if (sharedKey != null) Modifier.sharedIcon("icon-$sharedKey") else Modifier)
+            .size(46.dp)
+            .then(if (plain) Modifier.shadow(3.dp, shape) else Modifier)
+            .clip(shape)
+            .background(if (plain) MaterialTheme.colorScheme.surface.copy(alpha = .85f) else Gold.copy(alpha = .18f)),
+        contentAlignment = Alignment.Center
+    ) { Icon(icon, null, tint = MaterialTheme.colorScheme.primary) }
 }
 
 /**
@@ -413,9 +430,8 @@ internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, on
         }
     }
     val shown by remember(glass) { derivedStateOf { glass.value > 0f } }
-    // شريط الحالة: نص فاتح فوق الرأس الأخضر، ويتبع مظهر التطبيق حين يصير الشريط زجاجاً فوق المحتوى
-    val overHeader by remember(glass) { derivedStateOf { glass.value < .5f } }
-    StatusBarStyle(lightContent = overHeader || LocalDark.current)
+    // شريط الحالة يتبع مظهر التطبيق: الرأس فاتح بطراز الرئيسية
+    StatusBarStyle(lightContent = LocalDark.current)
     val style = glassStyle(if (LocalDark.current) .66f else .72f, 24.dp)
     val hairline = MaterialTheme.colorScheme.outlineVariant
     // العنوان الصغير في وسط المحتوى لا وسط الشاشة حين تشغل القائمة الجانبية جهة البداية
@@ -447,23 +463,21 @@ internal fun GlassTopBar(list: LazyListState, haze: HazeState, title: String, on
     }
 }
 
-/** زر الرجوع: دائرة زجاجية بيضاء فوق الرأس، ويأخذ لون التطبيق حين يصير الشريط زجاجاً (كسهم الرجوع في iOS) */
+/** زر الرجوع: دائرة بلون السطح فوق الرأس الفاتح وسهم بلون التطبيق (كما في iPhone) */
 @Composable
-private fun BackChip(onBack: () -> Unit, progress: () -> Float) {
+private fun BackChip(onBack: () -> Unit, @Suppress("UNUSED_PARAMETER") progress: () -> Float) {
     val s = LocalStrings.current
-    val p = progress()
-    val tint = lerp(Color.White, MaterialTheme.colorScheme.primary, p)
-    val bg = lerp(Color.White.copy(alpha = .16f), MaterialTheme.colorScheme.onSurface.copy(alpha = .06f), p)
+    val cs = MaterialTheme.colorScheme
     val src = remember { MutableInteractionSource() }
     Box(
-        Modifier.size(44.dp).pressScale(src, 0.88f).clip(CircleShape).background(bg)
+        Modifier.size(42.dp).pressScale(src, 0.9f).shadow(3.dp, CircleShape).clip(CircleShape).background(cs.surface.copy(alpha = .85f))
             .clickable(interactionSource = src, indication = if (IsIos) null else ripple(), role = Role.Button, onClick = onBack),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             // في iOS سهم الرجوع المعتاد هناك (‹) بأطراف مستديرة
-            if (IsIos) Icons.AutoMirrored.Rounded.ArrowBackIos else Icons.AutoMirrored.Filled.ArrowBack, contentDescription = s.back, tint = tint,
-            modifier = Modifier.size(if (IsIos) 22.dp else 24.dp)
+            if (IsIos) Icons.AutoMirrored.Rounded.ArrowBackIos else Icons.AutoMirrored.Filled.ArrowBack, contentDescription = s.back, tint = cs.primary,
+            modifier = Modifier.size(if (IsIos) 20.dp else 22.dp)
         )
     }
 }
@@ -472,13 +486,15 @@ private fun BackChip(onBack: () -> Unit, progress: () -> Float) {
 fun SectionCard(title: String? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .8f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (title != null) Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            // عنوان البطاقة بوزن ثقيل بلون التطبيق (كما في iPhone)
+            if (title != null) Text(title, style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.ExtraBold), color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics { heading() })
             content()
         }
     }
@@ -492,23 +508,6 @@ fun Reveal(visible: Boolean, content: @Composable () -> Unit) {
         enter = fadeIn(tween(Motion.MEDIUM)) + expandVertically(tween(Motion.MEDIUM, easing = Motion.Emphasized)),
         exit = fadeOut(tween(Motion.SHORT)) + shrinkVertically(tween(Motion.MEDIUM, easing = Motion.Emphasized)),
     ) { content() }
-}
-
-@Composable
-fun NumField(label: String, value: String, onChange: (String) -> Unit, suffix: String? = null, hint: String? = null, modifier: Modifier = Modifier) {
-    Column(modifier) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onChange,
-            label = { Text(label) },
-            singleLine = true,
-            suffix = suffix?.let { s -> @Composable { Text(s) } },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp, start = 4.dp))
-    }
 }
 
 @Composable
@@ -697,7 +696,8 @@ fun ResultCard(
             ) {
                 Text(label, color = Color.White.copy(alpha = .85f), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    RollingText(value, MaterialTheme.typography.headlineLarge, Color.White, textAlign = TextAlign.Center)
+                    // الرقم كبير ثقيل كما في iPhone، ويصغر للقيم الطويلة (التاريخ الهجري كاملاً) فلا ينكسر سطره
+                    RollingText(value, MaterialTheme.typography.headlineLarge.copy(fontSize = if (value.length > 12) 28.sp else 36.sp, fontWeight = FontWeight.Black), Color.White, textAlign = TextAlign.Center)
                     if (unit != null) Text(unit, color = Color.White.copy(alpha = .9f), style = MaterialTheme.typography.titleLarge)
                 }
                 if (badge != null) {
@@ -747,19 +747,6 @@ fun ChipButton(text: String, selected: Boolean, onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun RowScope.Tile(value: String, label: String) {
-    Surface(Modifier.weight(1f), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .7f)) {
-        Column(Modifier.padding(vertical = 12.dp, horizontal = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            RollingText(value, MaterialTheme.typography.titleLarge, MaterialTheme.colorScheme.primary)
-            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-    }
-}
-
-@Composable
-fun VSpace(h: Int) = Spacer(Modifier.height(h.dp))
-
 fun shareText(s: Strings, text: String) = com.osatks.mizan.platform.Platform.share("$text\n${s.shareSignature}", s.share)
 
 /** صف قابل للنقر بنص وقيمة (للإعدادات) */
@@ -783,27 +770,3 @@ fun ClickRow(title: String, subtitle: String? = null, onClick: () -> Unit, leadi
         trailing()
     }
 }
-
-/** نص تصبح فيه tanzil.net و tanzil.net/trans و SIL روابط تُفتح في المتصفح */
-@Composable
-fun LinkedText(text: String) {
-    val color = MaterialTheme.colorScheme.primary
-    val styles = androidx.compose.ui.text.TextLinkStyles(
-        androidx.compose.ui.text.SpanStyle(color = color, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)
-    )
-    val annotated = androidx.compose.ui.text.buildAnnotatedString {
-        var last = 0
-        Regex("tanzil\\.net/trans|tanzil\\.net|SIL").findAll(text).forEach { m ->
-            append(text.substring(last, m.range.first))
-            val url = when (m.value) { "SIL" -> "https://openfontlicense.org"; "tanzil.net/trans" -> "https://tanzil.net/trans/"; else -> "https://tanzil.net/" }
-            withLink(androidx.compose.ui.text.LinkAnnotation.Url(url, styles)) { append(m.value) }
-            last = m.range.last + 1
-        }
-        append(text.substring(last))
-    }
-    Text(annotated, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-}
-
-/** فراغ بارتفاع ثابت (للمسافات بين عناصر الشبكات) */
-@Composable
-fun Gap(d: Dp) = Spacer(Modifier.size(d))

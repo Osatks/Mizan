@@ -40,6 +40,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
+import kotlinx.coroutines.flow.first
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -418,10 +424,28 @@ fun DisplayOptions(showTextSize: Boolean) {
         SheetTitle(Icons.Filled.FormatSize, s.displayTitle)
         ScriptOptions()
         OptionLabel(s.pageColor)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            ToneSwatch("", s.toneAuto)
-            ToneSwatch("sepia", s.toneSepia)
-            ToneSwatch("night", s.toneNight)
+        // ألوان الصفحة صفحاتٌ مصغّرة تُمرَّر أفقياً: ورقها وإطارها المذهّب وحبرها، والوضعان ثلاثيا الأبعاد بغباشهما.
+        // عند الفتح يُمرَّر الصف إلى اللون المختار فيظهر وإن كان في آخره
+        val tones = listOf("", "sepia", "night", "depth", "depthNight")
+        val toneScroll = rememberScrollState()
+        val cardStep = with(androidx.compose.ui.platform.LocalDensity.current) { (92 + 12).dp.roundToPx() }
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            val i = tones.indexOf(QuranPrefs.tone).coerceAtLeast(0)
+            if (i >= 3) {
+                // بعد أن يُقاس الصف (قبلها لا مسافة للتمرير)
+                androidx.compose.runtime.snapshotFlow { toneScroll.maxValue }.first { it > 0 }
+                toneScroll.animateScrollTo((i - 1) * cardStep)
+            }
+        }
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(toneScroll).padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            ToneCard("", s.toneAuto)
+            ToneCard("sepia", s.toneSepia)
+            ToneCard("night", s.toneNight)
+            ToneCard("depth", s.toneDepth)
+            ToneCard("depthNight", s.toneDepthNight)
         }
         OptionLabel(s.brightness)
         val system = QuranPrefs.brightness < 0f
@@ -507,25 +531,66 @@ private fun ScriptOptions() {
     }
 }
 
-/** عيّنة من لون الصفحة: ورقها وحبرها وحافتها الذهبية كما تظهر في القراءة */
+/**
+ * لون الصفحة صفحةً مصغّرة كما تظهر في القراءة: ورقها بتدرّجه وإطارها المذهّب والبسملة بحبرها. المختار بحافة بلون التطبيق
+ * وعلامة، ويكبر قليلاً؛ وثلاثيا الأبعاد بشارة «3D» وحروفهما فوق غباشهما (ظل في الفاتح، وهج ذهبي في الليلي).
+ * وتُعرض أيضاً في خطوة المظهر من إعداد أول تشغيل (Welcome)
+ */
 @Composable
-private fun RowScope.ToneSwatch(tone: String, label: String) {
+internal fun ToneCard(tone: String, label: String) {
     val selected = QuranPrefs.tone == tone
     val pal = readingPalette(tone) ?: mushafPalette()
-    val edge by animateColorAsState(if (selected) MaterialTheme.colorScheme.primary else pal.gold.copy(alpha = .6f), tween(220), label = "swatch")
-    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Surface(
-            onClick = { QuranPrefs.updateTone(tone) }, shape = RoundedCornerShape(16.dp), color = pal.paper,
-            border = BorderStroke(if (selected) 2.dp else 1.dp, edge), modifier = Modifier.fillMaxWidth().height(64.dp)
+    val depth = isDepthTone(tone)
+    val primary = MaterialTheme.colorScheme.primary
+    val edge by animateColorAsState(if (selected) primary else pal.gold.copy(alpha = .45f), tween(220), label = "tone-edge")
+    val scale by animateFloatAsState(if (selected) 1f else .95f, spring(dampingRatio = .7f), label = "tone-scale")
+    Column(
+        Modifier.width(92.dp).semantics { contentDescription = label }
+            .clickable(role = Role.RadioButton) { QuranPrefs.updateTone(tone) },
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Box(
+            Modifier.width(92.dp).height(124.dp)
+                .graphicsLayer { scaleX = scale; scaleY = scale }
+                .clip(RoundedCornerShape(18.dp))
+                .background(Brush.radialGradient(listOf(pal.paper, pal.paper, pal.paperEdge)))
+                .border(BorderStroke(if (selected) 2.5.dp else 1.dp, edge), RoundedCornerShape(18.dp))
+                .drawBehind {
+                    // الإطار المذهّب: خط عريض وآخر رفيع داخله كما في الصفحة
+                    val o = 7.dp.toPx(); val i = 10.dp.toPx()
+                    drawRoundRect(pal.goldDeep.copy(alpha = .75f), Offset(o, o), Size(size.width - 2 * o, size.height - 2 * o),
+                        androidx.compose.ui.geometry.CornerRadius(11.dp.toPx()), style = Stroke(1.2.dp.toPx()))
+                    drawRoundRect(pal.gold.copy(alpha = .6f), Offset(i, i), Size(size.width - 2 * i, size.height - 2 * i),
+                        androidx.compose.ui.geometry.CornerRadius(8.dp.toPx()), style = Stroke(0.6.dp.toPx()))
+                },
+            contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text("بِسْمِ ٱللَّهِ", style = quranStyle(17, TextAlign.Center), color = pal.ink, maxLines = 1)
+            val glow = pal.haze.takeOrElse { DepthShadow }
+            val st = quranStyle(15, TextAlign.Center).let {
+                if (depth) it.copy(shadow = androidx.compose.ui.graphics.Shadow(glow, Offset(-2f, 4f), 14f)) else it
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("بِسۡمِ ٱللَّهِ", style = st, color = pal.ink, maxLines = 1)
+                Text("ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ", style = st.copy(fontSize = st.fontSize * 0.8f), color = pal.ink.copy(alpha = .85f), maxLines = 1)
+            }
+            if (depth) {
+                Text(
+                    "3D", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = pal.paper,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 13.dp, end = 13.dp)
+                        .clip(RoundedCornerShape(6.dp)).background(pal.goldDeep).padding(horizontal = 5.dp, vertical = 1.dp),
+                )
+            }
+            androidx.compose.animation.AnimatedVisibility(
+                selected, Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
+                enter = fadeIn(tween(160)) + scaleIn(tween(220)), exit = fadeOut(tween(120)),
+            ) {
+                Icon(Icons.Filled.CheckCircle, null, tint = primary, modifier = Modifier.size(20.dp).clip(CircleShape).background(pal.paper))
             }
         }
         Text(
-            label, style = MaterialTheme.typography.labelLarge, maxLines = 1,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            label, style = MaterialTheme.typography.labelLarge, maxLines = 2, textAlign = TextAlign.Center,
+            color = if (selected) primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
         )
     }
 }

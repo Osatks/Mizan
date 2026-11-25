@@ -7,6 +7,10 @@
 #                                                                      → <المجلد>/<اللغة>/duo_*.png
 #   watch   Apple Watch Ultra (410×502): المواقيت والمسبحة، بلقطة من حالات Kotlin (FIXTURES=live-fixtures.json)
 #                                                                      → <المجلد>/<اللغة>/watch_*.png
+#   mushaf  صفحات من مصحف المدينة على iPhone للتحقق من رسمها (ليست لقطات متجر، فلا تدخل حدّ العشر لقطات)
+#                                                                      → <المجلد>/../screenshots-check/<اللغة>/p*.png
+#   motion  فيديو من iPhone لانتقالات التنقل (فتح صفحة، رجوع، تبديل التبويبات) بخطوات بلا لمس (MotionScript في App.kt)
+#                                                                      → <المجلد>/../screenshots-check/<اللغة>/motion.mp4
 #   screenshots.sh <Mizan.app للمحاكي> <مجلد الإخراج> "<ar-SA en-US ...>" ["iphone ipad duo"]
 #
 # أسماء الملفات تحدد ترتيبها في المتجر، ومقاسها يحدد نوع الشاشة عند deliver (fastlane/check_screenshots.rb يتحقق منه،
@@ -53,6 +57,51 @@ IPAD_SHOTS=(
 IPAD_LANDSCAPE=(
   "ipad_02_quran_spread:surah/18?ayah=0&from=row"
 )
+# الفاتحة وأول البقرة (إطارهما المزخرف)، وآية مظلَّلة، والتوبة بلا بسملة، وصفحات من وسط المصحف وآخره
+MUSHAF_CHECK=(
+  "p001_fatiha:surah/1?ayah=0&from=row"
+  "p002_baqarah:surah/2?ayah=0&from=row"
+  "p050_imran_selected:surah/3?ayah=1&from=row"
+  "p187_tawbah:surah/9?ayah=0&from=row"
+  "p293_kahf:surah/18?ayah=0&from=row"
+  "p440_yasin:surah/36?ayah=0&from=row"
+  "p562_mulk:surah/67?ayah=0&from=row"
+  "p604_ikhlas:surah/112?ayah=0&from=row"
+  "p305_maryam:surah/19?ayah=0&from=row"
+  "p367_shuara:surah/26?ayah=0&from=row"
+  "p377_naml:surah/27?ayah=0&from=row"
+)
+# الوضع ثلاثي الأبعاد (لون الصفحة depth): الكلمات بظلها فوق الورقة (المحاكي لا يميل، فلا حركة)
+MUSHAF_DEPTH=(
+  "p377_naml_depth:surah/27?ayah=0&from=row"
+  "p002_baqarah_depth:surah/2?ayah=0&from=row"
+)
+# الشاشات التي صارت بواجهة النظام في iPhone (تبويب القرآن والإعدادات وكل أداة)، للفحص لا للمتجر
+NATIVE_CHECK=(
+  "n01_quran:quran"
+  "n02_settings:settings"
+  "n03_qibla:qibla"
+  "n04_tasbih:tasbih"
+  "n05_zakat:zakat"
+  "n06_inheritance:inheritance"
+  "n07_hijri:hijri"
+  "n08_age:age"
+  "n09_events:events"
+  "n10_fitr:fitr"
+  "n11_fidya:fidya"
+  "n12_hadith:hadith"
+  "n13_search:search"
+  "n14_tafsirs:tafsirs"
+  "n15_adhan:adhan"
+  "n16_guide:guide"
+  "n17_licenses:licenses"
+  "n18_spread_check:surah/18?ayah=0&from=row"
+)
+CHECK_OUT="${CHECK_OUT:-$OUT/../screenshots-check}"
+# فتح الأذكار والرجوع، ثم التبويبات الثلاثة، ثم المصحف والرجوع، ثم أداة (الزكاة) والرجوع
+# at:x:y = where a finger would have touched (fractions of the screen): the next page grows from there
+MOTION_SCRIPT="${MOTION_SCRIPT:-wait:5000,at:0.86:0.71,open:adhkar,wait:2600,back,wait:2200,tab:prayer,wait:2200,tab:tools,wait:2200,tab:home,wait:2000,at:0.46:0.84,open:surah/18?ayah=0&from=row,wait:3800,back,wait:2400,open:zakat,wait:2600,back,wait:2400,at:0.86:0.71,open:adhkar,wait:2400,back,wait:2400}"
+MOTION_SECONDS="${MOTION_SECONDS:-44}"
 DUO_SHOTS=(
   "01_home:home"
   "02_quran_page:surah/1?ayah=0&from=row"
@@ -143,7 +192,7 @@ launch() {
     -mizan.onboarded YES -mizan.guideSeen 99 -mizan.q_mode mushaf -mizan.lang "$lang" \
     -mizan.place_key madinah -mizan.place_lat 24.4672 -mizan.place_lng 39.6111 \
     -mizan.place_tz Asia/Riyadh -mizan.place_method makkah -mizan.place_gps NO -mizan.method makkah \
-    -mizan.theme light ${route:+-mizan.open_route "$route"} >/dev/null
+    -mizan.theme light -mizan.q_tone "${TONE:-}" ${route:+-mizan.open_route "$route"} >/dev/null
   sleep "$LAUNCH_WAIT"
   [ -z "$route" ] || sleep "$ROUTE_WAIT"
 }
@@ -165,7 +214,7 @@ take() {
     name="${s%%:*}"
     route="${s#*:}"
     if [ "$route" = "home" ]; then launch "${loc%%-*}"; else launch "${loc%%-*}" "$route"; fi
-    shot "$OUT/$loc/$prefix$name.png" "$display"
+    shot "${TAKE_OUT:-$OUT}/$loc/$prefix$name.png" "$display"
   done
 }
 
@@ -353,6 +402,57 @@ run_iphone() {
   done
 }
 
+run_mushaf() {
+  new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
+  prepare
+  for loc in $LOCALES; do
+    log "Mushaf check · $loc"
+    set_locale "$loc"
+    mkdir -p "$CHECK_OUT/$loc"
+    TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${MUSHAF_CHECK[@]}"
+    TONE=depth TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${MUSHAF_DEPTH[@]}"
+    TONE=depthNight TAKE_OUT="$CHECK_OUT" take "$loc" "night_" "" "${MUSHAF_DEPTH[@]}"
+  done
+}
+
+run_native() {
+  new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
+  prepare
+  for loc in $LOCALES; do
+    log "Native screens check · $loc"
+    set_locale "$loc"
+    mkdir -p "$CHECK_OUT/$loc"
+    TAKE_OUT="$CHECK_OUT" take "$loc" "" "" "${NATIVE_CHECK[@]}"
+  done
+}
+
+run_motion() {
+  local lang rec
+  new_device iphone "$(pick_device_type "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 18 Pro Max")"
+  prepare
+  for loc in $LOCALES; do
+    log "Motion · $loc"
+    set_locale "$loc"
+    mkdir -p "$CHECK_OUT/$loc"
+    lang="${loc%%-*}"
+    xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
+    sleep 1
+    # الفيديو يبدأ قبل التشغيل، ويُختم بإشارة SIGINT (بغيرها يبقى الملف ناقصاً)
+    xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$CHECK_OUT/$loc/motion.mp4" &
+    rec=$!
+    sleep 2
+    xcrun simctl launch "$UDID" "$BUNDLE" \
+      -mizan.onboarded YES -mizan.guideSeen 99 -mizan.q_mode mushaf -mizan.lang "$lang" \
+      -mizan.place_key madinah -mizan.place_lat 24.4672 -mizan.place_lng 39.6111 \
+      -mizan.place_tz Asia/Riyadh -mizan.place_method makkah -mizan.place_gps NO -mizan.method makkah \
+      -mizan.theme light -mizan.motion_script "$MOTION_SCRIPT" >/dev/null
+    sleep "$MOTION_SECONDS"
+    kill -INT "$rec" 2>/dev/null || true
+    wait "$rec" 2>/dev/null || true
+    ls -la "$CHECK_OUT/$loc/motion.mp4" || echo "::warning title=Motion::no video for $loc"
+  done
+}
+
 run_ipad() {
   new_device ipad "$(pick_device_type "iPad Pro 13-inch (M5)" "iPad Pro 13-inch (M4)" "iPad Air 13-inch (M4)" "iPad Air 13-inch (M3)")"
   prepare
@@ -399,6 +499,9 @@ for device in $DEVICES; do
   case "$device" in
     iphone) run_iphone ;;
     ipad) run_ipad ;;
+    mushaf) run_mushaf ;;
+    native) run_native ;;
+    motion) run_motion || echo "::warning title=Motion::motion recording failed (see log)" ;;
     duo) run_duo || echo "::warning title=iPhone Duo::Duo screenshots failed (see log); iPhone and iPad screenshots are unaffected" ;;
     watch) run_watch || echo "::warning title=Apple Watch::watch screenshots failed (see log); the other screenshots are unaffected" ;;
     *) echo "::error::unknown device $device"; exit 1 ;;
@@ -406,4 +509,4 @@ for device in $DEVICES; do
 done
 
 log "Done"
-find "$OUT" -name '*.png' | sort
+find "$OUT" "$CHECK_OUT" -name '*.png' 2>/dev/null | sort || true

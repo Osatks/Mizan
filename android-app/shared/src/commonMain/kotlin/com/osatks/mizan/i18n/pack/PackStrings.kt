@@ -182,6 +182,11 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val alertModeSilent: String by lazy { s("alertModeSilent") ?: En.alertModeSilent }
     override val alertModeOff: String by lazy { s("alertModeOff") ?: En.alertModeOff }
     override val alertModesHint: String by lazy { s("alertModesHint") ?: En.alertModesHint }
+    override val endAlertTitle: String by lazy { s("endAlertTitle") ?: En.endAlertTitle }
+    override val endAlertHint: String by lazy { s("endAlertHint") ?: En.endAlertHint }
+    override val endAlertBefore: String by lazy { s("endAlertBefore") ?: En.endAlertBefore }
+    override fun endAlertNotice(prayer: String, n: Int): String = f("endAlertNotice", "prayer" to prayer, "n" to n) ?: En.endAlertNotice(prayer, n)
+    override fun endAlertBody(t: String): String = f("endAlertBody", "t" to t) ?: En.endAlertBody(t)
     override val muezzinTitle: String by lazy { s("muezzinTitle") ?: En.muezzinTitle }
     override val fajrAdhanTitle: String by lazy { s("fajrAdhanTitle") ?: En.fajrAdhanTitle }
     override val fajrAdhanHint: String by lazy { s("fajrAdhanHint") ?: En.fajrAdhanHint }
@@ -208,6 +213,26 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val phoneHeading: String by lazy { s("phoneHeading") ?: En.phoneHeading }
     override val compassLowAccuracy: String by lazy { s("compassLowAccuracy") ?: En.compassLowAccuracy }
     override val qiblaTip: String by lazy { s("qiblaTip") ?: En.qiblaTip }
+    override val mosquesTitle: String by lazy { s("mosquesTitle") ?: En.mosquesTitle }
+    override val mosquesSubtitle: String by lazy { s("mosquesSubtitle") ?: En.mosquesSubtitle }
+    override val mosque: String by lazy { s("mosque") ?: En.mosque }
+    override val unitM: String by lazy { s("unitM") ?: En.unitM }
+    override val mosquesLoading: String by lazy { s("mosquesLoading") ?: En.mosquesLoading }
+    override val mosquesEmpty: String by lazy { s("mosquesEmpty") ?: En.mosquesEmpty }
+    override val mosquesEmptyHint: String by lazy { s("mosquesEmptyHint") ?: En.mosquesEmptyHint }
+    override val mosquesError: String by lazy { s("mosquesError") ?: En.mosquesError }
+    override val mosquesErrorHint: String by lazy { s("mosquesErrorHint") ?: En.mosquesErrorHint }
+    override val mosquesLocationFailed: String by lazy { s("mosquesLocationFailed") ?: En.mosquesLocationFailed }
+    override val mosquesNeedLocation: String by lazy { s("mosquesNeedLocation") ?: En.mosquesNeedLocation }
+    override fun mosquesNearSaved(place: String): String = f("mosquesNearSaved", "place" to place) ?: En.mosquesNearSaved(place)
+    override val openInMaps: String by lazy { s("openInMaps") ?: En.openInMaps }
+    override val mosqueDirections: String by lazy { s("mosqueDirections") ?: En.mosqueDirections }
+    override val appleMaps: String by lazy { s("appleMaps") ?: En.appleMaps }
+    override val googleMaps: String by lazy { s("googleMaps") ?: En.googleMaps }
+    override val osmAttribution: String by lazy { s("osmAttribution") ?: En.osmAttribution }
+    override val mosquesPrivacyOsm: String by lazy { s("mosquesPrivacyOsm") ?: En.mosquesPrivacyOsm }
+    override val mosquesPrivacyApple: String by lazy { s("mosquesPrivacyApple") ?: En.mosquesPrivacyApple }
+    override val mosquesMap: String by lazy { s("mosquesMap") ?: En.mosquesMap }
     override val tasbihTitle: String by lazy { s("tasbihTitle") ?: En.tasbihTitle }
     override val tasbihSubtitle: String by lazy { s("tasbihSubtitle") ?: En.tasbihSubtitle }
     override val modeFree: String by lazy { s("modeFree") ?: En.modeFree }
@@ -323,6 +348,35 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val halfSaOption: String by lazy { s("halfSaOption") ?: En.halfSaOption }
     override val poorCount: String by lazy { s("poorCount") ?: En.poorCount }
     override val approxValue: String by lazy { s("approxValue") ?: En.approxValue }
+    override val fastingTitle: String by lazy { s("fastingTitle") ?: En.fastingTitle }
+    override val fastingSubtitle: String by lazy { s("fastingSubtitle") ?: En.fastingSubtitle }
+    override val fastingNow: String by lazy { s("fastingNow") ?: En.fastingNow }
+    override val fastingVoluntaryToday: String by lazy { s("fastingVoluntaryToday") ?: En.fastingVoluntaryToday }
+    override val fastingTodayHint: String by lazy { s("fastingTodayHint") ?: En.fastingTodayHint }
+    override val fastingForbiddenToday: String by lazy { s("fastingForbiddenToday") ?: En.fastingForbiddenToday }
+    override val fastingFasted: String by lazy { s("fastingFasted") ?: En.fastingFasted }
+    override val fastingMissed: String by lazy { s("fastingMissed") ?: En.fastingMissed }
+    override val fastingUnmarked: String by lazy { s("fastingUnmarked") ?: En.fastingUnmarked }
+    override val fastingRamadanHint: String by lazy { s("fastingRamadanHint") ?: En.fastingRamadanHint }
+    override val fastingQadaTitle: String by lazy { s("fastingQadaTitle") ?: En.fastingQadaTitle }
+    override val fastingQadaOwed: String by lazy { s("fastingQadaOwed") ?: En.fastingQadaOwed }
+    override val fastingMadeUp: String by lazy { s("fastingMadeUp") ?: En.fastingMadeUp }
+    override val fastingHistory: String by lazy { s("fastingHistory") ?: En.fastingHistory }
+    override val fastingNothingYet: String by lazy { s("fastingNothingYet") ?: En.fastingNothingYet }
+    override val fastingLogAdded: String by lazy { s("fastingLogAdded") ?: En.fastingLogAdded }
+    override val fastingLogRemoved: String by lazy { s("fastingLogRemoved") ?: En.fastingLogRemoved }
+    override val fastingLogMadeUp: String by lazy { s("fastingLogMadeUp") ?: En.fastingLogMadeUp }
+    override val fastingLogMissed: String by lazy { s("fastingLogMissed") ?: En.fastingLogMissed }
+    override val fastingSunnahTitle: String by lazy { s("fastingSunnahTitle") ?: En.fastingSunnahTitle }
+    override val fastingUpcoming: String by lazy { s("fastingUpcoming") ?: En.fastingUpcoming }
+    override val fastingKinds: Map<String, String> by lazy { map("fastingKinds", En.fastingKinds) }
+    override val fastingLogged: String by lazy { s("fastingLogged") ?: En.fastingLogged }
+    override fun fastingShawwal(done: Int): String = f("fastingShawwal", "done" to done) ?: En.fastingShawwal(done)
+    override val fastingRemind: String by lazy { s("fastingRemind") ?: En.fastingRemind }
+    override fun fastingRemindDesc(time: String): String = f("fastingRemindDesc", "time" to time) ?: En.fastingRemindDesc(time)
+    override fun fastingRemindTitle(what: String): String = f("fastingRemindTitle", "what" to what) ?: En.fastingRemindTitle(what)
+    override val fastingRemindBody: String by lazy { s("fastingRemindBody") ?: En.fastingRemindBody }
+    override val fastingChannel: String by lazy { s("fastingChannel") ?: En.fastingChannel }
     override val hijriTitle: String by lazy { s("hijriTitle") ?: En.hijriTitle }
     override val hijriSubtitle: String by lazy { s("hijriSubtitle") ?: En.hijriSubtitle }
     override val correspondingHijri: String by lazy { s("correspondingHijri") ?: En.correspondingHijri }
@@ -410,6 +464,7 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val searchQuranHint: String by lazy { s("searchQuranHint") ?: En.searchQuranHint }
     override val searchQuranGroup: String by lazy { s("searchQuranGroup") ?: En.searchQuranGroup }
     override val searchAyahsGroup: String by lazy { s("searchAyahsGroup") ?: En.searchAyahsGroup }
+    override val searchTheQuran: String by lazy { s("searchTheQuran") ?: En.searchTheQuran }
     override val mushafView: String by lazy { s("mushafView") ?: En.mushafView }
     override val ayahView: String by lazy { s("ayahView") ?: En.ayahView }
     override val textLarger: String by lazy { s("textLarger") ?: En.textLarger }
@@ -464,6 +519,21 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val retry: String by lazy { s("retry") ?: En.retry }
     override val moreTafsirs: String by lazy { s("moreTafsirs") ?: En.moreTafsirs }
     override val tafsirLibraryNote: String by lazy { s("tafsirLibraryNote") ?: En.tafsirLibraryNote }
+    override val downloadsTitle: String by lazy { s("downloadsTitle") ?: En.downloadsTitle }
+    override val downloadsSub: String by lazy { s("downloadsSub") ?: En.downloadsSub }
+    override fun downloadsUsed(size: String): String = f("downloadsUsed", "size" to size) ?: En.downloadsUsed(size)
+    override val downloadsNone: String by lazy { s("downloadsNone") ?: En.downloadsNone }
+    override val downloadsNote: String by lazy { s("downloadsNote") ?: En.downloadsNote }
+    override val dlTranslations: String by lazy { s("dlTranslations") ?: En.dlTranslations }
+    override val dlHadith: String by lazy { s("dlHadith") ?: En.dlHadith }
+    override val dlAdhkar: String by lazy { s("dlAdhkar") ?: En.dlAdhkar }
+    override val dlAdhan: String by lazy { s("dlAdhan") ?: En.dlAdhan }
+    override val dlMushaf: String by lazy { s("dlMushaf") ?: En.dlMushaf }
+    override val deletePages: String by lazy { s("deletePages") ?: En.deletePages }
+    override val deletePagesQ: String by lazy { s("deletePagesQ") ?: En.deletePagesQ }
+    override fun downloadSized(mb: String): String = f("downloadSized", "mb" to mb) ?: En.downloadSized(mb)
+    override val translationMissing: String by lazy { s("translationMissing") ?: En.translationMissing }
+    override val hadithMissing: String by lazy { s("hadithMissing") ?: En.hadithMissing }
     override fun ayahRange(from: Int, to: Int): String = f("ayahRange", "from" to from, "to" to to) ?: En.ayahRange(from, to)
     override val recitation: String by lazy { s("recitation") ?: En.recitation }
     override val reciter: String by lazy { s("reciter") ?: En.reciter }
@@ -487,6 +557,8 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val toneAuto: String by lazy { s("toneAuto") ?: En.toneAuto }
     override val toneSepia: String by lazy { s("toneSepia") ?: En.toneSepia }
     override val toneNight: String by lazy { s("toneNight") ?: En.toneNight }
+    override val toneDepth: String by lazy { s("toneDepth") ?: En.toneDepth }
+    override val toneDepthNight: String by lazy { s("toneDepthNight") ?: En.toneDepthNight }
     override val brightness: String by lazy { s("brightness") ?: En.brightness }
     override val brightnessSystem: String by lazy { s("brightnessSystem") ?: En.brightnessSystem }
     override val textSizeLabel: String by lazy { s("textSizeLabel") ?: En.textSizeLabel }
@@ -556,6 +628,25 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val obStart: String by lazy { s("obStart") ?: En.obStart }
     override val obLocationTitle: String by lazy { s("obLocationTitle") ?: En.obLocationTitle }
     override val obLocationBody: String by lazy { s("obLocationBody") ?: En.obLocationBody }
+    override val obHelloTitle: String by lazy { s("obHelloTitle") ?: En.obHelloTitle }
+    override val obHelloBody: String by lazy { s("obHelloBody") ?: En.obHelloBody }
+    override val obTodayTimes: String by lazy { s("obTodayTimes") ?: En.obTodayTimes }
+    override val obAdhanTitle: String by lazy { s("obAdhanTitle") ?: En.obAdhanTitle }
+    override val obAdhanBody: String by lazy { s("obAdhanBody") ?: En.obAdhanBody }
+    override val obMoreVoices: String by lazy { s("obMoreVoices") ?: En.obMoreVoices }
+    override val obStyleTitle: String by lazy { s("obStyleTitle") ?: En.obStyleTitle }
+    override val obStyleBody: String by lazy { s("obStyleBody") ?: En.obStyleBody }
+    override val obTryTitle: String by lazy { s("obTryTitle") ?: En.obTryTitle }
+    override val obTryBody: String by lazy { s("obTryBody") ?: En.obTryBody }
+    override val obTryDone: String by lazy { s("obTryDone") ?: En.obTryDone }
+    override val obBead: String by lazy { s("obBead") ?: En.obBead }
+    override val obDoneTitle: String by lazy { s("obDoneTitle") ?: En.obDoneTitle }
+    override val obDoneBody: String by lazy { s("obDoneBody") ?: En.obDoneBody }
+    override val obCity: String by lazy { s("obCity") ?: En.obCity }
+    override val obNotSet: String by lazy { s("obNotSet") ?: En.obNotSet }
+    override val obOn: String by lazy { s("obOn") ?: En.obOn }
+    override val obOff: String by lazy { s("obOff") ?: En.obOff }
+    override fun obStep(n: Int, total: Int): String = f("obStep", "n" to n, "total" to total) ?: En.obStep(n, total)
     override val locationNeeded: String by lazy { s("locationNeeded") ?: En.locationNeeded }
     override val appGuide: String by lazy { s("appGuide") ?: En.appGuide }
     override val appGuideSub: String by lazy { s("appGuideSub") ?: En.appGuideSub }
@@ -587,6 +678,24 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val dhikrTapHint: String by lazy { s("dhikrTapHint") ?: En.dhikrTapHint }
     override fun dhikrTimes(n: Int): String = f("dhikrTimes", "n" to n) ?: En.dhikrTimes(n)
     override fun dhikrItems(n: Int): String = f("dhikrItems", "n" to n) ?: En.dhikrItems(n)
+    override val kidsSurahs: String by lazy { s("kidsSurahs") ?: En.kidsSurahs }
+    override val kidsSurahsSub: String by lazy { s("kidsSurahsSub") ?: En.kidsSurahsSub }
+    override val kidsNames: String by lazy { s("kidsNames") ?: En.kidsNames }
+    override val kidsNamesSub: String by lazy { s("kidsNamesSub") ?: En.kidsNamesSub }
+    override val kidsDuas: String by lazy { s("kidsDuas") ?: En.kidsDuas }
+    override val kidsDuasSub: String by lazy { s("kidsDuasSub") ?: En.kidsDuasSub }
+    override val kidsStars: String by lazy { s("kidsStars") ?: En.kidsStars }
+    override val kidsStarsSub: String by lazy { s("kidsStarsSub") ?: En.kidsStarsSub }
+    override fun kidsStarCount(n: Int): String = f("kidsStarCount", "n" to n) ?: En.kidsStarCount(n)
+    override val kidsMarkMemorized: String by lazy { s("kidsMarkMemorized") ?: En.kidsMarkMemorized }
+    override val kidsMemorized: String by lazy { s("kidsMemorized") ?: En.kidsMemorized }
+    override val kidsRepeatAfterMe: String by lazy { s("kidsRepeatAfterMe") ?: En.kidsRepeatAfterMe }
+    override val kidsListen: String by lazy { s("kidsListen") ?: En.kidsListen }
+    override val kidsYourTurn: String by lazy { s("kidsYourTurn") ?: En.kidsYourTurn }
+    override val kidsWellDone: String by lazy { s("kidsWellDone") ?: En.kidsWellDone }
+    override val kidsTapAyah: String by lazy { s("kidsTapAyah") ?: En.kidsTapAyah }
+    override val kidsPrevName: String by lazy { s("kidsPrevName") ?: En.kidsPrevName }
+    override val kidsNextName: String by lazy { s("kidsNextName") ?: En.kidsNextName }
     override val moreLanguages: String by lazy { s("moreLanguages") ?: En.moreLanguages }
     override val langPackHint: String by lazy { s("langPackHint") ?: En.langPackHint }
     override val update: String by lazy { s("update") ?: En.update }
@@ -595,6 +704,30 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val privacy: String by lazy { s("privacy") ?: En.privacy }
     override val privacyText: String by lazy { s("privacyText") ?: En.privacyText }
     override val disclaimer: String by lazy { s("disclaimer") ?: En.disclaimer }
+    override val backupTitle: String by lazy { s("backupTitle") ?: En.backupTitle }
+    override val backupSave: String by lazy { s("backupSave") ?: En.backupSave }
+    override val backupSaveSub: String by lazy { s("backupSaveSub") ?: En.backupSaveSub }
+    override val backupRestore: String by lazy { s("backupRestore") ?: En.backupRestore }
+    override val backupRestoreSub: String by lazy { s("backupRestoreSub") ?: En.backupRestoreSub }
+    override val backupConfirmTitle: String by lazy { s("backupConfirmTitle") ?: En.backupConfirmTitle }
+    override fun backupConfirmBody(date: String): String = f("backupConfirmBody", "date" to date) ?: En.backupConfirmBody(date)
+    override val backupRestoreAction: String by lazy { s("backupRestoreAction") ?: En.backupRestoreAction }
+    override val backupSaved: String by lazy { s("backupSaved") ?: En.backupSaved }
+    override val backupSaveFailed: String by lazy { s("backupSaveFailed") ?: En.backupSaveFailed }
+    override val backupRestored: String by lazy { s("backupRestored") ?: En.backupRestored }
+    override val backupRestoreFailed: String by lazy { s("backupRestoreFailed") ?: En.backupRestoreFailed }
+    override val backupReadFailed: String by lazy { s("backupReadFailed") ?: En.backupReadFailed }
+    override val backupInvalid: String by lazy { s("backupInvalid") ?: En.backupInvalid }
+    override val backupTooNew: String by lazy { s("backupTooNew") ?: En.backupTooNew }
+    override val backupAutoNote: String by lazy { s("backupAutoNote") ?: En.backupAutoNote }
+    override val backupPrivacyNote: String by lazy { s("backupPrivacyNote") ?: En.backupPrivacyNote }
+    override val icloudSync: String by lazy { s("icloudSync") ?: En.icloudSync }
+    override val icloudSyncSub: String by lazy { s("icloudSyncSub") ?: En.icloudSyncSub }
+    override fun icloudLastSync(time: String): String = f("icloudLastSync", "time" to time) ?: En.icloudLastSync(time)
+    override val icloudUnavailable: String by lazy { s("icloudUnavailable") ?: En.icloudUnavailable }
+    override val icloudOfferTitle: String by lazy { s("icloudOfferTitle") ?: En.icloudOfferTitle }
+    override fun icloudOfferBody(date: String): String = f("icloudOfferBody", "date" to date) ?: En.icloudOfferBody(date)
+    override val icloudKeepLocal: String by lazy { s("icloudKeepLocal") ?: En.icloudKeepLocal }
     override val rateApp: String by lazy { s("rateApp") ?: En.rateApp }
     override val rateAppSub: String by lazy { s("rateAppSub") ?: En.rateAppSub }
     override val shareApp: String by lazy { s("shareApp") ?: En.shareApp }

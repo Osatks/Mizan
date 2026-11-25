@@ -6,12 +6,16 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.osatks.mizan.content.ContentCatalog
+import com.osatks.mizan.content.ContentItem
+import com.osatks.mizan.content.ContentStore
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Search
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.i18n.pack.QuranTranslit
 import com.osatks.mizan.i18n.pack.Translit
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.osatks.mizan.platform.Fs
@@ -24,7 +28,10 @@ import kotlinx.coroutines.IO
 
 enum class SourceKind { TAFSIR, TRANSLATION }
 
-/** مصدر تفسير أو ترجمة معانٍ: مدمج (ملف من tanzil.net/trans في assets/tafsir) أو منزَّل من مكتبة التفاسير */
+/**
+ * مصدر تفسير أو ترجمة معانٍ: مدمج (ملف من tanzil.net/trans: أربعة مضمّنة في assets/tafsir، والبقية تُنزَّل من موقع ميزان
+ * [ContentStore] بالمعرّف نفسه) أو منزَّل من مكتبة التفاسير
+ */
 data class TafsirSource(val id: String, val lang: Lang, val kind: SourceKind, val author: String, val remote: RemoteTafsir? = null)
 
 object Sources {
@@ -46,18 +53,22 @@ object Sources {
         TafsirSource("uk.yakubovych", Lang.UK, SourceKind.TRANSLATION, "Михайло Якубович"),
     )
 
-    /** المصادر المدمجة وترجمات معاني لغات الحزم المثبتة */
+    /** المصادر المدمجة (المضمّنة وما يُنزَّل من الموقع) وترجمات معاني لغات الحزم المثبتة */
     val ALL: List<TafsirSource>
         get() = BUILT_IN + Lang.packs.mapNotNull { l -> l.pack?.quran?.let { q -> TafsirSource(q.id, l, SourceKind.TRANSLATION, q.author) } }
 
     private fun RemoteTafsir.asSource() = TafsirSource(id, lang, SourceKind.TAFSIR, author, this)
 
-    /** المصادر الموجودة على الجهاز: المدمجة في التطبيق، ثم ما نزّله المستخدم من مكتبة التفاسير */
-    fun installed(): List<TafsirSource> = ALL + TafsirLibrary.downloaded().map { it.asSource() }
+    /** المصادر الموجودة على الجهاز: المضمّنة وما نُزّل من موقع ميزان، ثم ما نزّله المستخدم من مكتبة التفاسير */
+    fun installed(): List<TafsirSource> = ALL.filter { ContentStore.hasTafsir(it.id) } + TafsirLibrary.downloaded().map { it.asSource() }
+
+    /** المصادر المدمجة التي لم تُنزَّل بعد من موقع ميزان، مع ملفها في فهرس المحتوى (للتنزيل من مكتبة التفاسير) */
+    fun downloadable(): List<Pair<TafsirSource, ContentItem>> =
+        ALL.filter { !ContentStore.hasTafsir(it.id) }.mapNotNull { src -> ContentCatalog.tafsir(src.id)?.let { src to it } }
 
     fun byId(id: String?) = installed().firstOrNull { it.id == id }
 
-    /** ترجمة المعاني بلغة الواجهة (لا توجد للعربية) */
+    /** ترجمة المعاني بلغة الواجهة (لا توجد للعربية)، وقد لا تكون نُزّلت بعد: تُقرأ بـ [QuranData.sourceOrNull] */
     fun translationFor(lang: Lang) = ALL.firstOrNull { it.lang == lang && it.kind == SourceKind.TRANSLATION }
 
     /** المصدر الافتراضي عند فتح التفسير: تفسير بلغة الواجهة إن وُجد (الميسر للعربية)، وإلا ترجمتها، من المصادر الظاهرة */
@@ -94,7 +105,7 @@ object Sources {
 
     suspend fun entry(src: TafsirSource, surah: Int, ayah: Int): TafsirEntry? =
         if (src.remote != null) TafsirLibrary.entry(src.remote.slug, surah, ayah)
-        else TafsirEntry(QuranData.source(src.id)[QuranMeta.index(surah, ayah)], ayah, ayah)
+        else QuranData.sourceOrNull(src.id)?.let { TafsirEntry(it[QuranMeta.index(surah, ayah)], ayah, ayah) }
 
     fun kindLabel(src: TafsirSource, s: Strings) = if (src.kind == SourceKind.TAFSIR) s.tafsirTitle else s.translationOfMeanings
 }
@@ -104,9 +115,11 @@ object Sources {
  * تُقرأ عند أول طلب في الخلفية وتبقى في الذاكرة.
  */
 object QuranData {
-    /** يُضبط عند بدء التطبيق؛ والاختبارات تقرأ الملفات من القرص مباشرة */
-    /** ترجمات معاني الحزم المنزَّلة في files/lang، وما عداها في assets */
-    var open: (String) -> ByteArray? = { path -> Fs.read(path(Platform.filesDir, "lang", path)) ?: Platform.asset(path) }
+    /**
+     * ترجمات معاني الحزم المنزَّلة في files/lang، ثم المضمّن في assets، ثم المنزَّل من موقع ميزان (files/content).
+     * والاختبارات تقرأ الملفات من القرص مباشرة
+     */
+    var open: (String) -> ByteArray? = { path -> Fs.read(path(Platform.filesDir, "lang", path)) ?: Platform.asset(path) ?: ContentStore.read(path) }
 
     private val cache = SyncMap<String, Array<String>>()
     private val locks = SyncMap<String, Lock>()
@@ -126,6 +139,18 @@ object QuranData {
     suspend fun uthmani() = load(UTHMANI)
     suspend fun clean() = load(CLEAN)
     suspend fun source(id: String) = load("tafsir/$id.txt")
+
+    /** نص ترجمة أو تفسير مدمج، أو null إن لم يكن على الجهاز (لم يُنزَّل بعد من الموقع، أو حُذف) */
+    suspend fun sourceOrNull(id: String): Array<String>? = try {
+        source(id)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        null
+    }
+
+    /** يُنسى نص ملف بعد حذفه أو تنزيل نسخة أحدث منه */
+    fun forget(path: String) { cache.remove(path) }
 
     const val UTHMANI = "quran/uthmani.txt"
     const val CLEAN = "quran/clean.txt"
@@ -241,6 +266,12 @@ object QuranPrefs {
         bookmarks += AppSettings.getString("q_marks").split(',').mapNotNull { it.toIntOrNull() }.filter { it in 0 until QuranMeta.AYAHS }
     }
 
+    /** يعيد القراءة من الإعدادات بعد الاستعادة من نسخة احتياطية (العلامات والموضع والخط والقارئ…) */
+    fun reload() {
+        loaded = false
+        ensure()
+    }
+
     fun modeFor(lang: Lang) = mode.ifEmpty { if (lang == Lang.AR) "mushaf" else "list" }
     fun sourceFor(lang: Lang) = Sources.byId(source)?.takeIf { !isHidden(it.id) } ?: Sources.defaultFor(lang)
 
@@ -281,6 +312,9 @@ object QuranPrefs {
 object QuranSearch {
     private val normalized = SyncMap<String, Array<String>>()
 
+    /** بعد حذف ترجمة أو تنزيلها */
+    fun forget(id: String) { normalized.remove("tafsir/$id") }
+
     private suspend fun norm(path: String, load: suspend () -> Array<String>): Array<String> =
         normalized[path] ?: withContext(Dispatchers.Default) {
             val src = load()
@@ -309,8 +343,9 @@ object QuranSearch {
             for (i in clean.indices) { if (terms.all { clean[i].contains(it) }) out += i; if (out.size >= limit) break }
         }
         val tr = Sources.translationFor(lang)
+        // ترجمة لم تُنزَّل بعد: البحث بالنص العربي وحده حتى تصل
         if (tr != null && out.size < limit) {
-            val text = norm("tafsir/${tr.id}") { QuranData.source(tr.id) }
+            val text = QuranData.sourceOrNull(tr.id)?.let { src -> norm("tafsir/${tr.id}") { src } } ?: return out.toList()
             for (i in text.indices) { if (terms.all { text[i].contains(it) }) out += i; if (out.size >= limit) break }
         }
         return out.toList()

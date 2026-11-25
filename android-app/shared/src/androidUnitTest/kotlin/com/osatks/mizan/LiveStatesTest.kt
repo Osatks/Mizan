@@ -31,9 +31,9 @@ import java.io.File
 class LiveStatesTest {
     init {
         TestPacks.load()
-        Adhkar.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
-        com.osatks.mizan.hadith.Hadiths.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
-        QuranData.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        Adhkar.open = { TestAssets.read(it) }
+        com.osatks.mizan.hadith.Hadiths.open = { TestAssets.read(it) }
+        QuranData.open = { TestAssets.read(it) }
         Adhkar.clearTranslations()
     }
 

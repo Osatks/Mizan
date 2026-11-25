@@ -52,6 +52,12 @@ object QuranProgress {
         rollDay()
     }
 
+    /** يعيد القراءة من الإعدادات بعد الاستعادة من نسخة احتياطية (الختمة وورد اليوم والسلسلة) */
+    fun reload() {
+        loaded = false
+        ensure()
+    }
+
     /** يوم جديد: يبدأ عدّ ورد اليوم من الصفر، وتنقطع السلسلة إن فات يوم دون قراءة */
     private fun rollDay() {
         val today = LocalDate.now()

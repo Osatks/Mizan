@@ -5,12 +5,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
  * مظهر شريط الحالة: كل شاشة تطلب ما يناسب ما تحته (نص فاتح فوق الرؤوس الخضراء، وداكن فوق السطوح الفاتحة)،
  * وآخر شاشة دخلت التركيب هي التي تُتّبع. بلا طلب يتبع الشريط مظهر التطبيق (فاتح في الوضع الداكن).
  */
-object SystemBars {
+open class BarRequests {
     internal class Request(val light: State<Boolean>, val hidden: State<Boolean>)
 
     private val requests = mutableStateListOf<Request>()
@@ -25,6 +26,12 @@ object SystemBars {
     internal fun remove(r: Request) { requests -= r }
 }
 
+/** طلبات التطبيق كله (أندرويد: نافذة واحدة) */
+object SystemBars : BarRequests()
+
+/** أين تُسجَّل طلبات الشاشة: في iOS لكل صفحة طلباتها (متحكم خاص بها يجيب النظام عن شريط الحالة) */
+val LocalBarRequests = staticCompositionLocalOf<BarRequests> { SystemBars }
+
 /**
  * يطلب مظهر شريط الحالة ما دامت الشاشة ظاهرة في الأعلى (الصفحات الحية تحتها في iOS لا تطلب شيئاً حتى تعود،
  * فيُسجَّل طلبها من جديد آخرَ الطلبات)
@@ -34,11 +41,12 @@ fun StatusBarStyle(lightContent: Boolean, hidden: Boolean = false) {
     val light = rememberUpdatedState(lightContent)
     val hide = rememberUpdatedState(hidden)
     val active = LocalPageActive.current
-    DisposableEffect(active) {
+    val target = LocalBarRequests.current
+    DisposableEffect(active, target) {
         if (!active) return@DisposableEffect onDispose { }
-        val r = SystemBars.Request(light, hide)
-        SystemBars.add(r)
-        onDispose { SystemBars.remove(r) }
+        val r = BarRequests.Request(light, hide)
+        target.add(r)
+        onDispose { target.remove(r) }
     }
 }
 

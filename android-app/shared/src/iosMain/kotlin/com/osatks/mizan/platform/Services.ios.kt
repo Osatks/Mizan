@@ -9,8 +9,11 @@ import androidx.compose.runtime.setValue
 import com.osatks.mizan.core.ALERT_PRAYERS
 import com.osatks.mizan.core.AlertMode
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.EndAlerts
+import com.osatks.mizan.core.Fasting
 import com.osatks.mizan.core.Muezzins
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import com.osatks.mizan.core.LocationHelper
 import com.osatks.mizan.core.PrayTimes
 import com.osatks.mizan.core.now
@@ -18,6 +21,7 @@ import com.osatks.mizan.core.plusDays
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
+import com.osatks.mizan.i18n.time
 import kotlinx.cinterop.useContents
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
@@ -52,21 +56,30 @@ import platform.darwin.NSObject
  * الأذان في الإشعار أول تكبيرتين ثم يتلاشى (adhan_<id>.caf)، ويكمل من هناك إن فُتح التطبيق بعده (AdhanResume)،
  * ويُسمع كاملاً إن كان التطبيق مفتوحاً.
  * «اهتزاز فقط»: لا يهتز إشعار iOS بلا صوت، فيُعطى صوتاً صامتاً (mizan_vibrate.caf) يصحبه اهتزاز النظام حسب إعدادات الهاتف.
+ *
+ * تذكير «قبل خروج الوقت» ([EndAlerts]) بصوت الإشعار الافتراضي، ويأخذ ما بقي من الحد بعد إشعارات الأذان كلها:
+ * الأذان أولاً دائماً، ثم التذكيرات بترتيبها الزمني حتى يمتلئ الحد، فتقل أيام التذكير القادمة إن لزم ولا يسقط أذان.
  */
 actual object PrayerAlerts {
     private const val DAYS = 7
+    /** أقصى عدد للإشعارات المنتظرة في iOS (ما زاد يتجاهله النظام) */
+    private const val LIMIT = 64
     const val VIBRATE_SOUND = "mizan_vibrate.caf"
+
+    /** تذكيرات صيام التطوع: قليلة، بعد الأذان وقبل تذكيرات خروج الوقت */
+    private const val FAST_MAX = 3
 
     actual fun reschedule() {
         val center = UNUserNotificationCenter.currentNotificationCenter()
         // التطبيق مفتوح عند دخول الوقت: الأذان كاملاً أو نمط الاهتزاز المختار بدل صوت الإشعار
         if (center.delegate == null) center.delegate = alertPresenter
         center.removeAllPendingNotificationRequests()
-        if (!AppSettings.notify) return
         val s = Lang.current.strings
         val p = AppSettings.place
         val today = LocalDate.now()
-        for (offset in 0 until DAYS) {
+        // عدد إشعارات الأذان المضافة: ما بقي من الحد للتذكيرات
+        var added = 0
+        if (AppSettings.notify) for (offset in 0 until DAYS) {
             val day = today.plusDays(offset)
             val t = PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi, p.elev)
             for (key in ALERT_PRAYERS) {
@@ -93,8 +106,67 @@ actual object PrayerAlerts {
                 }
                 val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
                 center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("adhan-$day-$key", content, trigger), null)
+                added++
             }
         }
+        // ثم تذكير الصيام (ثلاثة على الأكثر)، ثم «قبل خروج الوقت» فيما بقي من الحد
+        val fast = scheduleFasting(center, minOf(FAST_MAX, LIMIT - added))
+        scheduleEndAlerts(center, today, LIMIT - added - fast)
+    }
+
+    /**
+     * تذكيرات «قبل خروج الوقت» لأيام الأذان نفسها، بترتيبها الزمني وبحد أقصى [budget] (ما تركه الأذان من الحد):
+     * يطول مداها أو يقصر حسب عدد الصلوات المفعّلة، وتُكمَل عند كل فتح للتطبيق. مستقلة عن تنبيه الأذان.
+     * لا تحمل مفتاح "prayer" فلا يشغّل [AlertPresenter] لها أذاناً حين يكون التطبيق مفتوحاً.
+     */
+    private fun scheduleEndAlerts(center: UNUserNotificationCenter, today: LocalDate, budget: Int) {
+        val prayers = AppSettings.endAlerts
+        if (prayers.isEmpty() || budget <= 0) return
+        val s = Lang.current.strings
+        val p = AppSettings.place
+        val minutes = AppSettings.endAlertMinutes
+        val alerts = EndAlerts.upcoming(today, DAYS, LocalDateTime.now(), prayers, minutes) { day ->
+            PrayTimes.compute(day, p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi, p.elev)
+        }
+        for (a in alerts.take(budget)) {
+            val at = a.at
+            val comps = NSDateComponents().apply {
+                year = at.year.toLong(); month = at.monthNumber.toLong(); this.day = at.dayOfMonth.toLong()
+                hour = at.hour.toLong(); minute = at.minute.toLong()
+            }
+            val content = UNMutableNotificationContent().apply {
+                setTitle(s.endAlertNotice(s.prayer(a.prayer), minutes))
+                setBody(s.endAlertBody(s.time(a.endHours)))
+                setUserInfo(mapOf<Any?, Any?>("endPrayer" to a.prayer))
+                setSound(UNNotificationSound.defaultSound)
+            }
+            val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
+            center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("end-${a.day}-${a.prayer}", content, trigger), null)
+        }
+    }
+
+    /** تذكير صيام التطوع (مطفأ افتراضياً): مساء اليوم السابق لأقرب [budget] يوماً، بوقت الموقع كإشعارات الأذان؛ يعيد عددها */
+    private fun scheduleFasting(center: UNUserNotificationCenter, budget: Int): Int {
+        if (budget <= 0) return 0
+        Fasting.ensure()
+        if (!Fasting.state.remind) return 0
+        val s = Lang.current.strings
+        var count = 0
+        for ((at, day) in Fasting.reminders(budget)) {
+            val comps = NSDateComponents().apply {
+                year = at.year.toLong(); month = at.monthNumber.toLong(); this.day = at.dayOfMonth.toLong()
+                hour = at.hour.toLong(); minute = at.minute.toLong()
+            }
+            val content = UNMutableNotificationContent().apply {
+                setTitle(s.fastingRemindTitle(day.kinds.joinToString(" · ") { s.fastingKinds[it.key] ?: it.key }))
+                setBody(s.fastingRemindBody)
+                setSound(UNNotificationSound.defaultSound)
+            }
+            val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(comps, false)
+            center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier("fast-${day.date}", content, trigger), null)
+            count++
+        }
+        return count
     }
 
     actual fun languageChanged() = reschedule()

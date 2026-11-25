@@ -15,7 +15,7 @@ import org.junit.Test
 class HadithTest {
     @Before
     fun setUp() {
-        Hadiths.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        Hadiths.open = { TestAssets.read(it) }
     }
 
     @Test

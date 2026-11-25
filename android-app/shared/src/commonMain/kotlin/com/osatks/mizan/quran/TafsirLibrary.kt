@@ -11,6 +11,7 @@ import com.osatks.mizan.platform.Fs
 import com.osatks.mizan.platform.Lock
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.SyncMap
+import com.osatks.mizan.platform.excludeFromBackup
 import com.osatks.mizan.platform.httpGet
 import com.osatks.mizan.platform.locked
 import com.osatks.mizan.platform.path
@@ -158,6 +159,7 @@ object TafsirLibrary {
                     states[slug] = DownloadState.Running(s)
                 }
                 Fs.write(path(d, "complete"), "1".encodeToByteArray())
+                root?.let(::excludeFromBackup)
                 states.remove(slug)
                 version++
                 onComplete()

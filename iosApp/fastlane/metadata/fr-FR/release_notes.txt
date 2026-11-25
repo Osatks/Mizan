@@ -1,5 +1,4 @@
-• Le Mushaf de Médine : l’édition du Complexe du Roi Fahd, ligne par ligne comme l’imprimé, avec ses propres polices, et Amiri en option.
-• Le hadith du jour de HadeethEnc.com avec son explication et ses enseignements, et un widget pour l’écran d’accueil.
-• Le verset du jour ouvre directement son tafsir.
-• Partagez un verset, un hadith ou un dhikr en image au format story.
-• Un accueil plus apaisé, un onglet Outils, un guide des fonctions à découvrir et un moyen d’envoyer vos remarques.
+• Un Mushaf plus clair : un léger espace entre les mots, et les lettres isolées comme «طسٓ» ne touchent plus le mot suivant.
+• Nouveau Mushaf 3D en clair et nuit : les mots flottent au-dessus de la page et bougent doucement quand vous inclinez le téléphone.
+• Nouveau sélecteur de couleur de page.
+• Une app iPhone plus rapide et plus fluide, au design natif sur chaque écran.

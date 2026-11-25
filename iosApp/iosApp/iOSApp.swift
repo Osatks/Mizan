@@ -2,9 +2,9 @@ import UIKit
 import WidgetKit
 import Shared
 
-/// ميزان في iOS: الواجهة كلها من Compose Multiplatform (الوحدة المشتركة مع أندرويد).
-/// متحكم Kotlin (MainViewController) هو جذر النافذة مباشرة، لا داخل SwiftUI: فيسأله النظام عن شريط الحالة
-/// (نص فاتح فوق الرؤوس الخضراء، وإخفاؤه في وضع التركيز في المصحف)، وهو ما يتجاهله UIHostingController.
+/// ميزان في iOS: المنطق من الوحدة المشتركة مع أندرويد (Kotlin)، والتنقل من UIKit نفسه (MizanNavigation.swift):
+/// UITabBarController فيه UINavigationController لكل تبويب، وكل صفحة متحكم خاص بها يعرض شاشتها (Compose، وفيها واجهة النظام).
+/// جذر النافذة متحكم UIKit لا SwiftUI: فيسأله النظام عن شريط الحالة (يحيله إلى الصفحة الظاهرة)، وهو ما يتجاهله UIHostingController.
 ///
 /// يعمل بدورة المشاهد (UIScene) إن وُجد UIApplicationSceneManifest في Info.plist، وإلا بنافذة التطبيق القديمة.
 @main
@@ -17,10 +17,50 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         WatchSync.shared.start()
         // الأنشطة الحية و«يُشغَّل الآن» والاختصارات و Spotlight (LiveActivities.swift)
         LiveActivities.shared.start()
-        // iOS 26: شريط التبويبات من النظام بزجاج Liquid Glass بدل شريط Compose (LiquidTabBar.swift)
-        LiquidTabBar.install()
+        // عبارات Siri بأسماء السور بلغة التطبيق، تُحدَّث حين تتغير (MizanSearch.swift)
+        SearchIndexSync.start()
+        // التنقل من النظام: التبويبات وصفحاتها (MizanNavigation.swift)، قبل إنشاء MainViewController
+        MizanNavigation.install()
+        // صفحات مصحف المدينة يقلّبها ويرسمها النظام (UICollectionView و Core Text) بدل Compose (NativeMushaf.swift)
+        NativeMushafReader.install()
+        // وعرض آية آية في صفحة السورة (NativeAyahList.swift)
+        NativeAyahListScreen.install()
+        // والرئيسية بواجهة SwiftUI (NativeHome.swift)
+        NativeHomeScreen.install()
+        // وشاشة المواقيت بطراز الرئيسية (NativePrayer.swift)
+        NativePrayerScreen.install()
+        // والأذكار (NativeAdhkar.swift)
+        NativeAdhkarScreen.install()
+        // وتبويب الأدوات (NativeTools.swift)
+        NativeToolsScreen.install()
+        // وتبويب القرآن والإعدادات، وكل أداة: القبلة والمسبحة والزكاة والمواريث والتاريخ والعمر والمناسبات والفطر والفدية
+        NativeQuranScreen.install()
+        NativeSettingsScreen.install()
+        NativeQiblaScreen.install()
+        // والمساجد القريبة: البحث والخريطة من MapKit (NativeMosques.swift)
+        NativeMosquesScreen.install()
+        NativeTasbihScreen.install()
+        NativeZakatScreen.install()
+        NativeInheritanceScreen.install()
+        NativeDatesScreen.install()
+        NativeFitrFidyaScreen.install()
+        // ومتابعة الصيام (NativeFasting.swift)
+        NativeFastingScreen.install()
+        // وركن الأطفال (NativeKids.swift)
+        NativeKidsScreen.install()
+        // والحديث والبحث ومكتبة التفاسير والأذان والدليل والتراخيص، وأوراق اللغة والمدينة
+        NativeHadithScreen.install()
+        NativeSearchScreen.install()
+        NativeTafsirsScreen.install()
+        NativeAdhanScreen.install()
+        NativeGuideScreen.install()
+        // وإعداد أول تشغيل التفاعلي (NativeWelcome.swift)
+        NativeWelcomeScreen.install()
+        NativeLicensesScreen.install()
+        NativeSheetsUI.install()
         if !AppDelegate.usesScenes {
-            let w = UIWindow(frame: UIScreen.main.bounds)
+            // النافذة تعرف موضع كل لمس: منه تنمو الصفحة التي يفتحها
+            let w = TouchWindow(frame: UIScreen.main.bounds)
             w.rootViewController = MainViewControllerKt.MainViewController()
             w.makeKeyAndVisible()
             LaunchCurtain.cover(w)
@@ -29,7 +69,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    // نتيجة من بحث iPhone (سورة في Spotlight)
+    // نتيجة من بحث iPhone (سورة أو آية أو أداة في Spotlight)
     func application(_ application: UIApplication, continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         SpotlightLink.open(userActivity)
@@ -70,7 +110,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             Task { @MainActor in await LiveCheck.run(check) }
             return
         }
-        let w = UIWindow(windowScene: windowScene)
+        let w = TouchWindow(windowScene: windowScene)
         w.rootViewController = MainViewControllerKt.MainViewController()
         w.makeKeyAndVisible()
         LaunchCurtain.cover(w)
@@ -80,7 +120,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let activity = connectionOptions.userActivities.first { SpotlightLink.open(activity) }
     }
 
-    // نتيجة من بحث iPhone (سورة في Spotlight) والتطبيق يعمل
+    // نتيجة من بحث iPhone (سورة أو آية أو أداة في Spotlight) والتطبيق يعمل
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         SpotlightLink.open(userActivity)
     }

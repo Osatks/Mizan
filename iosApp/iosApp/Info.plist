@@ -41,6 +41,11 @@
 			</array>
 		</dict>
 	</array>
+	<!-- المساجد القريبة: زر خرائط Google يظهر إن كانت مثبتة (canOpenURL) -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>comgooglemaps</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -61,7 +66,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>تُستعمل الكاميرا على جهازك فقط لإظهار اتجاه القبلة فوق ما تراه. The camera is used only on your device to show the qibla direction over what you see.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>يُستعمل موقعك على جهازك فقط لحساب مواقيت الصلاة واتجاه القبلة. Your location is used on your device only to compute prayer times and the qibla.</string>
+	<string>يُستعمل موقعك على جهازك لحساب مواقيت الصلاة واتجاه القبلة، ويُرسل إلى خرائط Apple عند البحث عن المساجد القريبة فقط. Your location is used on your device for prayer times and the qibla, and is sent to Apple Maps only when you search for nearby mosques.</string>
 	<!-- تلاوة القرآن (ClipPlayer: AVAudioSessionCategoryPlayback) تستمر وإن أُطفئت الشاشة أو خرج المستخدم من التطبيق.
 	     الأذان داخل التطبيق لا يحتاجها (SoloAmbient)، وأذان الإشعار صوت إشعار عادي. -->
 	<key>UIBackgroundModes</key>

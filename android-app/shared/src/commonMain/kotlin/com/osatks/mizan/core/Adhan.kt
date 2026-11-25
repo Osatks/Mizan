@@ -5,6 +5,7 @@ import com.osatks.mizan.platform.AdhanAudio
 import com.osatks.mizan.platform.Fs
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.PrayerAlerts
+import com.osatks.mizan.platform.excludeFromBackup
 import com.osatks.mizan.platform.httpGet
 import com.osatks.mizan.platform.path
 import kotlinx.coroutines.CancellationException
@@ -155,6 +156,7 @@ object AdhanSounds {
                 require(audio.size > 10_000) { "short file" }
                 sound?.let { AdhanAudio.saveNotificationSound(m.iosSound, it) }
                 Fs.write(path(dir, m.file), audio)
+                excludeFromBackup(dir)
             }
             progress.remove(m.id)
             version[m.id] = (version[m.id] ?: 0) + 1
@@ -172,6 +174,18 @@ object AdhanSounds {
     /** يبدأ التنزيل في الخلفية؛ onDone بالنتيجة */
     fun start(m: Muezzin, onDone: (Boolean) -> Unit = {}) {
         scope.launch { onDone(download(m)) }
+    }
+
+    /**
+     * المؤذن المختار (للصلوات أو للفجر) ليس على الجهاز: يُنزَّل في الخلفية، ويُسمع المضمّن حتى يكتمل ([Muezzins.forPrayer]).
+     * لمن اختار تسجيلاً كان مضمّناً قبل التحديث (عاصم، أذان فجر كالكان)، أو استعاد نسخة احتياطية في جهاز جديد.
+     * بعد التنزيل تُعاد جدولة التنبيهات فيُسمع المختار في الإشعار
+     */
+    fun ensureChosen() {
+        if (!AppSettings.ready) return
+        listOfNotNull(Muezzins.of(AppSettings.muezzin), Muezzins.of(AppSettings.fajrMuezzin)).distinct()
+            .filter { !available(it) && progress[it.id]?.let { p -> p >= 0 } != true }
+            .forEach { m -> start(m) { ok -> if (ok) PrayerAlerts.reschedule() } }
     }
 
     fun delete(m: Muezzin) {

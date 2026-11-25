@@ -2,7 +2,8 @@ import UIKit
 import CoreSpotlight
 import Shared
 
-/// نتائج بحث iPhone (Spotlight): معرّف كل سورة هو مسار صفحتها (QuranSpotlight.kt)، فيفتحها لمسُ النتيجة
+/// نتائج بحث iPhone (Spotlight): معرّف كل عنصر (سورة، آية، أداة، قسم أذكار، حديث، مناسبة، إعداد) هو رابط صفحته
+/// (SystemSpotlight.kt)، فيفتحها لمسُ النتيجة، والتطبيق مغلق (SceneDelegate: connectionOptions.userActivities) أو يعمل
 enum SpotlightLink {
     @discardableResult
     static func open(_ activity: NSUserActivity) -> Bool {

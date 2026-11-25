@@ -1,0 +1,123 @@
+{
+ "format": 1,
+ "kind": "adhkar",
+ "items": [
+  {
+   "id": "bn",
+   "language": "bn",
+   "title": "Hisn al-Muslim",
+   "bytes": 335986,
+   "sha256": "1f60a6b82888005c984e6118736f8d632dd41ebc7a25ba753dbc177026bb0a69",
+   "version": 1,
+   "file": "bn.json"
+  },
+  {
+   "id": "de",
+   "language": "de",
+   "title": "Hisn al-Muslim",
+   "bytes": 158874,
+   "sha256": "e065d8992646b89bb7fb57f10a55290216079ba7fbd41b16e42f11ab2f4479d8",
+   "version": 1,
+   "file": "de.json"
+  },
+  {
+   "id": "es",
+   "language": "es",
+   "title": "Hisn al-Muslim",
+   "bytes": 150256,
+   "sha256": "37d2606ab05748823215d1bed9ce7549978abdea1b48cb3bf2222ad3ee423cb6",
+   "version": 1,
+   "file": "es.json"
+  },
+  {
+   "id": "fa",
+   "language": "fa",
+   "title": "Hisn al-Muslim",
+   "bytes": 197754,
+   "sha256": "e1918406c0effbf2de98b334c7036c63e401a566042f4111eda9f23555d84359",
+   "version": 1,
+   "file": "fa.json"
+  },
+  {
+   "id": "fr",
+   "language": "fr",
+   "title": "Hisn al-Muslim",
+   "bytes": 152431,
+   "sha256": "2c2c635e3cbbd597e8a2cf67b4aff552ddd4351d7707703fc5e69c92640154c0",
+   "version": 1,
+   "file": "fr.json"
+  },
+  {
+   "id": "id",
+   "language": "id",
+   "title": "Hisn al-Muslim",
+   "bytes": 157397,
+   "sha256": "92ee50f213283591fad6a9b3c8f5694f3227fd23d87cfdd0ec22b3ba5d65c886",
+   "version": 1,
+   "file": "id.json"
+  },
+  {
+   "id": "kk",
+   "language": "kk",
+   "title": "Hisn al-Muslim",
+   "bytes": 221076,
+   "sha256": "b59fff897ebd28fbb40f0b46398a7a14183f7a51a1d26f56287b31eab81cf5ce",
+   "version": 1,
+   "file": "kk.json"
+  },
+  {
+   "id": "ms",
+   "language": "ms",
+   "title": "Hisn al-Muslim",
+   "bytes": 162329,
+   "sha256": "fcb4a2dc0c13e2ecb79bba6ccfcd2920f7e41aeb7b1f6785f7b6a47990c08805",
+   "version": 1,
+   "file": "ms.json"
+  },
+  {
+   "id": "ru",
+   "language": "ru",
+   "title": "Hisn al-Muslim",
+   "bytes": 229457,
+   "sha256": "0d913dcf57836636bd6872c6fdee7e0a2c08a39ab6ee46a0727ac6f3f2e9ff27",
+   "version": 1,
+   "file": "ru.json"
+  },
+  {
+   "id": "tr",
+   "language": "tr",
+   "title": "Hisn al-Muslim",
+   "bytes": 136952,
+   "sha256": "d3b863d77cf3b2844ddc5fad2777132582f182c0cfccc8a93d01f9165fd1974d",
+   "version": 1,
+   "file": "tr.json"
+  },
+  {
+   "id": "uk",
+   "language": "uk",
+   "title": "Hisn al-Muslim",
+   "bytes": 230614,
+   "sha256": "a67e748b0d3a1ad0eba3db74b21df4e07ebf55311fa6b4a31f8ca64abfc2df35",
+   "version": 1,
+   "file": "uk.json"
+  },
+  {
+   "id": "ur",
+   "language": "ur",
+   "title": "Hisn al-Muslim",
+   "bytes": 214133,
+   "sha256": "62fb629b029d099ab13aa9ef9148dcf5459709c669b81e7ca4440efac0f70ca1",
+   "version": 1,
+   "file": "ur.json"
+  },
+  {
+   "id": "uz",
+   "language": "uz",
+   "title": "Hisn al-Muslim",
+   "bytes": 139258,
+   "sha256": "fac146e71a0f43efc4068ea813eb725a5409f56e03ef778126c65645225e70ef",
+   "version": 1,
+   "file": "uz.json"
+  }
+ ]
+}

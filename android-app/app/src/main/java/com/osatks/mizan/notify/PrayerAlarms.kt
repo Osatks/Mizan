@@ -20,12 +20,14 @@ import com.osatks.mizan.R
 import com.osatks.mizan.core.ALERT_PRAYERS
 import com.osatks.mizan.core.AlertMode
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.EndAlerts
 import com.osatks.mizan.core.PrayTimes
 import com.osatks.mizan.core.VibePattern
 import com.osatks.mizan.i18n.Ar
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
+import com.osatks.mizan.i18n.time
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -35,6 +37,10 @@ import java.time.ZoneId
  * لكل طريقة تنبيه قناة (أصوات القنوات لا تتغير بعد إنشائها، فالأذان يشغّله [AdhanService] والقناة صامتة):
  * الأذان، والاهتزاز بالنمط المختار (قناة لكل نمط)، والصامت. والقناة القديمة "adhan" بصوت الإشعار الافتراضي احتياطٌ
  * إن تعذّر تشغيل الخدمة.
+ *
+ * تذكير «قبل خروج الوقت» منبّه مستقل ([REQ_END]) بالطريقة نفسها: تذكير واحد للقادم، ثم يجدول الذي يليه عند وقوعه، ويُعاد
+ * مع كل جدولة للأذان (تغيّر الموقع أو الطريقة، والإقلاع، وتغيّر الوقت). قناته [CHANNEL_END] بصوت الإشعار الافتراضي
+ * وأهمية عادية (تذكير لطيف بلا نافذة منبثقة)، ويحترم النظام فيها وضع الصامت و«عدم الإزعاج».
  */
 object PrayerAlarms {
     private const val CHANNEL = "adhan"
@@ -42,8 +48,11 @@ object PrayerAlarms {
     private const val CHANNEL_VIBE = "adhan_vibe_"
     private const val CHANNEL_SILENT = "adhan_silent"
     private const val REQ = 4242
+    private const val CHANNEL_END = "prayer_end"
+    private const val REQ_END = 4243
 
     fun notificationId(key: String) = key.hashCode()
+    private fun endNotificationId(key: String) = "end-$key".hashCode()
 
     /** إنشاء القنوات أو تحديث أسمائها بلغة الواجهة الحالية (لا يغيّر إعدادات المستخدم للقناة) */
     fun ensureChannel(ctx: Context) {
@@ -80,6 +89,14 @@ object PrayerAlarms {
                 enableVibration(false)
             }
         )
+        // قناة «قبل خروج الوقت»: تُنشأ حين يُفعَّل التذكير لأول مرة، ثم تُحدَّث أسماؤها مع اللغة
+        if (AppSettings.endAlerts.isNotEmpty() || nm.getNotificationChannel(CHANNEL_END) != null) {
+            nm.createNotificationChannel(
+                NotificationChannel(CHANNEL_END, s.endAlertTitle, NotificationManager.IMPORTANCE_DEFAULT).apply {
+                    description = s.endAlertHint
+                }
+            )
+        }
     }
 
     private fun vibeChannel(p: VibePattern) = CHANNEL_VIBE + p.key
@@ -96,6 +113,10 @@ object PrayerAlarms {
 
     fun scheduleNext(ctx: Context) {
         AppSettings.init(ctx)
+        // تذكير قبل خروج الوقت مستقل عن تنبيه الأذان: يُعاد قبل أي خروج مبكر هنا
+        scheduleEnd(ctx)
+        // تذكير صيام التطوع بمنبّهه الخاص، ولو كانت تنبيهات الأذان مطفأة
+        runCatching { FastReminders.schedule(ctx) }
         cancel(ctx)
         if (!AppSettings.notify || ALERT_PRAYERS.all { AppSettings.alertMode(it) == AlertMode.OFF }) return
         val p = AppSettings.place
@@ -121,6 +142,81 @@ object PrayerAlarms {
         val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()
         if (exact) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, millis, pi)
         else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, millis, pi)
+    }
+
+    private fun pendingEnd(ctx: Context, key: String, endAt: Long, minutes: Int): PendingIntent {
+        val i = Intent(ctx, PrayerReceiver::class.java)
+            .putExtra(EXTRA_END, true).putExtra("prayer", key).putExtra("endAt", endAt).putExtra("minutes", minutes)
+        return PendingIntent.getBroadcast(ctx, REQ_END, i, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    }
+
+    /**
+     * يجدول تذكير «قبل خروج الوقت» القادم: أقرب موعد بعد الآن بين صلوات اليوم المفعّلة، ومن الأمس (العشاء ينتهي بمنتصف
+     * الليل وقد يقع تذكيرها بعد الثانية عشرة) ومن الغد. الحساب في [EndAlerts] المشترك مع iOS.
+     */
+    fun scheduleEnd(ctx: Context) {
+        AppSettings.init(ctx)
+        val am = ctx.getSystemService(AlarmManager::class.java)
+        am.cancel(pendingEnd(ctx, "", 0L, 0))
+        val prayers = AppSettings.endAlerts
+        if (prayers.isEmpty()) return
+        val minutes = AppSettings.endAlertMinutes
+        val p = AppSettings.place
+        val zone = runCatching { ZoneId.of(p.tz) }.getOrDefault(ZoneId.systemDefault())
+        val now = LocalDateTime.now(zone)
+        var best: Triple<LocalDateTime, String, LocalDateTime>? = null
+        for (dayOffset in -1..1) {
+            val day: LocalDate = now.toLocalDate().plusDays(dayOffset.toLong())
+            val t = PrayTimes.compute(day.toKotlinLocalDate(), p.lat, p.lng, p.tz, AppSettings.method, AppSettings.hanafi, p.elev)
+            for (key in ALERT_PRAYERS) {
+                if (key !in prayers) continue
+                val h = EndAlerts.hours(t, key, minutes)
+                if (h.isNaN()) continue
+                val at = day.atStartOfDay().plusSeconds((h * 3600).toLong())
+                if (!at.isAfter(now) || (best != null && !at.isBefore(best.first))) continue
+                val end = day.atStartOfDay().plusSeconds((EndAlerts.end(t, key) * 3600).toLong())
+                best = Triple(at, key, end)
+            }
+        }
+        val (at, key, end) = best ?: return
+        val millis = at.atZone(zone).toInstant().toEpochMilli()
+        val endMillis = end.atZone(zone).toInstant().toEpochMilli()
+        val pi = pendingEnd(ctx, key, endMillis, minutes)
+        val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()
+        if (exact) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, millis, pi)
+        else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, millis, pi)
+    }
+
+    /**
+     * حان تذكير «قبل خروج الوقت»: «بقي 15 دقيقة على خروج وقت الظهر» ونهاية الوقت بتوقيت المكان. الدقائق الباقية تُحسب
+     * عند الوصول (قد يتأخر المنبّه غير الدقيق)؛ وإن خرج الوقت فعلاً فلا تذكير.
+     */
+    @SuppressLint("MissingPermission")
+    fun showEnd(ctx: Context, key: String, endAt: Long, minutes: Int) {
+        if (key !in AppSettings.endAlerts || endAt <= 0L) return
+        val left = ((endAt - System.currentTimeMillis() + 30_000L) / 60_000L).toInt()
+        if (left < 1) return
+        ensureChannel(ctx)
+        val s = Lang.current.strings
+        val zone = runCatching { ZoneId.of(AppSettings.place.tz) }.getOrDefault(ZoneId.systemDefault())
+        val local = java.time.Instant.ofEpochMilli(endAt).atZone(zone).toLocalTime()
+        val endHours = local.hour + local.minute / 60.0 + local.second / 3600.0
+        val open = PendingIntent.getActivity(
+            ctx, 0, Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        val n = NotificationCompat.Builder(ctx, CHANNEL_END)
+            .setSmallIcon(R.drawable.ic_launcher_monochrome)
+            .setContentTitle(s.endAlertNotice(s.prayer(key), left.coerceAtMost(minutes.coerceAtLeast(1))))
+            .setContentText(s.endAlertBody(s.time(endHours)))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            // يختفي وحده حين يخرج الوقت
+            .setTimeoutAfter((endAt - System.currentTimeMillis()).coerceAtLeast(1L))
+            .setContentIntent(open)
+            .build()
+        runCatching { NotificationManagerCompat.from(ctx).notify(endNotificationId(key), n) }
     }
 
     /** إشعار دخول الوقت؛ [stop] زر «إيقاف» وإزالة الإشعار يوقفان الأذان */
@@ -179,11 +275,20 @@ object PrayerAlarms {
     }
 
     const val VOICE_CHANNEL = CHANNEL_VOICE
+    /** منبّه «قبل خروج الوقت» يصل إلى [PrayerReceiver] نفسه بهذا المفتاح */
+    const val EXTRA_END = "end"
 }
 
 class PrayerReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         AppSettings.init(context)
+        // تذكير «قبل خروج الوقت»: يُعرض ثم يُجدول الذي يليه، ولا يمس منبّه الأذان
+        if (intent.getBooleanExtra(PrayerAlarms.EXTRA_END, false)) {
+            val key = intent.getStringExtra("prayer").orEmpty()
+            PrayerAlarms.showEnd(context, key, intent.getLongExtra("endAt", 0L), intent.getIntExtra("minutes", AppSettings.endAlertMinutes))
+            PrayerAlarms.scheduleEnd(context)
+            return
+        }
         // "name" كان يحمل اسم الصلاة بالعربية في الإصدارات السابقة؛ المنبه المجدول قبل التحديث يصل بلا مفتاح
         val legacy = intent.getStringExtra("name")
         val key = intent.getStringExtra("prayer") ?: PrayTimes.PRAYERS.firstOrNull { Ar.prayers[it] == legacy }.orEmpty()

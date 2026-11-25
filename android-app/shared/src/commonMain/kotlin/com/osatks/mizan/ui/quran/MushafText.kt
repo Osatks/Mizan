@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -68,7 +69,8 @@ internal class MWord(val text: String, val marker: String?, val index: Int, val 
 internal class MBlock(val surah: Int, val banner: Boolean, val bismillah: Boolean, val words: List<MWord>)
 
 /** كلمة في موضعها من السطر؛ left/right حدود الكلمة مع علامتها، و text نصها كما يُرسم (قد يكون ممدوداً) */
-internal class Placed(val word: MWord, val left: Float, val right: Float, val wordW: Float, val markerW: Float, val text: String = word.text)
+/** dx: إزاحة رسم الكلمة عن طرفها الأيسر (كلمة مصحف المدينة التي يقلّص التشكيل عرضها، MadinahPage.kt) */
+internal class Placed(val word: MWord, val left: Float, val right: Float, val wordW: Float, val markerW: Float, val text: String = word.text, val dx: Float = 0f)
 
 internal sealed class MRow(val top: Float, val height: Float)
 internal class TextRow(top: Float, height: Float, val words: List<Placed>) : MRow(top, height)
@@ -530,11 +532,39 @@ fun MushafCanvas(
         val paint = remember { mushafPaint() }
         // علامات الآيات وترويسات السور في مصحف المدينة بلون التطبيق
         val accent = androidx.compose.material3.MaterialTheme.colorScheme.primary
+        // ثلاثي الأبعاد: الكلمات فوق الورقة تتحرك مع ميل الجهاز، وظلها على الورقة يظهر مع الحركة ويتحرك عكسها
+        val depth = isDepthTone(com.osatks.mizan.quran.QuranPrefs.tone)
+        val tilt = rememberDeviceTilt(depth)
+        val lift = with(density) { 6.dp.toPx() }
         @Composable
         fun layer(l: PageLayout, alpha: () -> Float, interactive: Boolean) {
             val qp = remember(l.font) { l.font?.let { madinahPaints(it) } }
             val area = if (l.fits) Modifier.fillMaxSize() else Modifier.fillMaxWidth().height(with(density) { l.height.toDp() })
+            val floating = depth && l.fits
+            if (floating && canBlurLayers) {
+                // غباش لين تحت الأسطر (لا نسخة من الحروف): الأسطر بلون الظل ثم تمويه قوي
+                val hazeColor = p.haze.takeOrElse { DepthShadow.copy(alpha = 0.7f) }
+                val shade = remember(p) { p.tinted(hazeColor) }
+                Spacer(
+                    area
+                        .graphicsLayer {
+                            // الظل مع الحركة فقط وبقدر الميل: والجهاز ساكن (أثناء القراءة) لا ظل يشوّش على الحروف
+                            val t = tilt.value
+                            this.alpha = alpha() * kotlin.math.sqrt(t.x * t.x + t.y * t.y).coerceAtMost(1f)
+                            translationX = -t.x * lift * 0.6f
+                            translationY = -t.y * lift * 0.6f
+                            renderEffect = androidx.compose.ui.graphics.BlurEffect(lift * 2f, lift * 2f)
+                        }
+                        .drawBehind { drawPage(l, shade, paint, text[0], 1f, hide, qp, hazeColor) }
+                )
+            }
             val canvas = area
+                // الكلمات (وأشرطة التظليل معها) مرفوعة عن الورقة، واللمس في الطبقة نفسها فيبقى على الكلمة
+                .then(if (!floating) Modifier else Modifier.graphicsLayer {
+                    val t = tilt.value
+                    translationX = t.x * lift
+                    translationY = t.y * lift
+                })
                 .then(
                     if (!interactive) Modifier else Modifier
                         .semantics { contentDescription = description.value }

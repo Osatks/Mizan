@@ -347,9 +347,10 @@ class AyahWidget : MizanWidget() {
         val (sn, an) = QuranMeta.locate(i)
         setTextViewText(R.id.title, s.ayahOfDay)
         setTextViewText(R.id.ayah, "﴿${QuranData.withoutBismillah(text, i)}﴾")
-        val tr = Sources.translationFor(lang)
-        if (tr != null) {
-            setTextViewText(R.id.meaning, runBlocking { QuranData.source(tr.id) }[i])
+        // المعنى بلغة الواجهة إن كانت ترجمته على الجهاز (تُنزَّل من موقع ميزان لغير المضمّن)
+        val meaning = Sources.translationFor(lang)?.let { tr -> runBlocking { QuranData.sourceOrNull(tr.id) }?.getOrNull(i) }
+        if (!meaning.isNullOrBlank()) {
+            setTextViewText(R.id.meaning, meaning)
             setViewVisibility(R.id.meaning, View.VISIBLE)
         } else setViewVisibility(R.id.meaning, View.GONE)
         setTextViewText(R.id.ref, s.surahAyah(s.surahName(sn), an))

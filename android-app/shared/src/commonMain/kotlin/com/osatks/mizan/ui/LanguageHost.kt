@@ -30,7 +30,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import com.osatks.mizan.content.ContentStore
+import com.osatks.mizan.core.AdhanSounds
 import com.osatks.mizan.core.AppSettings
+import com.osatks.mizan.core.PlaceNames
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
@@ -40,16 +44,17 @@ import com.osatks.mizan.ui.theme.Gold
 
 /**
  * ستار تبديل اللغة نازل (من بدء إسداله حتى بدء رفعه): ما يُرسم خارج Compose فوقها
- * (شريط التبويبات من النظام في iOS 26) يختفي معه ثم يعود بالأسماء الجديدة
+ * (شريط التبويبات من النظام في iOS) يختفي معه ثم يعود بالأسماء الجديدة
  */
 val LocalLanguageVeil = compositionLocalOf { false }
 
 /**
  * يوفّر نصوص اللغة واتجاه الكتابة. عند تبديل اللغة يُسدل ستار بلون ميزان عليه النجمة واسم اللغة الجديدة،
  * فتتبدل الواجهة (وقد ينقلب اتجاهها) خلفه ثم ينكشف، بدل القفزة المفاجئة.
+ * [animate]: false في صفحة غير ظاهرة (iOS: لكل صفحة مضيفها) فتتبدل لغتها بلا ستار، والستار في الظاهرة وحدها.
  */
 @Composable
-fun LanguageHost(content: @Composable () -> Unit) {
+fun LanguageHost(animate: () -> Boolean = { true }, content: @Composable () -> Unit) {
     val target = Lang.resolve(AppSettings.lang, systemLanguageTag())
     var shown by remember { mutableStateOf(target) }
     val veil = remember { Animatable(0f) }
@@ -57,15 +62,20 @@ fun LanguageHost(content: @Composable () -> Unit) {
 
     LaunchedEffect(target) {
         if (target != shown) {
-            veil.animateTo(1f, tween(260, easing = Motion.Accelerate))
-            shown = target
-            PrayerAlerts.languageChanged()
-            withFrameNanos { }
-            withFrameNanos { }
+            if (animate()) {
+                veil.animateTo(1f, tween(260, easing = Motion.Accelerate))
+                shown = target
+                PrayerAlerts.languageChanged()
+                withFrameNanos { }
+                withFrameNanos { }
+            } else shown = target
         }
         // يُرفع الستار دائماً، حتى لو عاد المستخدم إلى اللغة السابقة قبل اكتمال الحركة
         if (veil.value > 0f) veil.animateTo(0f, tween(520, easing = Motion.Decelerate))
     }
+
+    PlaceNameSync(target.code)
+    ContentSync(target)
 
     Box(Modifier.fillMaxSize()) {
         CompositionLocalProvider(
@@ -91,6 +101,37 @@ fun LanguageHost(content: @Composable () -> Unit) {
                     Text(target.strings.appName, color = Gold, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
+        }
+    }
+}
+
+/**
+ * محتوى لغة الواجهة الذي لم يُضمَّن في التطبيق (ترجمة المعاني وأحاديث اليوم والأذكار): يُنزَّل في الخلفية من موقع ميزان
+ * عند البدء (أول تشغيل، وأول تشغيل بعد التحديث) وعند تبدّل اللغة، ويُعاد بعد دقيقة وخمس دقائق إن تعذّر (لا شبكة).
+ * ومعه المؤذن المختار إن لم يكن على الجهاز (كان مضمّناً قبل التحديث). في iOS لكل صفحة مضيفها، والتنزيل الجاري لا يتكرر
+ */
+@Composable
+private fun ContentSync(lang: Lang) {
+    LaunchedEffect(lang.code) {
+        for (wait in longArrayOf(1_500L, 60_000L, 300_000L)) {
+            delay(wait)
+            ContentStore.ensureFor(lang)
+            AdhanSounds.ensureChosen()
+        }
+    }
+}
+
+/**
+ * اسم موقع GPS بلغة الواجهة ([PlaceNames]): يُطلب عند البدء وعند تبدّل اللغة أو الموقع، ومرتين بعدهما إن تعذّر
+ * (لا شبكة). في iOS لكل صفحة مضيفها، والطلب الجاري لا يتكرر. قراءة المكان هنا وحدها فلا يُعاد بناء المضيف كله معه
+ */
+@Composable
+private fun PlaceNameSync(lang: String) {
+    val p = AppSettings.place
+    LaunchedEffect(lang, p.lat, p.lng, p.gps) {
+        for (wait in longArrayOf(0L, 30_000L, 180_000L)) {
+            delay(wait)
+            PlaceNames.ensure(lang)
         }
     }
 }

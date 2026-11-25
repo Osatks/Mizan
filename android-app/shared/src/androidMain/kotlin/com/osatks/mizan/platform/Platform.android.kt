@@ -27,19 +27,72 @@ object AndroidContext {
     fun set(ctx: Context) { if (!ready) app = ctx.applicationContext ?: ctx }
 }
 
+/**
+ * القراءة تتسامح مع اختلاف النوع: نسخة احتياطية من iOS لا تميّز Int من Long، فقد يُكتب المفتاح بنوع غير الذي
+ * يُقرأ به. SharedPreferences ترمي ClassCastException حينها، فتُحوَّل القيمة المخزنة بدل أن ينهار التطبيق.
+ */
 actual class Prefs actual constructor(name: String) {
     private val sp = AndroidContext.app.getSharedPreferences(name, Context.MODE_PRIVATE)
-    actual fun getString(k: String): String? = sp.getString(k, null)
+    actual fun getString(k: String): String? =
+        try { sp.getString(k, null) } catch (e: ClassCastException) { sp.all[k]?.toString() }
     actual fun putString(k: String, v: String) = sp.edit().putString(k, v).apply()
-    actual fun getInt(k: String, d: Int) = sp.getInt(k, d)
+    actual fun getInt(k: String, d: Int): Int =
+        try { sp.getInt(k, d) } catch (e: ClassCastException) { stored(k)?.toInt() ?: d }
     actual fun putInt(k: String, v: Int) = sp.edit().putInt(k, v).apply()
-    actual fun getLong(k: String, d: Long) = sp.getLong(k, d)
+    actual fun getLong(k: String, d: Long): Long =
+        try { sp.getLong(k, d) } catch (e: ClassCastException) { stored(k)?.toLong() ?: d }
     actual fun putLong(k: String, v: Long) = sp.edit().putLong(k, v).apply()
-    actual fun getBool(k: String, d: Boolean) = sp.getBoolean(k, d)
+    actual fun getBool(k: String, d: Boolean): Boolean =
+        try { sp.getBoolean(k, d) } catch (e: ClassCastException) {
+            when (val v = sp.all[k]) {
+                is Number -> v.toLong() != 0L
+                is String -> v.toBooleanStrictOrNull() ?: d
+                else -> d
+            }
+        }
     actual fun putBool(k: String, v: Boolean) = sp.edit().putBoolean(k, v).apply()
     actual fun contains(k: String) = sp.contains(k)
     actual fun remove(k: String) = sp.edit().remove(k).apply()
     actual fun isEmpty() = sp.all.isEmpty()
+
+    /** القيمة المخزنة عدداً (أو نصاً فيه عدد، أو صح/خطأ) حين لا يطابق نوعها نوع القراءة */
+    private fun stored(k: String): Number? = when (val v = sp.all[k]) {
+        is Number -> v
+        is String -> v.toLongOrNull() ?: v.toDoubleOrNull()
+        is Boolean -> if (v) 1 else 0
+        else -> null
+    }
+
+    actual fun snapshot(): Map<String, Any> {
+        val out = LinkedHashMap<String, Any>()
+        for ((k, v) in sp.all) {
+            val n: Any = when (v) {
+                is String, is Boolean, is Long -> v
+                is Int -> v.toLong()
+                is Float -> v.toDouble()
+                is Set<*> -> v.filterIsInstance<String>().toSet()
+                else -> null
+            } ?: continue
+            out[k] = n
+        }
+        return out
+    }
+
+    actual fun putValue(k: String, v: Any) {
+        val e = sp.edit()
+        when (v) {
+            is String -> e.putString(k, v)
+            is Boolean -> e.putBoolean(k, v)
+            // الأعداد الصحيحة Int ما وسعها (كما يكتبها التطبيق)، و Long لما جاوزها
+            is Long -> if (v >= Int.MIN_VALUE && v <= Int.MAX_VALUE) e.putInt(k, v.toInt()) else e.putLong(k, v)
+            is Int -> e.putInt(k, v)
+            is Double -> e.putFloat(k, v.toFloat())
+            is Float -> e.putFloat(k, v)
+            is Set<*> -> e.putStringSet(k, v.filterIsInstance<String>().toSet())
+            else -> return
+        }
+        e.apply()
+    }
 }
 
 actual object Platform {
@@ -96,9 +149,13 @@ actual object Fs {
     actual fun deleteDir(path: String) { File(path).deleteRecursively() }
     actual fun list(dir: String): List<String> = File(dir).list()?.toList().orEmpty()
     actual fun mkdirs(dir: String) { File(dir).mkdirs() }
+    actual fun size(path: String): Long = File(path).length()
     actual fun gzip(bytes: ByteArray): ByteArray = ByteArrayOutputStream().also { o -> GZIPOutputStream(o).use { it.write(bytes) } }.toByteArray()
     actual fun gunzip(bytes: ByteArray): ByteArray = GZIPInputStream(bytes.inputStream()).use { it.readBytes() }
 }
+
+/** أندرويد: المجلدات المنزَّلة مستثناة في قواعد النسخ الاحتياطي (res/xml/backup_rules.xml و data_extraction_rules.xml) */
+actual fun excludeFromBackup(path: String) {}
 
 actual suspend fun httpGet(url: String, onProgress: (Int) -> Unit): ByteArray = withContext(Dispatchers.IO) {
     val conn = URL(url).openConnection().apply { connectTimeout = 15_000; readTimeout = 60_000 }

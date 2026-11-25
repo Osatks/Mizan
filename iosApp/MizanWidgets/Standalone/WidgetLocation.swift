@@ -105,3 +105,62 @@ final class WidgetLocator: NSObject, CLLocationManagerDelegate {
         done(loc)
     }
 }
+
+/// آخر اسم موقع جاء من محدد المواقع (في UserDefaults الخاص بالأداة): لإحداثياته ولغته، فلا يُطلب كل مرة
+enum PlaceNameCache {
+    private static var d: UserDefaults { .standard }
+
+    /// الاسم المحفوظ إن كان بهذه اللغة ولموقع على أقل من كيلومتر من هذا
+    static func name(lat: Double, lng: Double, lang: String) -> String? {
+        guard d.string(forKey: "geo.lang") == lang, let name = d.string(forKey: "geo.name"),
+              d.object(forKey: "geo.lat") != nil, d.object(forKey: "geo.lng") != nil else { return nil }
+        let km = StandaloneSnapshot.distanceKm(lat, lng, d.double(forKey: "geo.lat"), d.double(forKey: "geo.lng"))
+        return km < 1 ? name : nil
+    }
+
+    static func save(_ name: String, lat: Double, lng: Double, lang: String) {
+        d.set(name, forKey: "geo.name")
+        d.set(lang, forKey: "geo.lang")
+        d.set(lat, forKey: "geo.lat")
+        d.set(lng, forKey: "geo.lng")
+    }
+}
+
+/// اسم موقع الأداة من محدد المواقع في النظام (CLGeocoder) بلغة الأداة: المدينة، وإلا المحافظة الفرعية، وإلا المنطقة
+/// (كما في PlaceGeocoder في Kotlin). يحتاج الشبكة؛ إن لم يصل في المهلة تُبنى اللقطة بلا اسم.
+enum WidgetGeocoder {
+    /// تبقى الطلبات الجارية حية حتى تنتهي
+    private static var active: [CLGeocoder] = []
+
+    /// completion على الخيط الرئيسي بالاسم، أو nil إن تعذّر أو انقضت المهلة
+    static func name(lat: Double, lng: Double, lang: String, timeout: TimeInterval = 5, completion: @escaping (String?) -> Void) {
+        DispatchQueue.main.async {
+            if let cached = PlaceNameCache.name(lat: lat, lng: lng, lang: lang) {
+                completion(cached)
+                return
+            }
+            let geocoder = CLGeocoder()
+            active.append(geocoder)
+            var done = false
+            let finish: (String?) -> Void = { name in
+                guard !done else { return }
+                done = true
+                active.removeAll { $0 === geocoder }
+                if let name = name { PlaceNameCache.save(name, lat: lat, lng: lng, lang: lang) }
+                completion(name)
+            }
+            geocoder.reverseGeocodeLocation(CLLocation(latitude: lat, longitude: lng), preferredLocale: Locale(identifier: lang)) { marks, _ in
+                let p = marks?.first
+                let name = [p?.locality, p?.subAdministrativeArea, p?.administrativeArea]
+                    .compactMap { $0?.trimmingCharacters(in: .whitespaces) }
+                    .first { !$0.isEmpty }
+                DispatchQueue.main.async { finish(name) }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+                guard !done else { return }
+                geocoder.cancelGeocode()
+                finish(nil)
+            }
+        }
+    }
+}

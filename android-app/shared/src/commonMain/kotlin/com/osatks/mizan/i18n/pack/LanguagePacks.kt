@@ -144,7 +144,9 @@ object LanguagePacks {
                 val pack = LangPack.parse(json)
                 require(pack.code == r.code) { "code mismatch" }
                 pack.quran?.let { q ->
-                    val have = Fs.exists(quranFile(q.id)!!) || assets?.invoke("tafsir/${q.id}.txt") != null
+                    // موجودة: منزَّلة مع الحزمة، أو مضمّنة، أو منزَّلة من محتوى الموقع (ContentStore)
+                    val have = Fs.exists(quranFile(q.id)!!) || assets?.invoke("tafsir/${q.id}.txt") != null ||
+                        com.osatks.mizan.content.ContentCatalog.tafsir(q.id)?.let { com.osatks.mizan.content.ContentStore.isDownloaded(it) } == true
                     if (!have) Fs.write(quranFile(q.id)!!, fetch(base + q.file) { progress[r.code] = 10 + it * 9 / 10 })
                 }
                 Fs.write(path(dir, "${pack.code}.json"), json.encodeToByteArray())

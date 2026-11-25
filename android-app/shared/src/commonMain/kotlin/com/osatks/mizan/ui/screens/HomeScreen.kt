@@ -8,6 +8,8 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.NightsStay
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.ui.graphics.luminance
@@ -21,7 +23,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -31,7 +32,6 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -43,16 +43,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.ChildCare
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Mosque
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VolunteerActivism
+import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material3.Icon
@@ -78,7 +81,6 @@ import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Hijri
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
-import com.osatks.mizan.i18n.greg
 import com.osatks.mizan.i18n.hijri
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
@@ -86,9 +88,7 @@ import com.osatks.mizan.i18n.weekday
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.ui.LocalBottomInset
 import com.osatks.mizan.ui.LocalLeadingInset
-import com.osatks.mizan.ui.SizeClass
 import com.osatks.mizan.ui.gutters
-import com.osatks.mizan.ui.widthClassOf
 import androidx.compose.foundation.layout.BoxWithConstraints
 import com.osatks.mizan.ui.GlassTopBar
 import androidx.compose.foundation.layout.fillMaxSize
@@ -110,24 +110,28 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
 /** ترتيب الأدوات وأيقوناتها (تشترك فيها الرئيسية والبحث ورؤوس الصفحات) */
-val TOOL_ORDER = listOf("zakat", "inheritance", "prayer", "qibla", "adhkar", "hijri", "events", "tasbih", "fitr", "age", "fidya")
+val TOOL_ORDER = listOf("zakat", "inheritance", "prayer", "qibla", "mosques", "adhkar", "hijri", "events", "fasting", "tasbih", "kids", "fitr", "age", "fidya")
 val TOOL_ICONS: Map<String, ImageVector> = mapOf(
     "zakat" to Icons.Filled.AccountBalanceWallet,
     "inheritance" to Icons.Filled.Groups,
     "prayer" to Icons.Filled.Schedule,
     "qibla" to Icons.Filled.Explore,
+    "mosques" to Icons.Filled.Mosque,
     "hijri" to Icons.Filled.DateRange,
     "events" to Icons.Filled.Event,
     "tasbih" to Icons.Filled.TouchApp,
     "adhkar" to Icons.Filled.AutoAwesome,
-    "fitr" to Icons.Filled.Grain,
+    "fitr" to Icons.Filled.Eco,
     "age" to Icons.Filled.Cake,
     "fidya" to Icons.Filled.VolunteerActivism,
+    "fasting" to Icons.Filled.NightsStay,
+    "kids" to Icons.Filled.ChildCare,
 )
 
 @Composable
 fun HomeScreen(open: (String) -> Unit) {
     QuranPrefs.ensure()
+    // في iOS تُعرض هذه قبل اختيار الموقع فقط (ففيها طلبه)، وبعده الرئيسية بواجهة النظام (PlatformRoute.ios.kt)
     val s = LocalStrings.current
     val lang = LocalLang.current
     val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
@@ -180,30 +184,6 @@ fun HomeScreen(open: (String) -> Unit) {
     GlassTopBar(list, haze, s.appName, onBack = null)
 } }
     if (showLang) LanguageSheet { showLang = false }
-}
-
-/**
- * تبويب الأدوات: الحاسبات والتواريخ والمسبحة والأذكار والقبلة في شبكة، عمودان على الهاتف وثلاثة في العرض المتوسط
- * وأربعة في الواسع
- */
-@Composable
-fun ToolsScreen(open: (String) -> Unit) {
-    val s = LocalStrings.current
-    com.osatks.mizan.ui.ToolPage(s.toolsTitle, s.appTagline) {
-        item(key = "tools") {
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val cols = when { maxWidth >= 840.dp -> 4; maxWidth >= 560.dp -> 3; else -> 2 }
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    TOOL_ORDER.chunked(cols).forEach { chunk ->
-                        Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            chunk.forEach { key -> ToolTile(key, Modifier.weight(1f)) { open(key) } }
-                            repeat(cols - chunk.size) { Spacer(Modifier.weight(1f)) }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 /** أقصى عرض لمحتوى الرئيسية على الشاشات العريضة */
@@ -331,7 +311,7 @@ private fun NextChip(next: NextPrayer) {
     val cs = MaterialTheme.colorScheme
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 4.dp)) {
         Box(Modifier.size(30.dp).clip(CircleShape).background(cs.surface), contentAlignment = Alignment.Center) {
-            Icon(PRAYER_ICONS[next.key] ?: Icons.Outlined.Schedule, null, tint = cs.primary, modifier = Modifier.size(17.dp))
+            Icon(PRAYER_ICONS[next.key] ?: Icons.Outlined.Schedule, null, tint = cs.primary, modifier = Modifier.size(16.dp))
         }
         Spacer(Modifier.width(8.dp))
         Text(s.prayer(next.key), style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
@@ -343,7 +323,7 @@ private fun NextChip(next: NextPrayer) {
 }
 
 /** رموز الأوقات: الفجر نجوم، والشروق والمغرب أفق، والظهر شمس، والعصر شمس مائلة، والعشاء قمر */
-private val PRAYER_ICONS: Map<String, ImageVector> = mapOf(
+internal val PRAYER_ICONS: Map<String, ImageVector> = mapOf(
     "fajr" to Icons.Outlined.AutoAwesome,
     "sunrise" to Icons.Outlined.WbTwilight,
     "dhuhr" to Icons.Outlined.WbSunny,
@@ -364,7 +344,7 @@ private fun SectionHeader(title: String, modifier: Modifier, trailing: String? =
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(trailing, style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (trailingIcon != null) { Spacer(Modifier.width(4.dp)); Icon(trailingIcon, null, tint = cs.onSurfaceVariant, modifier = Modifier.size(18.dp)) }
+                if (trailingIcon != null) { Spacer(Modifier.width(4.dp)); Icon(trailingIcon, null, tint = cs.onSurfaceVariant, modifier = Modifier.size(16.dp)) }
             }
         }
     }
@@ -437,6 +417,8 @@ private fun PrayerCell(
 private fun DailyRow(modifier: Modifier, open: (String) -> Unit) {
     val s = LocalStrings.current
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    // أيقونات محددة (لا مصمتة) كما في iPhone
+    val icons = mapOf("adhkar" to Icons.Outlined.AutoAwesome, "tasbih" to Icons.Outlined.TouchApp, "qibla" to Icons.Outlined.Explore, "prayer" to Icons.Outlined.Schedule)
     val items = listOf(
         Triple("adhkar", Color(0xFFDDEFE3), Color(0xFF26443A)),
         Triple("tasbih", Color(0xFFF1EBDD), Color(0xFF4A4232)),
@@ -451,10 +433,10 @@ private fun DailyRow(modifier: Modifier, open: (String) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Box(Modifier.size(66.dp).clip(CircleShape).background(if (dark) deep else light), contentAlignment = Alignment.Center) {
-                    Icon(TOOL_ICONS.getValue(key), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
+                    Icon(icons[key] ?: TOOL_ICONS.getValue(key), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(26.dp))
                 }
                 Spacer(Modifier.height(6.dp))
-                Text(s.tools.getValue(key).name, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(s.tools.getValue(key).name, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -488,7 +470,7 @@ private fun AyahOfDayCard(today: LocalDate, modifier: Modifier, open: (String) -
                 com.osatks.mizan.quran.QuranData.withoutBismillah(text, idx), style = quranStyle(22, androidx.compose.ui.text.style.TextAlign.Center),
                 color = cs.onSurface, modifier = Modifier.fillMaxWidth(), maxLines = 6, overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(10.dp))
             Text(s.surahAyah(s.surahName(sn), an), style = MaterialTheme.typography.labelMedium, color = cs.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterHorizontally))
         }
     }
@@ -500,7 +482,7 @@ private fun HadithOfDayCard(today: LocalDate, modifier: Modifier, open: (String)
     val lang = LocalLang.current
     val ht = com.osatks.mizan.i18n.HomeText.of(lang.code)
     val cs = MaterialTheme.colorScheme
-    val h by androidx.compose.runtime.produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang) {
+    val h by androidx.compose.runtime.produceState<com.osatks.mizan.hadith.Hadith?>(null, today, lang, com.osatks.mizan.content.ContentStore.version) {
         value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
             runCatching { com.osatks.mizan.hadith.Hadiths.forDay(today, lang.code) }.getOrNull()
         }
@@ -546,32 +528,6 @@ private fun HadithOfDayCard(today: LocalDate, modifier: Modifier, open: (String)
     }
 }
 
-@Composable
-private fun ToolTile(key: String, modifier: Modifier, onClick: () -> Unit) {
-    val s = LocalStrings.current
-    val t = s.tools.getValue(key)
-    val src = remember { MutableInteractionSource() }
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        shadowElevation = 1.dp,
-        interactionSource = src,
-        modifier = modifier.sharedCard("card-$key", RoundedCornerShape(20.dp)).fillMaxHeight().heightIn(min = 150.dp).pressScale(src)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Box(
-                Modifier.sharedIcon("icon-$key").size(46.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) { Icon(TOOL_ICONS.getValue(key), null, tint = MaterialTheme.colorScheme.primary) }
-            Spacer(Modifier.height(10.dp))
-            Text(t.name, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(t.desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
-        }
-    }
-}
-
 /** بطاقة القرآن الكريم قبل أول قراءة؛ تتحول إلى رأس صفحة المصحف */
 @Composable
 private fun QuranStartCard(onClick: () -> Unit) {
@@ -591,7 +547,7 @@ private fun QuranStartCard(onClick: () -> Unit) {
             ) { Icon(Icons.AutoMirrored.Filled.MenuBook, null, tint = Gold) }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text(s.quranTitle, color = Color.White, style = MaterialTheme.typography.titleMedium)
+                Text(s.quranTitle, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                 Text(s.startReading, color = Gold, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             }
             Text("ٱلْقُرْءَانُ", color = Color.White, style = quranStyle(26))

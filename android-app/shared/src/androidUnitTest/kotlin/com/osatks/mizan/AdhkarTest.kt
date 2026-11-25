@@ -14,7 +14,7 @@ import java.io.File
 class AdhkarTest {
     init {
         TestPacks.load()
-        Adhkar.open = { File("src/commonMain/assets/$it").takeIf { f -> f.exists() }?.readBytes() }
+        Adhkar.open = { TestAssets.read(it) }
         Adhkar.clearTranslations()
     }
 
@@ -52,7 +52,7 @@ class AdhkarTest {
         for (l in Lang.entries) {
             val tr = Adhkar.tr(l)
             val own = if (l == Lang.EN) tr else com.osatks.mizan.adhkar.AdhkarTr.from(
-                l.pack?.adhkar ?: com.osatks.mizan.i18n.pack.Json.obj(File("src/commonMain/assets/adhkar/${l.code}.json").readText()))
+                l.pack?.adhkar ?: com.osatks.mizan.i18n.pack.Json.obj(TestAssets.file("adhkar/${l.code}.json").readText()))
             for (b in all.flatMap { s -> s.items.flatMap { d -> d.src.map { it.first } } }.toSet()) assertNotNull("${l.code}: book $b", own.books[b])
             for (g in all.flatMap { s -> s.items.map { it.grade } }.toSet()) assertNotNull("${l.code}: grade $g", own.grades[g])
             for (b in all.flatMap { s -> s.items.map { it.by } }.filter { it.isNotEmpty() }.toSet()) assertNotNull("${l.code}: by $b", own.by[b])
