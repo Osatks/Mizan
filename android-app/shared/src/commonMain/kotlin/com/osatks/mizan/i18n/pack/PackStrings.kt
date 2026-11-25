@@ -669,6 +669,30 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val privacy: String by lazy { s("privacy") ?: En.privacy }
     override val privacyText: String by lazy { s("privacyText") ?: En.privacyText }
     override val disclaimer: String by lazy { s("disclaimer") ?: En.disclaimer }
+    override val backupTitle: String by lazy { s("backupTitle") ?: En.backupTitle }
+    override val backupSave: String by lazy { s("backupSave") ?: En.backupSave }
+    override val backupSaveSub: String by lazy { s("backupSaveSub") ?: En.backupSaveSub }
+    override val backupRestore: String by lazy { s("backupRestore") ?: En.backupRestore }
+    override val backupRestoreSub: String by lazy { s("backupRestoreSub") ?: En.backupRestoreSub }
+    override val backupConfirmTitle: String by lazy { s("backupConfirmTitle") ?: En.backupConfirmTitle }
+    override fun backupConfirmBody(date: String): String = f("backupConfirmBody", "date" to date) ?: En.backupConfirmBody(date)
+    override val backupRestoreAction: String by lazy { s("backupRestoreAction") ?: En.backupRestoreAction }
+    override val backupSaved: String by lazy { s("backupSaved") ?: En.backupSaved }
+    override val backupSaveFailed: String by lazy { s("backupSaveFailed") ?: En.backupSaveFailed }
+    override val backupRestored: String by lazy { s("backupRestored") ?: En.backupRestored }
+    override val backupRestoreFailed: String by lazy { s("backupRestoreFailed") ?: En.backupRestoreFailed }
+    override val backupReadFailed: String by lazy { s("backupReadFailed") ?: En.backupReadFailed }
+    override val backupInvalid: String by lazy { s("backupInvalid") ?: En.backupInvalid }
+    override val backupTooNew: String by lazy { s("backupTooNew") ?: En.backupTooNew }
+    override val backupAutoNote: String by lazy { s("backupAutoNote") ?: En.backupAutoNote }
+    override val backupPrivacyNote: String by lazy { s("backupPrivacyNote") ?: En.backupPrivacyNote }
+    override val icloudSync: String by lazy { s("icloudSync") ?: En.icloudSync }
+    override val icloudSyncSub: String by lazy { s("icloudSyncSub") ?: En.icloudSyncSub }
+    override fun icloudLastSync(time: String): String = f("icloudLastSync", "time" to time) ?: En.icloudLastSync(time)
+    override val icloudUnavailable: String by lazy { s("icloudUnavailable") ?: En.icloudUnavailable }
+    override val icloudOfferTitle: String by lazy { s("icloudOfferTitle") ?: En.icloudOfferTitle }
+    override fun icloudOfferBody(date: String): String = f("icloudOfferBody", "date" to date) ?: En.icloudOfferBody(date)
+    override val icloudKeepLocal: String by lazy { s("icloudKeepLocal") ?: En.icloudKeepLocal }
     override val rateApp: String by lazy { s("rateApp") ?: En.rateApp }
     override val rateAppSub: String by lazy { s("rateAppSub") ?: En.rateAppSub }
     override val shareApp: String by lazy { s("shareApp") ?: En.shareApp }

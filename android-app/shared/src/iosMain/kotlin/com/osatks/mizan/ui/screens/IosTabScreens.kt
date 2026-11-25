@@ -34,6 +34,9 @@ internal fun IosPrayerScreen(open: (String) -> Unit) {
 internal fun IosSettingsScreen(open: (String) -> Unit) {
     var showLang by remember { mutableStateOf(false) }
     val toggleNotify = rememberAlertsToggle()
-    NativeSettingsView(open, onLanguage = { showLang = true }, onNotify = { toggleNotify(it) }, modifier = Modifier.fillMaxSize())
+    // النسخ الاحتياطي: منتقي الملفات وقائمة المشاركة ونوافذ التأكيد وسؤال iCloud من النظام فوق الشاشة
+    val backup = rememberBackupUi()
+    NativeSettingsView(open, onLanguage = { showLang = true }, onNotify = { toggleNotify(it) }, backup = backup, modifier = Modifier.fillMaxSize())
     if (showLang) LanguageSheet { showLang = false }
+    BackupDialogs(backup)
 }

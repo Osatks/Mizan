@@ -24,6 +24,9 @@ object LiveTasbih {
     private var chosen by mutableStateOf<Boolean?>(null)
     val onLockScreen: Boolean get() = chosen ?: (!AppSettings.ready || AppSettings.getBool(KEY, true))
 
+    /** بعد الاستعادة من نسخة احتياطية: يُقرأ الإعداد من المخزن من جديد */
+    internal fun forget() { chosen = null }
+
     /** iOS: يُنهي الأنشطة الظاهرة حين يُطفأ */
     var onChange: ((Boolean) -> Unit)? = null
 

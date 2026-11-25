@@ -105,7 +105,9 @@ class StringsTest {
      */
     @Test
     fun noOtherPlatformInIosText() {
-        val androidOnly = setOf("silenceBody", "silenceTitle", "adhanStopHint", "exactAlarm", "exactAlarmDesc")
+        val androidOnly = setOf("silenceBody", "silenceTitle", "adhanStopHint", "exactAlarm", "exactAlarmDesc",
+            // النسخ التلقائي إلى حساب Google: ملاحظة قسم النسخ الاحتياطي في أندرويد وحده (backupNote)
+            "backupAutoNote")
         val banned = Regex("(?i)android|google|play store|\\bapk\\b|أندرويد|اندرويد|андроид|андроїд")
         for (l in Lang.entries) {
             val s = l.strings

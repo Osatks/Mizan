@@ -32,6 +32,14 @@ struct SettingsState: Decodable {
     struct Option: Decodable, Identifiable { let key, name: String; var id: String { key } }
     struct AccentItem: Decodable, Identifiable { let key, name, c1, c2: String; var id: String { key } }
     struct Warn: Decodable { let bg, fg, icon: String }
+    /// النسخ الاحتياطي والمزامنة: icloud nil حين لا يُعرض المفتاح
+    struct BackupGroup: Decodable {
+        struct Cloud: Decodable { let on: Bool; let row: Row }
+        let title: String
+        let save, restore: Row
+        let icloud: Cloud?
+        let note: String
+    }
 
     let rtl, dark: Bool
     let top, bottom, start, end, width: Double
@@ -49,6 +57,7 @@ struct SettingsState: Decodable {
     let use24h: Bool
     let clock: Row
     let exactAlarm: Row?
+    let backup: BackupGroup
     let rate, shareApp, feedback: Row
     let aboutTitle, aboutName, version, aboutText, sources: String
     let licenses: Row
@@ -89,6 +98,9 @@ final class SettingsModel: ObservableObject {
     func rate() { session.rate() }
     func share() { session.share() }
     func feedback() { session.feedback() }
+    func backupSave() { session.backupSave() }
+    func backupRestore() { session.backupRestore() }
+    func icloud(_ on: Bool) { session.icloud(on: on) }
 }
 
 /// نص Markdown بروابطه (المصادر) بلون التطبيق
@@ -164,6 +176,23 @@ struct SettingsView: View {
                                 SettingsDivider(p: p)
                                 SettingsNavRow(symbol: "alarm.fill", row: ex, chevron: false, p: p) { model.exactAlarm() }
                             }
+                        }
+                        // النسخ الاحتياطي: ملف يُحفظ ويُستعاد (هنا أو في جهاز أندرويد)، والمزامنة مع iCloud
+                        SettingsGroup(title: s.backup.title, p: p) {
+                            SettingsNavRow(symbol: "arrow.down.doc.fill", row: s.backup.save, p: p) { model.backupSave() }
+                            SettingsDivider(p: p)
+                            SettingsNavRow(symbol: "clock.arrow.circlepath", row: s.backup.restore, p: p) { model.backupRestore() }
+                            if let cloud = s.backup.icloud {
+                                SettingsDivider(p: p)
+                                SettingsToggleRow(symbol: "icloud.fill", row: cloud.row, isOn: cloud.on, p: p) { model.icloud($0) }
+                            }
+                            SettingsDivider(p: p, inset: 16)
+                            HStack(alignment: .top, spacing: 0) {
+                                Text(s.backup.note).font(sys(12)).foregroundColor(p.onSurfaceVariant)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Spacer(minLength: 0)
+                            }
+                            .padding(16)
                         }
                         // التقييم والمشاركة والملاحظات
                         SettingsGroup(title: nil, p: p) {

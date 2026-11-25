@@ -18,6 +18,15 @@ expect class Prefs(name: String) {
     fun contains(k: String): Boolean
     fun remove(k: String)
     fun isEmpty(): Boolean
+
+    /**
+     * كل المفاتيح بقيمها، بأنواع موحّدة بين النظامين (للنسخ الاحتياطي): String أو Long أو Double أو Boolean
+     * أو Set<String>. ما سواها (بيانات ثنائية مثلاً) لا يُعاد.
+     */
+    fun snapshot(): Map<String, Any>
+
+    /** يكتب قيمة بنوع من أنواع [snapshot] (الاستعادة من نسخة احتياطية) */
+    fun putValue(k: String, v: Any)
 }
 
 expect object Platform {
@@ -83,12 +92,22 @@ fun path(vararg parts: String) = parts.joinToString("/").replace("//", "/")
 
 /** تعديلات بأسلوب SharedPreferences (edit().putX().apply())؛ كل تعديل يُحفظ فوراً */
 class PrefsEditor internal constructor(private val p: Prefs) {
-    fun putString(k: String, v: String?) = also { if (v == null) p.remove(k) else p.putString(k, v) }
-    fun putBoolean(k: String, v: Boolean) = also { p.putBool(k, v) }
-    fun putInt(k: String, v: Int) = also { p.putInt(k, v) }
-    fun putLong(k: String, v: Long) = also { p.putLong(k, v) }
-    fun remove(k: String) = also { p.remove(k) }
+    fun putString(k: String, v: String?) = also { if (v == null) p.remove(k) else p.putString(k, v); PrefsChanges.changed(k) }
+    fun putBoolean(k: String, v: Boolean) = also { p.putBool(k, v); PrefsChanges.changed(k) }
+    fun putInt(k: String, v: Int) = also { p.putInt(k, v); PrefsChanges.changed(k) }
+    fun putLong(k: String, v: Long) = also { p.putLong(k, v); PrefsChanges.changed(k) }
+    fun remove(k: String) = also { p.remove(k); PrefsChanges.changed(k) }
     fun apply() {}
+}
+
+/**
+ * يُبلَّغ بكل مفتاح يتغير عبر [PrefsEditor] (كل كتابات الإعدادات تمر به): مزامنة iCloud في iOS تتبع التغييرات
+ * فترسل البيانات بعد هدوء قصير. لا مستمع في أندرويد.
+ */
+object PrefsChanges {
+    var listener: ((String) -> Unit)? = null
+
+    internal fun changed(k: String) { listener?.invoke(k) }
 }
 
 fun Prefs.edit() = PrefsEditor(this)

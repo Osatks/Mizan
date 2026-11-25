@@ -86,9 +86,31 @@ object AppSettings {
     fun init() {
         if (::sp.isInitialized) return
         sp = Prefs("mizan")
+        load()
+    }
+
+    /**
+     * يعيد قراءة كل الإعدادات من المخزن بعد أن تغيّر من خارجها (الاستعادة من نسخة احتياطية أو من iCloud):
+     * حالة Compose تتحدث فتتبدل الواجهة (اللغة واللون والموقع) دون إعادة تشغيل التطبيق
+     */
+    fun reload() {
+        if (!::sp.isInitialized) return init()
+        load()
+    }
+
+    /** المخزن كله للنسخ الاحتياطي ([Backup]): يُقرأ ويُكتب بلا المرور بـ [PrefsEditor] فلا يُعدّ تغييراً محلياً */
+    internal val backupStore: BackupStore
+        get() = object : BackupStore {
+            override fun snapshot(): Map<String, Any> = sp.snapshot()
+            override fun put(k: String, v: Any) = sp.putValue(k, v)
+            override fun remove(k: String) = sp.remove(k)
+        }
+
+    private fun load() {
         migrate()
         placeSet = sp.contains("place_lat")
-        readPlace(sp)?.let { place = it }
+        // نسخة احتياطية بلا موقع: يعود الافتراضي (ويُطلب الموقع كما في أول تشغيل)
+        place = readPlace(sp) ?: Place.of(PrayTimes.CITIES[0])
         method = (sp.getString("method") ?: place.method)
         if (sp.getInt("rules_v", 1) < RULES_VERSION) {
             if (placeSet) {
@@ -142,8 +164,9 @@ object AppSettings {
     /** المكان المحفوظ، أو null إن لم يُختر بعد. ما حُفظ قبل إضافة الاسم يُقرأ بلا اسم (يُطلب في الخلفية) */
     internal fun readPlace(sp: Prefs): Place? {
         if (!sp.contains("place_lat")) return null
-        val lat = (sp.getString("place_lat") ?: "0").toDouble()
-        val lng = (sp.getString("place_lng") ?: "0").toDouble()
+        // نص غير صالح (نسخة احتياطية معدّلة يدوياً) يُقرأ صفراً بدل أن ينهار التطبيق عند كل تشغيل
+        val lat = sp.getString("place_lat")?.toDoubleOrNull() ?: 0.0
+        val lng = sp.getString("place_lng")?.toDoubleOrNull() ?: 0.0
         return Place(
             sp.getString("place_key")?.takeIf { it.isNotEmpty() },
             lat, lng,

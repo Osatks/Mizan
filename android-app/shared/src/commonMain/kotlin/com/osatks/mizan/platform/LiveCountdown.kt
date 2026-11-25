@@ -27,6 +27,9 @@ object LiveCountdown {
     /** iOS: يبدأ النشاط أو ينهيه فور تغيّر الإعداد */
     var onChange: ((Boolean) -> Unit)? = null
 
+    /** بعد الاستعادة من نسخة احتياطية: يُقرأ الإعداد من المخزن من جديد */
+    internal fun forget() { chosen = null }
+
     fun update(on: Boolean) {
         chosen = on
         AppSettings.putBool(KEY, on)
