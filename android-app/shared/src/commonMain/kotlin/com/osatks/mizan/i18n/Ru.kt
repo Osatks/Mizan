@@ -85,6 +85,7 @@ object Ru : Strings {
         "fitr" to Named("Закят аль-Фитр", "Мерой саа или деньгами"),
         "age" to Named("Калькулятор возраста", "В годах по хиджре и григорианских"),
         "fidya" to Named("Фидья и каффара", "Пропущенный пост и нарушенные клятвы"),
+        "mosques" to Named("Мечети поблизости", "Ближайшие мечети и маршрут к ним"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "закят закат зякят закях садака милостыня богатство золото серебро нисаб деньги сбережения акции имущество",
@@ -98,6 +99,7 @@ object Ru : Strings {
         "fitr" to "фитр фитра закят садака ураза байрам саа",
         "age" to "возраст день рождения годы лет",
         "fidya" to "фидья фидия каффара каффарат искупление клятва пост кормление",
+        "mosques" to "мечеть мечети масджид джума рядом поблизости карта маршрут",
     )
     override val toolsTitle = "Инструменты"
     override fun nextPrayerIn(city: String) = "Следующий намаз · $city"
@@ -268,6 +270,28 @@ object Ru : Strings {
     override val phoneHeading = "Направление телефона"
     override val compassLowAccuracy = "Низкая точность компаса: поводите телефоном восьмёркой для калибровки, вдали от металла и электроники."
     override val qiblaTip = "Чтобы сменить местоположение, откройте страницу «Время намаза». Для точности держите телефон горизонтально и вдали от металла."
+
+    // ---------- Nearby mosques ----------
+    override val mosquesTitle = "Мечети поблизости"
+    override val mosquesSubtitle = "Ближайшие к вам мечети"
+    override val mosque = "Мечеть"
+    override val unitM = "м"
+    override val mosquesLoading = "Ищем мечети поблизости…"
+    override val mosquesEmpty = "Мечети поблизости не найдены"
+    override val mosquesEmptyHint = "Возможно, мечети вашего района ещё не отмечены на карте. Попробуйте поискать в приложении карт."
+    override val mosquesError = "Не удалось загрузить мечети"
+    override val mosquesErrorHint = "Проверьте подключение к интернету и попробуйте снова."
+    override val mosquesLocationFailed = "Не удалось определить ваше местоположение. Убедитесь, что геолокация включена, и попробуйте снова."
+    override val mosquesNeedLocation = "Разрешите Мизану использовать ваше местоположение, чтобы увидеть мечети поблизости, или выберите город на странице «Время намаза»."
+    override fun mosquesNearSaved(place: String) = "Показаны мечети рядом с местом «${place}», сохранённым в приложении."
+    override val openInMaps = "Искать на карте"
+    override val mosqueDirections = "Маршрут до мечети"
+    override val appleMaps = "Apple Карты"
+    override val googleMaps = "Google Карты"
+    override val osmAttribution = "© участники OpenStreetMap"
+    override val mosquesPrivacyOsm = "Для поиска ваше примерное местоположение (с точностью около 100 м) отправляется в сервис OpenStreetMap без каких-либо данных о вас или вашем устройстве. Мизан его не сохраняет."
+    override val mosquesPrivacyApple = "Для поиска ваше местоположение отправляется в Apple Карты, как в приложении «Карты». Мизан его не сохраняет."
+    override val mosquesMap = "Карта мечетей поблизости"
 
     // ---------- Tasbih ----------
     override val tasbihTitle = "Электронный тасбих"

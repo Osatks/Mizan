@@ -66,6 +66,7 @@ object Ur : Strings {
         "fitr" to Named("صدقۂ فطر", "صاع کے حساب سے یا قیمت سے"),
         "age" to Named("عمر کیلکولیٹر", "ہجری اور عیسوی سالوں میں"),
         "fidya" to Named("فدیہ و کفارہ", "چھوٹے روزے اور ٹوٹی قسمیں"),
+        "mosques" to Named("قریبی مساجد", "سب سے قریبی مساجد، راستے کے ساتھ"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "زکوۃ زکاۃ زکات مال سونا چاندی نصاب رقم بچت شیئرز حصص صدقہ خیرات zakat zakaat",
@@ -79,6 +80,7 @@ object Ur : Strings {
         "fitr" to "فطرہ فطرانہ صدقہ فطر صاع عید fitrana",
         "age" to "عمر سالگرہ پیدائش سال umar",
         "fidya" to "فدیہ کفارہ قسم روزہ روزے کھانا مسکین fidya kaffara",
+        "mosques" to "مسجد مساجد جامع مسجد قریب نقشہ راستہ جماعت masjid mosque",
     )
     override val toolsTitle = "ٹولز"
     override fun nextPrayerIn(city: String) = "اگلی نماز · $city"
@@ -249,6 +251,28 @@ object Ur : Strings {
     override val phoneHeading = "فون کا رخ"
     override val compassLowAccuracy = "قطب نما کی درستی کم ہے: اسے کیلیبریٹ کرنے کے لیے فون کو 8 کی شکل میں گھمائیں، اور دھات اور برقی آلات سے دور رہیں۔"
     override val qiblaTip = "مقام بدلنے کے لیے اوقات نماز کا صفحہ استعمال کریں۔ درست ریڈنگ کے لیے فون کو سیدھا لٹا کر اور دھات سے دور رکھیں۔"
+
+    // ---------- قریبی مساجد ----------
+    override val mosquesTitle = "قریبی مساجد"
+    override val mosquesSubtitle = "آپ کے سب سے قریب مساجد"
+    override val mosque = "مسجد"
+    override val unitM = "میٹر"
+    override val mosquesLoading = "قریبی مساجد تلاش کی جا رہی ہیں…"
+    override val mosquesEmpty = "قریب کوئی مسجد نہیں ملی"
+    override val mosquesEmptyHint = "ممکن ہے آپ کے علاقے کی مساجد ابھی نقشے پر درج نہ ہوں۔ نقشے کی ایپ میں تلاش کر کے دیکھیں۔"
+    override val mosquesError = "مساجد لوڈ نہیں ہو سکیں"
+    override val mosquesErrorHint = "اپنا انٹرنیٹ کنکشن چیک کریں اور دوبارہ کوشش کریں۔"
+    override val mosquesLocationFailed = "آپ کا مقام معلوم نہیں ہو سکا۔ یقینی بنائیں کہ لوکیشن سروس آن ہے، پھر دوبارہ کوشش کریں۔"
+    override val mosquesNeedLocation = "قریبی مساجد دیکھنے کے لیے میزان کو اپنا مقام استعمال کرنے کی اجازت دیں، یا اوقات نماز کے صفحے پر اپنا شہر منتخب کریں۔"
+    override fun mosquesNearSaved(place: String) = "ایپ میں محفوظ مقام ${place} کے قریب کی مساجد دکھائی جا رہی ہیں۔"
+    override val openInMaps = "نقشے میں تلاش کریں"
+    override val mosqueDirections = "مسجد تک راستہ"
+    override val appleMaps = "Apple Maps"
+    override val googleMaps = "Google Maps"
+    override val osmAttribution = "© OpenStreetMap کے معاونین"
+    override val mosquesPrivacyOsm = "تلاش کے لیے آپ کا اندازاً مقام (تقریباً 100 میٹر تک) OpenStreetMap سروس کو بھیجا جاتا ہے، بغیر کسی ایسی چیز کے جو آپ یا آپ کے آلے کی شناخت کرے۔ میزان اسے محفوظ نہیں کرتا۔"
+    override val mosquesPrivacyApple = "تلاش کے لیے آپ کا مقام Apple Maps کو بھیجا جاتا ہے، جیسے Maps ایپ میں ہوتا ہے۔ میزان اسے محفوظ نہیں کرتا۔"
+    override val mosquesMap = "قریبی مساجد کا نقشہ"
 
     // ---------- تسبیح ----------
     override val tasbihTitle = "ڈیجیٹل تسبیح"

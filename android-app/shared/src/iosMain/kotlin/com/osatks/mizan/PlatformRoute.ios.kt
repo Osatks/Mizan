@@ -21,6 +21,7 @@ import com.osatks.mizan.ui.screens.IosSearchScreen
 import com.osatks.mizan.ui.screens.IosSettingsScreen
 import com.osatks.mizan.ui.screens.IosZakatScreen
 import com.osatks.mizan.ui.screens.NativeLicensesView
+import com.osatks.mizan.ui.screens.NativeMosquesView
 import com.osatks.mizan.ui.screens.NativeQiblaView
 import com.osatks.mizan.ui.screens.NativeTasbihView
 import com.osatks.mizan.ui.screens.NativeToolsView
@@ -36,6 +37,8 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "prayer" -> IosPrayerScreen(open)
         // البوصلة من اتجاه الهاتف في Swift
         "qibla" -> NativeQiblaView(back, Modifier.fillMaxSize())
+        // البحث في خرائط Apple والخريطة من MapKit في Swift
+        "mosques" -> NativeMosquesView(back, Modifier.fillMaxSize())
         "quran" -> NativeQuranView(open, Modifier.fillMaxSize())
         // العدّ يظهر فور اللمس في Swift ويصل إلى Tasbih
         "tasbih" -> NativeTasbihView(back, Modifier.fillMaxSize())

@@ -14,6 +14,7 @@ import com.osatks.mizan.ui.screens.HijriScreen
 import com.osatks.mizan.ui.screens.HomeScreen
 import com.osatks.mizan.ui.screens.InheritanceScreen
 import com.osatks.mizan.ui.screens.LicensesScreen
+import com.osatks.mizan.ui.screens.MosquesScreen
 import com.osatks.mizan.ui.screens.Onboarding
 import com.osatks.mizan.ui.screens.PrayerScreen
 import com.osatks.mizan.ui.screens.QiblaScreen
@@ -30,6 +31,7 @@ internal actual fun PlatformRoute(route: String, app: AppNav, open: (String) -> 
         "home" -> HomeScreen(open = open)
         "prayer" -> PrayerScreen(open = open)
         "qibla" -> QiblaScreen(back)
+        "mosques" -> MosquesScreen(back)
         "quran" -> QuranScreen(open = open)
         "tasbih" -> TasbihScreen(back)
         "tools" -> ToolsScreen(open)

@@ -63,7 +63,7 @@ interface Strings {
     val yearLabel: String
 
     // ---------- Home ----------
-    /** keys: zakat inheritance prayer qibla hijri events tasbih fitr age fidya */
+    /** keys: zakat inheritance prayer qibla mosques hijri events tasbih adhkar fitr age fidya */
     val tools: Map<String, Named>
     /** extra search words per tool (same keys as [tools]), space separated */
     val toolKeywords: Map<String, String>
@@ -169,6 +169,28 @@ interface Strings {
     val phoneHeading: String
     val compassLowAccuracy: String
     val qiblaTip: String
+
+    // ---------- Nearby mosques ----------
+    val mosquesTitle: String                    // page title: "Nearby Mosques"
+    val mosquesSubtitle: String                 // under the title: "The closest mosques to where you are"
+    val mosque: String                          // a mosque with no name on the map; also the maps search word: "Mosque"
+    val unitM: String                           // metres: "m"
+    val mosquesLoading: String                  // "Looking for mosques near you…"
+    val mosquesEmpty: String                    // "No mosques found nearby"
+    val mosquesEmptyHint: String                // they may not be on the map yet; try your maps app
+    val mosquesError: String                    // "Couldn't load mosques"
+    val mosquesErrorHint: String                // check your internet connection and try again
+    val mosquesLocationFailed: String           // the current location could not be found; check location services
+    val mosquesNeedLocation: String             // allow location to see mosques near you, or choose your city on the Prayer Times page
+    fun mosquesNearSaved(place: String): String // "Showing mosques near Riyadh, the location saved in the app."
+    val openInMaps: String                      // button: search for mosques in the maps app
+    val mosqueDirections: String                // accessibility action on a mosque: "Directions to the mosque"
+    val appleMaps: String                       // "Apple Maps"
+    val googleMaps: String                      // "Google Maps"
+    val osmAttribution: String                  // "© OpenStreetMap contributors" (required by the OSM licence)
+    val mosquesPrivacyOsm: String               // Android: the approximate location (about 100 m) is sent to OpenStreetMap, with no identifier
+    val mosquesPrivacyApple: String             // iPhone: the location is sent to Apple Maps, as in the Maps app; Mizan doesn't keep it
+    val mosquesMap: String                      // accessibility label of the map: "Map of nearby mosques"
 
     // ---------- Tasbih ----------
     val tasbihTitle: String

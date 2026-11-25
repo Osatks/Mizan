@@ -64,6 +64,7 @@ private func toolIcon(_ key: String) -> String {
     case "inheritance": return "person.3.fill"
     case "prayer": return "clock.fill"
     case "qibla": return "safari.fill"
+    case "mosques": return "mappin.and.ellipse"
     case "adhkar": return "sparkles"
     case "hijri": return "calendar"
     case "events": return "calendar.badge.clock"

@@ -46,6 +46,7 @@ import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Mosque
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Language
@@ -107,12 +108,13 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
 /** ترتيب الأدوات وأيقوناتها (تشترك فيها الرئيسية والبحث ورؤوس الصفحات) */
-val TOOL_ORDER = listOf("zakat", "inheritance", "prayer", "qibla", "adhkar", "hijri", "events", "tasbih", "fitr", "age", "fidya")
+val TOOL_ORDER = listOf("zakat", "inheritance", "prayer", "qibla", "mosques", "adhkar", "hijri", "events", "tasbih", "fitr", "age", "fidya")
 val TOOL_ICONS: Map<String, ImageVector> = mapOf(
     "zakat" to Icons.Filled.AccountBalanceWallet,
     "inheritance" to Icons.Filled.Groups,
     "prayer" to Icons.Filled.Schedule,
     "qibla" to Icons.Filled.Explore,
+    "mosques" to Icons.Filled.Mosque,
     "hijri" to Icons.Filled.DateRange,
     "events" to Icons.Filled.Event,
     "tasbih" to Icons.Filled.TouchApp,

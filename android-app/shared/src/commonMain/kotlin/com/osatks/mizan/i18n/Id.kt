@@ -66,6 +66,7 @@ object Id : Strings {
         "fitr" to Named("Zakat Fitrah", "Dengan sha' atau dengan uang"),
         "age" to Named("Kalkulator Usia", "Dalam tahun Hijriah dan Masehi"),
         "fidya" to Named("Fidyah & Kafarat", "Utang puasa dan pelanggaran sumpah"),
+        "mosques" to Named("Masjid Terdekat", "Masjid terdekat beserta petunjuk arah"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakat zakah sedekah harta mal maal emas perak nisab uang tabungan saham",
@@ -79,6 +80,7 @@ object Id : Strings {
         "fitr" to "fitrah fitri sha' sa beras idulfitri lebaran",
         "age" to "umur usia ulang tahun lahir kelahiran",
         "fidya" to "fidyah fidya kafarat kaffarah kafarah sumpah puasa memberi makan",
+        "mosques" to "masjid musala mushola musholla surau dekat terdekat peta arah rute",
     )
     override val toolsTitle = "Fitur"
     override fun nextPrayerIn(city: String) = "Salat berikutnya · $city"
@@ -249,6 +251,28 @@ object Id : Strings {
     override val phoneHeading = "Arah ponsel"
     override val compassLowAccuracy = "Akurasi kompas rendah: gerakkan ponsel membentuk angka 8 untuk kalibrasi, jauh dari logam dan perangkat elektronik."
     override val qiblaTip = "Untuk mengubah lokasi, gunakan halaman Jadwal Salat. Pegang ponsel mendatar dan jauh dari logam agar hasilnya akurat."
+
+    // ---------- Nearby mosques ----------
+    override val mosquesTitle = "Masjid Terdekat"
+    override val mosquesSubtitle = "Masjid yang paling dekat dengan Anda"
+    override val mosque = "Masjid"
+    override val unitM = "m"
+    override val mosquesLoading = "Mencari masjid di dekat Anda…"
+    override val mosquesEmpty = "Tidak ada masjid yang ditemukan di sekitar"
+    override val mosquesEmptyHint = "Masjid di daerah Anda mungkin belum ada di peta. Coba cari di aplikasi peta."
+    override val mosquesError = "Gagal memuat masjid"
+    override val mosquesErrorHint = "Periksa koneksi internet Anda, lalu coba lagi."
+    override val mosquesLocationFailed = "Lokasi Anda tidak dapat ditentukan. Pastikan layanan lokasi aktif, lalu coba lagi."
+    override val mosquesNeedLocation = "Izinkan Mizan menggunakan lokasi Anda untuk melihat masjid terdekat, atau pilih kota Anda di halaman Jadwal Salat."
+    override fun mosquesNearSaved(place: String) = "Menampilkan masjid di dekat ${place}, lokasi yang tersimpan di aplikasi."
+    override val openInMaps = "Cari di Peta"
+    override val mosqueDirections = "Petunjuk arah ke masjid"
+    override val appleMaps = "Apple Maps"
+    override val googleMaps = "Google Maps"
+    override val osmAttribution = "© kontributor OpenStreetMap"
+    override val mosquesPrivacyOsm = "Untuk mencari, perkiraan lokasi Anda (hingga sekitar 100 m) dikirim ke layanan OpenStreetMap tanpa apa pun yang mengidentifikasi Anda atau perangkat Anda. Mizan tidak menyimpannya."
+    override val mosquesPrivacyApple = "Untuk mencari, lokasi Anda dikirim ke Apple Maps, seperti di aplikasi Peta. Mizan tidak menyimpannya."
+    override val mosquesMap = "Peta masjid terdekat"
 
     // ---------- Tasbih ----------
     override val tasbihTitle = "Tasbih Digital"

@@ -73,6 +73,7 @@ object Fr : Strings {
         "fitr" to Named("Zakat al-Fitr", "Au sa' ou en valeur"),
         "age" to Named("Calcul de l'âge", "En années hégiriennes et grégoriennes"),
         "fidya" to Named("Fidya et kaffara", "Jeûnes manqués et serments rompus"),
+        "mosques" to Named("Mosquées à proximité", "Les mosquées les plus proches, avec itinéraire"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zakah zakât aumône aumone sadaqa richesse argent or épargne epargne économies economies nisab nissab actions",
@@ -86,6 +87,7 @@ object Fr : Strings {
         "fitr" to "fitra fitrah fitr sa sâ aïd aid aumône aumone",
         "age" to "anniversaire naissance âge années annees",
         "fidya" to "fidyah kaffara kaffarah kafara expiation serment jeûne jeune nourrir",
+        "mosques" to "mosquée mosquee mosquées mosquees masjid proche près carte itinéraire itineraire",
     )
     override val toolsTitle = "Outils"
     override fun nextPrayerIn(city: String) = "Prochaine prière · $city"
@@ -256,6 +258,28 @@ object Fr : Strings {
     override val phoneHeading = "Orientation du téléphone"
     override val compassLowAccuracy = "Boussole peu précise : décrivez un 8 avec votre téléphone pour la calibrer, loin du métal et des appareils électroniques."
     override val qiblaTip = "Pour changer de lieu, utilisez la page Horaires de prière. Tenez le téléphone à plat et loin du métal pour une mesure précise."
+
+    // ---------- Nearby mosques ----------
+    override val mosquesTitle = "Mosquées à proximité"
+    override val mosquesSubtitle = "Les mosquées les plus proches de vous"
+    override val mosque = "Mosquée"
+    override val unitM = "m"
+    override val mosquesLoading = "Recherche des mosquées proches…"
+    override val mosquesEmpty = "Aucune mosquée trouvée à proximité"
+    override val mosquesEmptyHint = "Les mosquées de votre région ne figurent peut-être pas encore sur la carte. Essayez de chercher dans votre application de cartes."
+    override val mosquesError = "Impossible de charger les mosquées"
+    override val mosquesErrorHint = "Vérifiez votre connexion internet puis réessayez."
+    override val mosquesLocationFailed = "Impossible de déterminer votre position. Vérifiez que la localisation est activée, puis réessayez."
+    override val mosquesNeedLocation = "Autorisez Mizan à utiliser votre position pour voir les mosquées proches, ou choisissez votre ville dans la page Horaires de prière."
+    override fun mosquesNearSaved(place: String) = "Mosquées proches de ${place}, la position enregistrée dans l’application."
+    override val openInMaps = "Chercher sur une carte"
+    override val mosqueDirections = "Itinéraire vers la mosquée"
+    override val appleMaps = "Plans d’Apple"
+    override val googleMaps = "Google Maps"
+    override val osmAttribution = "© les contributeurs d’OpenStreetMap"
+    override val mosquesPrivacyOsm = "Pour la recherche, votre position approximative (à environ 100 m près) est envoyée au service OpenStreetMap, sans rien qui vous identifie, vous ou votre appareil. Mizan ne la conserve pas."
+    override val mosquesPrivacyApple = "Pour la recherche, votre position est envoyée à Plans d’Apple, comme dans l’app Plans. Mizan ne la conserve pas."
+    override val mosquesMap = "Carte des mosquées proches"
 
     // ---------- Tasbih ----------
     override val tasbihTitle = "Tasbih numérique"

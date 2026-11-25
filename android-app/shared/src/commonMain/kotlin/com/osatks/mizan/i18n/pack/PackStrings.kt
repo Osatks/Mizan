@@ -208,6 +208,26 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val phoneHeading: String by lazy { s("phoneHeading") ?: En.phoneHeading }
     override val compassLowAccuracy: String by lazy { s("compassLowAccuracy") ?: En.compassLowAccuracy }
     override val qiblaTip: String by lazy { s("qiblaTip") ?: En.qiblaTip }
+    override val mosquesTitle: String by lazy { s("mosquesTitle") ?: En.mosquesTitle }
+    override val mosquesSubtitle: String by lazy { s("mosquesSubtitle") ?: En.mosquesSubtitle }
+    override val mosque: String by lazy { s("mosque") ?: En.mosque }
+    override val unitM: String by lazy { s("unitM") ?: En.unitM }
+    override val mosquesLoading: String by lazy { s("mosquesLoading") ?: En.mosquesLoading }
+    override val mosquesEmpty: String by lazy { s("mosquesEmpty") ?: En.mosquesEmpty }
+    override val mosquesEmptyHint: String by lazy { s("mosquesEmptyHint") ?: En.mosquesEmptyHint }
+    override val mosquesError: String by lazy { s("mosquesError") ?: En.mosquesError }
+    override val mosquesErrorHint: String by lazy { s("mosquesErrorHint") ?: En.mosquesErrorHint }
+    override val mosquesLocationFailed: String by lazy { s("mosquesLocationFailed") ?: En.mosquesLocationFailed }
+    override val mosquesNeedLocation: String by lazy { s("mosquesNeedLocation") ?: En.mosquesNeedLocation }
+    override fun mosquesNearSaved(place: String): String = f("mosquesNearSaved", "place" to place) ?: En.mosquesNearSaved(place)
+    override val openInMaps: String by lazy { s("openInMaps") ?: En.openInMaps }
+    override val mosqueDirections: String by lazy { s("mosqueDirections") ?: En.mosqueDirections }
+    override val appleMaps: String by lazy { s("appleMaps") ?: En.appleMaps }
+    override val googleMaps: String by lazy { s("googleMaps") ?: En.googleMaps }
+    override val osmAttribution: String by lazy { s("osmAttribution") ?: En.osmAttribution }
+    override val mosquesPrivacyOsm: String by lazy { s("mosquesPrivacyOsm") ?: En.mosquesPrivacyOsm }
+    override val mosquesPrivacyApple: String by lazy { s("mosquesPrivacyApple") ?: En.mosquesPrivacyApple }
+    override val mosquesMap: String by lazy { s("mosquesMap") ?: En.mosquesMap }
     override val tasbihTitle: String by lazy { s("tasbihTitle") ?: En.tasbihTitle }
     override val tasbihSubtitle: String by lazy { s("tasbihSubtitle") ?: En.tasbihSubtitle }
     override val modeFree: String by lazy { s("modeFree") ?: En.modeFree }

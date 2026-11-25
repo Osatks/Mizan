@@ -66,6 +66,7 @@ object Tr : Strings {
         "fitr" to Named("Fitre", "Sâ' ölçüsüyle veya bedel olarak"),
         "age" to Named("Yaş Hesaplama", "Hicri ve Miladi yıllarla"),
         "fidya" to Named("Fidye ve Kefaret", "Tutulamayan oruçlar ve bozulan yeminler"),
+        "mosques" to Named("Yakındaki Camiler", "En yakın camiler ve yol tarifi"),
     )
     override val toolKeywords = mapOf(
         "zakat" to "zekat zekât sadaka mal servet altın altin gümüş gumus nisap nisab para birikim hisse",
@@ -79,6 +80,7 @@ object Tr : Strings {
         "fitr" to "fitre fıtır fitir sadaka sa bayram",
         "age" to "yaş yas doğum dogum günü gunu yıl yil",
         "fidya" to "fidye kefaret keffaret yemin oruç oruc doyurma",
+        "mosques" to "cami camii camiler mescit mescid yakın yakin harita yol tarifi",
     )
     override val toolsTitle = "Araçlar"
     override fun nextPrayerIn(city: String) = "Sonraki vakit · $city"
@@ -249,6 +251,28 @@ object Tr : Strings {
     override val phoneHeading = "Telefonun yönü"
     override val compassLowAccuracy = "Pusula hassasiyeti düşük: kalibre etmek için telefonu metal ve elektronik cihazlardan uzakta 8 çizerek hareket ettirin."
     override val qiblaTip = "Konumu değiştirmek için Namaz Vakitleri sayfasını kullanın. Doğru ölçüm için telefonu düz ve metallerden uzak tutun."
+
+    // ---------- Nearby mosques ----------
+    override val mosquesTitle = "Yakındaki Camiler"
+    override val mosquesSubtitle = "Size en yakın camiler"
+    override val mosque = "Cami"
+    override val unitM = "m"
+    override val mosquesLoading = "Yakındaki camiler aranıyor…"
+    override val mosquesEmpty = "Yakında cami bulunamadı"
+    override val mosquesEmptyHint = "Bölgenizdeki camiler henüz haritada olmayabilir. Harita uygulamanızda aramayı deneyin."
+    override val mosquesError = "Camiler yüklenemedi"
+    override val mosquesErrorHint = "İnternet bağlantınızı kontrol edip tekrar deneyin."
+    override val mosquesLocationFailed = "Konumunuz belirlenemedi. Konum servislerinin açık olduğundan emin olup tekrar deneyin."
+    override val mosquesNeedLocation = "Yakındaki camileri görmek için Mizan'ın konumunuzu kullanmasına izin verin ya da Namaz Vakitleri sayfasından şehrinizi seçin."
+    override fun mosquesNearSaved(place: String) = "Uygulamada kayıtlı konum olan ${place} yakınındaki camiler gösteriliyor."
+    override val openInMaps = "Haritada ara"
+    override val mosqueDirections = "Camiye yol tarifi"
+    override val appleMaps = "Apple Haritalar"
+    override val googleMaps = "Google Haritalar"
+    override val osmAttribution = "© OpenStreetMap katkıda bulunanlar"
+    override val mosquesPrivacyOsm = "Arama için yaklaşık konumunuz (yaklaşık 100 m hassasiyetle), sizi veya cihazınızı tanımlayan hiçbir bilgi olmadan OpenStreetMap hizmetine gönderilir. Mizan bunu saklamaz."
+    override val mosquesPrivacyApple = "Arama için konumunuz, Haritalar uygulamasında olduğu gibi Apple Haritalar'a gönderilir. Mizan bunu saklamaz."
+    override val mosquesMap = "Yakındaki camilerin haritası"
 
     // ---------- Tasbih ----------
     override val tasbihTitle = "Dijital Tespih"
