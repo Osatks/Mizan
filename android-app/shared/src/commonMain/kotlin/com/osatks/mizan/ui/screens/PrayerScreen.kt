@@ -62,9 +62,9 @@ import com.osatks.mizan.core.Place
 import com.osatks.mizan.core.PrayTimes
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
-import com.osatks.mizan.i18n.country
 import com.osatks.mizan.i18n.greg
 import com.osatks.mizan.i18n.hijri
+import com.osatks.mizan.i18n.placeLine
 import com.osatks.mizan.i18n.placeName
 import com.osatks.mizan.i18n.prayer
 import com.osatks.mizan.i18n.time
@@ -149,8 +149,7 @@ internal fun PrayerScreen(open: (String) -> Unit, nativeView: NativePrayerSlot?)
         return
     }
 
-    val city = place.city
-    val subtitle = s.placeName(place) + (city?.let { " · " + s.country(it.cc, lang) } ?: "")
+    val subtitle = s.placeLine(place, lang)
     // على الشاشة الواسعة: مواقيت اليوم وجدول الشهر متجاوران، والجدول ظاهر دائماً يتبع اليوم المختار
     ToolPage(s.prayerTitle, subtitle, sharedKey = "prayer", icon = TOOL_ICONS["prayer"], plainIcon = true) {
         if (!AppSettings.placeSet) item { LocationNeededCard() }

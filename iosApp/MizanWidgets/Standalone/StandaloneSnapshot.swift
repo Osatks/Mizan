@@ -4,6 +4,7 @@ import Foundation
 /// الحساب نفسه الذي يجريه WidgetData.snapshot في Kotlin، بالبيانات المضمّنة في الأداة، فتعرض الواجهات ما يعرضه التطبيق.
 /// الطريقة من أقرب مدينة معروفة (كما يفعل LocationHelper عند اختيار GPS في التطبيق)، والعصر بالمذهب الجمهور،
 /// ومنطقة الجهاز الزمنية، ولغة الجهاز، و١٢/٢٤ ساعة كما في الجهاز، واللون الزمردي.
+/// اسم الموقع من محدد المواقع في النظام (WidgetGeocoder) إن وصل، وإلا المدينة المعروفة على ٢٥ كم منه، وإلا «موقعي الحالي».
 enum StandaloneSnapshot {
     struct Input {
         var lat: Double
@@ -13,6 +14,30 @@ enum StandaloneSnapshot {
         var lang: String
         var h24: Bool
         var days: Int = 7
+        /// اسم الموقع من محدد المواقع بلغة [lang]، إن وصل
+        var geoName: String? = nil
+    }
+
+    /// أبعد مسافة (كم) يُسمّى فيها الموقع باسم مدينة معروفة (LocationHelper.NEAR_KM)
+    static let nearKm = 25.0
+
+    /// المسافة بالكيلومترات (LocationHelper.distanceKm)
+    static func distanceKm(_ lat1: Double, _ lng1: Double, _ lat2: Double, _ lng2: Double) -> Double {
+        let r = 6371.0, rad = Double.pi / 180.0
+        let dLat = (lat2 - lat1) * rad, dLng = (lng2 - lng1) * rad
+        let a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1 * rad) * cos(lat2 * rad) * sin(dLng / 2) * sin(dLng / 2)
+        return 2 * r * asin(sqrt(min(1.0, a)))
+    }
+
+    /// المدينة المعروفة التي يقع فيها الموقع أو قربها (على ٢٥ كم على الأكثر) — LocationHelper.nearCity
+    static func nearCity(_ c: StaticCommon, lat: Double, lng: Double) -> StaticCommon.City? {
+        var best: (StaticCommon.City, Double)?
+        for city in c.cities {
+            let d = distanceKm(lat, lng, city.lat, city.lng)
+            if best == nil || d < best!.1 { best = (city, d) }
+        }
+        guard let b = best, b.1 <= nearKm else { return nil }
+        return b.0
     }
 
     /// Math.round في Kotlin (round الذي يقرّب النصف إلى الزوجي) على أربعة منازل، كما في LocationHelper
@@ -39,7 +64,9 @@ enum StandaloneSnapshot {
         let near = nearest(c, lat: lat, lng: lng)
         let methodKey = near?.0.m ?? "mwl"
         let method = c.methods.first { $0.key == methodKey } ?? c.methods.first { $0.key == "mwl" } ?? c.methods[0]
-        let placeName = (near.map { $0.1 < 1.5 } ?? false) ? (l.cities[near!.0.k] ?? near!.0.k) : l.myLocation
+        // اسم الموقع (Strings.placeName): من محدد المواقع، وإلا المدينة المعروفة على ٢٥ كم، وإلا «موقعي الحالي»
+        let geo = input.geoName.flatMap { $0.trimmingCharacters(in: .whitespaces).isEmpty ? nil : $0 }
+        let placeName = geo ?? nearCity(c, lat: lat, lng: lng).map { l.cities[$0.k] ?? $0.k } ?? l.myLocation
         // ارتفاع المدينة المعروفة إن كان الموقع فيها أو قريباً منها (PrayTimes.elevationNear)
         let elev = (near.map { $0.1 < 0.3 * 0.3 } ?? false) ? (near!.0.e ?? 0) : 0
         let hijriCal = HijriCalendar(first: c.hijri.first, epoch: c.hijri.epoch, lengths: c.hijri.lengths)

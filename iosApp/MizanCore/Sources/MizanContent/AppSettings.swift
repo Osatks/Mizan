@@ -2,7 +2,8 @@ import Foundation
 import MizanBase
 
 /// موقع المستخدم — core/AppSettings.kt. key مفتاح مدينة معروفة، أو nil لموقع GPS بعيد عن أي مدينة؛
-/// [elev] ارتفاعه عن البحر بالأمتار
+/// [elev] ارتفاعه عن البحر بالأمتار؛ [name] اسم موقع GPS من محدد المواقع في النظام و[nameLang] لغته و[cc] رمز دولته
+/// (nil قبل أن يصل، أو لموقع حُفظ قبل إضافتها)
 public struct Place: Hashable {
     public let key: String?
     public let lat: Double
@@ -11,12 +12,23 @@ public struct Place: Hashable {
     public let method: String
     public let gps: Bool
     public let elev: Int
+    public let name: String?
+    public let nameLang: String?
+    public let cc: String?
 
-    public init(key: String?, lat: Double, lng: Double, tz: String, method: String, gps: Bool = false, elev: Int = 0) {
+    public init(key: String?, lat: Double, lng: Double, tz: String, method: String, gps: Bool = false, elev: Int = 0,
+                name: String? = nil, nameLang: String? = nil, cc: String? = nil) {
         self.key = key; self.lat = lat; self.lng = lng; self.tz = tz; self.method = method; self.gps = gps; self.elev = elev
+        self.name = name; self.nameLang = nameLang; self.cc = cc
     }
 
-    public func with(method: String) -> Place { Place(key: key, lat: lat, lng: lng, tz: tz, method: method, gps: gps, elev: elev) }
+    public func with(method: String) -> Place {
+        Place(key: key, lat: lat, lng: lng, tz: tz, method: method, gps: gps, elev: elev, name: name, nameLang: nameLang, cc: cc)
+    }
+
+    public func with(name: String?, nameLang: String?, cc: String?) -> Place {
+        Place(key: key, lat: lat, lng: lng, tz: tz, method: method, gps: gps, elev: elev, name: name, nameLang: nameLang, cc: cc)
+    }
 
     /// مكة المكرمة (PrayTimes.CITIES[0]): المكان قبل أن يختار المستخدم موقعه
     public static let makkah = Place(key: "makkah", lat: 21.4225, lng: 39.8262, tz: "Asia/Riyadh", method: "makkah")
@@ -116,11 +128,29 @@ public final class AppSettings {
             method: string("place_method") ?? "mwl",
             gps: getBool("place_gps", false),
             // ما حُفظ قبل حساب الارتفاع: من المدينة المعروفة القريبة
-            elev: string("place_elev").flatMap { Int($0) } ?? AppSettings.elevationNear(lat, lng)
+            elev: string("place_elev").flatMap { Int($0) } ?? AppSettings.elevationNear(lat, lng),
+            // ما حُفظ قبل إضافة الاسم يُقرأ بلا اسم
+            name: string(AppSettings.kName).flatMap { $0.trimmingCharacters(in: .whitespaces).isEmpty ? nil : $0 },
+            nameLang: string(AppSettings.kNameLang).flatMap { $0.isEmpty ? nil : $0 },
+            cc: string(AppSettings.kCc).flatMap { $0.isEmpty ? nil : $0 }
         )
     }
 
-    public func updatePlace(_ p: Place) {
+    // اسم موقع GPS من محدد المواقع ولغته ودولته (لا «place_name»: اسم المدينة العربي في الإصدارات الأولى)
+    public static let kName = "place_geo_name"
+    public static let kNameLang = "place_geo_lang"
+    public static let kCc = "place_geo_cc"
+
+    /// المسافة بالكيلومترات (LocationHelper.distanceKm)
+    static func distanceKm(_ lat1: Double, _ lng1: Double, _ lat2: Double, _ lng2: Double) -> Double {
+        let r = 6371.0, rad = Double.pi / 180.0
+        let dLat = (lat2 - lat1) * rad, dLng = (lng2 - lng1) * rad
+        let a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1 * rad) * cos(lat2 * rad) * sin(dLng / 2) * sin(dLng / 2)
+        return 2 * r * asin(sqrt(min(1.0, a)))
+    }
+
+    /// يحفظ المكان؛ مفاتيح الاسم تُكتب إن وُجد وتُحذف إن لم يوجد
+    private func writePlace(_ p: Place) {
         putString("place_key", p.key ?? "")
         putString("place_lat", kotlinDoubleString(p.lat))
         putString("place_lng", kotlinDoubleString(p.lng))
@@ -128,7 +158,38 @@ public final class AppSettings {
         putString("place_method", p.method)
         putBool("place_gps", p.gps)
         putString("place_elev", String(p.elev))
-        putString("method", p.method)
+        if let name = p.name, !name.trimmingCharacters(in: .whitespaces).isEmpty {
+            putString(AppSettings.kName, name)
+            if let l = p.nameLang, !l.isEmpty { putString(AppSettings.kNameLang, l) } else { remove(AppSettings.kNameLang) }
+            if let c = p.cc, !c.isEmpty { putString(AppSettings.kCc, c) } else { remove(AppSettings.kCc) }
+        } else {
+            remove(AppSettings.kName)
+            remove(AppSettings.kNameLang)
+            remove(AppSettings.kCc)
+        }
+    }
+
+    public func updatePlace(_ p: Place) {
+        // موقع GPS جديد بلا اسم في المكان نفسه تقريباً (أقل من كيلومتر): يبقى الاسم السابق
+        let prev = place
+        var q = p
+        if placeSet, p.gps, p.name == nil, prev.gps, prev.name != nil,
+           AppSettings.distanceKm(p.lat, p.lng, prev.lat, prev.lng) < 1.0 {
+            q = p.with(name: prev.name, nameLang: prev.nameLang, cc: prev.cc)
+        }
+        writePlace(q)
+        putString("method", q.method)
+    }
+
+    /// اسم موقع GPS وصل من محدد المواقع (AppSettings.updatePlaceName في Kotlin): يُهمل إن تغيّر الموقع منذ طُلب
+    @discardableResult
+    public func updatePlaceName(lat: Double, lng: Double, name: String, lang: String, cc: String?) -> Bool {
+        let p = place
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard placeSet, p.gps, p.lat == lat, p.lng == lng, !trimmed.isEmpty else { return false }
+        let code = cc?.trimmingCharacters(in: .whitespaces).uppercased()
+        writePlace(p.with(name: trimmed, nameLang: lang, cc: code?.count == 2 ? code : nil))
+        return true
     }
 
     public var method: String { string("method") ?? place.method }

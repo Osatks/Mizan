@@ -99,28 +99,34 @@ enum Feed {
         Store.load().flatMap { $0.day(at: now) == nil ? nil : $0 }
     }
 
-    /// لقطة مستقلة لموقع: منطقة الجهاز ولغته وصيغة ساعته
-    static func standalone(lat: Double, lng: Double, now: Date) -> Snapshot? {
+    /// لقطة مستقلة لموقع: منطقة الجهاز ولغته وصيغة ساعته، واسم الموقع من محدد المواقع إن وصل
+    static func standalone(lat: Double, lng: Double, now: Date, name: String? = nil) -> Snapshot? {
         StandaloneSnapshot.build(.init(lat: lat, lng: lng, tz: TimeZone.current, now: now,
-                                       lang: StaticStore.deviceLanguage, h24: StaticStore.deviceUses24h))
+                                       lang: StaticStore.deviceLanguage, h24: StaticStore.deviceUses24h, geoName: name))
     }
 
-    /// بلا انتظار (معاينة المعرض وزر «التالي»): لقطة التطبيق، أو المستقلة من آخر موقع محفوظ
+    /// بلا انتظار (معاينة المعرض وزر «التالي»): لقطة التطبيق، أو المستقلة من آخر موقع محفوظ واسمه المحفوظ
     static func cached(now: Date) -> Snapshot? {
         if let s = appSnapshot(now: now) { return s }
         guard let last = LocationCache.last else { return nil }
-        return standalone(lat: last.lat, lng: last.lng, now: now)
+        let name = PlaceNameCache.name(lat: last.lat, lng: last.lng, lang: StaticStore.deviceLanguage)
+        return standalone(lat: last.lat, lng: last.lng, now: now, name: name)
     }
 
-    /// لخط الزمن: لقطة التطبيق، وإلا يُطلب موقع الأداة (ثم آخر موقع محفوظ). standalone: هل بُنيت في الأداة
+    /// لخط الزمن: لقطة التطبيق، وإلا يُطلب موقع الأداة (ثم آخر موقع محفوظ) واسمه. standalone: هل بُنيت في الأداة
     static func load(now: Date, completion: @escaping (_ snap: Snapshot?, _ standalone: Bool) -> Void) {
         if let s = appSnapshot(now: now) {
             completion(s, false)
             return
         }
         WidgetLocator.fetch { fix in
-            let point = fix ?? LocationCache.last.map { (lat: $0.lat, lng: $0.lng) }
-            completion(point.flatMap { standalone(lat: $0.lat, lng: $0.lng, now: now) }, true)
+            guard let point = fix ?? LocationCache.last.map({ (lat: $0.lat, lng: $0.lng) }) else {
+                completion(nil, true)
+                return
+            }
+            WidgetGeocoder.name(lat: point.lat, lng: point.lng, lang: StaticStore.deviceLanguage) { name in
+                completion(standalone(lat: point.lat, lng: point.lng, now: now, name: name), true)
+            }
         }
     }
 
