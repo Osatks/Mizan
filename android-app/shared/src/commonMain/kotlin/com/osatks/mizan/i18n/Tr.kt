@@ -631,6 +631,7 @@ object Tr : Strings {
     override val searchQuranHint = "Sure veya ayetlerde kelime ara…"
     override val searchQuranGroup = "Sureler"
     override val searchAyahsGroup = "Ayetler"
+    override val searchTheQuran = "Kur'an'da ara"
     override val mushafView = "Mushaf görünümü"
     override val ayahView = "Ayet ayet"
     override val textLarger = "Yazıyı büyüt"

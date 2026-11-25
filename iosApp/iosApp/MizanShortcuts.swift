@@ -177,7 +177,8 @@ struct EveningAdhkarIntent: AppIntent {
     }
 }
 
-/// اختصارات جاهزة بلا إعداد (عشرة، أقصى ما يسمح به النظام): تظهر في تطبيق الاختصارات و Spotlight، وتُقال لـ Siri،
+/// اختصارات جاهزة بلا إعداد (عشرة، أقصى ما يسمح به النظام؛ أذكار الصباح والمساء واحد بمعامل لتتسع لـ«افتح سورة»):
+/// تظهر في تطبيق الاختصارات و Spotlight، وتُقال لـ Siri،
 /// وتُربط بزر الإجراء. التسبيح والأذكار والعدّ التنازلي تعمل دون فتح التطبيق ولو والجهاز مقفل (Shared/LiveIntents.swift).
 /// iOS 17 فما بعد (العنوان القصير والرمز لكل اختصار، ونوايا الأنشطة الحية)
 @available(iOS 17.0, *)
@@ -258,17 +259,23 @@ struct MizanShortcuts: AppShortcutsProvider {
             shortTitle: "Continue reading",
             systemImageName: "bookmark.fill"
         )
+        // أذكار الصباح والمساء اختصار واحد بمعامل: «أذكار الصباح في ميزان» و«أذكار المساء في ميزان» كما كانتا
         AppShortcut(
-            intent: MorningAdhkarIntent(),
-            phrases: ["Morning adhkar in \(.applicationName)"],
-            shortTitle: "Morning adhkar",
+            intent: OpenAdhkarIntent(),
+            phrases: ["\(\.$time) in \(.applicationName)"],
+            shortTitle: "Adhkar",
             systemImageName: "sunrise.fill"
         )
+        // سورة باسمها بلغة التطبيق (MizanSearch.swift): «افتح الكهف في ميزان»، وبلا اسم تسأل Siri عنها
         AppShortcut(
-            intent: EveningAdhkarIntent(),
-            phrases: ["Evening adhkar in \(.applicationName)"],
-            shortTitle: "Evening adhkar",
-            systemImageName: "sunset.fill"
+            intent: OpenSurahIntent(),
+            phrases: [
+                "Open \(\.$target) in \(.applicationName)",
+                "Read \(\.$target) in \(.applicationName)",
+                "Open a surah in \(.applicationName)",
+            ],
+            shortTitle: "Open surah",
+            systemImageName: "book.closed.fill"
         )
     }
 }

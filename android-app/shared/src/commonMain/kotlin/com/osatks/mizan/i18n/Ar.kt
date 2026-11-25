@@ -613,6 +613,7 @@ object Ar : Strings {
     override val searchQuranHint = "ابحث عن سورة أو كلمات من الآيات…"
     override val searchQuranGroup = "السور"
     override val searchAyahsGroup = "الآيات"
+    override val searchTheQuran = "ابحث في القرآن"
     override val mushafView = "عرض المصحف"
     override val ayahView = "آية آية"
     override val textLarger = "تكبير الخط"

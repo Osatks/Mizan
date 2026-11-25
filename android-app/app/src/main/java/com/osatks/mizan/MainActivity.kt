@@ -53,6 +53,9 @@ import com.osatks.mizan.ui.quran.QuranScreen
 import com.osatks.mizan.ui.quran.SURAH_ROUTE
 import com.osatks.mizan.ui.quran.SurahScreen
 import com.osatks.mizan.ui.quran.surahRoute
+import com.osatks.mizan.ui.quran.CONTINUE_ROUTE
+import com.osatks.mizan.ui.quran.continueRoute
+import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.core.AppSettings
 import com.osatks.mizan.core.Demo
 import com.osatks.mizan.i18n.Lang
@@ -98,8 +101,10 @@ class MainActivity : ComponentActivity() {
         PrayerAlarms.ensureChannel(this)
         PrayerAlarms.scheduleNext(this)
         enableEdgeToEdge()
-        // فتح شاشة محددة عند التشغيل (للاختصارات ولقطات الشاشة): --es route prayer
-        val startRoute = intent?.getStringExtra("route")
+        // فتح شاشة محددة عند التشغيل (للاختصارات ولقطات الشاشة): --es route prayer؛ و«تابع القراءة» آخر آية قُرئت
+        val startRoute = intent?.getStringExtra("route")?.let { if (it == CONTINUE_ROUTE) continueRoute() else it }
+        // فُتح من اختصار أيقونة التطبيق: يُبلَّغ المشغّل فيرتّب الاختصارات بحسب الاستعمال
+        AppShortcuts.reportUsed(this, intent)
         // أداة أذكار الوقت تفتح قسم الأذكار المناسب للوقت
         intent?.getStringExtra("section")?.let { com.osatks.mizan.widget.WidgetLaunch.adhkarSection = it }
         Demo.enabled = intent?.getBooleanExtra("demo", false) == true
@@ -110,7 +115,14 @@ class MainActivity : ComponentActivity() {
         if (Demo.enabled) { com.osatks.mizan.quran.QuranPrefs.ensure(); com.osatks.mizan.quran.QuranPrefs.updateMode("mushaf") }
         // لقطات الشاشة: لون صفحة المصحف من الأمر نفسه (--es tone depth)، وبدونه حسب مظهر التطبيق
         if (Demo.enabled) com.osatks.mizan.quran.QuranPrefs.updateTone(intent?.getStringExtra("tone").orEmpty())
-        setContent { LanguageHost { MizanTheme { MizanApp(startRoute) } } }
+        setContent {
+            LanguageHost {
+                // اختصارات أيقونة التطبيق بلغة الواجهة: تُنشر أول مرة، ومن جديد كلما تغيّرت اللغة (AppShortcuts.kt)
+                val lang = LocalLang.current
+                LaunchedEffect(lang) { AppShortcuts.publish(applicationContext, lang) }
+                MizanTheme { MizanApp(startRoute) }
+            }
+        }
     }
 
     // أذان سُمع أوله في المنبّه (أول تكبيرتين): يكمل الآن من حيث توقف (AdhanResume)

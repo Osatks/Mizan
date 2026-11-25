@@ -2,6 +2,7 @@ package com.osatks.mizan.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,12 @@ internal fun IosHadithScreen(onBack: () -> Unit) {
     val ht = HomeText.of(lang.code)
     val today = remember { PrayerUtil.now().date }
     var offset by remember { mutableIntStateOf(0) }
+    // حديث بعينه من بحث iPhone (Spotlight): يُعرض اليوم الذي كان فيه حديثَ اليوم
+    LaunchedEffect(Unit) {
+        val id = Pending.hadith ?: return@LaunchedEffect
+        Pending.hadith = null
+        offset = withContext(Dispatchers.IO) { runCatching { hadithOffset(id, today) }.getOrDefault(0) }
+    }
     val day = today.plusDays(offset)
     val hadith by produceState<Hadith?>(null, day, lang) {
         value = withContext(Dispatchers.IO) { runCatching { Hadiths.forDay(day, lang.code) }.getOrNull() }

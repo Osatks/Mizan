@@ -465,6 +465,7 @@ interface Strings {
     val searchQuranHint: String         // "Search a surah, or words in the ayahs…"
     val searchQuranGroup: String        // search result group: "Surahs"
     val searchAyahsGroup: String        // search result group: "Ayahs"
+    val searchTheQuran: String          // Android app-icon shortcut (long-press menu, launcher search): "Search the Quran"
     val mushafView: String              // "Mushaf view"
     val ayahView: String                // "Ayah by ayah"
     val textLarger: String              // "Larger text"

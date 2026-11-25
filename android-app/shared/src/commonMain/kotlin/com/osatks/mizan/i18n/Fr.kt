@@ -649,6 +649,7 @@ object Fr : Strings {
     override val searchQuranHint = "Rechercher une sourate ou des mots d'un verset…"
     override val searchQuranGroup = "Sourates"
     override val searchAyahsGroup = "Versets"
+    override val searchTheQuran = "Rechercher dans le Coran"
     override val mushafView = "Mode Mushaf"
     override val ayahView = "Verset par verset"
     override val textLarger = "Agrandir le texte"

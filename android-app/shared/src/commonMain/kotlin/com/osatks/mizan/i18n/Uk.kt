@@ -650,6 +650,7 @@ object Uk : Strings {
     override val searchQuranHint = "Пошук сури або слів в аятах…"
     override val searchQuranGroup = "Сури"
     override val searchAyahsGroup = "Аяти"
+    override val searchTheQuran = "Пошук у Корані"
     override val mushafView = "Режим Мусхафу"
     override val ayahView = "За аятами"
     override val textLarger = "Збільшити текст"

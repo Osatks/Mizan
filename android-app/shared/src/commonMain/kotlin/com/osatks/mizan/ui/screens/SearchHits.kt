@@ -2,14 +2,9 @@ package com.osatks.mizan.ui.screens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.LocationCity
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.osatks.mizan.core.AppSettings
@@ -36,6 +31,8 @@ import com.osatks.mizan.i18n.Lang
 /** طلب مؤجل لصفحة تُفتح من البحث (مناسبة بعينها) */
 object Pending {
     var event: String? = null
+    /** حديث بعينه من بحث النظام (معرّفه في الموسوعة): تفتح عليه صفحة حديث اليوم */
+    var hadith: String? = null
 }
 
 internal class SearchHit(
@@ -57,17 +54,15 @@ internal fun searchHits(
         val sc = if (terms.isEmpty()) (if (group == s.searchToolsGroup) 1 else 0) else Search.score(terms, title, "$sub $extra")
         if (sc > 0) out += SearchHit(group, id, title, sub, icon, sc, action)
     }
-    TOOL_ORDER.forEach { k ->
-        val t = s.tools.getValue(k)
-        add(s.searchToolsGroup, "t-$k", t.name, t.desc, TOOL_ICONS.getValue(k),
-            "${s.toolKeywords[k]} ${En.tools[k]?.name} ${En.toolKeywords[k]} ${Ar.tools[k]?.name} ${Ar.toolKeywords[k]}") { open(k) }
-    }
+    // الأدوات والمناسبات والإعدادات من SearchEntries.kt، وهي نفسها في بحث النظام (Spotlight)
+    fun addEntry(e: SearchEntry, action: () -> Unit = { open(SearchLinks.apply(e.link)) }) = add(e.group, e.id, e.title, e.subtitle, e.icon, e.extra, action)
+    toolEntries(s).forEach { addEntry(it) }
     if (terms.isNotEmpty()) {
         for (n in 1..QuranMeta.SURAHS) {
             add(s.searchQuranGroup, "q-$n", s.surahName(n),
                 "${QuranMeta.NAMES_AR[n - 1]} · ${if (QuranMeta.isMedinan(n)) s.medinan else s.meccan} · ${s.ayahCount(QuranMeta.COUNTS[n - 1])}",
                 Icons.AutoMirrored.Filled.MenuBook,
-                "$n ${QuranMeta.NAMES_AR[n - 1]} ${QuranMeta.TNAMES[n - 1]} ${QuranMeta.ENAMES[n - 1]} ${En.surahName(n)} ${Ar.surahName(n)} ${s.quranTitle}") {
+                surahSearchExtra(s, n)) {
                 open(surahRoute(n, 0, "hit"))
             }
         }
@@ -89,10 +84,7 @@ internal fun searchHits(
                 AppSettings.updatePlace(Place.of(c)); PrayerAlerts.reschedule(); open("prayer")
             }
         }
-        s.events.forEach { (k, e) ->
-            add(s.searchEventsGroup, "e-$k", e.name, e.desc, Icons.Filled.Event,
-                "${En.events[k]?.name} ${Ar.events[k]?.name}") { Pending.event = k; open("events") }
-        }
+        eventEntries(s).forEach { addEntry(it) }
         s.dhikrLabels.forEachIndexed { i, label ->
             val meaning = s.dhikrMeanings[i].ifEmpty { DHIKR[i] }
             add(s.searchDhikrGroup, "d-$i", label, meaning, Icons.Filled.TouchApp,
@@ -101,16 +93,7 @@ internal fun searchHits(
                 open("tasbih")
             }
         }
-        add(s.searchSettingsGroup, "s-lang", s.language, lang.native, Icons.Filled.Translate,
-            "${En.language} ${Ar.language} language lang") { showLanguage() }
-        add(s.searchSettingsGroup, "s-theme", s.appearance, "${s.themeLight} · ${s.themeDark}", Icons.Filled.DarkMode,
-            "${En.appearance} ${En.themeDark} ${Ar.appearance} ${Ar.themeDark}") { open("settings") }
-        add(s.searchSettingsGroup, "s-adhan", s.adhanAlert, s.adhanAlertDesc, Icons.Filled.NotificationsActive,
-            "${En.adhanAlert} ${Ar.adhanAlert}") { open("settings") }
-        add(s.searchSettingsGroup, "s-24h", s.use24h, s.use24hDesc, Icons.Filled.AccessTime,
-            "${En.use24h} ${Ar.use24h}") { open("settings") }
-        add(s.searchSettingsGroup, "s-method", s.calcMethod, s.locationAndMethod, Icons.Filled.Tune,
-            "${En.calcMethod} ${Ar.calcMethod} ${s.methods.values.joinToString(" ")}") { open("prayer") }
+        settingsEntries(s, lang).forEach { e -> if (e.id == "s-lang") addEntry(e) { showLanguage() } else addEntry(e) }
     }
     val order = listOf(s.searchToolsGroup, s.searchQuranGroup, s.searchAyahsGroup, s.searchPrayersGroup, s.searchCitiesGroup, s.searchEventsGroup, s.searchDhikrGroup, s.searchSettingsGroup)
     // أفضل مجموعة أولاً (بحسب أعلى نتيجة فيها)، وداخلها الأعلى درجة

@@ -631,6 +631,7 @@ object Fa : Strings {
     override val searchQuranHint = "جستجوی سوره یا متن آیات…"
     override val searchQuranGroup = "سوره‌ها"
     override val searchAyahsGroup = "آیات"
+    override val searchTheQuran = "جستجو در قرآن"
     override val mushafView = "نمای مصحف"
     override val ayahView = "آیه به آیه"
     override val textLarger = "متن بزرگ‌تر"
