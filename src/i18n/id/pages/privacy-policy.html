@@ -1,8 +1,8 @@
 <!--META
-{"title": "Kebijakan Privasi", "h1": "Kebijakan Privasi", "description": "Kebijakan privasi situs dan aplikasi Mizan (com.mizan.almuslim): bagaimana kami melindungi privasi Anda, penggunaan tanpa internet, izin lokal, penyimpanan lokal, dan cookie.", "path": "/privacy-policy/", "type": "page", "nav": "", "breadcrumb": "Kebijakan Privasi", "lead": "Terakhir diperbarui: 1 November 2026"}
+{"title": "Kebijakan Privasi", "h1": "Kebijakan Privasi", "description": "Kebijakan privasi situs dan aplikasi Mizan (com.mizan.almuslim): bagaimana kami melindungi privasi Anda, penggunaan tanpa internet, izin lokal, penyimpanan lokal, dan cookie.", "path": "/privacy-policy/", "type": "page", "nav": "", "breadcrumb": "Kebijakan Privasi", "lead": "Terakhir diperbarui: 26 November 2026"}
 -->
 <section class="prose card">
-  <p><strong>Terakhir diperbarui: 22 Oktober 2026</strong></p>
+  <p><strong>Terakhir diperbarui: 26 November 2026</strong></p>
   <p>Kami di {{site_name}} (selanjutnya disebut "Mizan", "situs", "aplikasi", atau "kami") menghormati privasi Anda dan berkomitmen untuk melindunginya sepenuhnya. Kebijakan privasi ini berlaku untuk situs web ({{site_url}}) maupun aplikasi ponsel pintar resmi <strong>"Mizan: Al-Qur'an dan Jadwal Salat"</strong> untuk Android dan iOS (ID paket: <code>com.mizan.almuslim</code>). Dengan menggunakan situs atau aplikasi, Anda menyetujui praktik yang dijelaskan dalam kebijakan ini.</p>
 
   <h2>1. Prinsip dasar kami: pemrosesan lokal di perangkat Anda</h2>
@@ -12,28 +12,33 @@
   <p>Aplikasi ponsel pintar {{site_name}} berpegang pada standar privasi dan keamanan tertinggi:</p>
   <ul>
     <li><strong>Sepenuhnya bebas iklan dan pelacakan:</strong> aplikasi ponsel tidak memuat iklan komersial apa pun, dan tidak menyertakan perangkat lunak analitik atau paket pelacakan pihak ketiga (Zero Ads &amp; Zero Tracking SDKs).</li>
-    <li><strong>Kami tidak mengumpulkan atau membagikan data pribadi apa pun:</strong> aplikasi tidak mengumpulkan, mentransfer, menjual, atau membagikan data pribadi atau sensitif apa pun kepada pihak ketiga mana pun.</li>
+    <li><strong>Kami tidak mengumpulkan atau membagikan data pribadi apa pun:</strong> aplikasi tidak mengumpulkan, menjual, atau membagikan data pribadi atau sensitif apa pun kepada pihak ketiga mana pun, dan tidak ada apa pun tentang Anda yang dikirim ke server Mizan. Hanya beberapa fitur opsional yang mengirim seperlunya langsung ke layanan yang disebutkan di bawah (misalnya lokasi perkiraan untuk mencari masjid terdekat), tanpa pengenal apa pun.</li>
     <li><strong>Sebagian besar bekerja tanpa internet:</strong> Al-Qur’an dalam rasm Utsmani, Tafsir al-Muyassar dan Tafsir al-Jalalain, 334 zikir, dua azan bawaan aplikasi, serta semua kalkulator, waktu salat, dan arah kiblat bekerja tanpa koneksi internet. Murotal audio, tafsir tambahan, paket bahasa, dan rekaman azan tambahan memerlukan koneksi saat pertama kali Anda memintanya.</li>
     <li><strong>Widget layar utama:</strong> widget menampilkan waktu salat berikutnya, tanggal Hijriah, zikir, dan ayat hari ini. Aplikasi meneruskan data ini kepada widget hanya di dalam perangkat Anda (di iOS melalui penyimpanan bersama pribadi milik aplikasi), dan di iOS widget dapat membaca lokasi Anda di perangkat untuk menghitung waktu. Tidak ada satu pun yang dikirim kepada kami.</li>
     <li><strong>Permintaan penilaian:</strong> aplikasi sesekali dapat menampilkan jendela penilaian resmi dari Apple (App Store) atau Google Play. Jendela tersebut sepenuhnya ditangani oleh Apple atau Google, dan Mizan tidak menerima data pribadi apa pun darinya.</li>
+    <li><strong>Pencarian iPhone (Spotlight):</strong> di iPhone, judul surah, ayat, alat, dan zikir dimasukkan ke pencarian di perangkat agar Anda dapat menemukannya dari layar utama. Indeks ini tetap berada di perangkat Anda.</li>
   </ul>
 
   <h3>Izin aplikasi ponsel dan cara penggunaannya</h3>
-  <p>Aplikasi ponsel dapat meminta izin opsional berikut untuk menjalankan fitur tertentu secara lokal di perangkat Anda saja:</p>
+  <p>Aplikasi ponsel dapat meminta izin opsional berikut untuk menjalankan fitur tertentu di perangkat Anda:</p>
   <ul>
-    <li><strong>Lokasi (<code>ACCESS_COARSE_LOCATION</code> dan <code>ACCESS_FINE_LOCATION</code> di Android, izin “Saat Aplikasi Digunakan” di iOS):</strong> izin opsional yang digunakan hanya di perangkat untuk menghitung waktu salat secara astronomis dan menentukan sudut kiblat; di iOS, widget layar utama juga dapat menggunakannya di perangkat yang sama untuk menghitung waktu. Koordinat lokasi Anda tidak dikirim ke server luar mana pun dan tidak disimpan di luar perangkat Anda, dan Anda dapat tidak memakai izin ini dengan memilih kota secara manual dari daftar kota bawaan.</li>
+    <li><strong>Lokasi (<code>ACCESS_COARSE_LOCATION</code> dan <code>ACCESS_FINE_LOCATION</code> di Android, izin “Saat Aplikasi Digunakan” di iOS):</strong> izin opsional yang digunakan di perangkat untuk menghitung waktu salat secara astronomis dan menentukan sudut kiblat; di iOS, widget layar utama juga dapat menggunakannya di perangkat yang sama untuk menghitung waktu. Lokasi Anda tidak pernah dikirim ke server Mizan dan tidak kami simpan, dan hanya keluar dari perangkat Anda untuk dua penggunaan opsional yang dijelaskan pada koneksi internet opsional di bawah: menampilkan nama kota Anda dan alat masjid terdekat. Anda dapat tidak memakai izin ini dengan memilih kota secara manual dari daftar kota bawaan.</li>
     <li><strong>Notifikasi, alarm, dan pemutaran azan (<code>POST_NOTIFICATIONS</code>, <code>SCHEDULE_EXACT_ALARM</code>, <code>RECEIVE_BOOT_COMPLETED</code>, dan <code>FOREGROUND_SERVICE_MEDIA_PLAYBACK</code>):</strong> digunakan secara lokal saja untuk memberi tahu Anda saat waktu salat tiba, memutar azan pilihan Anda dengan tombol untuk menghentikannya, bergetar dengan pola pilihan Anda, dan menjadwalkan ulang pengingat secara otomatis saat perangkat dinyalakan ulang atau zona waktu berubah. Di iOS, pengingat berupa notifikasi lokal dengan suara azan pendek yang disertakan dalam aplikasi.</li>
     <li><strong>Sensor kompas dan gerak:</strong> dibaca secara lokal di perangkat untuk menggerakkan kompas kiblat interaktif ke arah Ka'bah tanpa merekam atau mengirim pembacaan apa pun.</li>
   </ul>
 
   <h3>Koneksi internet opsional di dalam aplikasi</h3>
-  <p>Aplikasi ponsel tidak terhubung ke internet secara otomatis di latar belakang untuk mengumpulkan data; aplikasi hanya melakukan koneksi langsung ketika pengguna sendiri meminta salah satu layanan opsional berikut:</p>
+  <p>Aplikasi ponsel tidak terhubung ke internet untuk mengumpulkan data. Aplikasi hanya terhubung untuk layanan opsional berikut ketika Anda memintanya, kecuali konten bahasa Anda sendiri yang diunduh otomatis di latar belakang dari situs resmi. Aplikasi tidak menyertakan data pribadi atau pengenal apa pun dalam koneksi-koneksi ini:</p>
   <ul>
     <li><strong>Tilawah audio Al-Qur'an:</strong> ketika Anda memilih untuk mendengarkan tilawah ayat, aplikasi mengambil file audio ayat yang diminta dan menyimpannya di memori sementara perangkat agar dapat didengarkan kemudian secara luring.</li>
     <li><strong>Perpustakaan tafsir tambahan:</strong> ketika Anda ingin mengunduh kitab tafsir tambahan (seperti Tafsir Ibnu Katsir, Ath-Thabari, atau As-Sa'di) untuk disimpan dan digunakan di perangkat Anda tanpa internet.</li>
     <li><strong>Paket bahasa tambahan:</strong> ketika Anda membuka daftar bahasa dan mengunduh atau memperbarui paket bahasa dan terjemahan makna Al-Qur'an dari situs resmi (<code>{{site_url}}/lang/</code>).</li>
+    <li><strong>Terjemahan, tafsir, hadis, dan zikir dalam bahasa lain:</strong> diunduh sesuai permintaan dari situs resmi (<code>{{site_url}}/content/</code>) dan disimpan di perangkat Anda; konten bahasa Anda sendiri diunduh otomatis di latar belakang.</li>
     <li><strong>Rekaman azan tambahan:</strong> saat Anda memilih muazin yang tidak disertakan dalam aplikasi, rekamannya diunduh dari situs resmi (<code>{{site_url}}/adhan/</code>) dan disimpan di perangkat Anda.</li>
+    <li><strong>Nama kota:</strong> saat Anda menggunakan lokasi saat ini, layanan geocoding bawaan ponsel mengubah koordinat menjadi nama kota Anda: layanan Apple di iPhone, dan geocoder sistem Google di Android.</li>
+    <li><strong>Masjid terdekat (alat opsional):</strong> di iPhone, area pencarian di sekitar Anda dan kata pencarian dikirim ke Apple Maps (MapKit). Di Android, lokasi perkiraan Anda, dibulatkan hingga sekitar 100 meter, dikirim melalui HTTPS ke layanan Overpass milik OpenStreetMap (<code>overpass-api.de</code>) tanpa pengenal apa pun; seperti permintaan web lainnya, server tersebut dapat melihat alamat IP Anda. Hasilnya hanya ada di memori aplikasi dan tidak disimpan, dan membuka petunjuk arah ke masjid akan meneruskan tujuannya ke Apple Maps atau Google Maps.</li>
   </ul>
+  <p>Lokasi Anda tidak pernah dikirim ke server Mizan, dan kami tidak menyimpan apa pun darinya. Anda dapat menghindari pengirimannya ke mana pun dengan memilih kota secara manual dan tidak menggunakan alat masjid terdekat.</p>
 
   <h2>3. Informasi yang kami kumpulkan</h2>
   <h3>Informasi yang Anda berikan secara sukarela</h3>
@@ -49,7 +54,8 @@
     <li>Posisi bacaan terakhir di mushaf Al-Qur'an, ayat yang disimpan (penanda), pelacakan khatam, rangkaian bacaan harian, ukuran huruf, dan tafsir yang dipilih.</li>
     <li>Jumlah tasbih di tasbih digital dan kemajuan Anda pada penghitung zikir harian.</li>
   </ul>
-  <p>Data ini tetap hanya di perangkat Anda dan tidak dikirim kepada kami; Anda dapat menghapusnya kapan saja dengan menghapus data situs dari pengaturan browser atau menghapus data aplikasi dari pengaturan ponsel Anda.</p>
+  <p>Data ini tidak pernah dikirim kepada kami dan tetap di perangkat Anda, kecuali melalui opsi cadangan dan sinkronisasi di bawah yang Anda kendalikan sendiri; Anda dapat menghapusnya kapan saja dengan menghapus data situs dari pengaturan browser atau menghapus data aplikasi dari pengaturan ponsel Anda.</p>
+  <p><strong>Cadangan dan sinkronisasi di aplikasi ponsel:</strong> Anda dapat menyimpan file cadangan pengaturan dan kemajuan Anda; file itu tetap berada di tempat Anda menyimpannya. Di iPhone, sinkronisasi iCloud opsional (nonaktif secara bawaan) menyinkronkan data yang sama melalui akun iCloud Anda sendiri (penyimpanan key-value Apple), dan kami tidak dapat melihatnya. Di Android, pencadangan otomatis sistem dapat mencadangkan pengaturan aplikasi ke akun Google Anda, jika Anda mengaktifkannya.</p>
 
   <h2>5. Lokasi geografis di browser</h2>
   <p>Alat jadwal salat dan arah kiblat di situs web memungkinkan penggunaan fitur penentuan lokasi di browser Anda secara opsional dan setelah meminta izin eksplisit Anda. Jika Anda menyetujuinya, koordinat hanya digunakan di dalam perangkat Anda untuk menghitung jadwal salat dan arah kiblat, tidak dikirim ke server kami dan tidak disimpan di sana; Anda dapat menolak izin tersebut dan memilih kota Anda secara manual.</p>
@@ -79,7 +85,7 @@
   <p>Situs ini dapat berisi tautan ke situs eksternal untuk tujuan rujukan atau iklan. Kami tidak bertanggung jawab atas praktik privasi atau konten situs-situs tersebut, dan kami menyarankan Anda untuk meninjau kebijakan privasi masing-masing.</p>
 
   <h2>12. Keamanan informasi</h2>
-  <p>Situs dan semua koneksi pengunduhan paket bahasa dan tafsir disajikan melalui koneksi terenkripsi dan aman (HTTPS); dan karena data perhitungan dan bacaan Anda sejak awal tidak pernah meninggalkan perangkat Anda, risiko kebocorannya dari pihak kami praktis nihil.</p>
+  <p>Situs dan semua koneksi pengunduhan paket bahasa, tafsir, dan konten lainnya disajikan melalui koneksi terenkripsi dan aman (HTTPS); dan karena data perhitungan dan bacaan Anda tidak pernah sampai ke server kami, risiko kebocorannya dari pihak kami praktis nihil.</p>
 
   <h2>13. Hak Anda dan penghapusan data</h2>
   <p>Karena kami tidak membuat akun pengguna dan tidak menyimpan data pribadi apa pun di server kami, seluruh data lokal Anda berada di bawah kendali penuh Anda di perangkat Anda; Anda dapat menghapusnya kapan saja dengan menghapus data browser, menghapus data aplikasi, atau mencopot pemasangannya dari perangkat Anda, atau menghubungi kami untuk menghapus email apa pun yang pernah Anda kirimkan kepada kami.</p>

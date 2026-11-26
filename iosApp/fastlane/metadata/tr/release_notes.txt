@@ -1,4 +1,8 @@
-• Daha net bir Mushaf: kelimeler arasında hafif bir boşluk, «طسٓ» gibi hurûf-ı mukattaa artık sonraki kelimeye değmiyor.
-• Yeni 3B Mushaf, açık ve gece: kelimeler sayfanın üzerinde süzülür ve telefonu eğdikçe hafifçe hareket eder.
-• Yenilenen sayfa rengi seçimi.
-• Her ekranda yerel tasarımla daha hızlı ve akıcı bir iPhone uygulaması.
+• Çocuk Köşesi: büyük yazıyla kısa sureler ve “benden sonra tekrarla”, Allah'ın isimleri, günlük dualar ve yıldız tablosu.
+• Oruç takibi: Ramazan günleri, kaza günleri, yaklaşan nafile oruçlar ve sahur ile iftara geri sayım.
+• Haritada yakındaki camiler ve yol tarifi.
+• Her namaz için “vakit çıkıyor” hatırlatması.
+• Yedekleme ve geri yükleme, iCloud eşitleme.
+• Her ayeti doğrudan iPhone aramasından bulun.
+• Nerede olursanız olun, bulunduğunuz yerin gerçek adı.
+• Yeni etkileşimli karşılama ve daha küçük uygulama: diğer dillerdeki mealler gerektiğinde indirilir.

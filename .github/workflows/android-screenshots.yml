@@ -3,6 +3,11 @@ name: Android Screenshots
 on:
   # يدوي فقط (Actions ← Run workflow): دقائق GitHub Actions محدودة، وبناء macOS يُحسب بعشرة أضعاف
   workflow_dispatch:
+    inputs:
+      only:
+        description: "new = only the 2.5.0 feature screens; empty = all screens"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -53,7 +58,7 @@ jobs:
           emulator-boot-timeout: 900
           force-avd-creation: false
           emulator-options: -no-window -no-snapshot -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: bash android-app/scripts/screenshots.sh
+          script: ONLY='${{ inputs.only }}' bash android-app/scripts/screenshots.sh
 
       - uses: actions/upload-artifact@v4
         if: always()
