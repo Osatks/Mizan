@@ -66,8 +66,10 @@ if [ "${ONLY:-}" = "pages" ]; then
   adb shell settings put global transition_animation_scale 1
   adb shell settings put global window_animation_scale 1
   WAIT=14 shot "surah/7?ayah=171" pages-06a-mushaf-anim
-  tap_desc "انتقل إلى صفحة"; sleep 3
+  tap_desc "انتقل إلى صفحة"; sleep 5
+  tap_text "الجزء 11"; sleep 3
   tap_text "الجزء 11"; sleep 2
+  cap pages-06a2-sheet-before-go
   adb shell screenrecord --time-limit 8 --bit-rate 6000000 /sdcard/journey.mp4 &
   REC=$!
   sleep 1
