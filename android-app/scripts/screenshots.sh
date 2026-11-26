@@ -57,7 +57,7 @@ if [ "${ONLY:-}" = "pages" ]; then
   WAIT=14 shot "surah/7?ayah=171" pages-04-mushaf
   tap_desc "انتقل إلى صفحة"; sleep 4; cap pages-05-mushaf-sheet
   # رحلة الانتقال: اختيار جزء بعيد ثم «اذهب»، ولقطات أثناء التقليب وبعد الوصول
-  tap_text "الجزء 20"; sleep 2; cap pages-05b-sheet-juz20
+  tap_text "الجزء 11"; sleep 2; cap pages-05b-sheet-juz11
   tap_text "اذهب"; sleep 0.35; cap pages-05c-journey-a
   sleep 0.35; cap pages-05d-journey-b
   sleep 2; cap pages-05e-arrived
