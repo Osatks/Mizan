@@ -496,6 +496,15 @@ class PackStrings(private val pack: LangPack) : Strings {
     override val newKhatma: String by lazy { s("newKhatma") ?: En.newKhatma }
     override fun khatmasCompleted(n: Int): String = f("khatmasCompleted", "n" to n) ?: En.khatmasCompleted(n)
     override val continuePortion: String by lazy { s("continuePortion") ?: En.continuePortion }
+    override val pagesTab: String by lazy { s("pagesTab") ?: En.pagesTab }
+    override val goToPage: String by lazy { s("goToPage") ?: En.goToPage }
+    override val openPage: String by lazy { s("openPage") ?: En.openPage }
+    override val goButton: String by lazy { s("goButton") ?: En.goButton }
+    override val lastReadChip: String by lazy { s("lastReadChip") ?: En.lastReadChip }
+    override val prevPage: String by lazy { s("prevPage") ?: En.prevPage }
+    override val nextPage: String by lazy { s("nextPage") ?: En.nextPage }
+    override val typePageHint: String by lazy { s("typePageHint") ?: En.typePageHint }
+    override fun pageSpan(from: Int, to: Int): String = f("pageSpan", "from" to from, "to" to to) ?: En.pageSpan(from, to)
     override val ayahOfDay: String by lazy { s("ayahOfDay") ?: En.ayahOfDay }
     override val focusMode: String by lazy { s("focusMode") ?: En.focusMode }
     override val exitFocus: String by lazy { s("exitFocus") ?: En.exitFocus }

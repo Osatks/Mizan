@@ -2,7 +2,8 @@ import SwiftUI
 import UIKit
 import Shared
 
-/// أوراق القرآن من النظام بمحتوى SwiftUI: التفسير، وخيارات الآية، ومشاركة الآية والقصة صورةً (NativeShareSheet.swift).
+/// أوراق القرآن من النظام بمحتوى SwiftUI: التفسير، وخيارات الآية، ومشاركة الآية والقصة صورةً (NativeShareSheet.swift)،
+/// واختيار الصفحة في القارئ (NativePagePicker.swift).
 /// Kotlin (ui/quran/NativeQuranSheets.kt) يعرضها ويغلقها ويرسل حالتها JSON، وكل لمسة تعود إليه (session.send)؛
 /// المنطق كله والنصوص في Kotlin كما في أوراق Compose نفسها (TafsirSheet.kt و AyahActions.kt و AyahShare.kt و StoryShare.kt).
 enum QuranSheets {
@@ -21,6 +22,13 @@ enum QuranSheets {
         case "shareCard":
             let model = SheetModel<ShareCardState>(session: session)
             return SheetHostController(model: model, root: AnyView(ShareCardView(model: model)))
+        case "pagePicker":
+            // بارتفاع محتواها (كخيارات الآية): العنوان والاختيار المصغّر و«اذهب»
+            let model = SheetModel<PagePickerSheetState>(session: session)
+            return QuranSheetHostController(model: model, root: AnyView(PagePickerSheetView(model: model)), fit: {
+                guard let s = model.state else { return nil }
+                return AnyView(PagePickerSheetContent(s: s, model: model, scroll: false).fixedSize(horizontal: false, vertical: true))
+            })
         default:
             return nil
         }

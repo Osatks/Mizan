@@ -51,5 +51,5 @@ internal expect val nativeMushafAvailable: Boolean
 internal expect fun NativeMushafPager(
     turns: NativeTurns, text: Array<String>, selected: Int, bottomInset: Dp, frame: Dp, focus: Boolean,
     onTap: (Int) -> Unit, onLongPress: (Int) -> Unit, onFrameTap: () -> Unit, onEdge: (Int) -> Unit,
-    hifz: Boolean, revealed: Set<Int>, modifier: Modifier,
+    onPageTap: () -> Unit, hifz: Boolean, revealed: Set<Int>, modifier: Modifier,
 )

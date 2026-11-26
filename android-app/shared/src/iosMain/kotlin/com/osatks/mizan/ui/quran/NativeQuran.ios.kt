@@ -36,6 +36,7 @@ import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.quran.QuranMeta
+import com.osatks.mizan.quran.QuranPages
 import com.osatks.mizan.quran.QuranPrefs
 import com.osatks.mizan.quran.QuranProgress
 import com.osatks.mizan.quran.QuranSearch
@@ -61,7 +62,8 @@ import platform.UIKit.UIViewController
 /**
  * جسر تبويب القرآن من النظام (iosApp/iosApp/NativeQuran.swift)، على مثال [com.osatks.mizan.ui.screens.NativeTools]:
  * Swift يسجّل ما ينشئ متحكمه، وKotlin يرسل الحالة JSON مع الإشعار [STATE] عند كل تغيّر (البحث يُحسب هنا ويُعاد نشره).
- * وSwift يخبره باللمس: فتح مسار، ونص البحث، والقسم (السور، الأجزاء، المحفوظات)، ومدة الختمة، وختمة جديدة.
+ * وSwift يخبره باللمس: فتح مسار، ونص البحث، والقسم (السور، الأجزاء، الصفحات، المحفوظات)، ومدة الختمة، وختمة جديدة،
+ * والصفحة المختارة في قسم «الصفحات» وفتحها.
  */
 object NativeQuran {
     const val STATE = "MizanQuranState"
@@ -100,8 +102,20 @@ class NativeQuranSession internal constructor() {
     /** نص البحث كما يكتبه القارئ في حقل النظام */
     fun query(text: String) = onQuery(text)
 
-    /** القسم الظاهر: surahs أو juz أو saved */
+    /** القسم الظاهر: surahs أو juz أو pages أو saved */
     fun tab(key: String) = onTab(key)
+
+    /**
+     * الصفحة المختارة في قسم «الصفحات»: يحفظها Swift وهي تتغير (بلا إعادة نشر الحالة مع كل صفحة أثناء السحب)،
+     * ويبدأ منها حين يُعرض القسم من جديد. تبدأ من صفحة آخر قراءة.
+     */
+    var picked: Int = 0
+        private set
+
+    fun pick(page: Int) { picked = page.coerceIn(1, QuranPages.COUNT) }
+
+    /** يفتح المصحف على الصفحة [page] (من 1 إلى 604) */
+    fun openPage(page: Int) = onOpen(pageRoute(page))
 
     /** مدة الختمة بالأيام (0 بلا مدة)، كما في قائمة KhatmaCard */
     fun plan(days: Int) = QuranProgress.changePlan(days)
@@ -122,6 +136,7 @@ internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
     QuranPrefs.ensure()
     QuranProgress.ensure()
     val session = remember { NativeQuranSession() }
+    if (session.picked == 0) session.pick(if (QuranPrefs.last >= 0) QuranMeta.pageOf(QuranPrefs.last) else 1)
     val openS by rememberUpdatedState(open)
     // القسم ونص البحث يبقيان بعد تبديل التبويب كما في QuranScreen
     var tab by rememberSaveable { mutableStateOf("surahs") }
@@ -165,6 +180,10 @@ internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
 
     // السور والأجزاء ثابتة ما لم تتغير اللغة أو ما قُرئ من الختمة
     val readCount = QuranProgress.readCount
+    // اختيار الصفحة: ما في كل صفحة (يتغير باللغة)، والصفحات المقروءة، وألوان ورق المصحف الذي اختاره القارئ
+    val pickerPages = remember(s, lang) { pagePickerPages(s, lang.rtl) }
+    val pickerRead = remember(readCount) { pagesReadString() }
+    val pickerPalette = readingPalette(QuranPrefs.tone) ?: mushafPalette()
     val surahs = remember(s, readCount) {
         (1..QuranMeta.SURAHS).map { n ->
             linkedMapOf<String, Any?>(
@@ -254,6 +273,15 @@ internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
             )
         }
 
+        // قسم «الصفحات»: بيانات الاختيار (ما في كل صفحة، والأجزاء، وآخر قراءة والورد) ما دام ظاهراً فقط
+        val picker = if (tab != "pages" || q.isNotBlank()) null else {
+            val quick = buildList<Pair<String, Int>> {
+                if (last >= 0) add(s.lastReadChip to QuranMeta.pageOf(last))
+                if (!p.finished) add(s.continuePortion to p.nextUnread())
+            }
+            pagePickerData(s, lang.rtl, pickerPages, session.picked, s.openPage, quick, pickerRead, pickerPalette)
+        }
+
         val hits = ayahHits
         val search = if (q.isBlank()) null else linkedMapOf<String, Any?>(
             "ref" to ref?.let { hit("r", it) },
@@ -273,7 +301,7 @@ internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
                 "title" to s.quranTitle, "subtitle" to s.quranSubtitle,
                 "hint" to s.searchQuranHint, "clear" to s.clear, "noMarks" to s.noBookmarks,
                 "query" to q, "tab" to tab,
-                "tabs" to listOf("surahs" to s.surahsTab, "juz" to s.juzTab, "saved" to s.bookmarksTab)
+                "tabs" to listOf("surahs" to s.surahsTab, "juz" to s.juzTab, "pages" to s.pagesTab, "saved" to s.bookmarksTab)
                     .map { (k, l) -> linkedMapOf("key" to k, "label" to l) },
                 "cont" to cont,
                 "khatma" to khatma,
@@ -287,6 +315,7 @@ internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
                 "surahs" to surahs,
                 "juz" to juz,
                 "marks" to QuranPrefs.bookmarks.toList().map { hit("b", it, mark = true) },
+                "picker" to picker,
                 "search" to search,
                 "c" to linkedMapOf(
                     "primary" to hex(cs.primary), "primaryContainer" to hex(cs.primaryContainer),

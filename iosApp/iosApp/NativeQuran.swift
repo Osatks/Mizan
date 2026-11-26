@@ -85,6 +85,8 @@ struct QuranTabState: Decodable {
     let surahs: [Surah]
     let juz: [Juz]
     let marks: [Hit]
+    /// قسم «الصفحات»: بيانات اختيار الصفحة (ما دام القسم ظاهراً فقط)
+    let picker: PagePickerData?
     let search: Search?
     let c: HomeState.Colors
     let x: Extra
@@ -115,6 +117,10 @@ final class QuranTabModel: ObservableObject {
     func open(_ route: String) { session.open(route: route) }
     func query(_ text: String) { session.query(text: text) }
     func tab(_ key: String) { session.tab(key: key) }
+    /// الصفحة المختارة في قسم «الصفحات» (تُحفظ في Kotlin بلا إعادة نشر الحالة)، وفتح المصحف عليها
+    var picked: Int { max(1, Int(session.picked)) }
+    func pick(_ page: Int) { session.pick(page: Int32(page)) }
+    func openPage(_ page: Int) { session.openPage(page: Int32(page)) }
     func plan(_ days: Int) { session.plan(days: Int32(days)) }
     func restart() { session.restart() }
 }
@@ -255,9 +261,13 @@ struct QuranTabView: View {
         }
     }
 
-    /// القسم المختار: السور، أو الأجزاء، أو المحفوظات
+    /// القسم المختار: السور، أو الأجزاء، أو الصفحات، أو المحفوظات
     @ViewBuilder private var list: some View {
         switch s.tab {
+        case "pages":
+            if let d = s.picker {
+                QuranTabPages(d: d, p: p, x: x, wide: s.wide, width: s.width, model: model)
+            }
         case "juz":
             QuranTabCells(items: s.juz, two: s.wide) { j in
                 QuranTabJuzRow(j: j, p: p, x: x) { model.open(j.route) }
@@ -300,6 +310,50 @@ struct QuranTabView: View {
         } else if let none = r.none {
             QuranTabNote(text: none, p: p)
         }
+    }
+}
+
+// MARK: - الصفحات
+
+/// قسم «الصفحات»: اختيار الصفحة (NativePagePicker.swift)، وتحته الأجزاء بصفحاتها (بجانبه على الشاشة الواسعة).
+/// الصفحة المختارة تُحفظ في Kotlin وهي تتغير، فيبدأ منها القسم حين يُعرض من جديد
+private struct QuranTabPages: View {
+    let d: PagePickerData
+    let p: HomePalette
+    let x: QuranTabColors
+    let wide: Bool
+    let width: Double
+    let model: QuranTabModel
+    @State private var page: Int
+
+    init(d: PagePickerData, p: HomePalette, x: QuranTabColors, wide: Bool, width: Double, model: QuranTabModel) {
+        self.d = d; self.p = p; self.x = x; self.wide = wide; self.width = width; self.model = model
+        _page = State(initialValue: min(model.picked, max(d.pages.count, 1)))
+    }
+
+    var body: some View {
+        Group {
+            if wide {
+                HStack(alignment: .top, spacing: 20) {
+                    picker.frame(maxWidth: .infinity)
+                    grid(width / 2 - 10).frame(maxWidth: .infinity)
+                }
+            } else {
+                VStack(spacing: 14) {
+                    picker
+                    grid(width)
+                }
+            }
+        }
+        .onChange(of: page) { model.pick($0) }
+    }
+
+    private var picker: some View {
+        MushafPagePicker(d: d, p: p, onPrimary: x.onPrimary, compact: false, page: $page) { model.openPage($0) }
+    }
+
+    private func grid(_ w: Double) -> some View {
+        PagePickerJuzGrid(d: d, p: p, page: page, width: w) { page = $0 }
     }
 }
 

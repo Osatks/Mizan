@@ -27,8 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -68,6 +70,8 @@ fun QuranScreen(open: (String) -> Unit) {
     val lang = LocalLang.current
     var tab by rememberSaveable { mutableStateOf("surahs") }
     var q by rememberSaveable { mutableStateOf("") }
+    // الصفحة المختارة في قسم «الصفحات»: تبدأ من صفحة آخر قراءة
+    var pick by rememberSaveable { mutableIntStateOf(if (QuranPrefs.last >= 0) QuranMeta.pageOf(QuranPrefs.last) else 1) }
     val text by produceState(QuranData.cached(QuranData.UTHMANI)) { value = QuranData.uthmani() }
     // خط المصحف يُقرأ ويُهيَّأ تشكيله في الخلفية قبل فتح أي سورة، فلا يتحمله أول ظهور للصفحة
     LaunchedEffect(Unit) { warmMushafFont() }
@@ -111,11 +115,26 @@ fun QuranScreen(open: (String) -> Unit) {
             } else if (surahHits.isEmpty() && ref == null) full(key = "none") { Note(s.searchNoResults(q)) }
         } else {
             full(key = "tabs") {
-                Segmented(listOf("surahs" to s.surahsTab, "juz" to s.juzTab, "saved" to s.bookmarksTab), tab) { tab = it }
+                Segmented(listOf("surahs" to s.surahsTab, "juz" to s.juzTab, "pages" to s.pagesTab, "saved" to s.bookmarksTab), tab) { tab = it }
             }
             when (tab) {
                 "surahs" -> cells(QuranMeta.SURAHS, { "s${it + 1}" }) { SurahRow(it + 1, lang, open) }
                 "juz" -> cells(30, { "j${it + 1}" }) { JuzRow(it + 1, open) }
+                // اختيار صفحة بطريقة لطيفة، وتحته الأجزاء بصفحاتها
+                "pages" -> {
+                    full(key = "pagepicker") {
+                        // آخر قراءة، وأول صفحة لم تُقرأ في الختمة (متابعة الورد)
+                        val quick = buildList<Pair<String, Int>> {
+                            if (QuranPrefs.last >= 0) add(s.lastReadChip to QuranMeta.pageOf(QuranPrefs.last))
+                            if (!QuranProgress.finished) add(s.continuePortion to QuranProgress.nextUnread())
+                        }
+                        // البطاقة على ورق المصحف الذي اختاره القارئ (البني، والليلي، وثلاثي الأبعاد) كما في القارئ
+                        CompositionLocalProvider(LocalReadingPalette provides readingPalette(QuranPrefs.tone)) {
+                            PagePicker(pick, { pick = it }, s.openPage, { open(pageRoute(it)) }, compact = false, quick = quick)
+                        }
+                    }
+                    full(key = "juzgrid") { JuzPagesGrid(pick) { pick = it } }
+                }
                 else -> if (QuranPrefs.bookmarks.isEmpty()) full(key = "nomarks") { Note(s.noBookmarks) }
                 else QuranPrefs.bookmarks.toList().let { marks -> cells(marks.size, { "b${marks[it]}" }) { AyahHit(marks[it], text, open, bookmarked = true) } }
             }

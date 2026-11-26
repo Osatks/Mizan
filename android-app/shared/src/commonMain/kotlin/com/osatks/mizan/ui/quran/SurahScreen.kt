@@ -126,6 +126,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.FindInPage
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -168,8 +172,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val mode = QuranPrefs.modeFor(lang)
     val size = QuranPrefs.textSize
     val startIndex = QuranMeta.index(surah, startAyah.coerceAtLeast(1))
-    // «تابع في وضع التركيز» يفتح الصفحة نفسها دون تظليل آية
-    var selIdx by rememberSaveable { mutableIntStateOf(if (startAyah > 0 && from != "focus") startIndex else -1) }
+    // «تابع في وضع التركيز» واختيار صفحة (from=page) يفتحان الصفحة نفسها دون تظليل آية
+    var selIdx by rememberSaveable { mutableIntStateOf(if (startAyah > 0 && from != "focus" && from != "page") startIndex else -1) }
     // from=tafsir (آية اليوم في الرئيسية وأداتها): يفتح تفسير الآية مباشرة
     var sheetIdx by remember { mutableStateOf<Int?>(if (from == "tafsir" && startAyah > 0) startIndex else null) }
     var listSurah by rememberSaveable { mutableIntStateOf(surah) }
@@ -266,6 +270,9 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     var showControls by remember { mutableStateOf(startInFocus) }
     var audioSheet by remember { mutableStateOf(false) }
     var displaySheet by remember { mutableStateOf(false) }
+    // اختيار الصفحة: من زر الرأس أو بلمس رقم الصفحة في أسفلها؛ [pickerFrom] الصفحة الظاهرة حين فُتح
+    var pageSheet by remember { mutableStateOf(false) }
+    var pickerFrom by remember { mutableIntStateOf(1) }
     // الحفظ (في المصحف داخل وضع التركيز): الآيات مخفية حتى يكشفها القارئ
     var hifz by rememberSaveable { mutableStateOf(false) }
     var revealed by remember { mutableStateOf(emptySet<Int>()) }
@@ -277,7 +284,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     RecitationLifecycle()
     BackHandler(enabled = focus) { focus = false }
     // أزرار وضع التركيز تظهر قليلاً عند الدخول، وعند لمس إطار الصفحة أو استعمالها، وتبقى ما دامت ورقة إعداد مفتوحة
-    val sheetOpen = audioSheet || displaySheet
+    val sheetOpen = audioSheet || displaySheet || pageSheet
     // في الحفظ تبقى الأدوات ظاهرة: الشريط في هامش الصفحة لا يغطي السطور
     LaunchedEffect(focus, exitPing, sheetOpen, hifzOn) {
         showControls = focus
@@ -382,16 +389,22 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     }
     // الاستماع: تُفتح إعدادات التلاوة لتبدأ من الآية المختارة
     fun listenFrom(i: Int) { actionIdx = null; sheetIdx = null; selIdx = i; audioSheet = true }
+    // اختيار الصفحة يبدأ من الصفحة الظاهرة (وفي عرض آية آية من صفحة أول آية ظاهرة)
+    fun openPagePicker() {
+        actionIdx = null
+        pickerFrom = if (mode == "mushaf") page() else QuranMeta.pageOf(firstListIndex())
+        pageSheet = true
+    }
 
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     // المشغّل الصغير خارج وضع التركيز يأخذ مكانه أسفل الصفحة فلا يغطي سطورها
     val playerRoom = if (Recitation.active && !focus) 76.dp else 0.dp
     // على الشاشات العريضة: ما يظهر أسفل الشاشة (شريط خيارات الآية والمشغّل والأدوات) يبتعد عن اللوحة الجانبية إن فُتحت
-    val panelRoom = if (window.wide && (sheetIdx != null || audioSheet || displaySheet)) readingPanelWidth() else 0.dp
+    val panelRoom = if (window.wide && (sheetIdx != null || audioSheet || displaySheet || pageSheet)) readingPanelWidth() else 0.dp
     // الزجاج العائم في شاشة القراءة (شريط خيارات الآية واللوحات والقوائم) يموّه الصفحة التي تحته وحده؛
     // والصفحة مصدر للتمويه ما دام شيء منها ظاهراً فقط (وقليلاً بعده حتى تكتمل حركة خروجه)، فلا كلفة على التقليب غير ذلك
     val readerHaze = rememberHazeState()
-    val overlays = actionIdx != null || sheetIdx != null || audioSheet || displaySheet
+    val overlays = actionIdx != null || sheetIdx != null || audioSheet || displaySheet || pageSheet
     var lingering by remember { mutableStateOf(false) }
     LaunchedEffect(overlays) { if (overlays) lingering = true else { delay(450); lingering = false } }
     // التبديل بين المصحف وعرض آية آية حين يرسم أحدهما النظام نفسه (iOS): شفافية Compose وتكبيره لا يصلان إلى ما يرسمه
@@ -440,6 +453,8 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
             onBack, cardKey = "$from-$surah"
         ) {
             IconButton(onClick = { enterFocus() }) { Icon(Icons.Filled.Fullscreen, s.focusMode, tint = Color.White) }
+            // الانتقال إلى صفحة: يختار رقمها في لوحة (وفي عرض آية آية يفتح المصحف على الصفحة المختارة)
+            IconButton(onClick = { openPagePicker() }) { Icon(Icons.Filled.FindInPage, s.goToPage, tint = Color.White) }
             // لون الصفحة والسطوع (ومقاس الخط في عرض آية آية؛ صفحة المصحف تختار مقاسها لتملأ الصفحة)
             IconButton(onClick = { displaySheet = true }) { Icon(Icons.Filled.FormatSize, s.displayTitle, tint = Color.White) }
             IconButton(onClick = {
@@ -488,6 +503,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                                 native, t, selIdx, bottom + playerRoom, frame, focus,
                                 onTap = { tapAyah(it) }, onLongPress = { longPress(it) },
                                 onFrameTap = { if (focus) exitPing++ }, onEdge = { d -> if (focus) turn(d) },
+                                onPageTap = { openPagePicker() },
                                 hifz = hifzOn, revealed = revealed, modifier = Modifier.fillMaxSize(),
                             )
                         } else HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { if (spread) "s$it" else "p$it" }) { i ->
@@ -506,6 +522,7 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                                             p, t, selIdx, bottom + playerRoom, onFrameTap = { if (focus) exitPing++ },
                                             hifz = hifzOn, revealed = revealed, onEdge = if (focus) { d -> turn(d) } else null,
                                             onLongPress = { longPress(it) }, fade = away,
+                                            onPageTap = { openPagePicker() },
                                             side = if (!spread) PageSide.Single else if (Spreads.isRight(p)) PageSide.Right else PageSide.Left,
                                             prefetch = if (spread) PREFETCH_SPREAD else PREFETCH_EACH_SIDE,
                                             modifier = Modifier.weight(1f),
@@ -682,6 +699,17 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         )
     }
     ReadingPanel(displaySheet, onDismiss = { displaySheet = false }, paper = false) { DisplayOptions(showTextSize = mode != "mushaf") }
+    // اختيار الصفحة: الرقم وما في الصفحة، والشريط و − و +، وبدايات الأجزاء؛ «اذهب» يقلب إليها بحركة التقليب المعتادة
+    // (وفي عرض آية آية ينتقل إلى المصحف على تلك الصفحة)
+    ReadingPanel(pageSheet, onDismiss = { pageSheet = false }, paper = false) {
+        PageJumpContent(pickerFrom) { p ->
+            pageSheet = false
+            selIdx = -1
+            val inMushaf = mode == "mushaf"
+            if (!inMushaf) QuranPrefs.updateMode("mushaf")
+            scope.launch { goToPage(p, animate = inMushaf) }
+        }
+    }
     // التفسير في لوحة داخل الشاشة نفسها، فلا تتغير الصفحة خلفها
     var panelIdx by remember { mutableIntStateOf(0) }
     sheetIdx?.let { panelIdx = it }
@@ -730,9 +758,10 @@ internal fun MushafPage(
     page: Int, text: Array<String>, selected: Int, bottomInset: androidx.compose.ui.unit.Dp, onFrameTap: () -> Unit,
     hifz: Boolean = false, revealed: Set<Int> = emptySet(), onEdge: ((Int) -> Unit)? = null,
     onLongPress: ((Int) -> Unit)? = null, fade: () -> Float = { 0f }, side: PageSide = PageSide.Single,
-    prefetch: Int = PREFETCH_EACH_SIDE, modifier: Modifier = Modifier, onTap: (Int) -> Unit,
+    prefetch: Int = PREFETCH_EACH_SIDE, onPageTap: (() -> Unit)? = null, modifier: Modifier = Modifier, onTap: (Int) -> Unit,
 ) {
     val p = mushafPalette()
+    val s = LocalStrings.current
     // الصفحة المغادرة تخبو نحو لون ما حولها: غشاء بلون الخلفية فوق الورقة، بدل شفافية الصفحة كلها
     // (الشفافية ترسم الصفحة بظلها في ذاكرة وسيطة مع كل إطار من السحب)
     val veil = p.backdrop.takeOrElse { MaterialTheme.colorScheme.surfaceContainerLow }
@@ -790,8 +819,16 @@ internal fun MushafPage(
         Spacer(Modifier.fillMaxWidth().height(10.dp).drawBehind { drawRule(size.height / 2, 0f, size.width, p) })
         MushafCanvas(page, text, selected, onTap, Modifier.weight(1f).fillMaxWidth().padding(top = 8.dp, bottom = 2.dp), hifz, revealed, onLongPress, prefetch)
     }
-    // رقم الصفحة في وسط خطَّي الإطار السفليين
-    PageMedallion(page, read, Modifier.align(Alignment.BottomCenter).padding(bottom = MEDALLION_CENTER - MEDALLION_SIZE / 2))
+    // رقم الصفحة في وسط خطَّي الإطار السفليين؛ لمسه يفتح اختيار الصفحة (منطقة لمس أوسع قليلاً من الميدالية،
+    // ولمسها لا يصل إلى الإطار تحتها فلا يُظهر أدوات وضع التركيز، ولا يمس لمس الآيات وضغطها المطوّل فوقها)
+    if (onPageTap != null) Box(
+        Modifier.align(Alignment.BottomCenter).padding(bottom = MEDALLION_CENTER - MEDALLION_TOUCH / 2).size(MEDALLION_TOUCH)
+            .clip(CircleShape)
+            .semantics { contentDescription = s.pageName(page) }
+            .clickable(onClickLabel = s.goToPage, role = Role.Button) { onPageTap() },
+        contentAlignment = Alignment.Center,
+    ) { PageMedallion(page, read) }
+    else PageMedallion(page, read, Modifier.align(Alignment.BottomCenter).padding(bottom = MEDALLION_CENTER - MEDALLION_SIZE / 2))
     Spacer(
         Modifier.matchParentSize()
             .graphicsLayer { alpha = 0.4f * fade(); compositingStrategy = CompositingStrategy.ModulateAlpha }
@@ -802,6 +839,9 @@ internal fun MushafPage(
 
 /** عرض طرف الصفحة الذي يقلبها لمسُه، نسبةً إلى عرضها */
 private const val EDGE = 0.14f
+
+/** منطقة لمس رقم الصفحة: أوسع من الميدالية (32) ومركزها مركزها، ولا تتجاوز أسفل الورقة */
+private val MEDALLION_TOUCH = 42.dp
 
 /** الهامش بين صفحتي الكتاب المفتوح من كل جهة (عند الكعب) */
 private val SPINE_GAP = 3.dp

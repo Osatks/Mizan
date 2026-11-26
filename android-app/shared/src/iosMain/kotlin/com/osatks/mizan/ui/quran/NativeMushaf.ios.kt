@@ -68,6 +68,7 @@ class NativeMushafSession internal constructor() {
     internal var onLongPress: (Int) -> Unit = {}
     internal var onFrameTap: () -> Unit = {}
     internal var onEdge: (Int) -> Unit = {}
+    internal var onPageTap: () -> Unit = {}
     /** صفحات تعذّر تنزيل خطها (بلا اتصال): يعرض القارئ فيها زر إعادة المحاولة */
     internal val failed = mutableStateListOf<Int>()
     private val scope = MainScope()
@@ -96,6 +97,8 @@ class NativeMushafSession internal constructor() {
     fun frameTap() = onFrameTap()
     /** لمس طرف الصفحة في وضع التركيز: 1 للتالية (الطرف الأيسر)، -1 للسابقة */
     fun edge(dir: Int) = onEdge(dir)
+    /** لمس رقم الصفحة في أسفلها (أو فعل «انتقل إلى صفحة» من VoiceOver): يفتح اختيار الصفحة */
+    fun pageTap() = onPageTap()
 
     // ---------- بيانات الصفحة ----------
 
@@ -137,13 +140,14 @@ private fun hex(c: Color): String = "#" + (c.toArgb().toLong() and 0xFFFFFFFFL).
 internal actual fun NativeMushafPager(
     turns: NativeTurns, text: Array<String>, selected: Int, bottomInset: Dp, frame: Dp, focus: Boolean,
     onTap: (Int) -> Unit, onLongPress: (Int) -> Unit, onFrameTap: () -> Unit, onEdge: (Int) -> Unit,
-    hifz: Boolean, revealed: Set<Int>, modifier: Modifier,
+    onPageTap: () -> Unit, hifz: Boolean, revealed: Set<Int>, modifier: Modifier,
 ) {
     val session = remember { NativeMushafSession() }
     val tap by rememberUpdatedState(onTap)
     val long by rememberUpdatedState(onLongPress)
     val frameTap by rememberUpdatedState(onFrameTap)
     val edge by rememberUpdatedState(onEdge)
+    val pageTap by rememberUpdatedState(onPageTap)
     session.turns = turns
     session.text = text
     DisposableEffect(session) {
@@ -151,8 +155,9 @@ internal actual fun NativeMushafPager(
         session.onLongPress = { long(it) }
         session.onFrameTap = { frameTap() }
         session.onEdge = { edge(it) }
+        session.onPageTap = { pageTap() }
         onDispose {
-            session.onTap = {}; session.onLongPress = {}; session.onFrameTap = {}; session.onEdge = {}
+            session.onTap = {}; session.onLongPress = {}; session.onFrameTap = {}; session.onEdge = {}; session.onPageTap = {}
         }
     }
 
@@ -187,6 +192,8 @@ internal actual fun NativeMushafPager(
             "gold" to hex(p.gold), "goldDeep" to hex(p.goldDeep), "fill" to hex(p.fill), "fillDeep" to hex(p.fillDeep),
             "select" to hex(p.select), "press" to hex(p.press), "accent" to hex(accent), "backdrop" to hex(backdrop),
             "downloading" to st.downloading, "retry" to s.retry,
+            // فعل VoiceOver على الصفحة، ومعنى لمس رقمها في أسفلها
+            "goToPage" to s.goToPage,
         )
     )
     session.prime(json)

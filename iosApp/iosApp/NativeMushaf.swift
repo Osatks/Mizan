@@ -60,6 +60,8 @@ struct MushafState: Decodable {
     var depth: Bool?
     /// لون غباش الكلمات "#AARRGGBB": ظل في الفاتح، ووهج ذهبي في الليلي
     var haze: String?
+    /// «انتقل إلى صفحة»: فعل VoiceOver على الصفحة (ولمس رقمها في أسفلها يفتح اختيار الصفحة)
+    var goToPage: String?
 
     /// عدد صفحات المصحف
     var totalPages: Int { max(pages ?? 604, 1) }
@@ -477,6 +479,8 @@ private enum Geo {
     static let spineCorner: CGFloat = 6, spineGap: CGFloat = 3
     /// عرض طرف الصفحة الذي يقلبها لمسُه في وضع التركيز
     static let edge: CGFloat = 0.14
+    /// نصف قطر منطقة لمس رقم الصفحة: أوسع قليلاً من الميدالية
+    static let medallionTouch: CGFloat = 22
 }
 
 /// حركة الجهاز للوضع ثلاثي الأبعاد: اتجاه الجاذبية بمحوري الشاشة كما يراها القارئ، والفرق بينه وبين وضع مرجعي
@@ -831,6 +835,18 @@ final class MushafPageView: UIView {
         set {}
     }
 
+    /// VoiceOver: «انتقل إلى صفحة» من الصفحة نفسها (كلمس رقمها في أسفلها)
+    override var accessibilityCustomActions: [UIAccessibilityCustomAction]? {
+        get {
+            guard let name = host?.state?.goToPage else { return nil }
+            return [UIAccessibilityCustomAction(name: name) { [weak self] _ in
+                self?.host?.session.pageTap()
+                return true
+            }]
+        }
+        set {}
+    }
+
     private var bottomInset: CGFloat { CGFloat(host?.state?.bottom ?? 0) }
 
     /// مقاس منطقة الأسطر (لحساب الصفحات المجاورة مسبقاً بالمقاس نفسه)
@@ -1120,8 +1136,18 @@ final class MushafPageView: UIView {
         return l.hit(p)
     }
 
+    /// اللمس على رقم الصفحة في أسفلها (الميدالية على خطَّي الإطار السفليين)
+    private func onMedallion(_ point: CGPoint) -> Bool {
+        let pt = convert(point, to: card)
+        let b = card.bounds
+        guard b.width > 0, b.height > 0 else { return false }
+        return hypot(pt.x - b.width / 2, pt.y - (b.height - Geo.medallionCenter)) <= Geo.medallionTouch
+    }
+
     @objc private func tapped(_ g: UITapGestureRecognizer) {
         guard let host = host, let s = host.state else { return }
+        // لمس رقم الصفحة يفتح اختيار الصفحة (قبل الآيات: آخر سطر قريب منه)
+        if onMedallion(g.location(in: self)) { host.session.pageTap(); return }
         let pt = g.location(in: card)
         // في وضع التركيز: لمس طرف الصفحة يقلبها، الأيسر إلى التالية والأيمن إلى السابقة كالكتاب العربي؛
         // وفي الكتاب المفتوح الطرفان الخارجيان فقط (طرف الكعب بين الصفحتين لا يقلب)
@@ -1144,7 +1170,7 @@ final class MushafPageView: UIView {
     // ظل خفيف تحت الآية الملموسة بعد لحظة (لا مع بدء السحب لتقليب الصفحة)
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        guard touches.count == 1, let t = touches.first else { return }
+        guard touches.count == 1, let t = touches.first, !onMedallion(t.location(in: self)) else { return }
         let i = ayah(at: t.location(in: self))
         guard i >= 0, let path = glyphs.layout?.band(i) else { return }
         pressStart = t.location(in: self)
@@ -1422,7 +1448,14 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
             appliedSeq = s.seq
             if s.jump != current || pages.isDragging || pages.isDecelerating {
                 let near = abs(s.jump - current) <= 2
-                scroll(to: s.jump, animated: s.animate && near && view.window != nil && !UIAccessibility.isReduceMotionEnabled)
+                let motion = s.animate && view.window != nil && !UIAccessibility.isReduceMotionEnabled
+                if motion && !near && !pages.isDragging && !pages.isDecelerating {
+                    // انتقال بعيد (اختيار صفحة): يُقفز بلا حركة إلى الموضع المجاور لها، ثم تُقلب إليها بحركة التقليب المعتادة
+                    scroll(to: s.jump + (s.jump > current ? -1 : 1), animated: false)
+                    scroll(to: s.jump, animated: true)
+                } else {
+                    scroll(to: s.jump, animated: motion && near)
+                }
             }
         }
     }

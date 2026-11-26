@@ -498,6 +498,15 @@ interface Strings {
     val newKhatma: String               // "Start a new khatma"
     fun khatmasCompleted(n: Int): String // "Completed khatmas: 2"
     val continuePortion: String         // "Continue my portion"
+    val pagesTab: String                // Quran index tab next to Surahs and Juz: "Pages" (choose a page of the Madinah Mushaf)
+    val goToPage: String                // reader top-bar button and page-picker title: "Go to page"
+    val openPage: String                // page picker button in the Quran index: "Open page"
+    val goButton: String                // page picker button in the reader: "Go"
+    val lastReadChip: String            // page picker chip to the page read last: "Last read"
+    val prevPage: String                // page picker − button (screen reader): "Previous page"
+    val nextPage: String                // page picker + button (screen reader): "Next page"
+    val typePageHint: String            // tapping the big page number lets you type it: "Type a page number"
+    fun pageSpan(from: Int, to: Int): String  // juz grid in the page picker: "Pages 1–21"
     val ayahOfDay: String               // "Ayah of the day" (home-screen widget)
     val focusMode: String               // "Focus mode" (Quran reading without the header)
     val exitFocus: String               // "Exit focus mode"

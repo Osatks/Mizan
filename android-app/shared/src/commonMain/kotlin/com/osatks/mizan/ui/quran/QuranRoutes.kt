@@ -13,6 +13,15 @@ fun surahRoute(surah: Int, ayah: Int = 0, from: String = "row") = "surah/$surah?
 
 const val SURAH_ROUTE = "surah/{surah}?ayah={ayah}&from={from}"
 
+/**
+ * يفتح صفحة مصحف المدينة [page] (من 1 إلى 604): مسار السورة عند أول آية في الصفحة، و from=page فلا تُظلَّل تلك الآية
+ * (القارئ يريد الصفحة لا آية بعينها)
+ */
+fun pageRoute(page: Int): String {
+    val (surah, ayah) = QuranMeta.locate(QuranMeta.pageRange(page.coerceIn(1, QuranMeta.PAGES.size)).first)
+    return surahRoute(surah, ayah, "page")
+}
+
 /** رابط «تابع القراءة» في الاختصارات (Siri، واختصارات أيقونة أندرويد): يصير عند فتحه صفحة آخر آية قرأها المستخدم */
 const val CONTINUE_ROUTE = "quran/continue"
 

@@ -34,13 +34,16 @@ import com.osatks.mizan.i18n.HomeText
 import com.osatks.mizan.i18n.Lang
 import com.osatks.mizan.i18n.LocalLang
 import com.osatks.mizan.i18n.LocalStrings
+import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.platform.Fs
 import com.osatks.mizan.platform.Platform
 import com.osatks.mizan.platform.encodePng
 import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.quran.QuranMeta
+import com.osatks.mizan.quran.QuranPages
 import com.osatks.mizan.quran.QuranPrefs
+import com.osatks.mizan.quran.QuranProgress
 import com.osatks.mizan.quran.Sources
 import com.osatks.mizan.quran.TafsirEntry
 import com.osatks.mizan.quran.arabicDigits
@@ -60,7 +63,7 @@ import com.osatks.mizan.ui.LocalWindowLayout
 
 /*
  * أوراق القرآن من النظام في iOS (iosApp/iosApp/NativeQuranSheets.swift و NativeShareSheet.swift عبر NativeSheetHost):
- * التفسير ("tafsir")، وخيارات الآية ("ayahActions")، ومشاركة الآية والقصة صورةً ("shareCard").
+ * التفسير ("tafsir")، وخيارات الآية ("ayahActions")، ومشاركة الآية والقصة صورةً ("shareCard")، واختيار الصفحة ("pagePicker").
  * المنطق كله والنصوص هنا كما في أوراق Compose نفسها؛ و Swift يرسم الحالة ويعيد اللمسات.
  */
 
@@ -391,4 +394,70 @@ internal actual fun AyahShareContent(index: Int, text: Array<String>, onDone: ()
     val slot = LocalReadingPanel.current ?: return
     SideEffect { slot.native = true }
     NativeAyahShare(index, text, onDone, onDismiss = { slot.dismiss() })
+}
+
+// ---------- اختيار الصفحة ----------
+
+/** ما في كل صفحة لاختيار الصفحة في Swift: سورها بلغة الواجهة وجزؤها وحزبها، واسمها لقارئ الشاشة (لا يتغير إلا باللغة) */
+internal fun pagePickerPages(s: Strings, rtl: Boolean): List<Map<String, Any?>> = (1..QuranPages.COUNT).map { p ->
+    val info = QuranPages.info(p)
+    linkedMapOf("s" to s.pageSurahs(info, rtl), "j" to info.juz, "h" to info.hizb, "n" to s.pageName(p))
+}
+
+/** الصفحات المقروءة في الختمة حرفاً لكل صفحة ('1' مقروءة): تمتلئ ميدالية الرقم بالذهب كما في المصحف */
+internal fun pagesReadString(): String = buildString(QuranPages.COUNT) {
+    for (p in 1..QuranPages.COUNT) append(if (QuranProgress.isRead(p)) '1' else '0')
+}
+
+/**
+ * بيانات اختيار الصفحة (MushafPagePicker في iosApp/iosApp/NativePagePicker.swift) في فهرس المصحف وفي ورقة القارئ،
+ * كما في PagePicker في أندرويد: ما في كل صفحة [pages]، والأجزاء بصفحاتها، والصفحات المقروءة [read]، وشرائح [quick]
+ * (آخر قراءة والورد)، والنصوص (ويبني Swift منها سطر الصفحة «الأعراف · الجزء 9 · الحزب 18» وما يقرؤه VoiceOver كما في
+ * pageSummary و pageSpeech)، وألوان ورق المصحف [mp] (لون الورق الذي اختاره القارئ، والوضعان ثلاثيا الأبعاد كذلك).
+ */
+internal fun pagePickerData(
+    s: Strings, rtl: Boolean, pages: List<Map<String, Any?>>, page: Int, action: String,
+    quick: List<Pair<String, Int>>, read: String, mp: MushafPalette,
+): Map<String, Any?> = linkedMapOf(
+    "page" to page.coerceIn(1, QuranPages.COUNT), "pages" to pages, "read" to read,
+    "juz" to (1..30).map { j ->
+        val r = QuranPages.juzPages(j)
+        linkedMapOf("n" to j, "name" to s.juzName(j), "from" to r.first, "to" to r.last, "span" to s.pageSpan(r.first, r.last))
+    },
+    "hizbNames" to (1..60).map { s.hizbName(it) },
+    "quick" to quick.map { (label, p) -> linkedMapOf("label" to label, "page" to p) },
+    "sep" to listSeparator(rtl),
+    "title" to s.goToPage, "action" to action, "prev" to s.prevPage, "next" to s.nextPage,
+    "typeHint" to s.typePageHint, "juzTitle" to s.juzTab,
+    "paper" to hex(mp.paper), "paperEdge" to hex(mp.paperEdge), "ink" to hex(mp.ink), "muted" to hex(mp.muted),
+    "gold" to hex(mp.gold), "goldDeep" to hex(mp.goldDeep), "fill" to hex(mp.fill), "fillDeep" to hex(mp.fillDeep),
+)
+
+/**
+ * «انتقل إلى صفحة» في القارئ: ورقة النظام القصيرة بما في PageJumpContent في أندرويد (الرقم وما في الصفحة، والشريط
+ * و − و +، وبدايات الأجزاء، و«اذهب»)؛ الاختيار يجري كله في Swift، ويعود «go» برقم الصفحة فتُغلق الورقة ثم تُقلب إليها.
+ */
+@Composable
+internal actual fun PageJumpContent(page: Int, onGo: (Int) -> Unit) {
+    val slot = LocalReadingPanel.current ?: return
+    SideEffect { slot.native = true }
+    val s = LocalStrings.current
+    val rtl = LocalLang.current.rtl
+    val mp = mushafPalette()
+    val pages = remember(s, rtl) { pagePickerPages(s, rtl) }
+    val read = remember(QuranProgress.readCount) { pagesReadString() }
+    val json = Json.write(
+        quranSheetTheme() + linkedMapOf(
+            "close" to s.close,
+            "picker" to pagePickerData(s, rtl, pages, page, s.goButton, emptyList(), read, mp),
+        )
+    )
+    NativeSheetHost("pagePicker", json, startLarge = false, onDismiss = { slot.dismiss() }) { action, arg ->
+        when (action) {
+            // الورقة تُغلق بحركتها أولاً، ثم تُقلب الصفحة فيراها القارئ تنقلب
+            "go" -> arg.toIntOrNull()?.let { p -> close { onGo(p.coerceIn(1, QuranPages.COUNT)) } }
+            "close" -> close { slot.dismiss() }
+            else -> {}
+        }
+    }
 }
