@@ -51,6 +51,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -145,6 +146,12 @@ internal class PageJourneyState(val startShot: GraphicsLayer, val liveShot: Grap
     /** صُوّرت الصفحة الحالية (يكتبه الرسم، فليس حالة تُعيد التركيب) */
     internal var captured = false
 
+    /**
+     * صورة نقطية ثابتة للصفحة الحالية: تسجيل [startShot] يحيل إلى طبقات الصفحات نفسها، فإذا قفز HorizontalPager
+     * تحت الأوراق ظهرت فيه الصفحة المقصودة قبل أوانها؛ الصورة تبقى الصفحة التي بدأت منها الرحلة
+     */
+    internal var startImage by mutableStateOf<ImageBitmap?>(null)
+
     val busy: Boolean get() = phase != JourneyPhase.Idle
 
     /** الأوراق تغطي الصفحات: HorizontalPager يُسجَّل في [liveShot] ولا يُرسم مباشرة */
@@ -190,6 +197,7 @@ internal class PageJourneyState(val startShot: GraphicsLayer, val liveShot: Grap
     private suspend fun reset() {
         phase = JourneyPhase.Idle
         plan = null
+        startImage = null
         turn = 0
         sweeping = false
         fold.snapTo(0f); lift.snapTo(1f); fade.snapTo(0f); sweep.snapTo(0f)
@@ -202,6 +210,7 @@ internal class PageJourneyState(val startShot: GraphicsLayer, val liveShot: Grap
         phase = JourneyPhase.Capture
         var frames = 0
         while (!captured && frames < 6) { withFrameNanos { }; frames++ }
+        if (captured) startImage = runCatching { startShot.toImageBitmap() }.getOrNull()
         return captured
     }
 
@@ -332,7 +341,7 @@ internal fun PageJourneyOverlay(state: PageJourneyState, frame: Dp, bottomInset:
         val plan = state.plan
         when {
             phase == JourneyPhase.Flip && plan != null -> FlipStage(state, plan, frame, bottomInset)
-            phase == JourneyPhase.Fade -> Spacer(Modifier.fillMaxSize().graphicsLayer { alpha = state.fade.value }.drawBehind { drawLayer(state.startShot) })
+            phase == JourneyPhase.Fade -> Spacer(Modifier.fillMaxSize().graphicsLayer { alpha = state.fade.value }.drawBehind { drawStart(state) })
         }
         // الضوء الذهبي يمرّ مرة على الورقة، ورقم الصفحة في أسفلها يتوهج
         if (phase == JourneyPhase.Land) Spacer(
@@ -394,7 +403,7 @@ private fun FlipStage(state: PageJourneyState, plan: PageJourney, frame: Dp, bot
     )
     val sheet: @Composable (Int) -> Unit = { i ->
         when {
-            i <= 0 -> LayerSheet(state.startShot)
+            i <= 0 -> Spacer(Modifier.fillMaxSize().drawBehind { drawStart(state) })
             i >= n -> LayerSheet(state.liveShot)
             else -> PlaceholderSheet(plan.sheets[i], spread, frame, bottomInset)
         }
@@ -476,6 +485,12 @@ private fun Leaf(
 @Composable
 private fun LayerSheet(layer: GraphicsLayer) {
     Spacer(Modifier.fillMaxSize().drawBehind { drawLayer(layer) })
+}
+
+/** الصفحة التي بدأت منها الرحلة: صورتها الثابتة إن صُنعت، وإلا تسجيلها */
+private fun DrawScope.drawStart(state: PageJourneyState) {
+    val img = state.startImage
+    if (img != null) drawImage(img) else drawLayer(state.startShot)
 }
 
 /** ورقة بين الطرفين: صفحة واحدة أو كتاب مفتوح بالإطار نفسه الذي يضعه HorizontalPager */
