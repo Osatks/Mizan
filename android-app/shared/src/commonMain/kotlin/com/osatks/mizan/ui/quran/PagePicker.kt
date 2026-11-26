@@ -3,7 +3,9 @@ package com.osatks.mizan.ui.quran
 import androidx.compose.runtime.Composable
 import com.osatks.mizan.i18n.Strings
 import com.osatks.mizan.quran.PageInfo
+import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.QuranPages
+import com.osatks.mizan.quran.arabicDigits
 
 /**
  * اختيار الصفحة في لوحة القارئ (من زر «انتقل إلى صفحة» في الرأس أو بلمس رقم الصفحة في أسفلها): الرقم وما في الصفحة،
@@ -35,3 +37,20 @@ internal fun crossesJuz(from: Int, to: Int): Boolean {
     val lo = minOf(from, to); val hi = maxOf(from, to)
     return JUZ_START_PAGES.any { it > lo && it <= hi }
 }
+
+/** رأس صفحة المصحف كما يُكتب في أعلاها (في الصفحة نفسها، ومعاينتها في اختيار الصفحة، وأوراق رحلة الانتقال): السورة التي تبدأ بها */
+internal fun mushafHeadTitle(page: Int): String =
+    "سُورَةُ ${QuranMeta.NAMES_AR[QuranMeta.locate(QuranMeta.pageRange(page.coerceIn(1, QuranPages.COUNT)).first).first - 1]}"
+
+/** طرف الرأس الآخر: الجزء بالحروف والحزب بالأرقام المشرقية، «الجزء التاسع · الحزب ١٨» */
+internal fun mushafHeadSubtitle(page: Int): String {
+    val first = QuranMeta.pageRange(page.coerceIn(1, QuranPages.COUNT)).first
+    return "الجزء ${JUZ_ORDINALS[QuranMeta.juzOf(first) - 1]} · الحزب ${arabicDigits(QuranMeta.hizbOf(first))}"
+}
+
+/** ما يظهر في الشريط أعلى القارئ حين يصل إلى صفحة اختارها: «الأعراف · الجزء 9 · الصفحة 173» بأرقام التطبيق */
+internal fun Strings.arrivalBanner(page: Int, rtl: Boolean): String {
+    val info = QuranPages.info(page)
+    return "${pageSurahs(info, rtl)} · ${juzName(info.juz)} · ${pageName(info.page)}"
+}
+

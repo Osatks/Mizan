@@ -279,7 +279,7 @@ internal fun NativeQuranView(open: (String) -> Unit, modifier: Modifier) {
                 if (last >= 0) add(s.lastReadChip to QuranMeta.pageOf(last))
                 if (!p.finished) add(s.continuePortion to p.nextUnread())
             }
-            pagePickerData(s, lang.rtl, pickerPages, session.picked, s.openPage, quick, pickerRead, pickerPalette)
+            pagePickerData(s, lang.rtl, pickerPages, session.picked, s.openPage, quick, pickerRead, pickerPalette, text != null)
         }
 
         val hits = ayahHits

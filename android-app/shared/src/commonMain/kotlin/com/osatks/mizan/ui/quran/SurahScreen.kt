@@ -39,6 +39,10 @@ import androidx.compose.ui.text.font.FontWeight
 import com.osatks.mizan.quran.QuranProgress
 import com.osatks.mizan.quran.arabicDigits
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import com.osatks.mizan.quran.PageJourneys
+import com.osatks.mizan.quran.QuranPages
 import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -183,7 +187,11 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
     val spread = window.mushafSpread
     // رقم الصفحة أصل الحالة: يُحفظ، ويُبنى منه موضع التقليب حين تتغير النافذة (فتح iPhone Duo وطيّه، تدوير iPad،
     // Split View)، فتبقى الصفحة نفسها ظاهرة ولا يقفز القارئ إلى غيرها
-    var anchor by rememberSaveable { mutableIntStateOf(QuranMeta.pageOf(startIndex)) }
+    // «افتح الصفحة» في فهرس المصحف (from=page): القارئ يفتح على صفحة آخر قراءة (أو الأولى)، ثم يرحل منها إلى الصفحة
+    // المختارة برحلة الانتقال (مرة واحدة، لا عند إعادة إنشاء الشاشة)
+    var travelled by rememberSaveable { mutableStateOf(from != "page" || mode != "mushaf") }
+    val journeyStart = remember { if (QuranPrefs.last >= 0) QuranMeta.pageOf(QuranPrefs.last) else 1 }
+    var anchor by rememberSaveable { mutableIntStateOf(if (!travelled) journeyStart else QuranMeta.pageOf(startIndex)) }
     // في iOS: صفحات مصحف المدينة (صفحة واحدة، أو صفحتان متقابلتان في الكتاب المفتوح) يقلّبها ويرسمها النظام نفسه
     // (NativeMushaf)، وموضعها في [native]؛ وفي أندرويد والخط الآخر: HorizontalPager وموضعه في [pager]
     val nativeOn = nativeMushafAvailable && QuranPrefs.script != "amiri"
@@ -238,12 +246,56 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         anchor = p
     }
 
+    // رحلة الانتقال إلى صفحة: الصفحة تُرفع، وتنقلب أوراق المصحف إليها ورقمها يدور، ثم تهبط ويتوهج رقمها، وشريط
+    // السورة والجزء والصفحة أعلى القارئ. في Compose فوق HorizontalPager (PageJourneyOverlay.kt)، وفي iOS يرسمها قارئ النظام (NativeMushaf.swift)
+    val journey = rememberPageJourney()
+    var banner by remember { mutableStateOf<String?>(null) }
+    var bannerSeq by remember { mutableIntStateOf(0) }
+    var travelJob by remember { mutableStateOf<Job?>(null) }
+    fun arrive(p: Int) { banner = s.arrivalBanner(p, lang.rtl); bannerSeq++ }
+    /** يرحل إلى الصفحة [target] من الصفحة الظاهرة (في المصحف) */
+    fun travel(target: Int) {
+        val p = target.coerceIn(1, QuranPages.COUNT)
+        val previous = travelJob
+        travelJob = scope.launch {
+            // الرحلة السابقة (إن كانت جارية) تنتهي وتُعيد حالتها قبل أن تبدأ هذه
+            previous?.cancelAndJoin()
+            val to = Spreads.index(p, spread)
+            val plan = PageJourneys.plan(at(), to, Spreads.count(spread), page(), p) { Spreads.pages(it, spread).first }
+            anchor = p
+            if (native != null) {
+                // القارئ من النظام يرسم الرحلة واهتزازاتها؛ والشريط يظهر حين تبدأ الصفحة بالهبوط
+                native.go(to, animate = true, journey = plan)
+                delay((plan.totalMs - PageJourneys.LAND_MS / 2).coerceAtLeast(0).toLong())
+                arrive(p)
+            } else {
+                journey.run(
+                    plan, spread, p, reduce = Motion.reduced || systemReduceMotion(), haptic = haptic,
+                    jump = { i -> pager.scrollToPage(i) },
+                    turnTo = { i -> pager.animateScrollToPage(i) },
+                    onLand = { arrive(p) },
+                )
+            }
+            // ما مرّ به التقليب في الطريق لا يغيّر الصفحة المقصودة (اليسرى مثلاً)
+            anchor = p
+        }
+    }
+
     // الانتقال إلى الآية المطلوبة في عرض آية آية
     var jumped by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(text != null) {
         // القائمة الأصلية تبدأ من الآية المطلوبة بنفسها ([listTop])
         if (text != null && !jumped) { jumped = true; if (ayahs == null && mode == "list" && startAyah > 1) list.scrollToItem(listItemOf(startAyah)) }
     }
+    // من فهرس المصحف: بعد أن تكتمل حركة فتح الشاشة، الرحلة من صفحة آخر قراءة إلى الصفحة المختارة
+    LaunchedEffect(text != null) {
+        if (text != null && !travelled) {
+            travelled = true
+            delay(450)
+            travel(QuranMeta.pageOf(startIndex))
+        }
+    }
+    LaunchedEffect(bannerSeq) { if (banner != null) { delay(2600); banner = null } }
     // الصفحة المعروضة ثلاث ثوانٍ تُحسب مقروءة (وفي الكتاب المفتوح صفحتاه معاً)
     LaunchedEffect(mode, turnKey) {
         if (mode == "mushaf") snapshotFlow { at() }.collectLatest { p -> delay(3000); Spreads.pages(p, spread).forEach { QuranProgress.markRead(it) } }
@@ -506,7 +558,10 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                                 onPageTap = { openPagePicker() },
                                 hifz = hifzOn, revealed = revealed, modifier = Modifier.fillMaxSize(),
                             )
-                        } else HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1, key = { if (spread) "s$it" else "p$it" }) { i ->
+                        } else Box(Modifier.fillMaxSize()) {
+                        // الكتاب يرتفع أثناء رحلة الانتقال إلى صفحة، والأوراق المنقلبة فوق الصفحات بالإطار نفسه
+                        Box(Modifier.fillMaxSize().journeyLift(journey)) {
+                        HorizontalPager(pager, Modifier.fillMaxSize().journeySource(journey), beyondViewportPageCount = 1, key = { if (spread) "s$it" else "p$it" }) { i ->
                             // بُعد الصفحة عن موضعها أثناء السحب؛ يُقرأ في طبقات الرسم فقط فلا يعيد تركيب الصفحة مع كل إطار
                             val away = { ((pager.currentPage - i) + pager.currentPageOffsetFraction).absoluteValue.coerceAtMost(1f) }
                             Box(
@@ -530,6 +585,11 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
                                     }
                                 }
                             }
+                        }
+                        PageJourneyOverlay(journey, frame, bottom + playerRoom)
+                        }
+                        // الرقم الدوّار فوق الكتاب
+                        JourneyBadge(journey, Modifier.align(Alignment.Center))
                         }
                     }
                 }
@@ -605,6 +665,14 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         portionPill, Modifier.align(Alignment.TopCenter).windowInsetsPadding(focusTop).padding(top = if (focus) 60.dp else 140.dp),
         enter = fadeIn(tween(Motion.MEDIUM)) + scaleIn(tween(Motion.MEDIUM), 0.85f), exit = fadeOut(tween(Motion.MEDIUM)),
     ) { PortionDonePill() }
+    // شريط الوصول إلى الصفحة المختارة: «الأعراف · الجزء 9 · الصفحة 173»
+    var bannerText by remember { mutableStateOf("") }
+    banner?.let { bannerText = it }
+    AnimatedVisibility(
+        banner != null, Modifier.align(Alignment.TopCenter).windowInsetsPadding(focusTop).padding(top = if (focus) 58.dp else 140.dp, start = 24.dp, end = 24.dp),
+        enter = fadeIn(tween(Motion.MEDIUM)) + slideInVertically(tween(Motion.MEDIUM, easing = Motion.Decelerate)) { -it / 2 },
+        exit = fadeOut(tween(Motion.MEDIUM)) + slideOutVertically(tween(Motion.MEDIUM)) { -it / 2 },
+    ) { ArrivalBanner(bannerText) }
     // زر الخروج من وضع التركيز
     AnimatedVisibility(
         showControls, Modifier.align(Alignment.TopCenter).windowInsetsPadding(focusTop).padding(top = 14.dp),
@@ -705,9 +773,14 @@ fun SurahScreen(surah: Int, startAyah: Int, from: String, onBack: () -> Unit, op
         PageJumpContent(pickerFrom) { p ->
             pageSheet = false
             selIdx = -1
-            val inMushaf = mode == "mushaf"
-            if (!inMushaf) QuranPrefs.updateMode("mushaf")
-            scope.launch { goToPage(p, animate = inMushaf) }
+            if (mode != "mushaf") {
+                QuranPrefs.updateMode("mushaf")
+                scope.launch { goToPage(p, animate = false); arrive(p) }
+            } else scope.launch {
+                // اللوحة تُغلق أولاً ثم تبدأ الرحلة (ورقة النظام في iOS تُغلق قبل أن يصل «اذهب»)
+                if (native == null) delay(Motion.SHORT.toLong())
+                travel(p)
+            }
         }
     }
     // التفسير في لوحة داخل الشاشة نفسها، فلا تتغير الصفحة خلفها

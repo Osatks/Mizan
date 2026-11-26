@@ -62,6 +62,8 @@ struct MushafState: Decodable {
     var haze: String?
     /// «انتقل إلى صفحة»: فعل VoiceOver على الصفحة (ولمس رقمها في أسفلها يفتح اختيار الصفحة)
     var goToPage: String?
+    /// رحلة الانتقال إلى صفحة اختارها القارئ، مع الانتقال المطلوب نفسه (seq): MushafJourneyPlayer
+    var journey: MushafJourney?
 
     /// عدد صفحات المصحف
     var totalPages: Int { max(pages ?? 604, 1) }
@@ -1317,6 +1319,10 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
     /// الصفحات أُنشئت: عُرف المقاس ووصلت الحالة
     private var loaded = false
     private var edgeLinked = false
+    /// رحلة الانتقال إلى صفحة الجارية (أو توهج الهبوط وحده)
+    private var journey: MushafJourneyPlayer?
+    /// توهج رقم الصفحة حين تستقر التقليبة القصيرة إلى الصفحة المجاورة
+    private var pendingGlow: MushafJourney?
 
     init(session: NativeMushafSession) {
         self.session = session
@@ -1443,10 +1449,16 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
                 if o.selected != s.selected || colorsChanged { v.updateSelection(animated: !colorsChanged) }
             }
         }
-        // انتقال طلبه التطبيق (التلاوة، القفز إلى صفحة، طرف الصفحة في وضع التركيز)
+        // انتقال طلبه التطبيق (التلاوة، القفز إلى صفحة، طرف الصفحة في وضع التركيز، رحلة الانتقال إلى صفحة)
         if s.seq != appliedSeq, loaded {
             appliedSeq = s.seq
-            if s.jump != current || pages.isDragging || pages.isDecelerating {
+            // انتقال جديد أثناء رحلة: تنتهي الرحلة فوراً (والانتقال الجديد يحدد الموضع)
+            journey?.finish(notify: false)
+            journey = nil
+            pendingGlow = nil
+            if let j = s.journey, view.window != nil, !pages.isDragging, !pages.isDecelerating {
+                travel(j, to: s.jump)
+            } else if s.jump != current || pages.isDragging || pages.isDecelerating {
                 let near = abs(s.jump - current) <= 2
                 let motion = s.animate && view.window != nil && !UIAccessibility.isReduceMotionEnabled
                 if motion && !near && !pages.isDragging && !pages.isDecelerating {
@@ -1458,6 +1470,46 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
                 }
             }
         }
+    }
+
+    /// رحلة الانتقال إلى الموضع [target]: بعيدة بالرفع والتقليب والهبوط (وتلاشٍ مع تقليل الحركة)، وقريبة بتقليبة معتادة
+    /// ثم التوهج، والصفحة نفسها بالتوهج وحده
+    private func travel(_ j: MushafJourney, to target: Int) {
+        let reduce = UIAccessibility.isReduceMotionEnabled
+        if j.kind == "still" || (j.kind == "short" && !reduce) {
+            if target != current {
+                pendingGlow = j
+                UISelectionFeedbackGenerator().selectionChanged()
+                scroll(to: target, animated: true)
+            } else {
+                landingGlow(j)
+            }
+            return
+        }
+        guard let player = MushafJourneyPlayer(host: self, pages: pages, journey: j, target: target, reduce: reduce),
+              player.start(in: view, jump: { self.scroll(to: target, animated: false) }) else {
+            pages.isHidden = false
+            scroll(to: target, animated: false)
+            landingGlow(j)
+            return
+        }
+        journey = player
+    }
+
+    /// الضوء الذهبي وتوهج رقم الصفحة الظاهرة ونقرة النجاح
+    private func landingGlow(_ j: MushafJourney) {
+        journey?.finish(notify: false)
+        journey = nil
+        guard let player = MushafJourneyPlayer(host: self, pages: pages, journey: j, target: current, reduce: UIAccessibility.isReduceMotionEnabled),
+              player.startGlowOnly(in: view) else { return }
+        journey = player
+    }
+
+    /// انتهت الرحلة (أو التوهج): القارئ على موضعه الجديد
+    func journeyEnded(_ p: MushafJourneyPlayer) {
+        guard journey === p else { return }
+        journey = nil
+        settle()
     }
 
     /// [quiet]: إعادة المحاذاة بعد تغيّر المقاس (مع كل إطار أحياناً)، بلا طلب خطوط
@@ -1544,6 +1596,11 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
         current = ip.item
         session.settled(index: Int32(ip.item))
         prefetchFonts(around: ip.item)
+        // التقليبة القصيرة من رحلة الانتقال استقرت: التوهج
+        if let j = pendingGlow {
+            pendingGlow = nil
+            landingGlow(j)
+        }
     }
 
     /// الموضع المغادر ينحسر قليلاً وتخبو صفحاته نحو لون ما حولها، كما في المصحف بـ Compose
@@ -1557,5 +1614,633 @@ final class MushafReaderController: UIViewController, UICollectionViewDataSource
             cell.book.transform = CGAffineTransform(scaleX: sc, y: sc)
             for v in cell.pageViews { v.veil.alpha = 0.4 * away }
         }
+    }
+}
+
+// MARK: - رحلة الانتقال إلى صفحة
+
+/// رحلة الانتقال إلى صفحة كما يخططها Kotlin (PageJourney في quran/PageJourney.kt): [sheets] مواضع الأوراق بالترتيب
+/// (الأولى الموضع الحالي والأخيرة المقصود)، و[pages] رقم الصفحة على كل ورقة للرقم الدوّار، و[turns] مدة كل تقليبة بالملّي ثانية
+struct MushafJourney: Decodable {
+    /// still: الصفحة نفسها (توهج فقط)، short: قريبة (تقليبة واحدة)، flip: بعيدة
+    let kind: String
+    let forward: Bool
+    let sheets: [Int]
+    let pages: [Int]
+    let turns: [Int]
+    let lift: Int
+    let land: Int
+    let juzStarts: [Int]
+    let juzNames: [String]
+}
+
+/// الميدالية الذهبية فوق الكتاب أثناء الرحلة: الرقم يدور فيها كعدّاد بالأرقام المشرقية (كرقم صفحة المصحف)، وتحتها اسم
+/// الجزء يعبر حين تتجاوز الأوراق بداية جزء (JourneyBadge في PageJourneyOverlay.kt)
+final class MushafJourneyBadge: UIView {
+    private let glow = CAGradientLayer()
+    private let disc = CAShapeLayer()
+    private let ring = CAShapeLayer()
+    private let inner = CAShapeLayer()
+    private let star = CAShapeLayer()
+    private let numbers = UIView()
+    private var columns: [(box: UIView, cur: UILabel, next: UILabel)] = []
+    private let juz = UILabel()
+    private let juzBox = UIView()
+    private let font: UIFont
+    private let digitW: CGFloat
+    private let digitH: CGFloat
+    private var shownJuz = ""
+    private let ink: UIColor
+    static let size: CGFloat = 104
+
+    init(colors p: MushafColors) {
+        let f = UIFont.systemFont(ofSize: 30, weight: .bold)
+        let glyphs = "٠١٢٣٤٥٦٧٨٩".map { String($0) }
+        font = f
+        digitW = ceil(glyphs.map { ($0 as NSString).size(withAttributes: [.font: f]).width }.max() ?? 18)
+        digitH = ceil(f.lineHeight)
+        ink = p.goldDeep
+        super.init(frame: CGRect(x: 0, y: 0, width: MushafJourneyBadge.size, height: MushafJourneyBadge.size + 40))
+        isUserInteractionEnabled = false
+        let s = MushafJourneyBadge.size, c = CGPoint(x: s / 2, y: s / 2), m = s / 2 * 0.78
+        glow.type = .radial
+        glow.colors = [p.gold.withAlphaComponent(0.45).cgColor, p.gold.withAlphaComponent(0).cgColor]
+        glow.startPoint = CGPoint(x: 0.5, y: 0.5)
+        glow.endPoint = CGPoint(x: 1, y: 1)
+        glow.frame = CGRect(x: 0, y: 0, width: s, height: s)
+        layer.addSublayer(glow)
+        disc.path = UIBezierPath(arcCenter: c, radius: m, startAngle: 0, endAngle: .pi * 2, clockwise: true).cgPath
+        disc.fillColor = p.paper.cgColor
+        disc.shadowColor = UIColor.black.cgColor
+        disc.shadowOpacity = 0.2
+        disc.shadowRadius = 4
+        disc.shadowOffset = CGSize(width: 0, height: 3)
+        layer.addSublayer(disc)
+        ring.path = UIBezierPath(arcCenter: c, radius: m - 1, startAngle: 0, endAngle: .pi * 2, clockwise: true).cgPath
+        ring.fillColor = p.fill.withAlphaComponent(0.6).cgColor
+        ring.strokeColor = p.goldDeep.cgColor
+        ring.lineWidth = 2
+        layer.addSublayer(ring)
+        inner.path = UIBezierPath(arcCenter: c, radius: m - 5, startAngle: 0, endAngle: .pi * 2, clockwise: true).cgPath
+        inner.fillColor = nil
+        inner.strokeColor = p.gold.withAlphaComponent(0.8).cgColor
+        inner.lineWidth = 0.9
+        layer.addSublayer(inner)
+        let sp = CGMutablePath(), r = m - 6
+        for sq in 0..<2 {
+            for i in 0..<4 {
+                let a = (Double(sq) * 45 + Double(i) * 90 - 90) * .pi / 180
+                let pt = CGPoint(x: c.x + r * CGFloat(cos(a)), y: c.y + r * CGFloat(sin(a)))
+                if i == 0 { sp.move(to: pt) } else { sp.addLine(to: pt) }
+            }
+            sp.closeSubpath()
+        }
+        star.path = sp
+        star.fillColor = nil
+        star.strokeColor = p.gold.withAlphaComponent(0.35).cgColor
+        star.lineWidth = 1
+        layer.addSublayer(star)
+        numbers.frame = CGRect(x: 0, y: (s - digitH) / 2, width: s, height: digitH)
+        addSubview(numbers)
+        juzBox.backgroundColor = p.paper.withAlphaComponent(0.94)
+        juzBox.layer.borderColor = p.gold.withAlphaComponent(0.7).cgColor
+        juzBox.layer.borderWidth = 1
+        juzBox.clipsToBounds = true
+        juz.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        juz.textColor = p.goldDeep
+        juz.textAlignment = .center
+        juzBox.addSubview(juz)
+        addSubview(juzBox)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+
+    /// اسم الجزء تحت الرقم؛ يعبر من أسفل حين يتقدم ومن أعلى حين يرجع
+    func setJuz(_ name: String, up: Bool) {
+        guard name != shownJuz else { return }
+        let first = shownJuz.isEmpty
+        shownJuz = name
+        if !first {
+            let t = CATransition()
+            t.type = .push
+            t.subtype = up ? .fromTop : .fromBottom
+            t.duration = 0.22
+            juz.layer.add(t, forKey: "cross")
+        }
+        juz.text = name
+        let w = ceil((name as NSString).size(withAttributes: [.font: juz.font as Any]).width) + 28
+        juzBox.frame = CGRect(x: (MushafJourneyBadge.size - w) / 2, y: MushafJourneyBadge.size + 6, width: w, height: 28)
+        juzBox.layer.cornerRadius = 14
+        juz.frame = juzBox.bounds
+    }
+
+    /// عدّاد كعدّاد المسافات: الآحاد تدور مع القيمة، وما فوقها يدور حين يبلغ ما تحته ٩؛ والأصفار في أول الرقم لا تُرسم
+    func setValue(_ value: Double) {
+        let v = max(0, value)
+        let whole = Int(v.rounded(.down))
+        let frac = CGFloat(v - Double(whole))
+        let count = max(1, String(whole).count)
+        while columns.count < count {
+            let box = UIView()
+            box.clipsToBounds = true
+            let cur = UILabel(), next = UILabel()
+            for l in [cur, next] { l.font = font; l.textColor = ink; l.textAlignment = .center; box.addSubview(l) }
+            numbers.addSubview(box)
+            columns.append((box, cur, next))
+        }
+        let left = (MushafJourneyBadge.size - digitW * CGFloat(count)) / 2
+        var pow = 1
+        for _ in 1..<count { pow *= 10 }
+        for (i, col) in columns.enumerated() {
+            guard i < count else { col.box.isHidden = true; continue }
+            col.box.isHidden = false
+            col.box.frame = CGRect(x: left + CGFloat(i) * digitW, y: 0, width: digitW, height: digitH)
+            let c = whole / pow
+            let d = c % 10
+            let f: CGFloat = (pow == 1 || whole % pow == pow - 1) ? frac : 0
+            col.cur.text = (pow == 1 || c > 0) ? digit(d) : ""
+            col.cur.frame = CGRect(x: 0, y: -f * digitH, width: digitW, height: digitH)
+            col.next.isHidden = f <= 0
+            col.next.text = digit((d + 1) % 10)
+            col.next.frame = CGRect(x: 0, y: (1 - f) * digitH, width: digitW, height: digitH)
+            pow = max(1, pow / 10)
+        }
+    }
+
+    private func digit(_ d: Int) -> String {
+        guard let u = Unicode.Scalar(0x660 + d) else { return "\(d)" }
+        return String(Character(u))
+    }
+}
+
+/// يرسم رحلة الانتقال إلى صفحة فوق القارئ (كما يرسمها Compose في PageJourneyOverlay.kt): صورة الصفحة الحالية تُرفع عن الكتاب
+/// قليلاً بظلها، ثم تنقلب أوراق المصحف بسرعة في اتجاه القراءة بطيّ ثلاثي الأبعاد (CATransform3D) وفوقها الميدالية والرقم الدوّار،
+/// ثم تهبط الصفحة المقصودة بارتداد خفيف ويمرّ عليها ضوء ذهبي ويتوهج رقمها، مع نقرات خفيفة مع كل ورقة ونقرة نجاح عند الهبوط.
+/// الأوراق بين الطرفين ورق بإطاره ورأسه ورقمه (PageChromeView) وأسطر باهتة، والصفحة المقصودة صورتها بعد أن يُقفز إليها
+/// تحت الأوراق بلا حركة؛ فلا تُخطَّط صفحات المصحف التي تمرّ بها. [reduce]: تقليل الحركة: تلاشٍ ثم التوهج.
+final class MushafJourneyPlayer: NSObject {
+    private weak var host: MushafReaderController?
+    private let j: MushafJourney
+    private let target: Int
+    private let reduce: Bool
+    private let state: MushafState
+    private let colors: MushafColors
+    private let session: NativeMushafSession
+    private weak var pages: UIView?
+    private let stage = UIView()
+    private let book = UIView()
+    private let liftShade = CAGradientLayer()
+    private let landing = UIView()
+    private let sweep = CAGradientLayer()
+    private let sweepBox = UIView()
+    private let glow = CAGradientLayer()
+    private let glowRing = CAShapeLayer()
+    private var badge: MushafJourneyBadge?
+    private var starts: [UIView] = []
+    private var ends: [UIView] = []
+    private var link: CADisplayLink?
+    private var t0: CFTimeInterval = 0
+    private var turnShown = -1
+    private var landed = false
+    private var finished = false
+    /// ورقة تدور، وما يُرسم ثابتاً تحتها، وظلالها
+    private var leaves: [(view: UIView, dim: UIView, angle: (CGFloat) -> CGFloat, shade: (CGFloat) -> CGFloat, sign: CGFloat)] = []
+    /// توهج الهبوط وحده (الصفحة نفسها، أو بعد تقليبة قصيرة إلى المجاورة): بلا صور ولا أوراق
+    private var glowOnly = false
+    private let tick = UISelectionFeedbackGenerator()
+    private let thud = UIImpactFeedbackGenerator(style: .rigid)
+    private let success = UINotificationFeedbackGenerator()
+
+    private var liftMs: Double { reduce || glowOnly ? 0 : Double(j.lift) }
+    private var flipMs: Double { glowOnly ? 0 : (reduce ? 320 : Double(j.turns.reduce(0, +))) }
+    private let landMs: Double = 900
+
+    init?(host: MushafReaderController, pages: UIView, journey: MushafJourney, target: Int, reduce: Bool) {
+        guard let s = host.state, let c = host.colors, !journey.sheets.isEmpty else { return nil }
+        self.host = host
+        self.pages = pages
+        self.j = journey
+        self.target = target
+        self.reduce = reduce
+        self.state = s
+        self.colors = c
+        self.session = host.session
+        super.init()
+    }
+
+    // MARK: الهندسة (كما يضع MushafPageCell و MushafPageView الصفحة)
+
+    private var size: CGSize { stage.bounds.size }
+
+    /// حدود ورقة الصفحة: [half] nil للصفحة الوحيدة، true لليمنى، false لليسرى في الكتاب المفتوح
+    private func cardRect(_ half: Bool?) -> CGRect {
+        let w = size.width, h = size.height
+        let bw = state.frame > 0 ? min(CGFloat(state.frame), w) : w
+        let left = (w - bw) / 2, mid = w / 2, right = left + bw
+        let top = Geo.padTop, bottom = h - Geo.padBottom - CGFloat(state.bottom)
+        switch half {
+        case nil: return CGRect(x: left + Geo.padSide, y: top, width: max(bw - 2 * Geo.padSide, 0), height: max(bottom - top, 0))
+        case true?: return CGRect(x: mid + Geo.spineGap, y: top, width: max(right - Geo.padSide - mid - Geo.spineGap, 0), height: max(bottom - top, 0))
+        case false?: return CGRect(x: left + Geo.padSide, y: top, width: max(mid - Geo.spineGap - left - Geo.padSide, 0), height: max(bottom - top, 0))
+        }
+    }
+
+    private var bookRect: CGRect {
+        guard state.isSpread else { return cardRect(nil) }
+        let l = cardRect(false), r = cardRect(true)
+        return CGRect(x: l.minX, y: l.minY, width: r.maxX - l.minX, height: l.height)
+    }
+
+    // MARK: البدء
+
+    /// يصوّر الصفحة الحالية، ويقفز إلى المقصودة تحت الصور، ويصوّرها، ثم يبدأ الحركة؛ false إن تعذّر التصوير
+    func start(in container: UIView, jump: () -> Void) -> Bool {
+        guard let pages = pages else { return false }
+        stage.frame = pages.frame
+        stage.accessibilityElementsHidden = true
+        guard let s1 = pages.snapshotView(afterScreenUpdates: false), let s2 = pages.snapshotView(afterScreenUpdates: false) else { return false }
+        starts = [s1, s2]
+        container.addSubview(stage)
+        book.frame = stage.bounds
+        stage.addSubview(book)
+        // ظل الكتاب المرفوع
+        liftShade.type = .radial
+        liftShade.colors = [UIColor.black.withAlphaComponent(0.26).cgColor, UIColor.black.withAlphaComponent(0).cgColor]
+        liftShade.startPoint = CGPoint(x: 0.5, y: 0.5)
+        liftShade.endPoint = CGPoint(x: 1, y: 1)
+        let br = bookRect
+        liftShade.frame = br.insetBy(dx: -br.width * 0.08, dy: -br.height * 0.04).offsetBy(dx: 0, dy: 14)
+        liftShade.opacity = 0
+        book.layer.addSublayer(liftShade)
+        // الصورة الحالية تغطي القارئ، ويُقفز تحتها إلى الصفحة المقصودة
+        s1.frame = stage.bounds
+        book.addSubview(s1)
+        jump()
+        pages.layoutIfNeeded()
+        guard let e1 = pages.snapshotView(afterScreenUpdates: true), let e2 = pages.snapshotView(afterScreenUpdates: true) else {
+            stage.removeFromSuperview()
+            return false
+        }
+        ends = [e1, e2]
+        pages.isHidden = true
+        if !reduce && j.kind == "flip" {
+            let b = MushafJourneyBadge(colors: colors)
+            b.center = CGPoint(x: stage.bounds.midX, y: stage.bounds.midY + 20)
+            b.alpha = 0
+            stage.addSubview(b)
+            badge = b
+            b.setValue(Double(j.pages.first ?? target + 1))
+            b.setJuz(juzName(Double(j.pages.first ?? 1)), up: true)
+        }
+        tick.prepare(); thud.prepare(); success.prepare()
+        t0 = CACurrentMediaTime()
+        let l = CADisplayLink(target: self, selector: #selector(step(_:)))
+        l.add(to: .main, forMode: .common)
+        link = l
+        return true
+    }
+
+    /// التوهج وحده فوق الصفحة الظاهرة: الضوء الذهبي ورقمها، ونقرة النجاح
+    func startGlowOnly(in container: UIView) -> Bool {
+        guard let pages = pages else { return false }
+        glowOnly = true
+        stage.frame = pages.frame
+        stage.accessibilityElementsHidden = true
+        stage.isUserInteractionEnabled = false
+        container.addSubview(stage)
+        success.prepare()
+        t0 = CACurrentMediaTime()
+        let l = CADisplayLink(target: self, selector: #selector(step(_:)))
+        l.add(to: .main, forMode: .common)
+        link = l
+        return true
+    }
+
+    private func juzName(_ page: Double) -> String {
+        let p = Int(page)
+        let i = j.juzStarts.lastIndex(where: { $0 <= max(p, 1) }) ?? 0
+        return j.juzNames.indices.contains(i) ? j.juzNames[i] : ""
+    }
+
+    // MARK: الإطار
+
+    @objc private func step(_ l: CADisplayLink) {
+        let ms = (CACurrentMediaTime() - t0) * 1000
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        if ms < liftMs {
+            let t = CGFloat(ms / liftMs)
+            setLift(1 - 0.08 * easeOut(t))
+            badge?.alpha = easeOut(min(1, CGFloat(ms / 240)))
+            let sc = 0.86 + 0.14 * (badge?.alpha ?? 1)
+            badge?.transform = CGAffineTransform(scaleX: sc, y: sc)
+        } else if ms < liftMs + flipMs {
+            if reduce {
+                // تقليل الحركة: الصورة الحالية تتلاشى عن المقصودة
+                if turnShown < 0 { turnShown = 0; showFlat(ends[0]); ends[0].addSubview(starts[0]); starts[0].frame = stage.bounds }
+                starts[0].alpha = 1 - CGFloat((ms - liftMs) / flipMs)
+            } else {
+                setLift(0.92)
+                badge?.alpha = 1
+                badge?.transform = .identity
+                flip(ms - liftMs)
+            }
+        } else if !landed {
+            beginLanding()
+        }
+        if landed {
+            land(ms - liftMs - flipMs)
+        }
+        CATransaction.commit()
+    }
+
+    private func setLift(_ s: CGFloat) {
+        book.transform = CGAffineTransform(scaleX: s, y: s)
+        liftShade.opacity = Float(min(max((1 - s) / 0.08, 0), 1))
+    }
+
+    private func easeOut(_ t: CGFloat) -> CGFloat { 1 - pow(1 - min(max(t, 0), 1), 3) }
+    private func easeInOut(_ t: CGFloat) -> CGFloat {
+        let x = min(max(t, 0), 1)
+        return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2
+    }
+
+    /// التقليبة الجارية بعد [ms] من بدء التقليب، وما يدور فيها
+    private func flip(_ ms: Double) {
+        var k = 0, acc = 0.0
+        while k < j.turns.count - 1 && ms >= acc + Double(j.turns[k]) { acc += Double(j.turns[k]); k += 1 }
+        let f = easeInOut(CGFloat((ms - acc) / Double(max(j.turns[k], 1))))
+        if k != turnShown { showTurn(k) }
+        for leaf in leaves {
+            let a = leaf.angle(f)
+            var t = CATransform3DIdentity
+            t.m34 = -1 / 900
+            leaf.view.layer.transform = CATransform3DRotate(t, leaf.sign * a * .pi / 180, 0, 1, 0)
+            leaf.view.isHidden = a >= 89.5
+            leaf.dim.alpha = min(0.5, 0.26 * sin(a * .pi / 180) + leaf.shade(f))
+        }
+        if j.pages.count > k + 1 {
+            let v = Double(j.pages[k]) + Double(j.pages[k + 1] - j.pages[k]) * Double(f)
+            badge?.setValue(v)
+            badge?.setJuz(juzName(v.rounded()), up: j.forward)
+        }
+    }
+
+    /// الورقة [i]: الأولى صورة الصفحة الحالية، والأخيرة صورة المقصودة، وما بينهما ورق خفيف بإطاره ورأسه ورقمه
+    private func sheet(_ i: Int, copy: Int) -> UIView {
+        let n = j.sheets.count - 1
+        if i <= 0 { return starts[copy] }
+        if i >= n { return ends[copy] }
+        return placeholder(j.sheets[i])
+    }
+
+    private func showFlat(_ v: UIView) {
+        clearLeaves()
+        v.removeFromSuperview()
+        v.transform = .identity
+        v.alpha = 1
+        v.frame = stage.bounds
+        book.addSubview(v)
+    }
+
+    private func clearLeaves() {
+        for v in book.subviews { v.removeFromSuperview() }
+        leaves.removeAll()
+    }
+
+    /// يبني التقليبة [k] (نقرة خفيفة، وأقوى حين تعبر الورقة بداية جزء). الصفحة الواحدة: الورقة تدور حول طرفها الأيمن (الكعب)؛
+    /// الكتاب المفتوح: اليسرى تنقلب فوق الكعب إلى اليمين وظهرها اليمنى من الكتاب التالي (وفي الرجوع بالعكس)
+    private func showTurn(_ k: Int) {
+        turnShown = k
+        clearLeaves()
+        if j.pages.count > k + 1 {
+            let a = j.pages[k], b = j.pages[k + 1]
+            let lo = min(a, b), hi = max(a, b)
+            if j.juzStarts.contains(where: { $0 > lo && $0 <= hi }) { thud.impactOccurred(); thud.prepare() }
+            else { tick.selectionChanged(); tick.prepare() }
+        }
+        let fwd = j.forward
+        if !state.isSpread {
+            let under = fwd ? k + 1 : k, top = fwd ? k : k + 1
+            addLeaf(sheet(under, copy: 0), half: nil, angle: { _ in 0 }, shade: { f in (fwd ? 1 - f : f) * 0.16 })
+            addLeaf(sheet(top, copy: 1), half: nil, angle: { f in 90 * (fwd ? f : 1 - f) }, shade: { _ in 0 })
+        } else {
+            // النصف الذي ينكشف من تحته الكتاب الجديد: الأيسر في الأمام، والأيمن في الرجوع
+            let revealed = !fwd, covered = fwd
+            addLeaf(sheet(k + 1, copy: 0), half: revealed, angle: { _ in 0 }, shade: { f in (1 - min(1, f * 2)) * 0.16 })
+            addLeaf(sheet(k, copy: 0), half: covered, angle: { _ in 0 }, shade: { f in min(1, max(0, (f - 0.5) * 2)) * 0.16 })
+            // وجه الورقة من الكتاب الحالي يرتفع حتى يقف على الكعب، ثم ظهرها من الكتاب الجديد يهبط على الجهة الأخرى
+            addLeaf(sheet(k, copy: 1), half: revealed, angle: { f in f < 0.5 ? 90 * min(1, f * 2) : 90 }, shade: { _ in 0 })
+            addLeaf(sheet(k + 1, copy: 1), half: covered, angle: { f in f < 0.5 ? 90 : 90 * (1 - min(1, (f - 0.5) * 2)) }, shade: { _ in 0 })
+        }
+    }
+
+    /// ورقة أو نصفها في حاوية تُقصّ عليه، ومحور دورانها عند الكعب: طرف الصفحة الأيمن، أو وسط الكتاب المفتوح
+    private func addLeaf(_ content: UIView, half: Bool?, angle: @escaping (CGFloat) -> CGFloat, shade: @escaping (CGFloat) -> CGFloat) {
+        let w = size.width, h = size.height
+        let frame: CGRect
+        let anchor: CGPoint
+        switch half {
+        case nil:
+            frame = CGRect(x: 0, y: 0, width: w, height: h)
+            anchor = CGPoint(x: w > 0 ? cardRect(nil).maxX / w : 1, y: 0.5)
+        case true?:
+            frame = CGRect(x: w / 2, y: 0, width: w / 2, height: h)
+            anchor = CGPoint(x: 0, y: 0.5)
+        case false?:
+            frame = CGRect(x: 0, y: 0, width: w / 2, height: h)
+            anchor = CGPoint(x: 1, y: 0.5)
+        }
+        let holder = UIView()
+        holder.clipsToBounds = half != nil
+        holder.layer.anchorPoint = anchor
+        holder.bounds = CGRect(origin: .zero, size: frame.size)
+        holder.layer.position = CGPoint(x: frame.minX + anchor.x * frame.width, y: frame.minY + anchor.y * frame.height)
+        content.removeFromSuperview()
+        content.transform = .identity
+        content.alpha = 1
+        content.frame = CGRect(x: -frame.minX, y: 0, width: w, height: h)
+        holder.addSubview(content)
+        let dim = UIView()
+        dim.backgroundColor = .black
+        dim.alpha = 0
+        dim.isUserInteractionEnabled = false
+        dim.layer.cornerRadius = Geo.corner
+        let card = half.map { cardRect($0) } ?? cardRect(nil)
+        dim.frame = card.offsetBy(dx: -frame.minX, dy: 0)
+        if half == nil && state.isSpread { dim.frame = bookRect }
+        holder.addSubview(dim)
+        book.addSubview(holder)
+        // الصفحة الواحدة: الطرف الحر على يسار المحور فيقترب من العين بزاوية موجبة، والنصف الأيمن بالعكس
+        leaves.append((holder, dim, angle, shade, half == true ? -1 : 1))
+    }
+
+    /// ورقة خفيفة لموضع التقليب [item]: صفحة واحدة أو صفحتا الكتاب المفتوح بإطارهما ورأسيهما ورقميهما وأسطر باهتة
+    private func placeholder(_ item: Int) -> UIView {
+        let v = UIView(frame: stage.bounds)
+        v.isUserInteractionEnabled = false
+        let pg = state.pagesOf(item)
+        if state.isSpread {
+            v.addSubview(card(pg.right, side: .right, rect: cardRect(true)))
+            if let l = pg.left { v.addSubview(card(l, side: .left, rect: cardRect(false))) }
+        } else {
+            v.addSubview(card(pg.right, side: .single, rect: cardRect(nil)))
+        }
+        return v
+    }
+
+    private func card(_ page: Int, side: MushafSide, rect: CGRect) -> UIView {
+        let holder = UIView(frame: rect)
+        holder.layer.shadowColor = UIColor(red: 0x5C / 255, green: 0x43 / 255, blue: 0, alpha: 1).cgColor
+        holder.layer.shadowOpacity = 0.22
+        holder.layer.shadowRadius = 8
+        holder.layer.shadowOffset = CGSize(width: 0, height: 3)
+        let paper = UIView(frame: holder.bounds)
+        paper.clipsToBounds = true
+        if side == .single {
+            paper.layer.cornerRadius = Geo.corner
+            if #available(iOS 13.0, *) { paper.layer.cornerCurve = .continuous }
+            holder.layer.shadowPath = UIBezierPath(roundedRect: holder.bounds, cornerRadius: Geo.corner).cgPath
+        } else {
+            let mask = CAShapeLayer()
+            mask.path = mushafPageShape(paper.bounds, side: side)
+            paper.layer.mask = mask
+            holder.layer.shadowPath = mushafPageShape(holder.bounds, side: side)
+        }
+        let chrome = PageChromeView(frame: paper.bounds)
+        chrome.page = page
+        chrome.colors = colors
+        chrome.title = session.title(page: Int32(page))
+        chrome.subtitle = session.subtitle(page: Int32(page))
+        chrome.digits = session.digits(page: Int32(page))
+        chrome.side = side
+        paper.addSubview(chrome)
+        let lines = CAShapeLayer()
+        lines.frame = paper.bounds
+        lines.path = ghostLines(page, size: paper.bounds.size)
+        lines.fillColor = colors.ink.withAlphaComponent(0.09).cgColor
+        paper.layer.addSublayer(lines)
+        holder.addSubview(paper)
+        return holder
+    }
+
+    /// خمسة عشر سطراً باهتاً من «كلمات» بأطوال مختلفة (ثابتة لكل صفحة)، مضبوطة من الطرفين كأسطر المصحف (drawGhostLines)
+    private func ghostLines(_ page: Int, size s: CGSize) -> CGPath {
+        let path = CGMutablePath()
+        let left = Geo.colSide, right = s.width - Geo.colSide
+        let top = Geo.colTop + Geo.headH + Geo.ruleH + Geo.canvasTop
+        let bottom = s.height - Geo.colBottom - 2
+        guard right - left > 40, bottom - top > 60 else { return path }
+        let rows = 15
+        let step = (bottom - top) / CGFloat(rows)
+        let h = min(step * 0.26, 5), gap: CGFloat = 4, width = right - left
+        var seed = page &* 7919 &+ 17
+        func next() -> CGFloat { seed = (seed &* 1103515245 &+ 12345) & 0x7fffffff; return CGFloat(seed % 1000) / 1000 }
+        for r in 0..<rows {
+            let y = top + step * (CGFloat(r) + 0.5)
+            var words: [CGFloat] = []
+            var used: CGFloat = 0
+            while used < width { let w = width * (0.05 + 0.11 * next()); words.append(w); used += w + gap }
+            let scale = (width - gap * CGFloat(words.count - 1)) / words.reduce(0, +)
+            var x = right
+            for w0 in words {
+                let w = w0 * scale
+                path.addRoundedRect(in: CGRect(x: x - w, y: y - h / 2, width: w, height: h), cornerWidth: h / 2, cornerHeight: h / 2)
+                x -= w + gap
+            }
+        }
+        return path
+    }
+
+    // MARK: الهبوط
+
+    /// الصفحة المقصودة (القارئ نفسه) تحل محل الأوراق وتهبط إلى مكانها، ويمرّ الضوء الذهبي ويتوهج رقمها، ونقرة النجاح
+    private func beginLanding() {
+        landed = true
+        // اللمس يعود إلى القارئ مع بدء الهبوط
+        stage.isUserInteractionEnabled = false
+        clearLeaves()
+        starts.forEach { $0.removeFromSuperview() }
+        ends.forEach { $0.removeFromSuperview() }
+        book.isHidden = true
+        if let p = pages {
+            p.isHidden = false
+            p.transform = reduce || glowOnly ? .identity : CGAffineTransform(scaleX: 0.92, y: 0.92)
+        }
+        success.notificationOccurred(.success)
+        // الضوء والتوهج فوق الصفحة المقصودة، ويصغران ويكبران معها
+        landing.frame = stage.bounds
+        landing.isUserInteractionEnabled = false
+        stage.insertSubview(landing, at: 0)
+        // في الكتاب المفتوح يتوهج رقم الصفحة المقصودة نفسها: اليمنى إن كانت فردية
+        let toPage = j.pages.last ?? (target + 1)
+        let side: Bool? = state.isSpread ? (toPage % 2 == 1) : nil
+        let card = cardRect(side)
+        sweepBox.frame = card
+        sweepBox.clipsToBounds = true
+        sweepBox.layer.cornerRadius = Geo.corner
+        sweep.colors = [UIColor.clear.cgColor, colors.gold.withAlphaComponent(0.28).cgColor, UIColor.white.withAlphaComponent(0.22).cgColor,
+                        colors.gold.withAlphaComponent(0.28).cgColor, UIColor.clear.cgColor]
+        sweep.startPoint = CGPoint(x: 0, y: 0.3)
+        sweep.endPoint = CGPoint(x: 1, y: 0.7)
+        sweep.frame = CGRect(x: -card.width, y: 0, width: card.width * 0.55, height: card.height)
+        sweepBox.layer.addSublayer(sweep)
+        sweepBox.isHidden = reduce
+        landing.addSubview(sweepBox)
+        let mc = CGPoint(x: card.midX, y: card.maxY - Geo.medallionCenter)
+        glow.type = .radial
+        glow.colors = [colors.gold.withAlphaComponent(0.55).cgColor, colors.gold.withAlphaComponent(0).cgColor]
+        glow.startPoint = CGPoint(x: 0.5, y: 0.5)
+        glow.endPoint = CGPoint(x: 1, y: 1)
+        glow.frame = CGRect(x: mc.x - 40, y: mc.y - 40, width: 80, height: 80)
+        glow.opacity = 0
+        landing.layer.addSublayer(glow)
+        glowRing.path = UIBezierPath(arcCenter: mc, radius: Geo.medallionSize / 2 + 3, startAngle: 0, endAngle: .pi * 2, clockwise: true).cgPath
+        glowRing.fillColor = nil
+        glowRing.strokeColor = colors.goldDeep.cgColor
+        glowRing.lineWidth = 1.4
+        glowRing.opacity = 0
+        landing.layer.addSublayer(glowRing)
+    }
+
+    private func land(_ ms: Double) {
+        let t = ms / 1000
+        // ارتداد خفيف: من 0.92 إلى 1 بتذبذب يخمد سريعاً
+        let s: CGFloat = reduce || glowOnly ? 1 : (ms >= Double(j.land) ? 1 : 1 - 0.08 * CGFloat(exp(-7 * t) * cos(2 * .pi * 1.8 * t)))
+        pages?.transform = CGAffineTransform(scaleX: s, y: s)
+        landing.transform = CGAffineTransform(scaleX: s, y: s)
+        // الضوء يعبر الورقة مرة
+        let sp = CGFloat(min(1, ms / 720))
+        let e = sp < 0.5 ? 2 * sp * sp : 1 - pow(-2 * sp + 2, 2) / 2
+        let bw = sweepBox.bounds.width
+        sweep.frame.origin.x = -bw * 0.55 + (bw * 1.55) * e
+        sweep.opacity = Float(min(1, sp / 0.15) * min(1, (1 - sp) / 0.2))
+        // رقم الصفحة يتوهج ثم يخبو
+        let g: Double = ms < 200 ? ms / 200 : max(0, 1 - (ms - 200) / 680)
+        glow.opacity = Float(g)
+        glowRing.opacity = Float(g * 0.7)
+        let rs = CGFloat(1 + 0.25 * (1 - g))
+        glowRing.setAffineTransform(CGAffineTransform(translationX: glowRing.path?.boundingBox.midX ?? 0, y: glowRing.path?.boundingBox.midY ?? 0)
+            .scaledBy(x: rs, y: rs).translatedBy(x: -(glowRing.path?.boundingBox.midX ?? 0), y: -(glowRing.path?.boundingBox.midY ?? 0)))
+        // الميدالية تنبض مرة ثم تختفي
+        if let b = badge {
+            let pulse: CGFloat = ms < 150 ? 1 + 0.12 * CGFloat(ms / 150) : (ms < 300 ? 1.12 - 0.12 * CGFloat((ms - 150) / 150) : 1)
+            b.transform = CGAffineTransform(scaleX: pulse, y: pulse)
+            b.alpha = ms < 300 ? 1 : CGFloat(max(0, 1 - (ms - 300) / 260))
+            if let last = j.pages.last { b.setValue(Double(last)); b.setJuz(juzName(Double(last)), up: j.forward) }
+        }
+        if ms >= landMs { finish() }
+    }
+
+    /// ينهي الرحلة (عند اكتمالها، أو حين يطلب التطبيق انتقالاً آخر أثناءها): القارئ بمقاسه، وتُزال الطبقات.
+    /// [notify]: الرحلة اكتملت فيُبلَّغ القارئ باستقرار موضعه
+    func finish(notify: Bool = true) {
+        guard !finished else { return }
+        finished = true
+        link?.invalidate()
+        link = nil
+        pages?.isHidden = false
+        pages?.transform = .identity
+        stage.removeFromSuperview()
+        if notify { host?.journeyEnded(self) }
     }
 }

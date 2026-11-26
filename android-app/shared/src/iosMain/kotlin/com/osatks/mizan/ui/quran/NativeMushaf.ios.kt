@@ -21,6 +21,7 @@ import com.osatks.mizan.i18n.LocalStrings
 import com.osatks.mizan.i18n.ScriptText
 import com.osatks.mizan.i18n.pack.Json
 import com.osatks.mizan.quran.Madinah
+import com.osatks.mizan.quran.PageJourneys
 import com.osatks.mizan.quran.QuranData
 import com.osatks.mizan.quran.QuranMeta
 import com.osatks.mizan.quran.QuranPrefs
@@ -194,6 +195,16 @@ internal actual fun NativeMushafPager(
             "downloading" to st.downloading, "retry" to s.retry,
             // فعل VoiceOver على الصفحة، ومعنى لمس رقمها في أسفلها
             "goToPage" to s.goToPage,
+            // رحلة الانتقال إلى صفحة اختارها القارئ (مع الانتقال المطلوب نفسه، seq): أوراقها وأرقامها ومدد تقليباتها،
+            // وأسماء الأجزاء يعبر أحدها تحت الرقم الدوّار حين تتجاوز الأوراق بداية جزء
+            "journey" to jump.journey?.let { j ->
+                linkedMapOf(
+                    "kind" to j.kind.name.lowercase(), "forward" to j.forward,
+                    "sheets" to j.sheets, "pages" to j.pages, "turns" to j.turns,
+                    "lift" to PageJourneys.LIFT_MS, "land" to PageJourneys.LAND_MS,
+                    "juzStarts" to JUZ_START_PAGES, "juzNames" to (1..30).map { s.juzName(it) },
+                )
+            },
         )
     )
     session.prime(json)

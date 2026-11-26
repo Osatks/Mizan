@@ -60,6 +60,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.SideEffect
 import com.osatks.mizan.ui.LocalWindowLayout
+import platform.UIKit.UIAccessibilityIsReduceMotionEnabled
 
 /*
  * أوراق القرآن من النظام في iOS (iosApp/iosApp/NativeQuranSheets.swift و NativeShareSheet.swift عبر NativeSheetHost):
@@ -417,9 +418,13 @@ internal fun pagesReadString(): String = buildString(QuranPages.COUNT) {
  */
 internal fun pagePickerData(
     s: Strings, rtl: Boolean, pages: List<Map<String, Any?>>, page: Int, action: String,
-    quick: List<Pair<String, Int>>, read: String, mp: MushafPalette,
+    quick: List<Pair<String, Int>>, read: String, mp: MushafPalette, ready: Boolean,
 ): Map<String, Any?> = linkedMapOf(
     "page" to page.coerceIn(1, QuranPages.COUNT), "pages" to pages, "read" to read,
+    // نص المصحف جاهز لمعاينة الصفحة (MushafPagePreview)؛ تغيّره يعيد نشر الحالة فتظهر المعاينة حين يصل
+    "ready" to ready,
+    // صفحات بداية الأحزاب الستين: علاماتها الصغيرة على حافة المصحف
+    "hizbStarts" to (1..60).map { QuranPages.hizbStartPage(it) },
     "juz" to (1..30).map { j ->
         val r = QuranPages.juzPages(j)
         linkedMapOf("n" to j, "name" to s.juzName(j), "from" to r.first, "to" to r.last, "span" to s.pageSpan(r.first, r.last))
@@ -449,7 +454,7 @@ internal actual fun PageJumpContent(page: Int, onGo: (Int) -> Unit) {
     val json = Json.write(
         quranSheetTheme() + linkedMapOf(
             "close" to s.close,
-            "picker" to pagePickerData(s, rtl, pages, page, s.goButton, emptyList(), read, mp),
+            "picker" to pagePickerData(s, rtl, pages, page, s.goButton, emptyList(), read, mp, QuranData.cached(QuranData.UTHMANI) != null),
         )
     )
     NativeSheetHost("pagePicker", json, startLarge = false, onDismiss = { slot.dismiss() }) { action, arg ->
@@ -461,3 +466,18 @@ internal actual fun PageJumpContent(page: Int, onGo: (Int) -> Unit) {
         }
     }
 }
+
+/**
+ * معاينة الصفحة في اختيار الصفحة من Swift (MushafPagePicker في NativePagePicker.swift): أول ما فيها من نص بخط المصحف
+ * (QuranPages.opening، فارغ حتى يُقرأ نص المصحف)، ورأسها كما يُكتب في أعلاها. تُطلب صفحةً صفحة وهي تتغير، فلا يُرسل نص
+ * الصفحات كلها في الحالة.
+ */
+object MushafPagePreview {
+    fun opening(page: Int): String = QuranData.cached(QuranData.UTHMANI)?.let { QuranPages.opening(it, page) } ?: ""
+    fun title(page: Int): String = mushafHeadTitle(page)
+    fun subtitle(page: Int): String = mushafHeadSubtitle(page)
+}
+
+/** «تقليل الحركة» في iOS: رحلة الانتقال إلى صفحة تصير تلاشياً (في المصحف بخط Amiri المرسوم بـ Compose) */
+internal actual fun systemReduceMotion(): Boolean = UIAccessibilityIsReduceMotionEnabled()
+

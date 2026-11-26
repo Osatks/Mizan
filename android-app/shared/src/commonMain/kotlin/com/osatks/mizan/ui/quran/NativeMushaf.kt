@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import com.osatks.mizan.quran.PageJourney
 
 /**
  * موضع التقليب حين يعرض صفحاتِ المصحف قارئُ النظام نفسه (iOS: iosApp/iosApp/NativeMushaf.swift) بدل HorizontalPager:
@@ -23,11 +24,14 @@ internal class NativeTurns(initial: Int, val count: Int, val spread: Boolean = f
     var jump by mutableStateOf(JumpRequest(initial, false, 0))
         private set
 
-    /** انتقال يطلبه التطبيق: يُعدّ الموضع الجديد فوراً (كما يفعل التقليب في Compose) ويقلّب القارئ إليه */
-    fun go(i: Int, animate: Boolean) {
+    /**
+     * انتقال يطلبه التطبيق: يُعدّ الموضع الجديد فوراً (كما يفعل التقليب في Compose) ويقلّب القارئ إليه؛
+     * و[journey] رحلة الانتقال إلى صفحة اختارها القارئ (يرسمها القارئ من النظام بنفسه: الرفع والتقليب والهبوط)
+     */
+    fun go(i: Int, animate: Boolean, journey: PageJourney? = null) {
         val to = i.coerceIn(0, count - 1)
         index = to
-        jump = JumpRequest(to, animate, jump.seq + 1)
+        jump = JumpRequest(to, animate, jump.seq + 1, journey)
     }
 
     /** استقر التقليب في القارئ على [i] (بالإصبع، أو بعد انتقال طلبه التطبيق) */
@@ -37,7 +41,7 @@ internal class NativeTurns(initial: Int, val count: Int, val spread: Boolean = f
     }
 }
 
-internal class JumpRequest(val index: Int, val animate: Boolean, val seq: Int)
+internal class JumpRequest(val index: Int, val animate: Boolean, val seq: Int, val journey: PageJourney? = null)
 
 /** قارئ المصحف من النظام مسجَّل (iOS، ويسجّله Swift عند التشغيل)؛ في أندرويد لا يوجد فيبقى HorizontalPager */
 internal expect val nativeMushafAvailable: Boolean
