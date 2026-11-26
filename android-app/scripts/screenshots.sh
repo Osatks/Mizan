@@ -48,6 +48,27 @@ tap_text() {
 # ONLY=new: لقطات ميزات 2.5.0 وحدها (Actions ← Android Screenshots ← only=new)
 swipe_up() { adb shell input swipe 540 1900 540 700 500; sleep 2; }
 cap() { adb exec-out screencap -p > "$OUT/$1.png"; echo "captured $1"; }
+# ONLY=pages: اختيار رقم الصفحة (تبويب «الصفحات» ولوحة «انتقل إلى صفحة» في المصحف)
+if [ "${ONLY:-}" = "pages" ]; then
+  adb shell cmd uimode night no || true
+  shot quran pages-01-quran-tab
+  tap_text "الصفحات"; sleep 4; cap pages-02-pages-tab
+  swipe_up; cap pages-03-pages-tab-juz-grid
+  WAIT=14 shot "surah/7?ayah=171" pages-04-mushaf
+  tap_desc "انتقل إلى صفحة"; sleep 4; cap pages-05-mushaf-sheet
+  adb shell cmd uimode night yes || true
+  sleep 2
+  shot quran pages-06-quran-tab-dark
+  tap_text "الصفحات"; sleep 4; cap pages-07-pages-tab-dark
+  WAIT=14 shot "surah/7?ayah=171" pages-08-mushaf-dark
+  tap_desc "انتقل إلى صفحة"; sleep 4; cap pages-09-mushaf-sheet-dark
+  shot quran pages-10-quran-en en
+  tap_text "Pages"; sleep 4; cap pages-11-pages-tab-en
+  adb logcat -d -b crash > "$OUT/logcat-crash.txt" || true
+  ls -la "$OUT"
+  exit 0
+fi
+
 if [ "${ONLY:-}" = "new" ]; then
   adb shell cmd uimode night no || true
   # الترحيب التفاعلي: أول تشغيل بعد مسح بيانات التطبيق
