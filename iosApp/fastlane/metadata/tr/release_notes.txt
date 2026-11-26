@@ -3,6 +3,7 @@
 • Haritada yakındaki camiler ve yol tarifi.
 • Her namaz için “vakit çıkıyor” hatırlatması.
 • Yedekleme ve geri yükleme, iCloud eşitleme.
+• Herhangi bir sayfaya kolayca gidin: Kur'an'da yeni Sayfalar sekmesi veya Mushaf'ta sayfa numarasına dokunun.
 • Her ayeti doğrudan iPhone aramasından bulun.
 • Nerede olursanız olun, bulunduğunuz yerin gerçek adı.
 • Yeni etkileşimli karşılama ve daha küçük uygulama: diğer dillerdeki mealler gerektiğinde indirilir.

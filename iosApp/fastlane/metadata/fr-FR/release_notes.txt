@@ -3,6 +3,7 @@
 • Mosquées à proximité sur une carte, avec itinéraire.
 • Un rappel « le temps se termine » pour chaque prière.
 • Sauvegarde et restauration, et synchronisation iCloud.
+• Allez à n'importe quelle page : un nouvel onglet Pages dans le Coran, ou touchez le numéro de page dans le Mushaf.
 • Recherchez n'importe quel verset directement depuis la recherche de l'iPhone.
 • Le vrai nom de votre ville, où que vous soyez.
 • Un nouvel accueil interactif et une app plus légère : les traductions dans d'autres langues se téléchargent au besoin.

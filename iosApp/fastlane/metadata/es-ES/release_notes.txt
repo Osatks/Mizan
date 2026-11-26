@@ -3,6 +3,7 @@
 • Mezquitas cercanas en un mapa, con indicaciones.
 • Un aviso de «el tiempo se acaba» para cada oración.
 • Copia de seguridad y restauración, y sincronización con iCloud.
+• Ve a cualquier página fácilmente: una nueva pestaña Páginas en el Corán, o toca el número de página en el Mus-haf.
 • Busca cualquier aleya directamente desde la búsqueda del iPhone.
 • El nombre real de tu ciudad, estés donde estés.
 • Una nueva bienvenida interactiva y una app más ligera: las traducciones en otros idiomas se descargan cuando hacen falta.

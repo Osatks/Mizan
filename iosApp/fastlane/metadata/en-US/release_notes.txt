@@ -3,6 +3,7 @@
 • Nearby mosques on a map, with directions.
 • A "time is ending" reminder for each prayer.
 • Backup and restore, and iCloud sync.
+• Go to any page easily: a new Pages tab in the Quran, or tap the page number in the Mushaf.
 • Search any ayah straight from iPhone search.
 • Your real town name, wherever you are.
 • A new interactive welcome, and a smaller app: translations in other languages download when needed.
