@@ -1,4 +1,8 @@
-• Un Mushaf plus clair : un léger espace entre les mots, et les lettres isolées comme «طسٓ» ne touchent plus le mot suivant.
-• Nouveau Mushaf 3D en clair et nuit : les mots flottent au-dessus de la page et bougent doucement quand vous inclinez le téléphone.
-• Nouveau sélecteur de couleur de page.
-• Une app iPhone plus rapide et plus fluide, au design natif sur chaque écran.
+• Coin des enfants : courtes sourates en grand caractère avec « répète après moi », les Noms d'Allah, des invocations quotidiennes et un tableau d'étoiles.
+• Suivi du jeûne : jours de Ramadan, jours à rattraper, jeûnes surérogatoires à venir, compte à rebours du suhour et de l'iftar.
+• Mosquées à proximité sur une carte, avec itinéraire.
+• Un rappel « le temps se termine » pour chaque prière.
+• Sauvegarde et restauration, et synchronisation iCloud.
+• Recherchez n'importe quel verset directement depuis la recherche de l'iPhone.
+• Le vrai nom de votre ville, où que vous soyez.
+• Un nouvel accueil interactif et une app plus légère : les traductions dans d'autres langues se téléchargent au besoin.
