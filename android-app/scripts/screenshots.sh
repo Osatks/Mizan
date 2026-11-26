@@ -61,6 +61,23 @@ if [ "${ONLY:-}" = "pages" ]; then
   tap_text "اذهب"; sleep 0.35; cap pages-05c-journey-a
   sleep 0.35; cap pages-05d-journey-b
   sleep 2; cap pages-05e-arrived
+  # الرحلة كاملة: المحاكي يبدأ بالحركة مطفأة (فيعدّها التطبيق «تقليل الحركة»)، نشغّلها ونسجّل فيديو قصيراً
+  adb shell settings put global animator_duration_scale 1
+  adb shell settings put global transition_animation_scale 1
+  adb shell settings put global window_animation_scale 1
+  WAIT=14 shot "surah/7?ayah=171" pages-06a-mushaf-anim
+  tap_desc "انتقل إلى صفحة"; sleep 3
+  tap_text "الجزء 11"; sleep 2
+  adb shell screenrecord --time-limit 8 --bit-rate 6000000 /sdcard/journey.mp4 &
+  REC=$!
+  sleep 1
+  tap_text "اذهب"
+  for i in 1 2 3 4 5 6; do sleep 0.2; cap "pages-06b-journey-$i"; done
+  wait $REC 2>/dev/null || sleep 7
+  adb pull /sdcard/journey.mp4 "$OUT/journey.mp4" || true
+  adb shell settings put global animator_duration_scale 0
+  adb shell settings put global transition_animation_scale 0
+  adb shell settings put global window_animation_scale 0
   adb shell cmd uimode night yes || true
   sleep 2
   shot quran pages-06-quran-tab-dark

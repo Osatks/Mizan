@@ -66,6 +66,7 @@ jobs:
           name: mizan-screenshots
           path: |
             screenshots/*.png
+            screenshots/*.mp4
             screenshots/*.txt
             screenshots/*.xml
           if-no-files-found: error
