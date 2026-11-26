@@ -56,6 +56,11 @@ if [ "${ONLY:-}" = "pages" ]; then
   swipe_up; cap pages-03-pages-tab-juz-grid
   WAIT=14 shot "surah/7?ayah=171" pages-04-mushaf
   tap_desc "انتقل إلى صفحة"; sleep 4; cap pages-05-mushaf-sheet
+  # رحلة الانتقال: اختيار جزء بعيد ثم «اذهب»، ولقطات أثناء التقليب وبعد الوصول
+  tap_text "الجزء 20"; sleep 2; cap pages-05b-sheet-juz20
+  tap_text "اذهب"; sleep 0.35; cap pages-05c-journey-a
+  sleep 0.35; cap pages-05d-journey-b
+  sleep 2; cap pages-05e-arrived
   adb shell cmd uimode night yes || true
   sleep 2
   shot quran pages-06-quran-tab-dark
